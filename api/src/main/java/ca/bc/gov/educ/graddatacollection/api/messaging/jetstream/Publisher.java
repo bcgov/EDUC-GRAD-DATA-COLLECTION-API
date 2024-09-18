@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum.SDC_EVENTS_TOPIC;
+import static ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum.GRAD_EVENTS_TOPIC;
 
 @Component("publisher")
 @Slf4j
@@ -48,7 +48,7 @@ public class Publisher {
      * @throws JetStreamApiException the jet stream api exception
      */
     private void createOrUpdateSDCEventStream(final Connection natsConnection) throws IOException, JetStreamApiException {
-        val streamConfiguration = StreamConfiguration.builder().name(STREAM_NAME).replicas(1).maxMessages(10000).addSubjects(SDC_EVENTS_TOPIC.toString()).build();
+        val streamConfiguration = StreamConfiguration.builder().name(STREAM_NAME).replicas(1).maxMessages(10000).addSubjects(GRAD_EVENTS_TOPIC.toString()).build();
         try {
             natsConnection.jetStreamManagement().updateStream(streamConfiguration);
         } catch (final JetStreamApiException exception) {
@@ -78,7 +78,7 @@ public class Publisher {
             choreographedEvent.setUpdateUser(saga.getUpdateUser());
             try {
                 log.info("Broadcasting event :: {}", choreographedEvent);
-                val pub = this.jetStream.publishAsync(SDC_EVENTS_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(choreographedEvent));
+                val pub = this.jetStream.publishAsync(GRAD_EVENTS_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(choreographedEvent));
                 pub.thenAcceptAsync(result -> log.info("Event ID :: {} Published to JetStream :: {}", event.getSagaId(), result.getSeqno()));
             } catch (IOException e) {
                 log.error("exception while broadcasting message to JetStream", e);
