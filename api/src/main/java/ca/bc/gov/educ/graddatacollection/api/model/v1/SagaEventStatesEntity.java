@@ -42,7 +42,7 @@ public class SagaEventStatesEntity {
   @EqualsAndHashCode.Exclude
   @ManyToOne
   @JoinColumn(name = "SAGA_ID", updatable = false, columnDefinition = "BINARY(16)")
-  SdcSagaEntity saga;
+  GradSagaEntity saga;
 
   /**
    * The Saga event state.

@@ -2,7 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.messaging.jetstream;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ChoreographedEvent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
@@ -67,7 +67,7 @@ public class Publisher {
      *
      * @param event the event
      */
-    public void dispatchChoreographyEvent(final Event event, SdcSagaEntity saga) {
+    public void dispatchChoreographyEvent(final Event event, GradSagaEntity saga) {
         if (event != null && event.getSagaId() != null) {
             val choreographedEvent = new ChoreographedEvent();
             choreographedEvent.setEventType(EventType.valueOf(event.getEventType().toString()));

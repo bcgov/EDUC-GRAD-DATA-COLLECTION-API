@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.repository.v1;
 
 
+import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.SdcSagaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,7 +25,7 @@ public interface SagaEventRepository extends JpaRepository<SagaEventStatesEntity
    * @param saga the saga
    * @return the list
    */
-  List<SagaEventStatesEntity> findBySaga(SdcSagaEntity saga);
+  List<SagaEventStatesEntity> findBySaga(GradSagaEntity saga);
 
   /**
    * Find by saga and saga event outcome and saga event state and saga step number optional.
@@ -36,7 +36,7 @@ public interface SagaEventRepository extends JpaRepository<SagaEventStatesEntity
    * @param stepNumber   the step number
    * @return the optional
    */
-  Optional<SagaEventStatesEntity> findBySagaAndSagaEventOutcomeAndSagaEventStateAndSagaStepNumber(SdcSagaEntity saga, String eventOutcome, String eventState, int stepNumber);
+  Optional<SagaEventStatesEntity> findBySagaAndSagaEventOutcomeAndSagaEventStateAndSagaStepNumber(GradSagaEntity saga, String eventOutcome, String eventState, int stepNumber);
 
   @Transactional
   @Modifying

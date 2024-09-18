@@ -3,8 +3,8 @@ package ca.bc.gov.educ.graddatacollection.api.orchestrator.base;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.NotificationEvent;
@@ -222,7 +222,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @return {@link BaseOrchestrator}
    */
   public BaseOrchestrator<T> end(final EventType currentEvent, final EventOutcome outcome, final SagaStep<T> stepToExecute) {
-    return this.registerStepToExecute(currentEvent, outcome, (T sagaData) -> true, MARK_SAGA_COMPLETE, (Event event, SdcSagaEntity saga, T sagaData) -> {
+    return this.registerStepToExecute(currentEvent, outcome, (T sagaData) -> true, MARK_SAGA_COMPLETE, (Event event, GradSagaEntity saga, T sagaData) -> {
       stepToExecute.apply(event, saga, sagaData);
       this.markSagaComplete(event, saga, sagaData);
     });
@@ -255,7 +255,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @param eventTypes       event types stored in the hashmap
    * @return true or false based on whether the current event with outcome received from the queue is already processed or not.
    */
-  protected boolean isNotProcessedEvent(final EventType currentEventType, final SdcSagaEntity saga, final Set<EventType> eventTypes) {
+  protected boolean isNotProcessedEvent(final EventType currentEventType, final GradSagaEntity saga, final Set<EventType> eventTypes) {
     final EventType eventTypeInDB = EventType.valueOf(saga.getSagaState());
     final List<EventType> events = new LinkedList<>(eventTypes);
     final int dbEventIndex = events.indexOf(eventTypeInDB);
@@ -272,7 +272,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @param eventPayload payload.
    * @return {@link SagaEventStatesEntity}
    */
-  protected SagaEventStatesEntity createEventState(@NotNull final SdcSagaEntity saga, @NotNull final EventType eventType, @NotNull final EventOutcome eventOutcome, final String eventPayload) {
+  protected SagaEventStatesEntity createEventState(@NotNull final GradSagaEntity saga, @NotNull final EventType eventType, @NotNull final EventOutcome eventOutcome, final String eventPayload) {
     final var user = this.sagaName.length() > 32 ? this.sagaName.substring(0, 32) : this.sagaName;
     return SagaEventStatesEntity.builder()
       .createDate(LocalDateTime.now())
@@ -294,7 +294,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @param saga     the saga model object.
    * @param sagaData the payload string as object.
    */
-  protected void markSagaComplete(final Event event, final SdcSagaEntity saga, final T sagaData) {
+  protected void markSagaComplete(final Event event, final GradSagaEntity saga, final T sagaData) {
     this.markSagaComplete(event, saga, sagaData, "");
   }
 
@@ -306,7 +306,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @param sagaData             the payload string as object.
    * @param payloadToSubscribers the event payload to subscribers
    */
-  protected void markSagaComplete(final Event event, final SdcSagaEntity saga, final T sagaData, final String payloadToSubscribers) {
+  protected void markSagaComplete(final Event event, final GradSagaEntity saga, final T sagaData, final String payloadToSubscribers) {
     //Added to slow down complete write
     try {
       Thread.sleep(1000);
@@ -343,7 +343,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @param saga the model object.
    * @return step number that was calculated.
    */
-  private int calculateStep(final SdcSagaEntity saga) {
+  private int calculateStep(final GradSagaEntity saga) {
     val sagaStates = this.getSagaService().findAllSagaStates(saga);
     return (sagaStates.size() + 1);
   }
@@ -385,7 +385,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   @Override
   @Transactional
   @Async("sagaRetryTaskExecutor")
-  public void replaySaga(final SdcSagaEntity saga) throws IOException, InterruptedException, TimeoutException {
+  public void replaySaga(final GradSagaEntity saga) throws IOException, InterruptedException, TimeoutException {
     final var eventStates = this.getSagaService().findAllSagaStates(saga);
     final var t = JsonUtil.getJsonObjectFromString(this.clazz, saga.getPayload());
     if (eventStates.isEmpty()) { //process did not start last time, lets start from beginning.
@@ -405,7 +405,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @throws TimeoutException     if connection to messaging system times out.
    * @throws IOException          if there is connectivity problem
    */
-  private void replayFromLastEvent(final SdcSagaEntity saga, final List<SagaEventStatesEntity> eventStates, final T t) throws InterruptedException, TimeoutException, IOException {
+  private void replayFromLastEvent(final GradSagaEntity saga, final List<SagaEventStatesEntity> eventStates, final T t) throws InterruptedException, TimeoutException, IOException {
     val sagaEventOptional = this.findTheLastEventOccurred(eventStates);
     if (sagaEventOptional.isPresent()) {
       val sagaEvent = sagaEventOptional.get();
@@ -433,7 +433,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @throws TimeoutException     the timeout exception
    * @throws IOException          the io exception
    */
-  private void findAndInvokeNextStep(final SdcSagaEntity saga, final T t, final EventType currentEvent, final EventOutcome eventOutcome, final Event event) throws InterruptedException, TimeoutException, IOException {
+  private void findAndInvokeNextStep(final GradSagaEntity saga, final T t, final EventType currentEvent, final EventOutcome eventOutcome, final Event event) throws InterruptedException, TimeoutException, IOException {
     final Optional<SagaEventState<T>> sagaEventState = this.findNextSagaEventState(currentEvent, eventOutcome, t);
     if (sagaEventState.isPresent()) {
       log.trace(SYSTEM_IS_GOING_TO_EXECUTE_NEXT_EVENT_FOR_CURRENT_EVENT, sagaEventState.get().getNextEventType(), event.toString(), saga.getSagaId());
@@ -450,7 +450,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @throws TimeoutException     if connection to messaging system times out.
    * @throws IOException          if there is connectivity problem
    */
-  private void replayFromBeginning(final SdcSagaEntity saga, final T t) throws InterruptedException, TimeoutException, IOException {
+  private void replayFromBeginning(final GradSagaEntity saga, final T t) throws InterruptedException, TimeoutException, IOException {
     final Event event = Event.builder()
       .eventOutcome(INITIATE_SUCCESS)
       .eventType(INITIATED)
@@ -506,7 +506,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   @Override
   @Async("subscriberExecutor")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void startSaga(@NotNull final SdcSagaEntity saga) {
+  public void startSaga(@NotNull final GradSagaEntity saga) {
     try {
       log.debug("Starting saga with the following payload :: {}", saga);
       this.handleEvent(Event.builder()
@@ -525,12 +525,12 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
 
   @Override
   @Transactional
-  public SdcSagaEntity createSaga(@NotNull final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final String userName, final UUID collectionID) {
+  public GradSagaEntity createSaga(@NotNull final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final String userName, final UUID collectionID) {
     return this.sagaService.createSagaRecordInDB(this.sagaName, userName, payload, sdcSchoolStudentID, sdcSchoolCollectionID, collectionID);
   }
 
   @Transactional
-  public List<SdcSagaEntity> createSagas(final List<SdcSagaEntity> sagaEntities) {
+  public List<GradSagaEntity> createSagas(final List<GradSagaEntity> sagaEntities) {
     return this.sagaService.createSagaRecordsInDB(sagaEntities);
   }
 
@@ -589,7 +589,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @throws TimeoutException     if connection to messaging system times out.
    * @throws IOException          if there is connectivity problem
    */
-  protected void process(@NotNull final Event event, final SdcSagaEntity saga, final T sagaData, final SagaEventState<T> sagaEventState) throws InterruptedException, TimeoutException, IOException {
+  protected void process(@NotNull final Event event, final GradSagaEntity saga, final T sagaData, final SagaEventState<T> sagaEventState) throws InterruptedException, TimeoutException, IOException {
     if (!saga.getSagaState().equalsIgnoreCase(COMPLETED.toString())
       && this.isNotProcessedEvent(event.getEventType(), saga, this.nextStepsToExecute.keySet())) {
       log.debug(SYSTEM_IS_GOING_TO_EXECUTE_NEXT_EVENT_FOR_CURRENT_EVENT, sagaEventState.getNextEventType(), event, saga.getSagaId());
@@ -610,7 +610,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @throws TimeoutException     if connection to messaging system times out.
    * @throws IOException          if there is connectivity problem
    */
-  protected void invokeNextEvent(final Event event, final SdcSagaEntity saga, final T sagaData, final SagaEventState<T> sagaEventState) throws InterruptedException, TimeoutException, IOException {
+  protected void invokeNextEvent(final Event event, final GradSagaEntity saga, final T sagaData, final SagaEventState<T> sagaEventState) throws InterruptedException, TimeoutException, IOException {
     final SagaStep<T> stepToExecute = sagaEventState.getStepToExecute();
     stepToExecute.apply(event, saga, sagaData);
   }

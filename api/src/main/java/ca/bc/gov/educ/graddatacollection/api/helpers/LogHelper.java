@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.helpers;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -83,7 +83,7 @@ public final class LogHelper {
     }
   }
 
-  public static void logSagaRetry(final SdcSagaEntity saga) {
+  public static void logSagaRetry(final GradSagaEntity saga) {
     final Map<String, Object> retrySagaMap = new HashMap<>();
     try {
       retrySagaMap.put("sagaName", saga.getSagaName());

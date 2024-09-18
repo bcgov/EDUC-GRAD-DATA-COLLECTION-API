@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.orchestrator.base;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,7 +24,7 @@ public interface Orchestrator {
    *
    * @param saga  the saga data
    */
-  void startSaga(SdcSagaEntity saga);
+  void startSaga(GradSagaEntity saga);
 
   /**
    * create saga.
@@ -34,7 +34,7 @@ public interface Orchestrator {
    * @param userName  the user who created the saga
    * @return the saga
    */
-  SdcSagaEntity createSaga(String payload, UUID sdcSchoolStudentID, UUID sdcSchoolCollectionID, String userName, UUID collectionID);
+  GradSagaEntity createSaga(String payload, UUID sdcSchoolStudentID, UUID sdcSchoolCollectionID, String userName, UUID collectionID);
 
   /**
    * Replay saga.
@@ -44,5 +44,5 @@ public interface Orchestrator {
    * @throws InterruptedException the interrupted exception
    * @throws TimeoutException     the timeout exception
    */
-  void replaySaga(SdcSagaEntity saga) throws IOException, InterruptedException, TimeoutException;
+  void replaySaga(GradSagaEntity saga) throws IOException, InterruptedException, TimeoutException;
 }
