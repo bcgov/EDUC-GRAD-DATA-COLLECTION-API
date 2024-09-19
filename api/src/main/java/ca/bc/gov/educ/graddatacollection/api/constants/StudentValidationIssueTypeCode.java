@@ -10,6 +10,7 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.StudentValidationI
 /**
  * The enum Pen request batch student validation issue type code.
  */
+@Getter
 public enum StudentValidationIssueTypeCode {
 
     INVALID_GRADE_CODE("INVALIDGRADECODE", "Invalid grade code.", ERROR);
@@ -25,16 +26,13 @@ public enum StudentValidationIssueTypeCode {
     /**
      * The Code.
      */
-    @Getter
     private final String code;
 
     /**
      * Validation message
      */
-    @Getter
     private final String message;
 
-    @Getter
     private final StudentValidationIssueSeverityCode severityCode;
 
     /**

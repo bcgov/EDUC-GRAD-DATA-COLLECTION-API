@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class SdcSchoolCollectionStudentValidationIssue extends BaseStudentValidationIssue implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String sdcSchoolCollectionStudentValidationIssueID;

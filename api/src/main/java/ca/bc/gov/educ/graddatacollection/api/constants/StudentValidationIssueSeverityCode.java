@@ -8,6 +8,7 @@ import java.util.Optional;
 /**
  * The enum Pen request batch student validation issue severity code.
  */
+@Getter
 public enum StudentValidationIssueSeverityCode {
     /**
      * Error student validation issue severity code.
@@ -17,9 +18,7 @@ public enum StudentValidationIssueSeverityCode {
     /**
      * The Code.
      */
-    @Getter
     private final String label;
-    @Getter
     private final String code;
     /**
      * Instantiates a new Pen request batch student validation field code.

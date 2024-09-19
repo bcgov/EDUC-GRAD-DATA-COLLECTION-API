@@ -5,6 +5,7 @@ import lombok.Getter;
 /**
  * The enum Pen request batch student validation field code.
  */
+@Getter
 public enum StudentValidationFieldCode {
     LOCAL_ID("LOCALID"),
     STUDENT_PEN("STUDENT_PEN"),
@@ -33,7 +34,6 @@ public enum StudentValidationFieldCode {
     /**
      * The Code.
      */
-    @Getter
     private final String code;
 
     /**
