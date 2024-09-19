@@ -13,7 +13,13 @@ public enum StudentValidationIssueSeverityCode {
     /**
      * Error student validation issue severity code.
      */
-    ERROR("ERROR","Error");
+    ERROR("ERROR","Error"),
+
+    /**
+     * Warning student validation issue severity code.
+     */
+    WARNING("WARNING","Warning");
+
 
     /**
      * The Code.
