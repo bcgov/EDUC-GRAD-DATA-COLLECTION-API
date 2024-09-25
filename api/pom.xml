@@ -4,9 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>ca.bc.gov.educ.graddatacollection</groupId>
-  <artifactId>grad-data-collection-api</artifactId>
+  <artifactId>educ-grad-data-collection-api</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>grad-data-collection-api</name>
+  <name>educ-grad-data-collection-api</name>
   <description>Grad Data Collection API</description>
 
   <properties>
