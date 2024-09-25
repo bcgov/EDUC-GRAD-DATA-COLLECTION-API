@@ -77,10 +77,8 @@ public abstract class BaseGradDataCollectionAPITest {
     grade1.setSchoolGradeCode("GRADE01");
     gradesList.add(grade1);
     school.setGrades(gradesList);
-
     return school;
   }
-
   public District createMockDistrict() {
     final District district = District.builder().build();
     district.setDistrictId(UUID.randomUUID().toString());
@@ -101,8 +99,6 @@ public abstract class BaseGradDataCollectionAPITest {
     return independentAuthority;
   }
 
-
-
   public PenMatchResult getPenMatchResult(){
       PenMatchResult penMatchResult = new PenMatchResult();
       PenMatchRecord penMatchRecord = new PenMatchRecord();
@@ -113,9 +109,5 @@ public abstract class BaseGradDataCollectionAPITest {
       penMatchResult.setPenStatusMessage("ABC");
       return penMatchResult;
   }
-
-
-
-
 
 }
