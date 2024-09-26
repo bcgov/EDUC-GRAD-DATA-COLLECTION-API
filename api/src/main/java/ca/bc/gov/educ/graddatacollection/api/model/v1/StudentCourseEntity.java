@@ -31,31 +31,39 @@ public class StudentCourseEntity {
     @Column(name = "STUDENT_COURSE_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
     UUID studentCourseId;
 
+    @NotNull(message = "student local id cannot be null")
+    @Column(name = "STUDENT_LOCAL_ID")
+    String studentLocalId;
+
     @NotNull(message = "student pen cannot be null")
     @Column(name = "STUDENT_PEN")
     String studentPen;
 
+    @NotNull(message = "status cannot be null")
+    @Column(name = "STATUS")
+    String status;
+
     @NotNull(message = "code cannot be null")
-    @Column(name = "COURSE_CODE")
-    String courseCode;
+    @Column(name = "CODE")
+    String code;
 
     @NotNull(message = "level cannot be null")
-    @Column(name = "COURSE_LEVEL")
-    String courseLevel;
+    @Column(name = "LEVEL")
+    String level;
 
     @NotNull(message = "name cannot be null")
-    @Column(name = "COURSE_NAME")
-    String courseName;
+    @Column(name = "NAME")
+    String name;
 
     @Column(name = "GRAD_REQ_MET")
     String gradeReqMet;
 
     @PastOrPresent
-    @Column(name = "COURSE_SESSION")
-    LocalDateTime courseSession;
+    @Column(name = "SESSION")
+    LocalDateTime session;
 
-    @Column(name = "COURSE_TYPE")
-    String courseType;
+    @Column(name = "TYPE")
+    String type;
 
     @Column(name = "COMPLETED_PERCENT")
     String completePercent;
@@ -81,8 +89,8 @@ public class StudentCourseEntity {
     @Column(name = "RELATED_LEVEL")
     String relatedLevel;
 
-    @Column(name = "COURSE_DESCRIPTION")
-    String courseDescription;
+    @Column(name = "DESCRIPTION")
+    String description;
 
     @Column(name = "GRAD_REQ_TYPE")
     String gradeReqType;
