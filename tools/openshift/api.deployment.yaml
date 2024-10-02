@@ -26,9 +26,11 @@ parameters:
     required: true
   - name: MIN_REPLICAS
     description: The minimum number of replicas
+    value: "1"
     required: true
   - name: MAX_REPLICAS
     description: The maximum number of replicas
+    value: "3"
     required: true
   - name: MIN_CPU
     description: The minimum amount of CPU
@@ -50,7 +52,7 @@ objects:
       labels:
         app: "${APP_NAME}-${BRANCH}"
     spec:
-      replicas: ${MIN_REPLICAS}
+      replicas: 1
       selector:
         matchLabels:
           app: "${APP_NAME}-${BRANCH}"
@@ -73,7 +75,7 @@ objects:
               image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-${BRANCH}:${TAG}
               imagePullPolicy: Always
               ports:
-                - containerPort: ${CONTAINER_PORT}
+                - containerPort: 8080
                   protocol: TCP
               env:
                 - name: CHES_CLIENT_ID
@@ -121,7 +123,7 @@ objects:
               livenessProbe:
                 httpGet:
                   path: /actuator/health
-                  port: ${CONTAINER_PORT}
+                  port: 8080
                 initialDelaySeconds: 300
                 periodSeconds: 30
                 timeoutSeconds: 5
@@ -129,7 +131,7 @@ objects:
                 successThreshold: 1
               readinessProbe:
                 tcpSocket:
-                  port: ${CONTAINER_PORT}
+                  port: 8080
                 initialDelaySeconds: 30
                 periodSeconds: 10
                 timeoutSeconds: 5
@@ -200,8 +202,8 @@ objects:
       selector:
         app: "${APP_NAME}-${BRANCH}"
       ports:
-        - name: ${CONTAINER_PORT}-tcp
-          port: ${CONTAINER_PORT}
+        - name: 8080-tcp
+          port: 8080
           protocol: TCP
   - apiVersion: autoscaling/v2
     kind: HorizontalPodAutoscaler
@@ -212,8 +214,8 @@ objects:
         apiVersion: apps/v1
         kind: Deployment
         name: "${APP_NAME}-${BRANCH}"
-      minReplicas: ${MIN_REPLICAS}
-      maxReplicas: ${MAX_REPLICAS}
+      minReplicas: 1
+      maxReplicas: 3
       metrics:
         - type: Resource
           resource:
