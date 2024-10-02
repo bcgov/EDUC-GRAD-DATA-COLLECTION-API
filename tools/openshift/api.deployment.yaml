@@ -4,44 +4,6 @@ metadata:
   name: "${REPO_NAME}-${BRANCH}-deployment"
   labels:
     template: "${REPO_NAME}-template"
-parameters:
-  - name: REPO_NAME
-    description: Application repository name
-    required: true
-  - name: BRANCH
-    description: Job identifier (e.g., 'backend' or 'frontend')
-    required: true
-  - name: NAMESPACE
-    description: Target namespace reference (e.g., 'educ-dev')
-    required: true
-  - name: APP_NAME
-    description: Application name
-    required: true
-  - name: CONTAINER_PORT
-    description: The port on which the application will be accessible
-    value: "8080"
-    required: false
-  - name: TAG
-    description: The identifying tag for this specific deployment
-    required: true
-  - name: MIN_REPLICAS
-    description: The minimum number of replicas
-    required: true
-  - name: MAX_REPLICAS
-    description: The maximum number of replicas
-    required: true
-  - name: MIN_CPU
-    description: The minimum amount of CPU
-    required: true
-  - name: MAX_CPU
-    description: The maximum amount of CPU
-    required: true
-  - name: MIN_MEM
-    description: The minimum amount of memory
-    required: true
-  - name: MAX_MEM
-    description: The maximum amount of memory
-    required: true
 objects:
   - apiVersion: apps/v1
     kind: Deployment
@@ -76,7 +38,41 @@ objects:
                 - containerPort: ${CONTAINER_PORT}
                   protocol: TCP
               env:
-              # env vars
+                - name: CHES_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: CHES_CLIENT_ID
+                - name: CHES_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: CHES_CLIENT_SECRET
+                - name: CHES_ENDPOINT_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: CHES_ENDPOINT_URL
+                - name: CHES_TOKEN_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: CHES_TOKEN_URL
+                - name: DB_JDBC_CONNECT_STRING
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: DB_JDBC_CONNECT_STRING
+                - name: DB_PWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: DB_PWD
+                - name: SPLUNK_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-secrets"
+                      key: SPLUNK_TOKEN
               resources:
                 requests:
                   cpu: "${MIN_CPU}"
@@ -87,7 +83,7 @@ objects:
               livenessProbe:
                 httpGet:
                   path: /actuator/health
-                  port: 8080
+                  port: ${CONTAINER_PORT}
                 initialDelaySeconds: 300
                 periodSeconds: 30
                 timeoutSeconds: 5
@@ -95,7 +91,7 @@ objects:
                 successThreshold: 1
               readinessProbe:
                 tcpSocket:
-                  port: 8080
+                  port: ${CONTAINER_PORT}
                 initialDelaySeconds: 30
                 periodSeconds: 10
                 timeoutSeconds: 5
@@ -187,3 +183,41 @@ objects:
             target:
               type: Utilization
               averageUtilization: 200
+parameters:
+  - name: REPO_NAME
+    description: Application repository name
+    required: true
+  - name: BRANCH
+    description: Job identifier (e.g., 'backend' or 'frontend')
+    required: true
+  - name: NAMESPACE
+    description: Target namespace reference (e.g., 'e14b44-dev')
+    required: true
+  - name: APP_NAME
+    description: Application name
+    required: true
+  - name: CONTAINER_PORT
+    description: The port on which the application will be accessible
+    value: "8080"
+    required: false
+  - name: TAG
+    description: The identifying tag for this specific deployment
+    required: true
+  - name: MIN_REPLICAS
+    description: The minimum number of replicas
+    required: true
+  - name: MAX_REPLICAS
+    description: The maximum number of replicas
+    required: true
+  - name: MIN_CPU
+    description: The minimum amount of CPU
+    required: true
+  - name: MAX_CPU
+    description: The maximum amount of CPU
+    required: true
+  - name: MIN_MEM
+    description: The minimum amount of memory
+    required: true
+  - name: MAX_MEM
+    description: The maximum amount of memory
+    required: true
