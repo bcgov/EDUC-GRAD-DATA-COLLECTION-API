@@ -155,18 +155,6 @@ jobs:
       # https://github.com/redhat-actions/oc-login#readme
     - uses: actions/checkout@v2
 
-    - name: Create or update Kubernetes secret for Deployment
-      run: |
-        oc create secret generic grad-data-collection-api-secrets \
-          --from-literal=CHES_CLIENT_ID=${{ secrets.CHES_CLIENT_ID }} \
-          --from-literal=CHES_CLIENT_SECRET=${{ secrets.CHES_CLIENT_SECRET }} \
-          --from-literal=CHES_ENDPOINT_URL=${{ secrets.CHES_ENDPOINT_URL }} \
-          --from-literal=CHES_TOKEN_URL=${{ secrets.CHES_TOKEN_URL }} \
-          --from-literal=DB_JDBC_CONNECT_STRING=${{ secrets.DB_JDBC_CONNECT_STRING }} \
-          --from-literal=DB_PWD=${{ secrets.DB_PWD }} \
-          --from-literal=SPLUNK_TOKEN=${{ secrets.SPLUNK_TOKEN }} \
-          --dry-run=client -o yaml | oc apply -f -
-
     - name: Deploy API
       run: |
         set -eu
@@ -179,9 +167,27 @@ jobs:
         
         oc tag ${{ steps.push-image.outputs.registry-path }} ${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ env.TAG }}
                
-        # Process and apply deployment template
-        oc process -f tools/openshift/api.deployment.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_DEV }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS_DEV }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS_DEV }} -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
-        | oc apply -f -
+        # Process and apply deployment template with secrets
+            oc process -f tools/openshift/api.deployment.yaml \
+            -p APP_NAME=${{ env.APP_NAME }} \
+            -p REPO_NAME=${{ env.REPO_NAME }} \
+            -p BRANCH=${{ env.BRANCH }} \
+            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_DEV }} \
+            -p TAG=${{ env.TAG }} \
+            -p MIN_REPLICAS=${{ env.MIN_REPLICAS_DEV }} \
+            -p MAX_REPLICAS=${{ env.MAX_REPLICAS_DEV }} \
+            -p MIN_CPU=${{ env.MIN_CPU }} \
+            -p MAX_CPU=${{ env.MAX_CPU }} \
+            -p MIN_MEM=${{ env.MIN_MEM }} \
+            -p MAX_MEM=${{ env.MAX_MEM }} \
+            -p CHES_CLIENT_ID=${{ secrets.CHES_CLIENT_ID }} \
+            -p CHES_CLIENT_SECRET=${{ secrets.CHES_CLIENT_SECRET }} \
+            -p CHES_ENDPOINT_URL=${{ secrets.CHES_ENDPOINT_URL }} \
+            -p CHES_TOKEN_URL=${{ secrets.CHES_TOKEN_URL }} \
+            -p DB_JDBC_CONNECT_STRING=${{ secrets.DB_JDBC_CONNECT_STRING }} \
+            -p DB_PWD=${{ secrets.DB_PWD }} \
+            -p SPLUNK_TOKEN=${{ secrets.SPLUNK_TOKEN }} \
+          | oc apply -f -
         
         curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin dev ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.DB_JDBC_CONNECT_STRING }} ${{ env.DB_PWD }} ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }}
         
@@ -254,18 +260,6 @@ jobs:
         with:
           oc: 4
 
-      - name: Create or update Kubernetes secret for Deployment
-        run: |
-          oc create secret generic grad-data-collection-api-secrets \
-            --from-literal=CHES_CLIENT_ID=${{ secrets.CHES_CLIENT_ID }} \
-            --from-literal=CHES_CLIENT_SECRET=${{ secrets.CHES_CLIENT_SECRET }} \
-            --from-literal=CHES_ENDPOINT_URL=${{ secrets.CHES_ENDPOINT_URL }} \
-            --from-literal=CHES_TOKEN_URL=${{ secrets.CHES_TOKEN_URL }} \
-            --from-literal=DB_JDBC_CONNECT_STRING=${{ secrets.DB_JDBC_CONNECT_STRING }} \
-            --from-literal=DB_PWD=${{ secrets.DB_PWD }} \
-            --from-literal=SPLUNK_TOKEN=${{ secrets.SPLUNK_TOKEN }} \
-            --dry-run=client -o yaml | oc apply -f -
-
       - name: Deploy API
         run: |
           set -eu
@@ -278,8 +272,26 @@ jobs:
 
           oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ env.TAG }} ${{ env.NAMESPACE }}-test/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ env.TAG }}
 
-          # Process and apply deployment template
-          oc process -f tools/openshift/api.deployment.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_TEST }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS_TEST }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS_TEST }} -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
+          # Process and apply deployment template with secrets
+          oc process -f tools/openshift/api.deployment.yaml \
+            -p APP_NAME=${{ env.APP_NAME }} \
+            -p REPO_NAME=${{ env.REPO_NAME }} \
+            -p BRANCH=${{ env.BRANCH }} \
+            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_TEST }} \
+            -p TAG=${{ env.TAG }} \
+            -p MIN_REPLICAS=${{ env.MIN_REPLICAS_TEST }} \
+            -p MAX_REPLICAS=${{ env.MAX_REPLICAS_TEST }} \
+            -p MIN_CPU=${{ env.MIN_CPU }} \
+            -p MAX_CPU=${{ env.MAX_CPU }} \
+            -p MIN_MEM=${{ env.MIN_MEM }} \
+            -p MAX_MEM=${{ env.MAX_MEM }} \
+            -p CHES_CLIENT_ID=${{ secrets.CHES_CLIENT_ID }} \
+            -p CHES_CLIENT_SECRET=${{ secrets.CHES_CLIENT_SECRET }} \
+            -p CHES_ENDPOINT_URL=${{ secrets.CHES_ENDPOINT_URL }} \
+            -p CHES_TOKEN_URL=${{ secrets.CHES_TOKEN_URL }} \
+            -p DB_JDBC_CONNECT_STRING=${{ secrets.DB_JDBC_CONNECT_STRING }} \
+            -p DB_PWD=${{ secrets.DB_PWD }} \
+            -p SPLUNK_TOKEN=${{ secrets.SPLUNK_TOKEN }} \
           | oc apply -f -
 
           curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin test ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.DB_JDBC_CONNECT_STRING }} ${{ env.DB_PWD }} ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }}
