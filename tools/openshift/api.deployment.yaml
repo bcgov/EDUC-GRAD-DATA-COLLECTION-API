@@ -44,27 +44,6 @@ parameters:
   - name: MAX_MEM
     description: The maximum amount of memory
     required: true
-  - name: CHES_CLIENT_ID
-    description: CHES Client ID
-    required: true
-  - name: CHES_CLIENT_SECRET
-    description: CHES Client Secret
-    required: true
-  - name: CHES_ENDPOINT_URL
-    description: CHES Endpoint URL
-    required: true
-  - name: CHES_TOKEN_URL
-    description: CHES Token URL
-    required: true
-  - name: DB_JDBC_CONNECT_STRING
-    description: Database JDBC Connection String
-    required: true
-  - name: DB_PWD
-    description: Database Password
-    required: true
-  - name: SPLUNK_TOKEN
-    description: Splunk Token
-    required: true
 objects:
   - apiVersion: apps/v1
     kind: Deployment
@@ -98,6 +77,9 @@ objects:
               ports:
                 - containerPort: 8080
                   protocol: TCP
+              envFrom:
+                - configMapRef:
+                  name: grad-data-collection-api-config-map
               env:
                 - name: CHES_CLIENT_ID
                   value: "${CHES_CLIENT_ID}"
