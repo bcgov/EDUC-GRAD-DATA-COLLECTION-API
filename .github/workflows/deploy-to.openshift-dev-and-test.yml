@@ -155,6 +155,18 @@ jobs:
       # https://github.com/redhat-actions/oc-login#readme
     - uses: actions/checkout@v2
 
+    - name: Create or update Kubernetes secret for Deployment
+      run: |
+        oc create secret generic grad-data-collection-api-secrets \
+          --from-literal=CHES_CLIENT_ID=${{ secrets.CHES_CLIENT_ID }} \
+          --from-literal=CHES_CLIENT_SECRET=${{ secrets.CHES_CLIENT_SECRET }} \
+          --from-literal=CHES_ENDPOINT_URL=${{ secrets.CHES_ENDPOINT_URL }} \
+          --from-literal=CHES_TOKEN_URL=${{ secrets.CHES_TOKEN_URL }} \
+          --from-literal=DB_JDBC_CONNECT_STRING=${{ secrets.DB_JDBC_CONNECT_STRING }} \
+          --from-literal=DB_PWD=${{ secrets.DB_PWD }} \
+          --from-literal=SPLUNK_TOKEN=${{ secrets.SPLUNK_TOKEN }} \
+          --dry-run=client -o yaml | oc apply -f -
+
     - name: Deploy API
       run: |
         set -eu
