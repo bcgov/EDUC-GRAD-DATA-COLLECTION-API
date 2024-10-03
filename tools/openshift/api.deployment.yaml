@@ -81,14 +81,6 @@ objects:
                 - configMapRef:
                     name: grad-data-collection-api-config-map
               env:
-                - name: CHES_CLIENT_ID
-                  value: "${CHES_CLIENT_ID}"
-                - name: CHES_CLIENT_SECRET
-                  value: "${CHES_CLIENT_SECRET}"
-                - name: CHES_ENDPOINT_URL
-                  value: "${CHES_ENDPOINT_URL}"
-                - name: CHES_TOKEN_URL
-                  value: "${CHES_TOKEN_URL}"
                 - name: DB_JDBC_CONNECT_STRING
                   value: "${DB_JDBC_CONNECT_STRING}"
                 - name: DB_PWD
