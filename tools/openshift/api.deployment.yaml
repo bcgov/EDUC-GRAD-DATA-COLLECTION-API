@@ -179,7 +179,7 @@ objects:
               volumeMounts:
                 - name: log-storage
                   mountPath: /mnt/log
-                - name: flb-config-volume
+                - name: flb-sc-config-volume
                   mountPath: /fluent-bit/etc/
           volumes:
             - name: tls-certs
@@ -187,9 +187,9 @@ objects:
                 secretName: "${APP_NAME}-cert"
             - name: log-storage
               emptyDir: {}
-            - name: flb-config-volume
+            - name: flb-sc-config-volume
               configMap:
-                name: "${APP_NAME}-flb-config-map"
+                name: "${APP_NAME}-flb-sc-config-map"
   - apiVersion: v1
     kind: Service
     metadata:
