@@ -79,7 +79,7 @@ objects:
                   protocol: TCP
               envFrom:
                 - configMapRef:
-                  name: grad-data-collection-api-config-map
+                    name: grad-data-collection-api-config-map
               env:
                 - name: CHES_CLIENT_ID
                   value: "${CHES_CLIENT_ID}"
