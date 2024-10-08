@@ -154,6 +154,5 @@ jobs:
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
           || true && echo "Rollout in progress"
-          oc logs -f dc/${{ env.SPRING_BOOT_IMAGE_NAME }}
           # Get status, returns 0 if rollout is successful
           oc rollout status dc/${{ env.SPRING_BOOT_IMAGE_NAME }}
