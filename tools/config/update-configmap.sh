@@ -60,7 +60,7 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -H "Authorization: Bearer $TKN" \
   -d "{\"description\": \"Write Grad Collection Data\",\"id\": \"WRITE_GRAD_COLLECTION\",\"name\": \"WRITE_GRAD_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
-if [[ "$GRAD_APIServiceClientSecret" != "" && ("$envValue" = "dev" || "$envValue" = "test") ]]; then
+if [[ -n "$GRAD_APIServiceClientID" && -n "$GRAD_APIServiceClientSecret" && ("$envValue" = "dev" || "$envValue" = "test") ]]; then
   echo
   echo Creating client grad-data-collection-api-service with secret
   curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients" \
