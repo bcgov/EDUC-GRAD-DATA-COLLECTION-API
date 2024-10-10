@@ -12,9 +12,9 @@ CREATE TABLE INCOMING_FILESET
     CRS_FILE_DATE_UPLOADED      TIMESTAMP,
     CRS_FILE_STATUS_CODE        VARCHAR(10)                         NOT NULL,
     FILESET_STATUS_CODE         VARCHAR(10)                         NOT NULL,
-    CREATE_USER                 VARCHAR(32)                         NOT NULL,
+    CREATE_USER                 VARCHAR(100)                         NOT NULL,
     CREATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                 VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                 VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT INCOMING_FILESET_ID_PK PRIMARY KEY (INCOMING_FILESET_ID)
 );
@@ -46,9 +46,9 @@ CREATE TABLE DEMOGRAPHIC_STUDENT
     PROGRAM_CADRE_FLAG                   VARCHAR(1),
     GRAD_REQUIREMENT_YEAR                VARCHAR(4),
     SCHOOL_CERTIFICATE_COMPLETION_DATE   VARCHAR(8),
-    CREATE_USER                          VARCHAR(32)                         NOT NULL,
+    CREATE_USER                          VARCHAR(100)                         NOT NULL,
     CREATE_DATE                          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                          VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                          VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT DEMOGRAPHIC_STUDENT_ID_PK PRIMARY KEY (DEMOGRAPHIC_STUDENT_ID)
 );
@@ -76,9 +76,9 @@ CREATE TABLE COURSE_STUDENT
     COURSE_DESCRIPTION                   VARCHAR(255),
     COURSE_TYPE                          VARCHAR(1),
     COURSE_GRADUATION_REQUIREMENT        VARCHAR(1),
-    CREATE_USER                          VARCHAR(32)                         NOT NULL,
+    CREATE_USER                          VARCHAR(100)                         NOT NULL,
     CREATE_DATE                          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                          VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                          VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT COURSE_STUDENT_ID_PK PRIMARY KEY (COURSE_STUDENT_ID)
 );
@@ -98,9 +98,9 @@ CREATE TABLE ASSESSMENT_STUDENT
     LOCAL_COURSE_ID                      VARCHAR(255),
     COURSE_STATUS                        VARCHAR(255),
     LAST_NAME                            VARCHAR(255),
-    CREATE_USER                          VARCHAR(32)                         NOT NULL,
+    CREATE_USER                          VARCHAR(100)                         NOT NULL,
     CREATE_DATE                          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                          VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                          VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                          TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT COURSE_STUDENT_ID_PK PRIMARY KEY (COURSE_STUDENT_ID)
 );
@@ -111,9 +111,9 @@ CREATE TABLE STUDENT_STATUS_CODE
     LABEL                       VARCHAR(30)                         NOT NULL,
     DESCRIPTION                 VARCHAR(255)                        NOT NULL,
     DISPLAY_ORDER               NUMERIC   DEFAULT 1                 NOT NULL,
-    CREATE_USER                 VARCHAR(32)                         NOT NULL,
+    CREATE_USER                 VARCHAR(100)                         NOT NULL,
     CREATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                 VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                 VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT STUDENT_STATUS_CODE_PK PRIMARY KEY (STUDENT_STATUS_CODE)
 );
@@ -124,9 +124,9 @@ CREATE TABLE FILE_STATUS_CODE
     LABEL                       VARCHAR(30)                         NOT NULL,
     DESCRIPTION                 VARCHAR(255)                        NOT NULL,
     DISPLAY_ORDER               NUMERIC   DEFAULT 1                 NOT NULL,
-    CREATE_USER                 VARCHAR(32)                         NOT NULL,
+    CREATE_USER                 VARCHAR(100)                         NOT NULL,
     CREATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                 VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                 VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT FILE_STATUS_CODE_PK PRIMARY KEY (FILE_STATUS_CODE)
 );
@@ -138,9 +138,9 @@ CREATE TABLE DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE
     VALIDATION_ISSUE_SEVERITY_CODE          VARCHAR(10)                         NOT NULL,
     VALIDATION_ISSUE_CODE                   VARCHAR(100)                        NOT NULL,
     VALIDATION_ISSUE_FIELD_CODE             VARCHAR(100)                        NOT NULL,
-    CREATE_USER                             VARCHAR(32)                         NOT NULL,
+    CREATE_USER                             VARCHAR(100)                         NOT NULL,
     CREATE_DATE                             TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                             VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                             VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                             TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE_ID_PK PRIMARY KEY (DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE_ID)
 );
@@ -152,9 +152,9 @@ CREATE TABLE COURSE_STUDENT_VALIDATION_ISSUE
     VALIDATION_ISSUE_SEVERITY_CODE          VARCHAR(10)                         NOT NULL,
     VALIDATION_ISSUE_CODE                   VARCHAR(100)                        NOT NULL,
     VALIDATION_ISSUE_FIELD_CODE             VARCHAR(100)                        NOT NULL,
-    CREATE_USER                             VARCHAR(32)                         NOT NULL,
+    CREATE_USER                             VARCHAR(100)                         NOT NULL,
     CREATE_DATE                             TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                             VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                             VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                             TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT COURSE_STUDENT_VALIDATION_ISSUE_ID_PK PRIMARY KEY (COURSE_STUDENT_VALIDATION_ISSUE_ID)
 );
@@ -166,9 +166,9 @@ CREATE TABLE ASSESSMENT_STUDENT_VALIDATION_ISSUE
     VALIDATION_ISSUE_SEVERITY_CODE          VARCHAR(10)                         NOT NULL,
     VALIDATION_ISSUE_CODE                   VARCHAR(100)                        NOT NULL,
     VALIDATION_ISSUE_FIELD_CODE             VARCHAR(100)                        NOT NULL,
-    CREATE_USER                             VARCHAR(32)                         NOT NULL,
+    CREATE_USER                             VARCHAR(100)                         NOT NULL,
     CREATE_DATE                             TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                             VARCHAR(32)                         NOT NULL,
+    UPDATE_USER                             VARCHAR(100)                         NOT NULL,
     UPDATE_DATE                             TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT ASSESSMENT_STUDENT_VALIDATION_ISSUE_ID_PK PRIMARY KEY (ASSESSMENT_STUDENT_VALIDATION_ISSUE_ID)
 );
