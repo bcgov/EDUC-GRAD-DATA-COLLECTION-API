@@ -22,7 +22,7 @@ public abstract class BatchFileDecorator implements DemBatchFileMapper{
     @Override
     public IncomingFilesetEntity toIncomingDEMBatchEntity(final GradFileUpload upload, final String schoolID) {
         final var entity = this.delegate.toIncomingDEMBatchEntity(upload, schoolID);
-//        entity.setSdcSchoolCollectionID(UUID.fromString(sdcSchoolCollectionID));
+        entity.setSchoolID(UUID.fromString(schoolID));
         entity.setDemFileName(upload.getFileName());
         return entity;
     }
