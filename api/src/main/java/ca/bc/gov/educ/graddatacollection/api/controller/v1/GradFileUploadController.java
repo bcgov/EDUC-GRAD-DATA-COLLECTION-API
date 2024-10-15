@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.batch.service.GradBatchFileProcessor;
+import ca.bc.gov.educ.graddatacollection.api.batch.processor.GradBatchFileProcessor;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.GradFileUploadEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +17,10 @@ public class GradFileUploadController implements GradFileUploadEndpoint {
     }
 
     @Override
-    public ResponseEntity<String> processSdcBatchFile(GradFileUpload fileUpload, String gradCollectionID, String correlationID) {
+    public ResponseEntity<String> processSdcBatchFile(GradFileUpload fileUpload, String schoolID, String correlationID) {
         //run some payload validation
         log.info("Running file load for file: " + fileUpload.getFileName());
-        gradFileService.processBatchFile(fileUpload);
+        gradFileService.processBatchFile(fileUpload, schoolID);
         log.info("File data committed for file: " + fileUpload.getFileName());;
         return ResponseEntity.ok().build();
     }

@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(URL.BASE_URL)
 public interface GradFileUploadEndpoint {
 
-    @PostMapping("/{gradCollectionID}/file")
+    @PostMapping("/{schoolID}/file")
     @PreAuthorize("hasAuthority('SCOPE_WRITE_GRAD_COLLECTION')")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
     @Tag(name = "Endpoint to Upload an SDC file and convert to json structure.", description = "Endpoint to Upload an SDC file and convert to json structure")
     @Schema(name = "FileUpload", implementation = GradFileUpload.class)
-    ResponseEntity<String> processSdcBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "gradCollectionID") String gradCollectionID, @RequestHeader(name = "correlationID") String correlationID);
+    ResponseEntity<String> processSdcBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "schoolID") String schoolID, @RequestHeader(name = "correlationID") String correlationID);
 
 }

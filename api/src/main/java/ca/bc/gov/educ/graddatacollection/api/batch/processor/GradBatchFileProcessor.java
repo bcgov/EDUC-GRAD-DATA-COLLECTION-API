@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.graddatacollection.api.batch.service;
+package ca.bc.gov.educ.graddatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.constants.FileType;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
@@ -44,7 +44,7 @@ public class GradBatchFileProcessor {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processBatchFile(GradFileUpload fileUpload) {
+    public void processBatchFile(GradFileUpload fileUpload, String schoolID) {
         val stopwatch = Stopwatch.createStarted();
         final var guid = UUID.randomUUID().toString();
         Optional<Reader> batchFileReaderOptional = Optional.empty();
@@ -68,7 +68,7 @@ public class GradBatchFileProcessor {
 
 //      gradFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection);
 //      gradFileValidator.validateFileUploadIsNotInProgress(guid, ds, sdcSchoolCollection);
-      studentDetailsMap.get(fileDetails.getCode()).populateBatchFileAndLoadData(guid, ds);
+      studentDetailsMap.get(fileDetails.getCode()).populateBatchFileAndLoadData(guid, ds, fileUpload, schoolID);
         } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
             log.error("File could not be processed exception :: {}", fileUnProcessableException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
