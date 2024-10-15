@@ -80,7 +80,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
     @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
     public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
-        var fileSetEntity = incomingFilesetRepository.findBySchoolId(UUID.fromString(schoolID));
+        var fileSetEntity = incomingFilesetRepository.findBySchoolID(UUID.fromString(schoolID));
         if(fileSetEntity.isPresent()) {
             var currentFileset = fileSetEntity.get();
             var pairStudentList = compareAndShoreUpStudentList(currentFileset, incomingFilesetEntity);
