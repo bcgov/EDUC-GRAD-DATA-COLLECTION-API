@@ -47,22 +47,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Component
 @Slf4j
 public class RestUtils {
-  public static final String SEARCH_CRITERIA_LIST = "searchCriteriaList";
-  public static final String SCHOOL_CATEGORY_CODE = "schoolCategoryCode";
   public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
-  public static final String SCHOOL_REPORTING_REQUIREMENT_CODE = "schoolReportingRequirementCode";
-  public static final String FACILITY_TYPE_CODE = "facilityTypeCode";
-  public static final String OPEN_DATE = "openedDate";
-  public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
   private final Map<String, IndependentAuthority> authorityMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
-  private final Map<String, School> allSchoolMap = new ConcurrentHashMap<>();
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
-  public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -72,7 +64,6 @@ public class RestUtils {
   private final ReadWriteLock authorityLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
-  private final ReadWriteLock allSchoolLock = new ReentrantReadWriteLock();
   @Getter
   private final ApplicationProperties props;
 
@@ -97,7 +88,6 @@ public class RestUtils {
   }
 
   private void initialize() {
-    this.populateAllSchoolMap();
     this.populateSchoolCategoryCodesMap();
     this.populateFacilityTypeCodesMap();
     this.populateSchoolMap();
@@ -272,34 +262,6 @@ public class RestUtils {
             .block();
   }
 
-//  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-//  public PenMatchResult getPenMatchResult(UUID correlationID, SdcSchoolCollectionStudentEntity sdcSchoolStudent, String mincode) {
-//    try {
-//      val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
-//      penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
-//      val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
-//      final TypeReference<Event> refEventResponse = new TypeReference<>() {
-//      };
-//      final TypeReference<PenMatchResult> refPenMatchResult = new TypeReference<>() {
-//      };
-//      Object event = Event.builder().sagaId(correlationID).eventType(EventType.PROCESS_PEN_MATCH).eventPayload(penMatchRequestJson).build();
-//      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.PEN_MATCH_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
-//      if (responseMessage != null) {
-//        val eventResponse = objectMapper.readValue(responseMessage.getData(), refEventResponse);
-//        val penMatchResult = objectMapper.readValue(eventResponse.getEventPayload(), refPenMatchResult);
-//        log.debug("PEN Match Result is :: " + penMatchResult);
-//        return penMatchResult;
-//      } else {
-//        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
-//      }
-//
-//    } catch (final Exception ex) {
-//      log.error("Error occurred calling PEN Match service :: " + ex.getMessage());
-//      Thread.currentThread().interrupt();
-//      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
-//    }
-//  }
-
   public Optional<SchoolCategoryCode> getSchoolCategoryCode(final String schoolCategoryCode) {
     if (this.schoolCategoryCodesMap.isEmpty()) {
       log.info("School categories map is empty reloading them");
@@ -338,17 +300,6 @@ public class RestUtils {
       this.populateSchoolMincodeMap();
     }
     return Optional.ofNullable(this.schoolMincodeMap.get(mincode));
-  }
-
-  public List<IndependentSchoolFundingGroup> getSchoolFundingGroupsBySchoolID(final String schoolID) {
-    if (this.allSchoolMap.isEmpty()) {
-      log.info("All schools map is empty reloading schools");
-      this.populateAllSchoolMap();
-    }
-    if(!this.allSchoolMap.containsKey(schoolID)){
-      return new ArrayList<>();
-    }
-    return this.allSchoolMap.get(schoolID).getSchoolFundingGroups();
   }
 
   public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
@@ -398,10 +349,6 @@ public class RestUtils {
     return Optional.ofNullable(this.districtMap.get(districtID));
   }
 
-  private SearchCriteria getCriteria(final String key, final FilterOperation operation, final String value, final ValueType valueType, final Condition condition) {
-    return SearchCriteria.builder().key(key).operation(operation).value(value).valueType(valueType).condition(condition).build();
-  }
-
   public Optional<List<UUID>> getSchoolIDsByIndependentAuthorityID(final String independentAuthorityID) {
     if (this.independentAuthorityToSchoolIDMap.isEmpty()) {
       log.info("The map is empty reloading schools");
@@ -425,49 +372,6 @@ public class RestUtils {
 
     } catch (final Exception ex) {
       log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
-      Thread.currentThread().interrupt();
-      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
-    }
-  }
-
-  public void populateAllSchoolMap() {
-    val writeLock = this.allSchoolLock.writeLock();
-    try {
-      writeLock.lock();
-      List<School> allSchools = this.getAllSchoolList(UUID.randomUUID());
-      for (val school : allSchools) {
-        this.allSchoolMap.put(school.getSchoolId(), school);
-      }
-    } catch (Exception ex) {
-      log.error("Unable to load map cache for allSchool {}", ex);
-    } finally {
-      writeLock.unlock();
-    }
-    log.info("Loaded  {} allSchools to memory", this.allSchoolMap.values().size());
-  }
-
-  public Optional<School> getAllSchoolBySchoolID(final String schoolID) {
-    if (this.allSchoolMap.isEmpty()) {
-      log.info("All School map is empty reloading schools");
-      this.populateAllSchoolMap();
-    }
-    return Optional.ofNullable(this.allSchoolMap.get(schoolID));
-  }
-
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {GradDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public List<School> getAllSchoolList(UUID correlationID) {
-    try {
-      log.info("Calling Institute api to load all schools to memory");
-      final TypeReference<List<School>> ref = new TypeReference<>() {
-      };
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat("100000")).build();
-      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
-      if (null != responseMessage) {
-        return objectMapper.readValue(responseMessage.getData(), ref);
-      } else {
-        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
-      }
-    } catch (final Exception ex) {
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }

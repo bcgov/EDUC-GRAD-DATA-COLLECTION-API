@@ -14,10 +14,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -54,7 +54,7 @@ public class GradDataCollectionApiApplication {
   public LockProvider lockProvider(@Autowired final JdbcTemplate jdbcTemplate,
       @Autowired final PlatformTransactionManager transactionManager) {
     return new JdbcTemplateLockProvider(jdbcTemplate, transactionManager,
-        "SDC_SHEDLOCK");
+        "GDC_SHEDLOCK");
   }
 
   /**
@@ -96,7 +96,9 @@ public class GradDataCollectionApiApplication {
               .anyRequest().authenticated()
           )
           .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+              .oauth2ResourceServer(oauth2 -> oauth2
+                      .jwt(Customizer.withDefaults())
+              );
       return http.build();
     }
   }
