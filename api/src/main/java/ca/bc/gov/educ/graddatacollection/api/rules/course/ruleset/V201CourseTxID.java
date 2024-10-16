@@ -44,7 +44,8 @@ public class V201CourseTxID implements CourseValidationBaseRule {
         log.debug("In executeValidation of TransactionID-V201 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isAllEmpty(student.getTransactionID()) || (!student.getTransactionID().equals("D08") && !student.getTransactionID().equals("E08"))) {
+        var txID = student.getTransactionID();
+        if (StringUtils.isAllEmpty(txID) || (!txID.equals("D08") && !txID.equals("E08"))) {
             log.debug("TransactionID-V201: TX_ID must be 'D08' OR TX_ID = 'E08' for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.TX_ID, CourseStudentValidationIssueTypeCode.TXID_INVALID));
         }

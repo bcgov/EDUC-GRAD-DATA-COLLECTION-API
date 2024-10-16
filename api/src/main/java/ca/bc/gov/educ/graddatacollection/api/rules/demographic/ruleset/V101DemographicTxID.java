@@ -44,7 +44,8 @@ public class V101DemographicTxID implements DemographicValidationBaseRule {
         log.debug("In executeValidation of TransactionID-V101 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isAllEmpty(student.getTransactionID()) || (!student.getTransactionID().equals("D02") && !student.getTransactionID().equals("E02"))) {
+        var txID = student.getTransactionID();
+        if (StringUtils.isAllEmpty(txID) || (!txID.equals("D02") && !txID.equals("E02"))) {
             log.debug("TransactionID-V101: TX_ID must be 'D02' OR TX_ID = 'E02' for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.TX_ID, DemographicStudentValidationIssueTypeCode.TXID_INVALID));
         }

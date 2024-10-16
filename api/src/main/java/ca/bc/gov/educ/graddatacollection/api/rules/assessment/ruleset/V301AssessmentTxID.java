@@ -45,7 +45,8 @@ public class V301AssessmentTxID implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of TransactionID-V301 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isAllEmpty(student.getTransactionID()) || (!student.getTransactionID().equals("E06") && !student.getTransactionID().equals("D06"))) {
+        var txID = student.getTransactionID();
+        if (StringUtils.isAllEmpty(txID) || (!txID.equals("E06") && !txID.equals("D06"))) {
             log.debug("TransactionID-V301: TX_ID must be 'E06' OR TX_ID = 'D06' for assessmentStudentID :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.TX_ID, AssessmentStudentValidationIssueTypeCode.TXID_INVALID));
         }
