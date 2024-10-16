@@ -1,16 +1,10 @@
 package ca.bc.gov.educ.graddatacollection.api.model.v1;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -31,9 +25,11 @@ public class AssessmentStudentEntity {
   @Column(name = "ASSESSMENT_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID assessmentStudentID;
 
-  @NotNull(message = "incomingFilesetID cannot be null")
-  @Column(name = "INCOMING_FILESET_ID", columnDefinition = "BINARY(16)")
-  UUID incomingFilesetID;
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @ManyToOne(optional = false, targetEntity = IncomingFilesetEntity.class)
+  @JoinColumn(name = "INCOMING_FILESET_ID", referencedColumnName = "INCOMING_FILESET_ID", updatable = false)
+  private IncomingFilesetEntity incomingFileset;
 
   @NotNull(message = "assessmentID cannot be null")
   @Column(name = "ASSESSMENT_ID", columnDefinition = "BINARY(16)")

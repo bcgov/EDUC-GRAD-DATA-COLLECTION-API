@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import org.junit.jupiter.api.AfterEach;
@@ -30,10 +31,18 @@ public abstract class BaseGradDataCollectionAPITest {
 
   }
 
+  public IncomingFilesetEntity createMockIncomingFilesetEntity() {
+    return IncomingFilesetEntity.builder()
+            .schoolID(UUID.randomUUID())
+            .demFileUploadDate(LocalDateTime.now())
+            .demFileName("Test.stddem")
+            .build();
+  }
+
   public DemographicStudentEntity createMockDemographicStudent() {
     return DemographicStudentEntity.builder()
             .demographicStudentID(UUID.randomUUID())
-            .incomingFilesetID(UUID.randomUUID())
+            .incomingFileset(createMockIncomingFilesetEntity())
             .pen("123456789")
             .createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now())
@@ -86,7 +95,7 @@ public abstract class BaseGradDataCollectionAPITest {
   public AssessmentStudentEntity createMockAssessmentStudent() {
     return AssessmentStudentEntity.builder()
             .assessmentStudentID(UUID.randomUUID())
-            .incomingFilesetID(UUID.randomUUID())
+            .incomingFileset(createMockIncomingFilesetEntity())
             .assessmentID(UUID.randomUUID())
             .pen("123456789")
             .createDate(LocalDateTime.now())

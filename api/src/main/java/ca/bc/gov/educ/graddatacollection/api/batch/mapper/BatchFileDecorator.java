@@ -41,8 +41,8 @@ public abstract class BatchFileDecorator implements DemBatchFileMapper{
         entity.setFirstName(StringMapper.trimAndUppercase(studentDetails.getLegalGivenName()));
         entity.setLastName(StringMapper.trimAndUppercase(studentDetails.getLegalSurname()));
         entity.setMiddleName(StringMapper.trimAndUppercase(studentDetails.getLegalMiddleName()));
-        entity.setAddress1(StringMapper.trimAndUppercase(studentDetails.getAddressLine1()));
-        entity.setAddress2(StringMapper.trimAndUppercase(studentDetails.getAddressLine2()));
+        entity.setAddressLine1(StringMapper.trimAndUppercase(studentDetails.getAddressLine1()));
+        entity.setAddressLine2(StringMapper.trimAndUppercase(studentDetails.getAddressLine2()));
         entity.setCity(StringMapper.trimAndUppercase(studentDetails.getCity()));
         entity.setProvincialCode(StringMapper.trimAndUppercase(studentDetails.getProvinceCode()));
         entity.setCountryCode(StringMapper.trimAndUppercase(studentDetails.getCountryCode()));
