@@ -15,10 +15,6 @@ VALUES ('LOADED', 'Loaded', 'One or more files have been uploaded', '10', 'API_G
 INSERT INTO FILE_STATUS_CODE (FILE_STATUS_CODE, LABEL, DESCRIPTION,
                               DISPLAY_ORDER, CREATE_USER, CREATE_DATE,
                               UPDATE_USER, UPDATE_DATE)
-
-INSERT INTO FILE_STATUS_CODE (FILE_STATUS_CODE, LABEL, DESCRIPTION,
-                              DISPLAY_ORDER, CREATE_USER, CREATE_DATE,
-                              UPDATE_USER, UPDATE_DATE)
 VALUES ('COMPLETED', 'Complete', 'Files have been processed and updated downstream', '10', 'API_GRAD_DATA_COLLECTION',
         TO_DATE('20241017', 'YYYYMMDD'), 'API_GRAD_DATA_COLLECTION', TO_DATE('20241017', 'YYYYMMDD'));
 
