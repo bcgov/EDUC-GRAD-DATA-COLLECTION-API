@@ -9,7 +9,8 @@ public enum FilesetStatus {
     CRS_LOADED("CRSLOADED"),
     DELETED("DELETED"),
     COMPLETED("COMPLETED"),
-    LOADED("LOADED")
+    LOADED("LOADED"),
+    NOT_STARTED("NOTSTARTED")
     ;
 
     @Getter

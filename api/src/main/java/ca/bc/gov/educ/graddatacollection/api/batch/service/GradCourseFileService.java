@@ -23,7 +23,7 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.VENDOR_ID;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.VERIFICATION_FLAG;
 
-@Service("crs")
+@Service("stdcrs")
 @NoArgsConstructor
 @Slf4j
 public class GradCourseFileService implements GradFileBatchProcessor {

@@ -16,7 +16,7 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.FINAL_PERCENTAGE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.VENDOR_ID;
 
-@Service("xam")
+@Service("stdxam")
 @NoArgsConstructor
 @Slf4j
 public class GradXamFileService implements GradFileBatchProcessor {

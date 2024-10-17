@@ -37,7 +37,7 @@ import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.IN
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
-@Service("dem")
+@Service("stddem")
 @Slf4j
 @RequiredArgsConstructor
 public class GradDemFileService implements GradFileBatchProcessor {
@@ -89,13 +89,15 @@ public class GradDemFileService implements GradFileBatchProcessor {
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
 
-            currentFileset.setDemFileStatusCode(String.valueOf(FilesetStatus.DEM_LOADED));
-            currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED));
+            currentFileset.setDemFileStatusCode(String.valueOf(FilesetStatus.DEM_LOADED.getCode()));
+            currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
 
             return demographicStudentService.reconcileStudentsAndSaveSdcSchoolCollection(currentFileset, pairStudentList.getLeft());
         } else {
-            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.DEM_LOADED));
-            incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED));
+            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.DEM_LOADED.getCode()));
+            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.NOT_STARTED.getCode()));
+            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_STARTED.getCode()));
+            incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
 
             return this.incomingFilesetRepository.save(incomingFilesetEntity);
         }

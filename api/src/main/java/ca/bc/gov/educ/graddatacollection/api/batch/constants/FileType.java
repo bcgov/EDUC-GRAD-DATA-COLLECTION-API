@@ -8,9 +8,9 @@ import java.util.Optional;
 
 @Getter
 public enum FileType {
-    DEM("dem", ".dem", "demMapper.xml", "SHOULD BE 297"),
-    XAM("xam", ".xam", "assessmentMapper.xml", "SHOULD BE 122"),
-    CRS("crs", ".crs", "courseMapper.xml", "SHOULD BE 142")
+    DEM("stddem", ".stddem", "demMapper.xml", "SHOULD BE 297"),
+    XAM("stdxam", ".stdxam", "assessmentMapper.xml", "SHOULD BE 122"),
+    CRS("stdcrs", ".stdcrs", "courseMapper.xml", "SHOULD BE 142")
     ;
 
     private final String code;

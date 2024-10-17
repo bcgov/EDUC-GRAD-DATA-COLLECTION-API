@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.graddatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class GradBatchFileProcessor {
     @Getter(PRIVATE)
     private final GradFileValidator gradFileValidator;
     public static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
-    public static final String SDC_FILE_UPLOAD = "gradFileUpload";
+    public static final String GRAD_FILE_UPLOAD = "gradFileUpload";
 
     public GradBatchFileProcessor(Map<String, GradFileBatchProcessor> studentDetailsMap, GradFileValidator gradFileValidator) {
         this.studentDetailsMap = studentDetailsMap;
@@ -50,7 +51,6 @@ public class GradBatchFileProcessor {
         Optional<Reader> batchFileReaderOptional = Optional.empty();
         try {
         var allowedFile = FileType.findByCode(fileUpload.getFileType());
-        //not -needed ?
         FileType fileDetails = allowedFile.orElseThrow(() -> new FileUnProcessableException(FileError.FILE_NOT_ALLOWED, guid, GradCollectionStatus.LOAD_FAIL));
 
         final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource(fileDetails.getMapperFileName())).getFile());
@@ -72,17 +72,17 @@ public class GradBatchFileProcessor {
         } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
             log.error("File could not be processed exception :: {}", fileUnProcessableException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-//            var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, gradCollectionID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, schoolID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
             List<FieldError> fieldErrorList = new ArrayList<>();
-//            fieldErrorList.add(validationError);
+            fieldErrorList.add(validationError);
             error.addValidationErrors(fieldErrorList);
             throw new InvalidPayloadException(error);
         } catch (final Exception e) { // need to check what to do in case of general exception.
             log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-//            var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, gradCollectionID , FileError.GENERIC_ERROR_MESSAGE.getMessage());
+            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, schoolID , FileError.GENERIC_ERROR_MESSAGE.getMessage());
             List<FieldError> fieldErrorList = new ArrayList<>();
-//            fieldErrorList.add(validationError);
+            fieldErrorList.add(validationError);
             error.addValidationErrors(fieldErrorList);
             throw new InvalidPayloadException(error);
         } finally {
