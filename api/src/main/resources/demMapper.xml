@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+<!DOCTYPE PZMAP SYSTEM	"flatpack.dtd" >
+<PZMAP>
+    <COLUMN name="transactionCode" length="3" />
+    <COLUMN name="vendorId" length="1" />
+    <COLUMN name="verificationFlag" length="1" />
+    <COLUMN name="filler1" length="5" />
+    <COLUMN name="mincode" length="8" />
+    <COLUMN name="localId" length="12" />
+    <COLUMN name="pen" length="10" />
+    <COLUMN name="filler2" length="9" />
+    <COLUMN name="legalSurname" length="25" />
+    <COLUMN name="legalGivenName" length="25" />
+    <COLUMN name="legalMiddleName" length="25" />
+    <COLUMN name="addressLine1" length="40" />
+    <COLUMN name="addressLine2" length="40" />
+    <COLUMN name="city" length="30" />
+    <COLUMN name="provinceCode" length="2" />
+    <COLUMN name="countryCode" length="3" />
+    <COLUMN name="postalCode" length="7" />
+    <COLUMN name="dob" length="8" />
+    <COLUMN name="gender" length="1" />
+    <COLUMN name="citizenshipStatus" length="1" />
+    <COLUMN name="grade" length="2" />
+    <COLUMN name="programCode1" length="4" />
+    <COLUMN name="programCode2" length="4" />
+    <COLUMN name="programCode3" length="4" />
+    <COLUMN name="programCode4" length="4" />
+    <COLUMN name="programCode5" length="4" />
+    <COLUMN name="filler3" length="5" />
+    <COLUMN name="programCadreFlag" length="1" />
+    <COLUMN name="studentStatus" length="1" />
+    <COLUMN name="gradRequirementYear" length="4" />
+    <COLUMN name="sscpCompletionDate" length="8" />
+</PZMAP>

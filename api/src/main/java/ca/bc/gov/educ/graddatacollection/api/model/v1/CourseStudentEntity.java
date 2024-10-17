@@ -1,20 +1,15 @@
 package ca.bc.gov.educ.graddatacollection.api.model.v1;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Builder
@@ -31,9 +26,11 @@ public class CourseStudentEntity {
   @Column(name = "COURSE_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID courseStudentID;
 
-  @NotNull(message = "incomingFilesetID cannot be null")
-  @Column(name = "INCOMING_FILESET_ID", columnDefinition = "BINARY(16)")
-  UUID incomingFilesetID;
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @ManyToOne(optional = false, targetEntity = IncomingFilesetEntity.class)
+  @JoinColumn(name = "INCOMING_FILESET_ID", referencedColumnName = "INCOMING_FILESET_ID", updatable = false)
+  private IncomingFilesetEntity incomingFileset;
 
   @NotNull(message = "studentStatusCode cannot be null")
   @Column(name = "STUDENT_STATUS_CODE")
@@ -110,5 +107,10 @@ public class CourseStudentEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   LocalDateTime updateDate;
+
+  public int getUniqueObjectHash() {
+    return Objects.hash(incomingFileset.getSchoolID(), localID, pen, lastName, courseCode, courseLevel, courseYear, courseMonth, interimPercentage, finalPercentage, finalGrade, courseStatus, lastName, numberOfCredits,
+            relatedCourse, relatedLevel, courseDescription, courseType, courseGraduationRequirement);
+  }
 
 }
