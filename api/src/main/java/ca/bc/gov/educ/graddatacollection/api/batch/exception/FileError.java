@@ -60,7 +60,7 @@ public enum FileError {
   /**
    * The filetype ended in the wrong extension and may be the wrong filetype.
    */
-  INVALID_FILE_EXTENSION("File extension invalid. Files must be of type \".dem\" or \".crs\" or \".xam\"."),
+  INVALID_FILE_EXTENSION("File extension invalid. Files must be of type \".stddem\" or \".stdcrs\" or \".stdxam\"."),
 
   NO_FILE_EXTENSION("No file extension provided. Files must be of type \".ver\" or \".std\"."),
 
@@ -119,7 +119,7 @@ public enum FileError {
    * The held back for sfas code
    */
   HELD_BACK_FOR_SFAS("Held back for SFAS."),
-  FILE_NOT_ALLOWED("File type no allowed"),
+  FILE_NOT_ALLOWED("File type not allowed"),
 
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 

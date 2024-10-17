@@ -38,84 +38,19 @@ public class GradFileValidator {
     }
 
     public void validateFileForFormatAndLength(@NonNull final String guid, @NonNull final DataSet ds, @NonNull final String lengthError) throws FileUnProcessableException {
-        if (ds.getErrors() != null && !ds.getErrors().isEmpty()) {
-//            this.validateHeaderWhenFileHasLengthErrors(guid, ds);
-//            this.validateTrailerWhenFileHasLengthErrors(guid, ds);
-        } else {
-//            this.validateHeaderTrailerWhenFileHasNoLengthErrors(guid, ds);
-        }
         this.processDataSetForRowLengthErrors(guid, ds, lengthError);
     }
 
-//    private void validateTrailerWhenFileHasLengthErrors(final String guid, final DataSet ds) throws FileUnProcessableException {
-//        final int totalRecords = ds.getRowCount() + ds.getErrorCount();
-//        final Optional<DataError> isErrorOnLastLineOptional = ds.getErrors().stream().filter(el -> el.getLineNo() == totalRecords).findFirst();
-//        if (isErrorOnLastLineOptional.isPresent()) {
-//            if (!StringUtils.startsWith(isErrorOnLastLineOptional.get().getRawData(), TRAILER_STARTS_WITH)) {
-//                throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, GradCollectionStatus.LOAD_FAIL);
-//            }
-//        } else {
-//            ds.goBottom();
-//            if (!StringUtils.startsWith(ds.getRawData(), TRAILER_STARTS_WITH)) {
-//                throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, GradCollectionStatus.LOAD_FAIL);
-//            }
-//            ds.goTop(); // reset and move the cursor to top as everything is fine.
-//        }
-//    }
-
-//    public void validateHeaderWhenFileHasLengthErrors(final String guid, final DataSet ds) throws FileUnProcessableException {
-//        final Optional<DataError> isErrorOnFirstLineOptional = ds.getErrors().stream().filter(el -> el.getLineNo() == 1).findFirst();
-//        if (isErrorOnFirstLineOptional.isPresent()) {
-//            if (!StringUtils.startsWith(isErrorOnFirstLineOptional.get().getRawData(), HEADER_STARTS_WITH)) {
-//                throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, GradCollectionStatus.LOAD_FAIL);
-//            }
-//        } else {
-//            ds.goTop();
-//            ds.next();
-//            if (!StringUtils.startsWith(ds.getRawData(), HEADER_STARTS_WITH)) {
-//                throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, GradCollectionStatus.LOAD_FAIL);
-//            }
-//            ds.goTop();
-//        }
-//    }
-
-//    public void validateHeaderTrailerWhenFileHasNoLengthErrors(final String guid, final DataSet ds) throws FileUnProcessableException {
-//        ds.goTop();
-//        ds.next();
-//        if (!StringUtils.startsWith(ds.getRawData(), HEADER_STARTS_WITH)) {
-//            throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, GradCollectionStatus.LOAD_FAIL);
-//        }
-//        ds.goBottom();
-//        if (!StringUtils.startsWith(ds.getRawData(), TRAILER_STARTS_WITH)) {
-//            throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, GradCollectionStatus.LOAD_FAIL);
-//        }
-//        ds.goTop(); // reset and move the cursor to top as everything is fine.
-//    }
 
     private static boolean isMalformedRowError(DataError error, String lengthError) {
         String description = error.getErrorDesc();
-
         return description.contains(lengthError);
-//        (description.contains(HEADER_LENGTH_ERROR)
-//                ||
-//
-//                || description.contains(TRAILER_LENGTH_ERROR))
     }
 
     private String getMalformedRowMessage(String errorDescription, DataError error, String lengthError) {
-//        if (errorDescription.contains(HEADER_LENGTH_ERROR)) {
-//            return this.getHeaderRowLengthIncorrectMessage(errorDescription);
-//        }
-
         if (errorDescription.contains(lengthError)) {
             return this.getDetailRowLengthIncorrectMessage(error, errorDescription);
         }
-
-        // Ignore trailer length errors due to inconsistency in flat files
-//        if (errorDescription.contains(TRAILER_LENGTH_ERROR)) {
-//            return null;
-//        }
-
         return "The uploaded file contains a malformed row that could not be identified.";
     }
 
@@ -153,7 +88,7 @@ public class GradFileValidator {
                 .findFirst();
 
         // Ignore trailer length errors due to inconsistency in flat files
-        if (maybeError.isPresent() && ds.getRowCount() != maybeError.get().getLineNo() - 1) {
+        if (maybeError.isPresent() && ds.getRowCount() != maybeError.get().getLineNo()) {
             DataError error = maybeError.get();
             String message = this.getMalformedRowMessage(error.getErrorDesc(), error, lengthError);
             throw new FileUnProcessableException(
@@ -188,25 +123,6 @@ public class GradFileValidator {
         }
         return "Detail record " + (error.getLineNo() - 1) + " is missing characters.";
     }
-
-    /**
-     * Process student count for mismatch and size.
-     *
-     * @param guid      the guid
-     * @throws FileUnProcessableException the file un processable exception
-     */
-//    public void validateStudentCountForMismatchAndSize(final String guid, final SdcBatchFile batchFile) throws FileUnProcessableException {
-//        if (!StringUtils.isNumeric(batchFile.getBatchFileTrailer().getStudentCount())) {
-//            throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL, batchFile.getBatchFileTrailer().getStudentCount(), String.valueOf(batchFile.getStudentDetails().size()));
-//        }
-//        final int studentCount = Integer.parseInt(batchFile.getBatchFileTrailer().getStudentCount());
-//        if (studentCount <= 0) {
-//            throw new FileUnProcessableException(FileError.STUDENT_COUNT_NO_STUDENTS, guid, GradCollectionStatus.LOAD_FAIL);
-//        }
-//        if (studentCount != batchFile.getStudentDetails().size()) {
-//            throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL, batchFile.getBatchFileTrailer().getStudentCount(), String.valueOf(batchFile.getStudentDetails().size()));
-//        }
-//    }
 
     public void validateFileHasCorrectExtension(@NonNull final String guid, final GradFileUpload fileUpload, String allowedExtension) throws FileUnProcessableException {
         String fileName = fileUpload.getFileName();

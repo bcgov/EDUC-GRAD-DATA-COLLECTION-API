@@ -41,7 +41,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileContents(fileContents)
                 .createUser("ABC")
                 .fileName("student-dem-file.ver")
-                .fileType("dem")
+                .fileType("ver")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
@@ -62,8 +62,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-dem-file-incorrect-length.dem")
-                .fileType("dem")
+                .fileName("student-dem-file-incorrect-length.stddem")
+                .fileType("stddem")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
@@ -83,8 +83,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-dem-file.dem")
-                .fileType("dem")
+                .fileName("student-dem-file.stddem")
+                .fileType("stddem")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
@@ -92,5 +92,89 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    void testProcessGradFile_givenFiletypeXAM_WithIncorrectRecordLength_ShouldReturnBadRequest() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file-incorrect-length.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-xam-file-incorrect-length.stdxam")
+                .fileType("stdxam")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+    }
+
+//    @Test
+//    void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
+//        SchoolTombstone schoolTombstone = this.createMockSchool();
+//        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+//
+//        final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
+//        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+//        GradFileUpload verFile = GradFileUpload.builder()
+//                .fileContents(fileContents)
+//                .createUser("ABC")
+//                .fileName("student-xam-file.stdxam")
+//                .fileType("stdxam")
+//                .build();
+//
+//        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+//                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+//                .header("correlationID", UUID.randomUUID().toString())
+//                .content(JsonUtil.getJsonStringFromObject(verFile))
+//                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+//    }
+
+    @Test
+    void testProcessGradFile_givenFiletypeCRS_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-crs-file.stdcrs")
+                .fileType("stdcrs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    void testProcessGradFile_givenFiletypeCRS_WithIncorrectRecordLength_ShouldReturnBadRequest() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file-incorrect-length.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-crs-file-incorrect-length.stdcrs")
+                .fileType("stdcrs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 }
