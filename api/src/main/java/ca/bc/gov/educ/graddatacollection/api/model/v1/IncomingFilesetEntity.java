@@ -85,11 +85,35 @@ public class IncomingFilesetEntity {
     @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = DemographicStudentEntity.class)
     Set<DemographicStudentEntity> demographicStudentEntities;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = CourseStudentEntity.class)
+    Set<CourseStudentEntity> courseStudentEntities;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = AssessmentStudentEntity.class)
+    Set<AssessmentStudentEntity> assessmentStudentEntities;
+
     public Set<DemographicStudentEntity> getDemographicStudentEntities() {
         if (this.demographicStudentEntities == null) {
             this.demographicStudentEntities = new HashSet<>();
         }
         return this.demographicStudentEntities;
+    }
+
+    public Set<CourseStudentEntity> getCourseStudentEntities() {
+        if (this.courseStudentEntities == null) {
+            this.courseStudentEntities = new HashSet<>();
+        }
+        return this.courseStudentEntities;
+    }
+
+    public Set<AssessmentStudentEntity> getAssessmentStudentEntities() {
+        if (this.assessmentStudentEntities == null) {
+            this.assessmentStudentEntities = new HashSet<>();
+        }
+        return this.assessmentStudentEntities;
     }
 
 

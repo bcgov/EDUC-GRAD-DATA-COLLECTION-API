@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.service;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
-import ca.bc.gov.educ.graddatacollection.api.batch.mapper.DemBatchFileMapper;
+import ca.bc.gov.educ.graddatacollection.api.batch.mapper.BatchFileMapper;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileBatchProcessor;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogDetails;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogFile;
@@ -9,12 +9,11 @@ import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import com.nimbusds.jose.util.Pair;
 import lombok.Getter;
@@ -45,18 +44,18 @@ public class GradDemFileService implements GradFileBatchProcessor {
     @Getter(PRIVATE)
     private final GradFileValidator gradFileValidator;
     public static final String TRANSACTION_CODE_STUDENT_DEMOG_RECORD = "E02";
-    private static final DemBatchFileMapper mapper = DemBatchFileMapper.mapper;
+    private static final BatchFileMapper mapper = BatchFileMapper.mapper;
     @Getter(PRIVATE)
     private final IncomingFilesetRepository incomingFilesetRepository;
     @Getter(PRIVATE)
-    private final DemographicStudentService demographicStudentService;
+    private final IncomingFilesetService incomingFilesetService;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentDemogFile();
         this.populateBatchFile(guid, ds, batchFile);
-        this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID, false);
+        this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
     public void populateBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile) throws FileUnProcessableException {
@@ -67,8 +66,8 @@ public class GradDemFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentDemogFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID, final boolean isDistrictUpload) {
-        log.debug("Going to persist data for batch :: {}", guid);
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentDemogFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) {
+        log.debug("Going to persist DEM data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingDEMBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
         for (final var student : batchFile.getDemogData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var demStudentEntity = mapper.toDEMStudentEntity(student, entity);
@@ -89,17 +88,17 @@ public class GradDemFileService implements GradFileBatchProcessor {
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
 
-            currentFileset.setDemFileStatusCode(String.valueOf(FilesetStatus.DEM_LOADED.getCode()));
+            currentFileset.setDemFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
-
-            return demographicStudentService.reconcileStudentsAndSaveSdcSchoolCollection(currentFileset, pairStudentList.getLeft());
+            currentFileset.getDemographicStudentEntities().clear();
+            currentFileset.getDemographicStudentEntities().addAll(pairStudentList.getLeft());
+            return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
-            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.DEM_LOADED.getCode()));
-            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.NOT_STARTED.getCode()));
-            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_STARTED.getCode()));
+            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
+            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
+            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
             incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
-
-            return this.incomingFilesetRepository.save(incomingFilesetEntity);
+            return incomingFilesetService.saveIncomingFilesetRecord(incomingFilesetEntity);
         }
     }
 
@@ -108,8 +107,8 @@ public class GradDemFileService implements GradFileBatchProcessor {
         Map<Integer,DemographicStudentEntity> finalStudentsMap = new HashMap<>();
         List<UUID> removedStudents = new ArrayList<>();
         incomingFileset.getDemographicStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-        log.debug("Found {} current students", currentFileset.getDemographicStudentEntities().size());
-        log.debug("Found {} incoming students", incomingStudentsHashCodes.size());
+        log.debug("Found {} current students in DEM File", currentFileset.getDemographicStudentEntities().size());
+        log.debug("Found {} incoming students in DEM File", incomingStudentsHashCodes.size());
 
         currentFileset.getDemographicStudentEntities().forEach(currentStudent -> {
             var currentStudentHash = currentStudent.getUniqueObjectHash();
@@ -129,7 +128,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
         });
 
         finalStudentsMap.values().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
-        log.debug("Found {} new students for IncomingFilesetID {}", newStudCount, currentFileset.getIncomingFilesetID());
+        log.debug("Found {} new students for IncomingFilesetID {} in DEM File", newStudCount, currentFileset.getIncomingFilesetID());
         return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
     }
 

@@ -1,21 +1,24 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.mapper;
 
+import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentAssessmentDetails;
+import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentCourseDetails;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogDetails;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.UUID;
 
 @Slf4j
-public abstract class BatchFileDecorator implements DemBatchFileMapper{
-    private final DemBatchFileMapper delegate;
+public abstract class BatchFileDecorator implements BatchFileMapper {
+    private final BatchFileMapper delegate;
 
-    protected BatchFileDecorator(DemBatchFileMapper delegate) {
+    protected BatchFileDecorator(BatchFileMapper delegate) {
         this.delegate = delegate;
     }
 
@@ -24,6 +27,22 @@ public abstract class BatchFileDecorator implements DemBatchFileMapper{
         final var entity = this.delegate.toIncomingDEMBatchEntity(upload, schoolID);
         entity.setSchoolID(UUID.fromString(schoolID));
         entity.setDemFileName(upload.getFileName());
+        return entity;
+    }
+
+    @Override
+    public IncomingFilesetEntity toIncomingCRSBatchEntity(final GradFileUpload upload, final String schoolID) {
+        final var entity = this.delegate.toIncomingDEMBatchEntity(upload, schoolID);
+        entity.setSchoolID(UUID.fromString(schoolID));
+        entity.setCrsFileName(upload.getFileName());
+        return entity;
+    }
+
+    @Override
+    public IncomingFilesetEntity toIncomingXAMBatchEntity(final GradFileUpload upload, final String schoolID) {
+        final var entity = this.delegate.toIncomingXAMBatchEntity(upload, schoolID);
+        entity.setSchoolID(UUID.fromString(schoolID));
+        entity.setXamFileName(upload.getFileName());
         return entity;
     }
 
@@ -57,6 +76,55 @@ public abstract class BatchFileDecorator implements DemBatchFileMapper{
         entity.setProgramCadreFlag(StringMapper.trimAndUppercase(studentDetails.getProgramCadreFlag()));
         entity.setGradRequirementYear(StringMapper.trimAndUppercase(studentDetails.getGradRequirementYear()));
         entity.setSchoolCertificateCompletionDate(StringMapper.trimAndUppercase(studentDetails.getSscpCompletionDate()));
+
+        return entity;
+    }
+
+    @Override
+    public CourseStudentEntity toCRSStudentEntity(GradStudentCourseDetails courseDetails, IncomingFilesetEntity incomingFilesetEntity) {
+        final var entity = this.delegate.toCRSStudentEntity(courseDetails, incomingFilesetEntity);
+        entity.setIncomingFileset(incomingFilesetEntity); // add thePK/FK relationship
+        entity.setStudentStatusCode(SchoolStudentStatus.LOADED.getCode());
+
+        entity.setPen(StringMapper.trimAndUppercase(courseDetails.getPen()));
+        entity.setTransactionID(StringMapper.trimAndUppercase(courseDetails.getTransactionCode()));
+        entity.setLocalID(StringMapper.trimAndUppercase(courseDetails.getLocalId()));
+        entity.setCourseCode(StringMapper.trimAndUppercase(courseDetails.getCourseCode()));
+        entity.setCourseLevel(StringMapper.trimAndUppercase(courseDetails.getCourseLevel()));
+        entity.setCourseYear(StringMapper.trimAndUppercase(courseDetails.getCourseYear()));
+        entity.setCourseMonth(StringMapper.trimAndUppercase(courseDetails.getCourseMonth()));
+        entity.setInterimPercentage(StringMapper.trimAndUppercase(courseDetails.getInterimPercentage()));
+        entity.setFinalPercentage(StringMapper.trimAndUppercase(courseDetails.getFinalPercentage()));
+
+        entity.setFinalGrade(StringMapper.trimAndUppercase(courseDetails.getFinalLetterGrade()));
+        entity.setCourseStatus(StringMapper.trimAndUppercase(courseDetails.getCourseStatus()));
+        entity.setLastName(StringMapper.trimAndUppercase(courseDetails.getLegalSurname()));
+        entity.setRelatedCourse(StringMapper.trimAndUppercase(courseDetails.getRelatedCourse()));
+        entity.setRelatedLevel(StringMapper.trimAndUppercase(courseDetails.getRelatedCourseLevel()));
+        entity.setCourseDescription(StringMapper.trimAndUppercase(courseDetails.getCourseDesc()));
+        entity.setCourseType(StringMapper.trimAndUppercase(courseDetails.getCourseType()));
+        entity.setCourseGraduationRequirement(StringMapper.trimAndUppercase(courseDetails.getCourseGradReqt()));
+
+        return entity;
+    }
+
+    @Override
+    public AssessmentStudentEntity toXAMStudentEntity(GradStudentAssessmentDetails assessmentDetails, IncomingFilesetEntity incomingFilesetEntity) {
+        final var entity = this.delegate.toXAMStudentEntity(assessmentDetails, incomingFilesetEntity);
+        entity.setIncomingFileset(incomingFilesetEntity); // add thePK/FK relationship
+        entity.setStudentStatusCode(SchoolStudentStatus.LOADED.getCode());
+
+        entity.setPen(StringMapper.trimAndUppercase(assessmentDetails.getPen()));
+        entity.setTransactionID(StringMapper.trimAndUppercase(assessmentDetails.getTransactionCode()));
+        entity.setLocalID(StringMapper.trimAndUppercase(assessmentDetails.getLocalId()));
+        entity.setCourseCode(StringMapper.trimAndUppercase(assessmentDetails.getCourseCode()));
+        entity.setCourseYear(StringMapper.trimAndUppercase(assessmentDetails.getCourseYear()));
+        entity.setCourseMonth(StringMapper.trimAndUppercase(assessmentDetails.getCourseMonth()));
+        entity.setIsElectronicExam(StringMapper.trimAndUppercase(assessmentDetails.getEExamFlag()));
+        entity.setLocalCourseID(StringMapper.trimAndUppercase(assessmentDetails.getLocalCourseId()));
+        entity.setProvincialSpecialCase(StringMapper.trimAndUppercase(assessmentDetails.getProvSpecCase()));
+        entity.setCourseStatus(StringMapper.trimAndUppercase(assessmentDetails.getCourseStatus()));
+        entity.setLastName(StringMapper.trimAndUppercase(assessmentDetails.getLegalSurname()));
 
         return entity;
     }

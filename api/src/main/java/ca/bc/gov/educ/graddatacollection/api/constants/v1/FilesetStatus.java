@@ -4,13 +4,10 @@ import lombok.Getter;
 
 
 public enum FilesetStatus {
-    DEM_LOADED("DEMLOADED"),
-    XAM_LOADED("XAMLOADED"),
-    CRS_LOADED("CRSLOADED"),
     DELETED("DELETED"),
     COMPLETED("COMPLETED"),
     LOADED("LOADED"),
-    NOT_STARTED("NOTSTARTED")
+    NOT_LOADED("NOTLOADED")
     ;
 
     @Getter

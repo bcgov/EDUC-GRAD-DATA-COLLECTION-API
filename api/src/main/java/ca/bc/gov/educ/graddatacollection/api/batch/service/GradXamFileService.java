@@ -1,51 +1,125 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.service;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
+import ca.bc.gov.educ.graddatacollection.api.batch.mapper.BatchFileMapper;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.*;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
-import lombok.NoArgsConstructor;
+import com.nimbusds.jose.util.Pair;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.sf.flatpack.DataSet;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.FINAL_PERCENTAGE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.VENDOR_ID;
+import static lombok.AccessLevel.PRIVATE;
 
 @Service("stdxam")
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class GradXamFileService implements GradFileBatchProcessor {
-    // TOD0: QuesUse E06 for transactions sent to the Ministry. The Ministry will use E07 for transactions sent to the school.
-
     public static final String TRANSACTION_CODE_STUDENT_XAM_RECORD = "E06";
+    private static final BatchFileMapper mapper = BatchFileMapper.mapper;
+    @Getter(PRIVATE)
+    private final IncomingFilesetRepository incomingFilesetRepository;
+    @Getter(PRIVATE)
+    private final IncomingFilesetService incomingFilesetService;
 
     @Override
     public void populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentXamFile();
         this.populateBatchFile(guid, ds, batchFile);
-
+        this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
     public void populateBatchFile(final String guid, final DataSet ds, final GradStudentXamFile batchFile) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
-//            if (ds.isRecordID(HEADER.getName()) || ds.isRecordID(TRAILER.getName())) {
-//                this.setHeaderOrTrailer(ds, batchFile);
-//                index++;
-//                continue;
-//            }
             batchFile.getAssessmentData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
             index++;
         }
+    }
 
-//        if(batchFile.getBatchFileTrailer() == null) {
-//            setManualTrailer(guid, ds, batchFile);
-//        }
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentXamFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) {
+        log.debug("Going to persist XAM data for batch :: {}", guid);
+        final IncomingFilesetEntity entity = mapper.toIncomingXAMBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
+        for (final var student : batchFile.getAssessmentData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
+            final var assessmentStudentEntity = mapper.toXAMStudentEntity(student, entity);
+            entity.getAssessmentStudentEntities().add(assessmentStudentEntity);
+        }
+        return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
+    }
+
+    @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
+    public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
+        var fileSetEntity = incomingFilesetRepository.findBySchoolID(UUID.fromString(schoolID));
+        if(fileSetEntity.isPresent()) {
+            var currentFileset = fileSetEntity.get();
+            var pairStudentList = compareAndShoreUpStudentList(currentFileset, incomingFilesetEntity);
+            currentFileset.setXamFileUploadDate(incomingFilesetEntity.getXamFileUploadDate());
+            currentFileset.setXamFileName(incomingFilesetEntity.getXamFileName());
+            currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
+            currentFileset.setUpdateDate(LocalDateTime.now());
+
+            currentFileset.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
+            currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
+            currentFileset.getAssessmentStudentEntities().clear();
+            currentFileset.getAssessmentStudentEntities().addAll(pairStudentList.getLeft());
+            return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
+        } else {
+            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
+            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
+            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
+            incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
+            return incomingFilesetService.saveIncomingFilesetRecord(incomingFilesetEntity);
+        }
+    }
+
+    private Pair<List<AssessmentStudentEntity>, List<UUID>> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
+        Map<Integer, AssessmentStudentEntity> incomingStudentsHashCodes = new HashMap<>();
+        Map<Integer,AssessmentStudentEntity> finalStudentsMap = new HashMap<>();
+        List<UUID> removedStudents = new ArrayList<>();
+        incomingFileset.getAssessmentStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
+        log.debug("Found {} current students in XAM file", currentFileset.getDemographicStudentEntities().size());
+        log.debug("Found {} incoming students in XAM file", incomingStudentsHashCodes.size());
+
+        currentFileset.getAssessmentStudentEntities().forEach(currentStudent -> {
+            var currentStudentHash = currentStudent.getUniqueObjectHash();
+            if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudent.getStudentStatusCode().equals(SchoolStudentStatus.DELETED.toString())){
+                finalStudentsMap.put(currentStudentHash, currentStudent);
+            }else{
+                removedStudents.add(currentStudent.getAssessmentStudentID());
+            }
+        });
+
+        AtomicInteger newStudCount = new AtomicInteger();
+        incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
+            if(!finalStudentsMap.containsKey(incomingStudentHash)){
+                newStudCount.getAndIncrement();
+                finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
+            }
+        });
+
+        finalStudentsMap.values().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
+        log.debug("Found {} new students for IncomingFilesetID {} in XAM File", newStudCount, currentFileset.getIncomingFilesetID());
+        return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
     }
 
     private GradStudentAssessmentDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {

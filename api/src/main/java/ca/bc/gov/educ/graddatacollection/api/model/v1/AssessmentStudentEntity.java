@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Builder
@@ -89,5 +90,9 @@ public class AssessmentStudentEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   LocalDateTime updateDate;
+
+  public int getUniqueObjectHash() {
+    return Objects.hash(incomingFileset.getSchoolID(), localID, pen, lastName, courseCode, courseYear, courseMonth, isElectronicExam, localCourseID, provincialSpecialCase, courseStatus, lastName);
+  }
 
 }
