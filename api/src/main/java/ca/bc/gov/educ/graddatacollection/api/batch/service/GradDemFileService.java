@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.service;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
-import ca.bc.gov.educ.graddatacollection.api.batch.mapper.BatchFileMapper;
+import ca.bc.gov.educ.graddatacollection.api.batch.mappers.BatchFileMapper;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileBatchProcessor;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogDetails;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogFile;
@@ -54,13 +54,15 @@ public class GradDemFileService implements GradFileBatchProcessor {
     @Transactional(propagation = Propagation.MANDATORY)
     public void populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentDemogFile();
-        this.populateBatchFile(guid, ds, batchFile);
+        this.populateBatchFile(guid, ds, batchFile, schoolID);
         this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
-    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile) throws FileUnProcessableException {
+    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
+            final var mincode = ds.getString(MINCODE.getName());
+            gradFileValidator.validateMincode(guid, schoolID, mincode);
             batchFile.getDemogData().add(this.getStudentDemogDetailRecordFromFile(ds, guid, index));
             index++;
         }

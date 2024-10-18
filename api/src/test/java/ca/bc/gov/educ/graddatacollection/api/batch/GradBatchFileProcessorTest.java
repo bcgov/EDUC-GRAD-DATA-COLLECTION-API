@@ -6,6 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepo
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -14,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileInputStream;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
@@ -30,6 +34,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     GradBatchFileProcessor gradBatchFileProcessor;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
+    @Autowired
+    RestUtils restUtils;
 
     @AfterEach
     public void afterEach() {
@@ -42,6 +48,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessDEMFile_givenIncomingFilesetRecordExists_ShouldUpdateCRSRecord() throws Exception {
         var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
@@ -74,6 +82,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessCRSFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
         var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
@@ -106,6 +116,9 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessXAMFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
         var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 

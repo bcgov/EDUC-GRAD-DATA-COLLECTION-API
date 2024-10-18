@@ -1,14 +1,14 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.service;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
-import ca.bc.gov.educ.graddatacollection.api.batch.mapper.BatchFileMapper;
+import ca.bc.gov.educ.graddatacollection.api.batch.mappers.BatchFileMapper;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.*;
+import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
+import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MINCODE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.FINAL_PERCENTAGE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.VENDOR_ID;
@@ -41,17 +42,21 @@ public class GradXamFileService implements GradFileBatchProcessor {
     private final IncomingFilesetRepository incomingFilesetRepository;
     @Getter(PRIVATE)
     private final IncomingFilesetService incomingFilesetService;
+    @Getter(PRIVATE)
+    private final GradFileValidator gradFileValidator;
 
     @Override
     public void populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentXamFile();
-        this.populateBatchFile(guid, ds, batchFile);
+        this.populateBatchFile(guid, ds, batchFile, schoolID);
         this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
-    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentXamFile batchFile) throws FileUnProcessableException {
+    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentXamFile batchFile, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
+            final var mincode = ds.getString(MINCODE.getName());
+            gradFileValidator.validateMincode(guid, schoolID, mincode);
             batchFile.getAssessmentData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
             index++;
         }

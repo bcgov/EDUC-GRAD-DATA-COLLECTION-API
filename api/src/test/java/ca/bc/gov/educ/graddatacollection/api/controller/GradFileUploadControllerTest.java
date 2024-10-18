@@ -78,7 +78,6 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
-
     }
 
     @Test
@@ -147,6 +146,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
@@ -158,7 +158,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileType("stdxam")
                 .build();
 
-        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
@@ -181,6 +181,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessGradFile_givenFiletypeCRS_ShouldReturnOk() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file.txt");
@@ -192,7 +193,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileType("stdcrs")
                 .build();
 
-        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
@@ -215,6 +216,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessGradFile_givenFiletypeDEM_ShouldReturnOk() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
@@ -226,7 +228,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileType("stddem")
                 .build();
 
-        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))

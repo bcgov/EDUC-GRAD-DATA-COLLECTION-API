@@ -1,26 +1,40 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.validation;
 
+import ca.bc.gov.educ.graddatacollection.api.batch.constants.FileType;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @Slf4j
 public class GradFileValidator {
     public static final String TOO_LONG = "TOO LONG";
+
+    private final DemographicStudentRepository demographicStudentRepository;
+    private final CourseStudentRepository courseStudentRepository;
+    private final AssessmentStudentRepository assessmentStudentRepository;
     private final RestUtils restUtils;
 
-    public GradFileValidator(RestUtils restUtils) {
+    public GradFileValidator(DemographicStudentRepository demographicStudentRepository, CourseStudentRepository courseStudentRepository, AssessmentStudentRepository assessmentStudentRepository, RestUtils restUtils) {
+        this.demographicStudentRepository = demographicStudentRepository;
+        this.courseStudentRepository = courseStudentRepository;
+        this.assessmentStudentRepository = assessmentStudentRepository;
         this.restUtils = restUtils;
     }
 
@@ -97,71 +111,25 @@ public class GradFileValidator {
         }
     }
 
-//    public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final SdcSchoolCollectionEntity sdcSchoolCollectionEntity) throws FileUnProcessableException {
-//        String fileMincode = pluckMincodeFromFile(ds, guid);
-//
-//        String schoolID = sdcSchoolCollectionEntity.getSchoolID().toString();
-//        Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID);
-//
-//        if (school.isEmpty()) {
-//            throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, fileMincode);
-//        }
-//
-//        String mincode = school.get().getMincode();
-//        if (!fileMincode.equals(mincode)) {
-//            throw new FileUnProcessableException(
-//                    FileError.MINCODE_MISMATCH,
-//                    guid,
-//                    GradCollectionStatus.LOAD_FAIL,
-//                    mincode
-//            );
-//        }
-//
-//        ds.goTop();
-//    }
-//
-//    public void validateFileUploadIsNotInProgress(@NonNull final String guid, @NonNull final DataSet ds,final SdcSchoolCollectionEntity sdcSchoolCollectionEntity) throws FileUnProcessableException {
-//        long inFlightCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCode(sdcSchoolCollectionEntity.getSdcSchoolCollectionID(), "LOADED");
-//
-//        if (inFlightCount > 0) {
-//            String fileMincode = pluckMincodeFromFile(ds, guid);
-//            throw new FileUnProcessableException(FileError.CONFLICT_FILE_ALREADY_IN_FLIGHT, guid, GradCollectionStatus.LOAD_FAIL, fileMincode);
-//        }
-//    }
-//
-//    public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
-//        var currentDate = LocalDateTime.now();
-//        LocalDateTime openDate = null;
-//        LocalDateTime closeDate = null;
-//        try {
-//            openDate = LocalDateTime.parse(school.getOpenedDate());
-//
-//            if (openDate.isAfter(currentDate)){
-//                throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, GradCollectionStatus.LOAD_FAIL, districtID);
-//            }
-//
-//            if(school.getClosedDate() != null) {
-//                closeDate = LocalDateTime.parse(school.getClosedDate());
-//            }else{
-//                closeDate = LocalDateTime.now().plusDays(5);
-//            }
-//        } catch (DateTimeParseException e) {
-//            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_DATES, guid, GradCollectionStatus.LOAD_FAIL, districtID);
-//        }
-//
-//        if (!(openDate.isBefore(currentDate) && closeDate.isAfter(currentDate))) {
-//            throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, GradCollectionStatus.LOAD_FAIL, districtID);
-//        }
-//
-//        String schoolDistrictID = school.getDistrictId();
-//
-//        if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
-//            throw new FileUnProcessableException(
-//                    FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
-//                    guid,
-//                    GradCollectionStatus.LOAD_FAIL
-//            );
-//        }
-//
-//    }
+    public void validateFileUploadIsNotInProgress(@NonNull final String guid, final String schoolID) throws FileUnProcessableException {
+        long inFlightDemCount = demographicStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), "LOADED");
+        long inFlightCrsCount = courseStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), "LOADED");
+        long inFlightXamCount = assessmentStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), "LOADED");
+
+        if (inFlightDemCount > 0 && inFlightCrsCount > 0 && inFlightXamCount > 0) {
+            String schoolMincode = getMincode(guid, schoolID);
+            throw new FileUnProcessableException(FileError.CONFLICT_FILE_ALREADY_IN_FLIGHT, guid, GradCollectionStatus.LOAD_FAIL, schoolMincode);
+        }
+    }
+    public void validateMincode(@NonNull final String guid, final String schoolID, String fileMincode) throws FileUnProcessableException {
+        String schoolMincode = getMincode(guid, schoolID);
+        if (!fileMincode.equals(schoolMincode)) {
+            throw new FileUnProcessableException(FileError.MINCODE_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL,fileMincode);
+        }
+    }
+    public String getMincode(@NonNull final String guid,final String schoolID) throws FileUnProcessableException {
+        Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
+        SchoolTombstone school = schoolOptional.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, schoolID));
+        return school.getMincode();
+    }
 }

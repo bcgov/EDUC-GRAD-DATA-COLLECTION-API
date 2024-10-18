@@ -1,14 +1,15 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.service;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
-import ca.bc.gov.educ.graddatacollection.api.batch.mapper.BatchFileMapper;
+import ca.bc.gov.educ.graddatacollection.api.batch.mappers.BatchFileMapper;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.*;
+import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
@@ -48,18 +49,22 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     private final IncomingFilesetRepository incomingFilesetRepository;
     @Getter(PRIVATE)
     private final IncomingFilesetService incomingFilesetService;
+    @Getter(PRIVATE)
+    private final GradFileValidator gradFileValidator;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentCourseFile();
-        this.populateBatchFile(guid, ds, batchFile);
+        this.populateBatchFile(guid, ds, batchFile, schoolID);
         this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
-    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile) throws FileUnProcessableException {
+    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
+            final var mincode = ds.getString(DEMBatchFile.MINCODE.getName());
+            gradFileValidator.validateMincode(guid, schoolID, mincode);
             batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
             index++;
         }

@@ -60,15 +60,9 @@ public class GradBatchFileProcessor {
 
         gradFileValidator.validateFileHasCorrectExtension(guid, fileUpload, fileDetails.getAllowedExtensions());
         gradFileValidator.validateFileForFormatAndLength(guid, ds, fileDetails.getDetailedRecordSizeError());
+        gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
 
-        //TODO: Move this mincode check to later as it's in every record
-//        var schoolGet = gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
-//      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionByID(sdcSchoolCollectionID, schoolGet.getMincode(), guid);
-//      this.resetFileUploadMetadata(sdcSchoolCollection);
-
-//      gradFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection);
-//      gradFileValidator.validateFileUploadIsNotInProgress(guid, ds, sdcSchoolCollection);
-      studentDetailsMap.get(fileDetails.getCode()).populateBatchFileAndLoadData(guid, ds, fileUpload, schoolID);
+        studentDetailsMap.get(fileDetails.getCode()).populateBatchFileAndLoadData(guid, ds, fileUpload, schoolID);
         } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
             log.error("File could not be processed exception :: {}", fileUnProcessableException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();

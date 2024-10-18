@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.graddatacollection.api.batch.mapper;
+package ca.bc.gov.educ.graddatacollection.api.batch.mappers;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentAssessmentDetails;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentCourseDetails;
