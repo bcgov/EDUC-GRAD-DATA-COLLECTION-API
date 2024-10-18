@@ -1,20 +1,16 @@
 package ca.bc.gov.educ.graddatacollection.api.model.v1;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import ca.bc.gov.educ.graddatacollection.api.util.UpperCase;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Builder
@@ -31,9 +27,11 @@ public class DemographicStudentEntity {
   @Column(name = "DEMOGRAPHIC_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID demographicStudentID;
 
-  @NotNull(message = "incomingFilesetID cannot be null")
-  @Column(name = "INCOMING_FILESET_ID", columnDefinition = "BINARY(16)")
-  UUID incomingFilesetID;
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @ManyToOne(optional = false, targetEntity = IncomingFilesetEntity.class)
+  @JoinColumn(name = "INCOMING_FILESET_ID", referencedColumnName = "INCOMING_FILESET_ID", updatable = false)
+  private IncomingFilesetEntity incomingFileset;
 
   @NotNull(message = "studentStatusCode cannot be null")
   @Column(name = "STUDENT_STATUS_CODE")
@@ -49,9 +47,15 @@ public class DemographicStudentEntity {
   String pen;
 
   @Column(name = "LAST_NAME")
+  @UpperCase
   String lastName;
 
+  @Column(name = "MIDDLE_NAME")
+  @UpperCase
+  String middleName;
+
   @Column(name = "FIRST_NAME")
+  @UpperCase
   String firstName;
 
   @Column(name = "ADDRESS1")
@@ -125,5 +129,10 @@ public class DemographicStudentEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   LocalDateTime updateDate;
+
+    public int getUniqueObjectHash() {
+        return Objects.hash(incomingFileset.getSchoolID(), localID, pen, lastName, middleName, firstName, birthdate, gender, addressLine1, addressLine2, city, provincialCode, countryCode, citizenship,
+                grade, programCadreFlag, gradRequirementYear, schoolCertificateCompletionDate, postalCode, programCode1, programCode2, programCode3, programCode4, programCode5);
+    }
 
 }

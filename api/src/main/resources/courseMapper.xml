@@ -1,0 +1,27 @@
+<?xml version='1.0'?>
+<!DOCTYPE PZMAP SYSTEM	"flatpack.dtd" >
+<PZMAP>
+    <COLUMN name="transactionCode" length="3" />
+    <COLUMN name="vendorId" length="1" />
+    <COLUMN name="verificationFlag" length="1" />
+    <COLUMN name="filler1" length="5" />
+    <COLUMN name="mincode" length="8" />
+    <COLUMN name="localId" length="12" />
+    <COLUMN name="pen" length="10" />
+    <COLUMN name="courseCode" length="5" />
+    <COLUMN name="courseLevel" length="3" />
+    <COLUMN name="courseYear" length="4" />
+    <COLUMN name="courseMonth" length="2" />
+    <COLUMN name="interimPercentage" length="3" />
+    <COLUMN name="interimLetterGrade" length="2" />
+    <COLUMN name="finalPercentage" length="3" />
+    <COLUMN name="finalLetterGrade" length="2" />
+    <COLUMN name="courseStatus" length="1" />
+    <COLUMN name="legalSurname" length="25" />
+    <COLUMN name="numCredits" length="2" />
+    <COLUMN name="relatedCourse" length="5" />
+    <COLUMN name="relatedCourseLevel" length="3" />
+    <COLUMN name="courseDesc" length="40" />
+    <COLUMN name="courseType" length="1" />
+    <COLUMN name="courseGradReqt" length="1" />
+</PZMAP>
