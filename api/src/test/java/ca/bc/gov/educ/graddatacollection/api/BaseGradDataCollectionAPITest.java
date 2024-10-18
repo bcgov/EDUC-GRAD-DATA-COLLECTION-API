@@ -106,7 +106,6 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   public CourseStudentEntity createMockCourseStudent() {
-    var school = this.createMockSchool();
     return CourseStudentEntity.builder()
             .courseStudentID(UUID.randomUUID())
             .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
@@ -134,7 +133,6 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   public AssessmentStudentEntity createMockAssessmentStudent() {
-    var school = this.createMockSchool();
     return AssessmentStudentEntity.builder()
             .assessmentStudentID(UUID.randomUUID())
             .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())

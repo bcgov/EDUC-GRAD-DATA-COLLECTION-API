@@ -4,18 +4,13 @@ import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
-import net.sf.flatpack.Record;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -48,31 +43,6 @@ public class GradFileValidator {
             return this.getDetailRowLengthIncorrectMessage(error, errorDescription);
         }
         return "The uploaded file contains a malformed row that could not be identified.";
-    }
-    public SchoolTombstone getSchoolFromFileMincodeField(final String guid, final DataSet ds) throws FileUnProcessableException {
-        var mincode = this.pluckMincodeFromFile(ds, guid);
-        var school = restUtils.getSchoolByMincode(mincode);
-        return school.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, mincode));
-    }
-
-    public String pluckMincodeFromFile(@NonNull final DataSet ds, final String guid) throws FileUnProcessableException {
-        ds.goTop();
-        ds.next();
-        Optional<Record> dsHeader = ds.getRecord();
-//TODO
-        if (dsHeader.isEmpty()) {
-            throw new FileUnProcessableException(FileError.MISSING_HEADER, guid, GradCollectionStatus.LOAD_FAIL);
-        }
-
-        String fileMincode = dsHeader.get().getString("mincode");
-
-        if(fileMincode == null){
-            throw new FileUnProcessableException(FileError.MISSING_MINCODE, guid, GradCollectionStatus.LOAD_FAIL);
-        }
-
-        ds.goTop();
-
-        return fileMincode;
     }
 
     public void processDataSetForRowLengthErrors(@NonNull final String guid, @NonNull final DataSet ds, @NonNull final String lengthError) throws FileUnProcessableException {
