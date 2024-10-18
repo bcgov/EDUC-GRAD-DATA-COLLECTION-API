@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.batch;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.batch.processor.GradBatchFileProcessor;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
+class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Autowired
     DemographicStudentRepository demographicStudentRepository;
@@ -27,12 +28,15 @@ public class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     CourseStudentRepository courseStudentRepository;
     @Autowired
     GradBatchFileProcessor gradBatchFileProcessor;
+    @Autowired
+    AssessmentStudentRepository assessmentStudentRepository;
 
     @AfterEach
     public void afterEach() {
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
+        this.assessmentStudentRepository.deleteAll();
     }
 
     @Test
@@ -97,5 +101,37 @@ public class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
         final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(93);
+    }
+
+    @Test
+    void testProcessXAMFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
+        var school = this.createMockSchool();
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload xamFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-xam-file.stdxam")
+                .fileType("stdxam")
+                .build();
+
+        gradBatchFileProcessor.processBatchFile(xamFile, school.getSchoolId());
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getDemFileName()).isEqualTo("Test.stddem");
+        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.stdxam");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedDEMStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(206);
     }
 }

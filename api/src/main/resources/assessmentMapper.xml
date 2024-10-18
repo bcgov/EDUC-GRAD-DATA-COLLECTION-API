@@ -26,4 +26,5 @@
     <COLUMN name="numCredits" length="2" />
     <COLUMN name="courseType" length="1" />
     <COLUMN name="writeFlag" length="1" />
+    <COLUMN name="examMincode" length="8" />
 </PZMAP>

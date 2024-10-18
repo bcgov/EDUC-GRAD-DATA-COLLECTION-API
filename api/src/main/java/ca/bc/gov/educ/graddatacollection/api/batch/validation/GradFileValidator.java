@@ -36,24 +36,19 @@ public class GradFileValidator {
         }
         return bytes;
     }
-
     public void validateFileForFormatAndLength(@NonNull final String guid, @NonNull final DataSet ds, @NonNull final String lengthError) throws FileUnProcessableException {
         this.processDataSetForRowLengthErrors(guid, ds, lengthError);
     }
-
-
     private static boolean isMalformedRowError(DataError error, String lengthError) {
         String description = error.getErrorDesc();
         return description.contains(lengthError);
     }
-
     private String getMalformedRowMessage(String errorDescription, DataError error, String lengthError) {
         if (errorDescription.contains(lengthError)) {
             return this.getDetailRowLengthIncorrectMessage(error, errorDescription);
         }
         return "The uploaded file contains a malformed row that could not be identified.";
     }
-
     public SchoolTombstone getSchoolFromFileMincodeField(final String guid, final DataSet ds) throws FileUnProcessableException {
         var mincode = this.pluckMincodeFromFile(ds, guid);
         var school = restUtils.getSchoolByMincode(mincode);
@@ -98,13 +93,6 @@ public class GradFileValidator {
                     message
             );
         }
-    }
-
-    public String getHeaderRowLengthIncorrectMessage(String description) {
-        if (description.contains(TOO_LONG)) {
-            return "Header record has extraneous characters.";
-        }
-        return "Header record is missing characters.";
     }
 
     /**

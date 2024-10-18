@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.controller;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -42,6 +43,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     CourseStudentRepository courseStudentRepository;
+    @Autowired
+    AssessmentStudentRepository assessmentStudentRepository;
 
     @BeforeEach
     public void setUp() {
@@ -53,6 +56,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
+        this.assessmentStudentRepository.deleteAll();
     }
 
     @Test
@@ -140,26 +144,39 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
-//    @Test
-//    void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
-//        SchoolTombstone schoolTombstone = this.createMockSchool();
-//        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
-//
-//        final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
-//        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-//        GradFileUpload verFile = GradFileUpload.builder()
-//                .fileContents(fileContents)
-//                .createUser("ABC")
-//                .fileName("student-xam-file.stdxam")
-//                .fileType("stdxam")
-//                .build();
-//
-//        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
-//                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
-//                .header("correlationID", UUID.randomUUID().toString())
-//                .content(JsonUtil.getJsonStringFromObject(verFile))
-//                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
-//    }
+    @Test
+    void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-xam-file.stdxam")
+                .fileType("stdxam")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.stdxam");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(206);
+    }
 
     @Test
     void testProcessGradFile_givenFiletypeCRS_ShouldReturnOk() throws Exception {

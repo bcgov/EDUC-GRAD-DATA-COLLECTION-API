@@ -9,7 +9,7 @@ import java.util.Optional;
 @Getter
 public enum FileType {
     DEM("stddem", ".stddem", "demMapper.xml", "SHOULD BE 297"),
-    XAM("stdxam", ".stdxam", "assessmentMapper.xml", "SHOULD BE 122"),
+    XAM("stdxam", ".stdxam", "assessmentMapper.xml", "SHOULD BE 130"),
     CRS("stdcrs", ".stdcrs", "courseMapper.xml", "SHOULD BE 142")
     ;
 
