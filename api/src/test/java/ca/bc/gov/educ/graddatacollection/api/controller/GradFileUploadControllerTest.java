@@ -80,7 +80,6 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("FILE_NOT_ALLOWED :: File type not allowed"));
-        ;
     }
 
     @Test
