@@ -31,18 +31,58 @@ public abstract class BaseGradDataCollectionAPITest {
 
   }
 
-  public IncomingFilesetEntity createMockIncomingFilesetEntity() {
+  public IncomingFilesetEntity createMockIncomingFilesetEntityWithDEMFile(UUID schoolID) {
+    return IncomingFilesetEntity.builder()
+            .schoolID(schoolID)
+            .demFileUploadDate(LocalDateTime.now())
+            .crsFileUploadDate(null)
+            .xamFileUploadDate(null)
+            .demFileName("Test.stddem")
+            .crsFileName(null)
+            .xamFileName(null)
+            .demFileStatusCode("LOADED")
+            .crsFileStatusCode("NOTLOADED")
+            .xamFileStatusCode("NOTLOADED")
+            .filesetStatusCode("LOADED")
+            .build();
+  }
+
+  public IncomingFilesetEntity createMockIncomingFilesetEntityWithCRSFile(UUID schoolID) {
+    return IncomingFilesetEntity.builder()
+            .schoolID(schoolID)
+            .demFileUploadDate(null)
+            .crsFileUploadDate(LocalDateTime.now())
+            .xamFileUploadDate(null)
+            .demFileName(null)
+            .crsFileName("Test.stdcrs")
+            .xamFileName(null)
+            .demFileStatusCode("NOTLOADED")
+            .crsFileStatusCode("LOADED")
+            .xamFileStatusCode("NOTLOADED")
+            .filesetStatusCode("LOADED")
+            .build();
+  }
+
+  public IncomingFilesetEntity createMockIncomingFilesetEntityWithAllFilesLoaded() {
     return IncomingFilesetEntity.builder()
             .schoolID(UUID.randomUUID())
             .demFileUploadDate(LocalDateTime.now())
+            .crsFileUploadDate(LocalDateTime.now())
+            .xamFileUploadDate(LocalDateTime.now())
             .demFileName("Test.stddem")
+            .crsFileName("Test.stdcrs")
+            .xamFileName("Test.stdxam")
+            .demFileStatusCode("LOADED")
+            .crsFileStatusCode("LOADED")
+            .xamFileStatusCode("LOADED")
+            .filesetStatusCode("LOADED")
             .build();
   }
 
   public DemographicStudentEntity createMockDemographicStudent() {
     return DemographicStudentEntity.builder()
             .demographicStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntity())
+            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
             .pen("123456789")
             .createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now())
@@ -66,9 +106,10 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   public CourseStudentEntity createMockCourseStudent() {
+    var school = this.createMockSchool();
     return CourseStudentEntity.builder()
             .courseStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntity())
+            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
             .pen("123456789")
             .createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now())
@@ -93,9 +134,10 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   public AssessmentStudentEntity createMockAssessmentStudent() {
+    var school = this.createMockSchool();
     return AssessmentStudentEntity.builder()
             .assessmentStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntity())
+            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
             .assessmentID(UUID.randomUUID())
             .pen("123456789")
             .createDate(LocalDateTime.now())

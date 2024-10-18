@@ -32,7 +32,7 @@ public abstract class BatchFileDecorator implements BatchFileMapper {
 
     @Override
     public IncomingFilesetEntity toIncomingCRSBatchEntity(final GradFileUpload upload, final String schoolID) {
-        final var entity = this.delegate.toIncomingDEMBatchEntity(upload, schoolID);
+        final var entity = this.delegate.toIncomingCRSBatchEntity(upload, schoolID);
         entity.setSchoolID(UUID.fromString(schoolID));
         entity.setCrsFileName(upload.getFileName());
         return entity;
