@@ -71,8 +71,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
         }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
-
-    @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
+    
     public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
         var fileSetEntity = incomingFilesetRepository.findBySchoolID(UUID.fromString(schoolID));
         if(fileSetEntity.isPresent()) {
