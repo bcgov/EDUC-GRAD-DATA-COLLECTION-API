@@ -1,9 +1,9 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.validation;
 
-import ca.bc.gov.educ.graddatacollection.api.batch.constants.FileType;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -13,7 +13,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -112,9 +111,9 @@ public class GradFileValidator {
     }
 
     public void validateFileUploadIsNotInProgress(@NonNull final String guid, final String schoolID) throws FileUnProcessableException {
-        long inFlightDemCount = demographicStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), "LOADED");
-        long inFlightCrsCount = courseStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), "LOADED");
-        long inFlightXamCount = assessmentStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), "LOADED");
+        long inFlightDemCount = demographicStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
+        long inFlightCrsCount = courseStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
+        long inFlightXamCount = assessmentStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
 
         if (inFlightDemCount > 0 && inFlightCrsCount > 0 && inFlightXamCount > 0) {
             String schoolMincode = getMincode(guid, schoolID);

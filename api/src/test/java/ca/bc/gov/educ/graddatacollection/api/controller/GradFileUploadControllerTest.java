@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
 import java.util.Base64;
@@ -77,7 +78,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
-                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("FILE_NOT_ALLOWED :: File type not allowed"));
+        ;
     }
 
     @Test
@@ -98,7 +101,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
-                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 0 has extraneous characters."));
     }
 
     @Test
@@ -119,7 +123,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
-                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 0 has extraneous characters."));
     }
 
     @Test
@@ -140,7 +145,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
-                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 0 is missing characters."));
     }
 
     @Test

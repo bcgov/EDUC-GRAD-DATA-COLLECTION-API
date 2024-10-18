@@ -46,10 +46,10 @@ public class GradXamFileService implements GradFileBatchProcessor {
     private final GradFileValidator gradFileValidator;
 
     @Override
-    public void populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
+    public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentXamFile();
         this.populateBatchFile(guid, ds, batchFile, schoolID);
-        this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
     public void populateBatchFile(final String guid, final DataSet ds, final GradStudentXamFile batchFile, final String schoolID) throws FileUnProcessableException {

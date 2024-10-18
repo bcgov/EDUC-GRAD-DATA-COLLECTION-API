@@ -52,10 +52,10 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public void populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
+    public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
         val batchFile = new GradStudentDemogFile();
         this.populateBatchFile(guid, ds, batchFile, schoolID);
-        this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
     }
 
     public void populateBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile, final String schoolID) throws FileUnProcessableException {
