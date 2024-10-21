@@ -20,17 +20,9 @@ import java.time.LocalDateTime;
 public class Session extends BaseRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @ReadOnlyProperty
     private String sessionID;
-
-    @ReadOnlyProperty
     private String schoolYear;
-
-    @ReadOnlyProperty
     private Integer courseMonth;
-
-    @ReadOnlyProperty
     private Integer courseYear;
 
     @NotNull(message = "activeFromDate cannot be null")
