@@ -36,7 +36,7 @@ public class IncomingFileset extends BaseRequest implements Serializable {
     @Size(max = 10)
     String demFileStatusCode;
     String xamFileName;
-    LocalDateTime xamFileUploadDate;
+    String xamFileUploadDate;
     @Size(max = 10)
     String xamFileStatusCode;
     String crsFileName;

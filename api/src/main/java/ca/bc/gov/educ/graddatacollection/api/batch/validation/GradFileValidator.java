@@ -123,7 +123,7 @@ public class GradFileValidator {
     public void validateMincode(@NonNull final String guid, final String schoolID, String fileMincode) throws FileUnProcessableException {
         String schoolMincode = getMincode(guid, schoolID);
         if (!fileMincode.equals(schoolMincode)) {
-            throw new FileUnProcessableException(FileError.MINCODE_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL,fileMincode);
+            throw new FileUnProcessableException(FileError.MINCODE_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL,schoolMincode);
         }
     }
     public String getMincode(@NonNull final String guid,final String schoolID) throws FileUnProcessableException {
