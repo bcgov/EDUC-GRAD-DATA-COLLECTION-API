@@ -404,7 +404,6 @@ public class RestUtils {
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
   }
 
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {GradDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<Session> getAssessmentSession() {
     UUID correlationID = UUID.randomUUID();
     try {
