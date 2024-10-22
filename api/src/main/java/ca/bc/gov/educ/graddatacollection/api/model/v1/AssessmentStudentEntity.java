@@ -32,7 +32,6 @@ public class AssessmentStudentEntity {
   @JoinColumn(name = "INCOMING_FILESET_ID", referencedColumnName = "INCOMING_FILESET_ID", updatable = false)
   private IncomingFilesetEntity incomingFileset;
 
-  @NotNull(message = "assessmentID cannot be null")
   @Column(name = "ASSESSMENT_ID", columnDefinition = "BINARY(16)")
   UUID assessmentID;
 
