@@ -46,7 +46,7 @@ public class V117DemographicStudentGrade implements DemographicValidationBaseRul
 
         // TODO get valid grades from enum or code table and check students grade is valid
 
-        if (true) {
+        if (false) {
             log.debug("StudentGrade-V117: Must be a valid grade (K-12, AD, AN, HS, SU, GA) for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID));
         }

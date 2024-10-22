@@ -46,7 +46,7 @@ public class V118DemographicStudentGrade implements DemographicValidationBaseRul
 
         // TODO check valid grades that are currently effective in GRAD against this students
 
-        if (true) {
+        if (false) {
             log.debug("StudentGrade-V118: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD));
         }
