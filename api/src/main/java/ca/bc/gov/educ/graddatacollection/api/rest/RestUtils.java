@@ -4,11 +4,8 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValueType;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
@@ -38,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
 /**
  * This class is used for REST calls
@@ -64,6 +62,8 @@ public class RestUtils {
   private final ReadWriteLock authorityLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
+  private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
 
@@ -94,6 +94,7 @@ public class RestUtils {
     this.populateSchoolMincodeMap();
     this.populateDistrictMap();
     this.populateAuthorityMap();
+    this.populateAssessmentSessionMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -372,6 +373,51 @@ public class RestUtils {
 
     } catch (final Exception ex) {
       log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
+  public void populateAssessmentSessionMap() {
+    val writeLock = this.assessmentSessionLock.writeLock();
+    try {
+      writeLock.lock();
+      List<Session> sessions = this.getAssessmentSession();
+
+      for (val session : sessions) {
+        this.sessionMap.put(session.getSessionID(), session);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache for Assessment session map {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} Assessment session map to memory", this.sessionMap.values().size());
+  }
+
+  public Optional<Session> getAssessmentSessionByCourseMonthAndYear(Integer courseMonth, Integer courseYear) {
+    if(sessionMap.isEmpty()) {
+      log.info("Assessment session map is empty reloading schools");
+      populateAssessmentSessionMap();
+    }
+    return sessionMap.values().stream().
+            filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
+  }
+
+  public List<Session> getAssessmentSession() {
+    UUID correlationID = UUID.randomUUID();
+    try {
+      log.info("Calling EAS API to load assessment sessions to memory");
+      final TypeReference<List<Session>> ref = new TypeReference<>() {
+      };
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_OPEN_ASSESSMENT_SESSIONS).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.EAS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      if (null != responseMessage) {
+        return objectMapper.readValue(responseMessage.getData(), ref);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+    } catch (final Exception ex) {
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
