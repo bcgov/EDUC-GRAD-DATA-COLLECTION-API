@@ -26,7 +26,10 @@ public enum SchoolGradeCodes {
     GRADE12("GRADE12","12", 15),
     SECONDARY_UNGRADED("SECUNGR","SU", 16),
     GRADUATED_ADULT("GRADULT","GA", 17),
-    HOMESCHOOL("HOMESCL","HS", 18);
+    HOMESCHOOL("HOMESCL","HS", 18),
+    AD("GRADEAD","AD", 19),
+    AN("GRADEAN","AN", 20),
+    ;
 
     @Getter
     private final String code;
