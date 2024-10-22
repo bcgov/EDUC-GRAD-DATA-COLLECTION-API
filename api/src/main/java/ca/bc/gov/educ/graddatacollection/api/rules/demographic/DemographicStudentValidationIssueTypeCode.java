@@ -7,10 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode.ERROR;
+import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode.INFO_WARNING;
 
 public enum DemographicStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D02' or 'E02'", ERROR);
+  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D02' or 'E02'", ERROR),
+  GRADE_INVALID("GRADEINVALID", "Invalid grade.", ERROR),
+  GRADE_NOT_IN_GRAD("GRADENOTINGRAD", "Is this the students' true grade?", INFO_WARNING),
+  ;
 
   private static final Map<String, DemographicStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 

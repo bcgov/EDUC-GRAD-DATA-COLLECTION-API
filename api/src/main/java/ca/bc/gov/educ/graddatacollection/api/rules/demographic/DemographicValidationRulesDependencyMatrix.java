@@ -5,10 +5,13 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode.TXID_INVALID;
+import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode.*;
 
 public enum DemographicValidationRulesDependencyMatrix {
-    ENTRY1("V01", new String[]{TXID_INVALID.getCode()});
+    ENTRY1("V01", new String[]{TXID_INVALID.getCode()}),
+    ENTRY17("V17", new String[]{GRADE_INVALID.getCode()}),
+    ENTRY18("V18", new String[]{GRADE_NOT_IN_GRAD.getCode()}),
+    ;
 
     @Getter
     private final String ruleID;
