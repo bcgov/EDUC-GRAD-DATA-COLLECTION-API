@@ -16,13 +16,13 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V120 | ERROR    | Must be a valid grade that is currently effective in GRAD             | -            |
+ *  | V120 | ERROR    | Must be a valid grade that is currently effective in GRAD             | V117, V130   |
  *
  */
 
 @Component
 @Slf4j
-@Order(1800)
+@Order(2000)
 public class V120DemographicStudentGrade implements DemographicValidationBaseRule {
 
     @Override

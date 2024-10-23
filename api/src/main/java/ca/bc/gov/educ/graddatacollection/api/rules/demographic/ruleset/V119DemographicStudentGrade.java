@@ -22,7 +22,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-@Order(1800)
+@Order(1900)
 public class V119DemographicStudentGrade implements DemographicValidationBaseRule {
 
     @Override
