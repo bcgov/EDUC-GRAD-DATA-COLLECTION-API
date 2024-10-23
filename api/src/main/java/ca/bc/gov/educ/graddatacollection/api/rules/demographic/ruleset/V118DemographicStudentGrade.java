@@ -45,6 +45,7 @@ public class V118DemographicStudentGrade implements DemographicValidationBaseRul
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         // TODO check valid grades that are currently effective in GRAD against this students
+        // we should just check the valid grades in grad once, we then know what to check against for every student
 
         if (false) {
             log.debug("StudentGrade-V118: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
