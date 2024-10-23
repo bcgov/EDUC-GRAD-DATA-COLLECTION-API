@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V120 | ERROR    | If student is reported on any other graduation program or SCCP their  | V117, V130   |
+ *  | V120 | WARN     | If student is reported on any other graduation program or SCCP their  | V117, V130   |
  *  |      |          |  reported grade should not be AD or AN.	                              |              |
  *
  */
