@@ -16,7 +16,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V118 | ERROR    | Must be a valid grade that is currently effective in GRAD             | -            |
+ *  | V118 | WARN     | Must be a valid grade that is currently effective in GRAD             | -            |
  *
  */
 
