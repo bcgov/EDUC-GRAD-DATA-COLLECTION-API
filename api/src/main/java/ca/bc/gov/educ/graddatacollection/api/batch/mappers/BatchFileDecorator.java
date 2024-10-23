@@ -114,7 +114,6 @@ public abstract class BatchFileDecorator implements BatchFileMapper {
         entity.setIncomingFileset(incomingFilesetEntity); // add thePK/FK relationship
         entity.setStudentStatusCode(SchoolStudentStatus.LOADED.getCode());
 
-        entity.setAssessmentID(UUID.randomUUID());// TODO: Change
         entity.setPen(StringMapper.trimAndUppercase(assessmentDetails.getPen()));
         entity.setTransactionID(StringMapper.trimAndUppercase(assessmentDetails.getTransactionCode()));
         entity.setLocalID(StringMapper.trimAndUppercase(assessmentDetails.getLocalId()));
