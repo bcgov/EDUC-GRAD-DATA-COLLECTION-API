@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
@@ -44,11 +47,10 @@ public class V120DemographicStudentGrade implements DemographicValidationBaseRul
         log.debug("In executeValidation of StudentGrade-V120 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        // TODO If student is reported on any other graduation program or SCCP their reported grade should not be AD or AN
-
-        if (false) {
+        if (GradRequirementYearCodes.getNonAdultGraduationProgramYearCodes().stream().anyMatch(nonAdultGradYear -> Objects.equals(nonAdultGradYear, student.getGradRequirementYear()))
+            && SchoolGradeCodes.getGradAdultGrades().stream().anyMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
             log.debug("StudentGrade-V120:  Student grade should not be AD or AN for the reported graduation program for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID));
         }
         return errors;
     }
