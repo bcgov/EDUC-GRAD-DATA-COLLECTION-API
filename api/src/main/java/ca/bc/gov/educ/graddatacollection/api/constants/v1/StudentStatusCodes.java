@@ -9,7 +9,11 @@ import java.util.Optional;
 
 @Getter
 public enum StudentStatusCodes {
-    M("M");
+    M("M"),
+    A("A"),
+    D("D"),
+    T("T")
+    ;
 
     @Getter
     private final String code;
@@ -21,9 +25,11 @@ public enum StudentStatusCodes {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
 
-    public static List<String> getStudentStatusCodeM() {
+    public static List<String> getValidStudentStatusCodes() {
         List<String> codes = new ArrayList<>();
-        codes.add(M.getCode());
+        codes.add(A.getCode());
+        codes.add(D.getCode());
+        codes.add(T.getCode());
         return codes;
     }
 }
