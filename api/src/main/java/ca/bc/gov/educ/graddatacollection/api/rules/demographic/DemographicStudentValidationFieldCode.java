@@ -3,7 +3,10 @@ package ca.bc.gov.educ.graddatacollection.api.rules.demographic;
 import lombok.Getter;
 
 public enum DemographicStudentValidationFieldCode {
-  TX_ID("TX_ID");
+  TX_ID("TX_ID"),
+  STUDENT_GRADE("STUDENT_GRADE"),
+  STUDENT_STATUS("STUDENT_STATUS"),
+  ;
 
   @Getter
   private final String code;

@@ -99,7 +99,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .lastName("JACKSON")
             .citizenship("C")
             .programCadreFlag("N")
-            .studentStatusCode("ACTIVE")
+            .studentStatusCode("A")
             .localID("8887555")
             .transactionID("D02")
             .build();
