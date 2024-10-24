@@ -16,6 +16,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   GRADE_NOT_IN_GRAD("GRADENOTINGRAD", "Is this the students' true grade?", INFO_WARNING),
   GRADE_AG_INVALID("GRADEAGINVALID", "Student reported on the Adult Graduation program (1950) must be grade AD or AN.", INFO_WARNING),
   GRADE_OG_INVALID("GRADEOGINVALID", "Student grade should not be AD or AN for the reported graduation program.", INFO_WARNING),
+  STUDENT_STATUS_MERGED("STUDENTSTATUSMERGED", "Student PEN has been merged with a pre-existing PEN", ERROR),
   ;
 
   private static final Map<String, DemographicStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
