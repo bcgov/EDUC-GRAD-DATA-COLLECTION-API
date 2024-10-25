@@ -102,6 +102,8 @@ public abstract class BaseGradDataCollectionAPITest {
             .studentStatusCode("ACTIVE")
             .localID("8887555")
             .transactionID("D02")
+            .schoolCertificateCompletionDate("20240202")
+            .gradRequirementYear("SCCP")
             .build();
   }
 
