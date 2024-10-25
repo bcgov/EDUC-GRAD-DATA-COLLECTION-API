@@ -33,14 +33,17 @@ public class GradSagaEntity {
   @Column(name = "SAGA_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sagaId;
 
-  @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
-  UUID sdcSchoolCollectionStudentID;
+  @Column(name = "INCOMING_FILESET_ID", columnDefinition = "BINARY(16)")
+  UUID incomingFilesetID;
 
-  @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")
-  UUID sdcSchoolCollectionID;
+  @Column(name = "DEMOGRAPHIC_STUDENT_ID", columnDefinition = "BINARY(16)")
+  UUID demographicStudentID;
 
-  @Column(name = "COLLECTION_ID", columnDefinition = "BINARY(16)")
-  UUID collectionID;
+  @Column(name = "ASSESSMENT_STUDENT_ID", columnDefinition = "BINARY(16)")
+  UUID assessmentStudentID;
+
+  @Column(name = "COURSE_STUDENT_ID", columnDefinition = "BINARY(16)")
+  UUID courseStudentID;
 
   @NotNull(message = "saga name cannot be null")
   @Column(name = "SAGA_NAME")

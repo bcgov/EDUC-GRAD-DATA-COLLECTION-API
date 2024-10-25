@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.repository.v1;
 
-
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -26,4 +25,8 @@ public interface SagaRepository extends JpaRepository<GradSagaEntity, UUID>, Jpa
   @Modifying
   @Query("delete from GradSagaEntity where createDate <= :createDate")
   void deleteByCreateDateBefore(LocalDateTime createDate);
+
+  List<GradSagaEntity> findTop500ByStatusInOrderByCreateDate(List<String> statuses);
+
+  Optional<GradSagaEntity>  findByDemographicStudentIDAndSagaNameAndStatusNot(UUID demographicStudentID, String sagaName, String status);
 }
