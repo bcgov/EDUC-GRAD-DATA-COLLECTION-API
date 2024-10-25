@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.helpers.SCCPCompletionDateValidator;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SCCPEffectiveDate;
+import ca.bc.gov.educ.graddatacollection.api.helpers.DateValidator;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
@@ -12,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,9 @@ import java.util.List;
 @Slf4j
 @Order(3400)
 public class V134DemographicSCCPCompletionDate implements DemographicValidationBaseRule {
+
+    private static final DateTimeFormatter YYYYMMDD_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final LocalDate SCCP_EFFECTIVE_DATE = LocalDate.parse(SCCPEffectiveDate.SCCP_EFFECTIVE_DATE.getDate(), YYYYMMDD_FORMATTER);
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
@@ -46,7 +52,10 @@ public class V134DemographicSCCPCompletionDate implements DemographicValidationB
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         String sccpCompletionDate = student.getSchoolCertificateCompletionDate();
-        if (StringUtils.isEmpty(sccpCompletionDate) || !SCCPCompletionDateValidator.isValidYYYYMMDD(sccpCompletionDate)) {
+
+        if (StringUtils.isEmpty(sccpCompletionDate) ||
+            !DateValidator.isValidYYYYMMDD(sccpCompletionDate) ||
+            LocalDate.parse(sccpCompletionDate, YYYYMMDD_FORMATTER).isBefore(SCCP_EFFECTIVE_DATE)) {
             log.debug("SCCPCompletionDate-V134: Invalid SCCP completion date (YYYYMMDD) for demographicSCCPDate :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE));
         }
