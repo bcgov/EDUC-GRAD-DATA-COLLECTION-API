@@ -28,5 +28,5 @@ public interface SagaRepository extends JpaRepository<GradSagaEntity, UUID>, Jpa
 
   List<GradSagaEntity> findTop500ByStatusInOrderByCreateDate(List<String> statuses);
 
-  Optional<GradSagaEntity>  findByDemographicStudentIDAndSagaNameAndStatusNot(UUID demographicStudentID, String sagaName, String status);
+  Optional<GradSagaEntity>  findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID demographicStudentID, UUID incomingFilesetID, String sagaName, String status);
 }

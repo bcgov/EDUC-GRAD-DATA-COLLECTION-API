@@ -168,8 +168,8 @@ public class SagaService {
     return this.createSagaRecords(gradSagaEntities);
   }
 
-  public Optional<GradSagaEntity> findByDemographicStudentIDAndSagaNameAndStatusNot(final UUID demographicStudentID, final String sagaName, final String status) {
-    return this.getSagaRepository().findByDemographicStudentIDAndSagaNameAndStatusNot(demographicStudentID, sagaName, status);
+  public Optional<GradSagaEntity> findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(final UUID demographicStudentID, final UUID incomingFilesetID, final String sagaName, final String status) {
+    return this.getSagaRepository().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(demographicStudentID, incomingFilesetID, sagaName, status);
   }
 
   /**
