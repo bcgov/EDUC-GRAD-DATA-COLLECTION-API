@@ -8,7 +8,6 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +46,7 @@ public class V135DemographicSCCPCompletionDate implements DemographicValidationB
 
         if (!GradRequirementYearCodes.SCCP.getCode().equals(student.getGradRequirementYear())) {
             log.debug("SCCPCompletionDate-V135: Student must be on the SCCP program. SCCP Completion date not updated. for demographicSCCPDate :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM));
         }
         return errors;
     }
