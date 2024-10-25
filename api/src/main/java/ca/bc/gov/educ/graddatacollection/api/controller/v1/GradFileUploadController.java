@@ -27,7 +27,6 @@ public class GradFileUploadController implements GradFileUploadEndpoint {
 
     @Override
     public ResponseEntity<IncomingFileset> processSdcBatchFile(GradFileUpload fileUpload, String schoolID, String correlationID) {
-        //run some payload validation
         log.info("Running file load for file: " + fileUpload.getFileName());
         IncomingFilesetEntity incomingFilesetEntity = gradFileService.processBatchFile(fileUpload, schoolID);
         log.info("File data committed for file: " + fileUpload.getFileName());

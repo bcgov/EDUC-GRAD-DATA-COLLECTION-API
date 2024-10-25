@@ -140,16 +140,18 @@ public class SagaService {
    * @param sagaName             the saga name
    * @param userName             the username
    * @param payload              the payload
-   * @param sdcSchoolStudentID the student id
    * @return the saga
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public GradSagaEntity createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final UUID collectionID) {
+  public GradSagaEntity createSagaRecordInDB(final String sagaName, final String userName, final String payload,
+                                             final UUID incomingFilesetID, final UUID demographicStudentID, final UUID assessmentStudentID, final UUID courseStudentID) {
     final var saga = GradSagaEntity
       .builder()
       .payload(payload)
-      .sdcSchoolCollectionID(sdcSchoolCollectionID)
-      .sdcSchoolCollectionStudentID(sdcSchoolStudentID)
+      .incomingFilesetID(incomingFilesetID)
+      .demographicStudentID(demographicStudentID)
+      .assessmentStudentID(assessmentStudentID)
+      .courseStudentID(courseStudentID)
       .sagaName(sagaName)
       .status(STARTED.toString())
       .sagaState(INITIATED.toString())
@@ -157,14 +159,17 @@ public class SagaService {
       .createUser(userName)
       .updateUser(userName)
       .updateDate(LocalDateTime.now())
-      .collectionID(collectionID)
       .build();
     return this.createSagaRecord(saga);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public List<GradSagaEntity> createSagaRecordsInDB(final List<GradSagaEntity> sdcSagaEntities) {
-    return this.createSagaRecords(sdcSagaEntities);
+  public List<GradSagaEntity> createSagaRecordsInDB(final List<GradSagaEntity> gradSagaEntities) {
+    return this.createSagaRecords(gradSagaEntities);
+  }
+
+  public Optional<GradSagaEntity> findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(final UUID demographicStudentID, final UUID incomingFilesetID, final String sagaName, final String status) {
+    return this.getSagaRepository().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(demographicStudentID, incomingFilesetID, sagaName, status);
   }
 
   /**
