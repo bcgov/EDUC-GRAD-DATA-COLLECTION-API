@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.helpers.DateValidator;
+import ca.bc.gov.educ.graddatacollection.api.helpers.SCCPCompletionDateValidator;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
@@ -46,7 +46,7 @@ public class V134DemographicSCCPCompletionDate implements DemographicValidationB
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         String sccpCompletionDate = student.getSchoolCertificateCompletionDate();
-        if (StringUtils.isEmpty(sccpCompletionDate) || !DateValidator.isValidYYYYMMDD(sccpCompletionDate)) {
+        if (StringUtils.isEmpty(sccpCompletionDate) || !SCCPCompletionDateValidator.isValidYYYYMMDD(sccpCompletionDate)) {
             log.debug("SCCPCompletionDate-V134: Invalid SCCP completion date (YYYYMMDD) for demographicSCCPDate :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE));
         }
