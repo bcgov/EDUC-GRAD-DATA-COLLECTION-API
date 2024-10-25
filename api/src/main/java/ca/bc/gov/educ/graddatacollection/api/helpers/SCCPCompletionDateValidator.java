@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.helpers;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SCCPEffectiveDate;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -9,7 +11,6 @@ public class SCCPCompletionDateValidator {
     private SCCPCompletionDateValidator() {}
 
     private static final DateTimeFormatter YYYYMMDD_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final LocalDate SCCP_EFFECTIVE_DATE = LocalDate.of(2006, 7, 1);
 
     /**
      * Validates if the given date is in the format YYYYMMDD, represents a valid date,
@@ -25,7 +26,8 @@ public class SCCPCompletionDateValidator {
 
         try {
             LocalDate parsedDate = LocalDate.parse(date, YYYYMMDD_FORMATTER);
-            return !parsedDate.isBefore(SCCP_EFFECTIVE_DATE);
+            LocalDate effectiveDate = LocalDate.parse(SCCPEffectiveDate.SCCP_EFFECTIVE_DATE.getDate(), YYYYMMDD_FORMATTER);
+            return !parsedDate.isBefore(effectiveDate);
         } catch (DateTimeParseException e) {
             return false;
         }
