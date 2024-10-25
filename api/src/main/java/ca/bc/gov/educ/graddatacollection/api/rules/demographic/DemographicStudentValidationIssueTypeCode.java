@@ -12,7 +12,7 @@ public enum DemographicStudentValidationIssueTypeCode {
 
   TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D02' or 'E02'", ERROR),
   SCCP_INVALID_DATE("SCCPINVALIDDATE", "Invalid SCCP completion date (YYYYMMDD).", ERROR),
-  SCCP_INVALID_STUDENT_PROGRAM("SCCPINVALIDSTUDENTPROGRAM", "Student must be on the SCCP program. SCCP Completion date not updated.", INFO_WARNING),
+  SCCP_INVALID_STUDENT_PROGRAM("SCCPINVALIDSTUDENTPROGRAM", "Student must be on the SCCP program. SCCP Completion date not updated.", WARNING),
   ;
 
   private static final Map<String, DemographicStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();

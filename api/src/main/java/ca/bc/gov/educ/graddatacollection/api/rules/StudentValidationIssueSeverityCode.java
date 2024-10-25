@@ -8,6 +8,7 @@ import java.util.Optional;
 public enum StudentValidationIssueSeverityCode {
 
   ERROR("ERROR","Error"),
+  WARNING("WARNING","Warning"),
   FUNDING_WARNING("FUNDING_WARNING","Funding Warning"),
   INFO_WARNING("INFO_WARNING","Info Warning");
 
