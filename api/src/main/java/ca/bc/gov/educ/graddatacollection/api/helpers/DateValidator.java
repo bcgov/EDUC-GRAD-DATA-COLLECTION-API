@@ -6,6 +6,8 @@ import java.time.format.DateTimeParseException;
 
 public class DateValidator {
 
+    private DateValidator() {}
+
     private static final DateTimeFormatter YYYYMMDD_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public static boolean isValidYYYYMMDD(String date) {
