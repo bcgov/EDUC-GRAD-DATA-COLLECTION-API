@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,6 +20,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,11 +55,13 @@ public class RestUtils {
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final ReadWriteLock facilityTypesLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock scholarshipsCitizenshipLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolCategoriesLock = new ReentrantReadWriteLock();
   private final ReadWriteLock authorityLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
@@ -95,11 +99,27 @@ public class RestUtils {
     this.populateDistrictMap();
     this.populateAuthorityMap();
     this.populateAssessmentSessionMap();
+    this.populateCitizenshipCodesMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
   public void scheduled() {
     this.init();
+  }
+
+  public void populateCitizenshipCodesMap() {
+    val writeLock = this.scholarshipsCitizenshipLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val citizenshipCode : this.getScholarshipsCitizenshipCodes()) {
+        this.scholarshipsCitizenshipCodesMap.put(citizenshipCode.getCitizenshipCode(), citizenshipCode);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache citizenship codes {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} citizenship codes to memory", this.scholarshipsCitizenshipCodesMap.values().size());
   }
 
   public void populateAuthorityMap() {
@@ -181,6 +201,17 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
+  }
+
+  public List<CitizenshipCode> getScholarshipsCitizenshipCodes() {
+    log.info("Calling Scholarships api to load citizenship codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getScholarshipsApiURL() + "/citizenship-codes")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(CitizenshipCode.class)
+            .collectList()
+            .block();
   }
 
   public List<SchoolTombstone> getSchools() {
