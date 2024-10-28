@@ -61,8 +61,6 @@ public class ApplicationProperties {
   private String instituteApiURL;
   @Value("${url.api.scholarships}")
   private String scholarshipsApiURL;
-  @Value("${url.api.edx}")
-  private String edxApiURL;
   @Value("${number.students.process.saga}")
   private String numberOfStudentsToProcessInSaga;
   @Value("${ches.endpoint.url}")
