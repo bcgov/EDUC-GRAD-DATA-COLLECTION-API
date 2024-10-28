@@ -8,7 +8,7 @@ import java.util.Optional;
 import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode.*;
 
 public enum DemographicValidationRulesDependencyMatrix {
-    ENTRY35("V35", new String[]{SCCP_INVALID_DATE.getCode()}),
+    ENTRY27("V27", new String[]{SCCP_INVALID_DATE.getCode()}),
     ;
 
     @Getter
