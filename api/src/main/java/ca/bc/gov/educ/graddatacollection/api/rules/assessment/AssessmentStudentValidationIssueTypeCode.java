@@ -7,8 +7,9 @@ import java.util.Map;
 
 public enum AssessmentStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'E06' or 'D06'"),
-  DEM_DATA_MISSING("DEMDATAMISSING", "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID");
+  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'E06' or 'D06'."),
+  DEM_DATA_MISSING("DEMDATAMISSING", "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID."),
+  COURSE_LEVEL_NOT_BLANK("COURSELEVELNOTBLANK", "Invalid Course Level entry, value will be ignored. Value should be blank.");
 
   private static final Map<String, AssessmentStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 

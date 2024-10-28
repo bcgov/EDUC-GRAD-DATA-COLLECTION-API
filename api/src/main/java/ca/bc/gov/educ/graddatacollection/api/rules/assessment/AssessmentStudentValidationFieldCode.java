@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum AssessmentStudentValidationFieldCode {
   PEN("PEN"),
-  COURSE_CODE("COURSE_CODE");
+  COURSE_LEVEL("COURSE_LEVEL");
 
   @Getter
   private final String code;

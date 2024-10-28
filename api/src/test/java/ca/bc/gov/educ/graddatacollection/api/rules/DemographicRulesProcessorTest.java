@@ -41,7 +41,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV109DemographicStudentCitizenship() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
@@ -81,7 +81,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV127DemographicSCCPCompletionDate() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());

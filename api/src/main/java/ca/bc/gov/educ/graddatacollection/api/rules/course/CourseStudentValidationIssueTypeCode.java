@@ -10,7 +10,7 @@ import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssue
 
 public enum CourseStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D08' or 'E08'", ERROR);
+  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D08' or 'E08'");
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 
@@ -26,13 +26,9 @@ public enum CourseStudentValidationIssueTypeCode {
   @Getter
   private final String message;
 
-  @Getter
-  private final StudentValidationIssueSeverityCode severityCode;
-
-  CourseStudentValidationIssueTypeCode(String code, String message, StudentValidationIssueSeverityCode severityCode) {
+  CourseStudentValidationIssueTypeCode(String code, String message) {
     this.code = code;
     this.message = message;
-    this.severityCode = severityCode;
   }
   public static CourseStudentValidationIssueTypeCode findByValue(String value) {
     return CODE_MAP.get(value);
