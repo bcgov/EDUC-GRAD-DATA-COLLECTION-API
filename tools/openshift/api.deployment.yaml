@@ -26,11 +26,11 @@ parameters:
     required: true
   - name: MIN_REPLICAS
     description: The minimum number of replicas
-    value: "1"
+    value: MIN_REPLICAS
     required: true
   - name: MAX_REPLICAS
     description: The maximum number of replicas
-    value: "3"
+    value: MAX_REPLICAS
     required: true
   - name: MIN_CPU
     description: The minimum amount of CPU
@@ -52,7 +52,7 @@ objects:
       labels:
         app: "${APP_NAME}-${BRANCH}"
     spec:
-      replicas: 1
+      replicas: ${{MIN_REPLICAS}}
       selector:
         matchLabels:
           app: "${APP_NAME}-${BRANCH}"
@@ -188,8 +188,8 @@ objects:
         apiVersion: apps/v1
         kind: Deployment
         name: "${APP_NAME}-${BRANCH}"
-      minReplicas: 1
-      maxReplicas: 3
+      minReplicas: ${{MIN_REPLICAS}}
+      maxReplicas: ${{MAX_REPLICAS}}
       metrics:
         - type: Resource
           resource:
