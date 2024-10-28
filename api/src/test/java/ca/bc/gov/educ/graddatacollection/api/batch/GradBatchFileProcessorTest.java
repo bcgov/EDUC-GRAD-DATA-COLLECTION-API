@@ -9,8 +9,9 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileInputStream;
@@ -37,8 +38,9 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Autowired
     RestUtils restUtils;
 
-    @AfterEach
-    public void afterEach() {
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();

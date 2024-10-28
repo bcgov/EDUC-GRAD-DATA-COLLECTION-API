@@ -79,10 +79,10 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public DemographicStudentEntity createMockDemographicStudent() {
+  public DemographicStudentEntity createMockDemographicStudent(IncomingFilesetEntity incomingFileset) {
     return DemographicStudentEntity.builder()
             .demographicStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
+            .incomingFileset(incomingFileset)
             .pen("123456789")
             .createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now())

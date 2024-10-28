@@ -14,4 +14,6 @@ public interface DemographicStudentRepository extends JpaRepository<DemographicS
     long countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID schoolID, String studentStatusCode);
     long countByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     long countByStudentStatusCodeAndAndIncomingFileset_IncomingFilesetID(String studentStatusCode, UUID incomingFilesetID);
+
+    List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(UUID incomingFilesetID, String lastName, String pen, String localID);
 }

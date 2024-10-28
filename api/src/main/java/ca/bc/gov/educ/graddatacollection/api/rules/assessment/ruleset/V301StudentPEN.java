@@ -4,10 +4,10 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,22 +17,28 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V301 | ERROR    | For assessment registration data the transaction ID is                | -            |
- *                     expected to be E06 or D06
+ *  | V301 | ERROR    | Must match a PEN in the .DEM file along with Student Surname,         | -            |
+ *                      Mincode and Student Local ID
  */
 @Component
 @Slf4j
 @Order(100)
-public class V301AssessmentTxID implements AssessmentValidationBaseRule {
+public class V301StudentPEN implements AssessmentValidationBaseRule {
+
+    private final AssessmentRulesService assessmentRulesService;
+
+    public V301StudentPEN(AssessmentRulesService assessmentRulesService) {
+        this.assessmentRulesService = assessmentRulesService;
+    }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of TransactionID-V301: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V301: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of TransactionID-V301: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V301: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -42,13 +48,14 @@ public class V301AssessmentTxID implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of TransactionID-V301 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V301 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        var txID = student.getTransactionID();
-        if (StringUtils.isAllEmpty(txID) || (!txID.equals("E06") && !txID.equals("D06"))) {
-            log.debug("TransactionID-V301: TX_ID must be 'E06' OR TX_ID = 'D06' for assessmentStudentID :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.TX_ID, AssessmentStudentValidationIssueTypeCode.TXID_INVALID));
+        var isPresent = assessmentRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+
+        if (!isPresent) {
+            log.debug("V301: This student is missing demographic data based on Student PEN, Surname, Mincode and Local Id for assessmentStudentID :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING));
         }
         return errors;
     }

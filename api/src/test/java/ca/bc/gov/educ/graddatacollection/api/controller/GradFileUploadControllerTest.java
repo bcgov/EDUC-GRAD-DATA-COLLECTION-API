@@ -60,10 +60,6 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void afterEach() {
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
