@@ -49,7 +49,7 @@ public class V118DemographicStudentGrade implements DemographicValidationBaseRul
 
         if (false) {
             log.debug("StudentGrade-V118: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD));
         }
         return errors;
     }

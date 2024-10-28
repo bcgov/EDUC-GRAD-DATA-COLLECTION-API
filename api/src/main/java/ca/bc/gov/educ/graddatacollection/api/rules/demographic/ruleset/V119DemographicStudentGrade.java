@@ -50,7 +50,7 @@ public class V119DemographicStudentGrade implements DemographicValidationBaseRul
         if (GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(adultGradYear -> Objects.equals(adultGradYear, student.getGradRequirementYear()))
             && SchoolGradeCodes.getGradAdultGrades().stream().noneMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
             log.debug("StudentGrade-V119: Student reported on the Adult Graduation program (1950) must be grade AD or AN for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID));
         }
         return errors;
     }
