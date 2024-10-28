@@ -8,7 +8,9 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStuden
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +20,11 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Autowired
     private DemographicStudentRulesProcessor rulesProcessor;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testV101DemographicTxIDRule() {
