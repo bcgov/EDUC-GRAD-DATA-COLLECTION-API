@@ -1,10 +1,11 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
@@ -13,25 +14,32 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V135 | WARN     | Student must be on the SCCP program	                           	      | V134         |
+ *  | v109 | ERROR    | Must be a valid citizenship code                              	      | -            |
  *
  */
 @Component
 @Slf4j
-@Order(3500)
-public class V135DemographicSCCPCompletionDate implements DemographicValidationBaseRule {
+@Order(900)
+public class V109DemographicStudentCitizenship implements DemographicValidationBaseRule {
+
+    private final RestUtils restUtils;
+
+    public V109DemographicStudentCitizenship(RestUtils restUtils) {
+        this.restUtils = restUtils;
+    }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SCCPCompletionDate-V135: for demographicSCCPDate :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentCitizenship-v109: for demographicCitizenshipCode :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V35", validationErrorsMap);
+        var shouldExecute = true;
 
-        log.debug("In shouldExecute of SCCPCompletionDate-V135: Condition returned - {} for demographicSCCPDate :: {}" ,
+        log.debug("In shouldExecute of StudentCitizenship-v109: Condition returned - {} for demographicCitizenshipCode :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -41,12 +49,14 @@ public class V135DemographicSCCPCompletionDate implements DemographicValidationB
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of SCCPCompletionDate-V135 for demographicSCCPDate :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentCitizenship-v109 for demographicCitizenshipCode :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (!GradRequirementYearCodes.SCCP.getCode().equals(student.getGradRequirementYear())) {
-            log.debug("SCCPCompletionDate-V135: Student must be on the SCCP program. SCCP Completion date not updated. for demographicSCCPDate :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM));
+        List<CitizenshipCode> citizenshipCodes = restUtils.getScholarshipsCitizenshipCodes();
+
+        if (citizenshipCodes.stream().noneMatch(code -> Objects.equals(code.getCitizenshipCode(), student.getCitizenship()))) {
+            log.debug("StudentCitizenship-v109: Invalid citizenship code - must be C, O or blank for demographicCitizenshipCode :: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_CITIZENSHIP_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID));
         }
         return errors;
     }
