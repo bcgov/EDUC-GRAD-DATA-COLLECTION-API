@@ -34,7 +34,7 @@ VALUES ('UPDATED', 'Updated', 'Student record has been updated downstream', '10'
 
 INSERT INTO STUDENT_STATUS_CODE (STUDENT_STATUS_CODE, LABEL, DESCRIPTION, DISPLAY_ORDER,
                                  CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE)
-VALUES ('VERIFIED', 'Verified', 'Student record has been updated downstream', '10',
+VALUES ('VERIFIED', 'Verified', 'Student record has been verified', '10',
         'API_GRAD_DATA_COLLECTION',
         TO_DATE('20241017', 'YYYYMMDD'),
         'API_GRAD_DATA_COLLECTION', TO_DATE('20241017', 'YYYYMMDD'));
