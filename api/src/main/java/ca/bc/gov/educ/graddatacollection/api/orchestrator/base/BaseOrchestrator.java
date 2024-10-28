@@ -321,8 +321,12 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
       finalEvent.setEventType(MARK_SAGA_COMPLETE);
       finalEvent.setEventOutcome(SAGA_COMPLETED);
       finalEvent.setSagaStatus(COMPLETED.toString());
-      if(saga.getSdcSchoolCollectionStudentID() != null) {
-        finalEvent.setSdcSchoolStudentID(saga.getSdcSchoolCollectionStudentID().toString());
+      if(saga.getDemographicStudentID() != null) {
+        finalEvent.setSdcSchoolStudentID(saga.getDemographicStudentID().toString());
+      } else if(saga.getAssessmentStudentID() != null) {
+        finalEvent.setSdcSchoolStudentID(saga.getAssessmentStudentID().toString());
+      } else if(saga.getCourseStudentID() != null) {
+        finalEvent.setSdcSchoolStudentID(saga.getCourseStudentID().toString());
       }
       finalEvent.setSagaName(this.getSagaName());
       finalEvent.setEventPayload(payloadToSubscribers);
@@ -525,8 +529,8 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
 
   @Override
   @Transactional
-  public GradSagaEntity createSaga(@NotNull final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final String userName, final UUID collectionID) {
-    return this.sagaService.createSagaRecordInDB(this.sagaName, userName, payload, sdcSchoolStudentID, sdcSchoolCollectionID, collectionID);
+  public GradSagaEntity createSaga(@NotNull final String payload, final String userName, final UUID incomingFilesetID, final UUID demographicStudentID, final UUID assessmentStudentID, final UUID courseStudentID) {
+    return this.sagaService.createSagaRecordInDB(this.sagaName, userName, payload, incomingFilesetID, demographicStudentID, assessmentStudentID, courseStudentID);
   }
 
   @Transactional

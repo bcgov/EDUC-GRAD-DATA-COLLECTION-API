@@ -11,6 +11,7 @@ public enum DemographicValidationRulesDependencyMatrix {
     // TODO v19 and v20 must rely on v30
     ENTRY19("V19", new String[]{GRADE_INVALID.getCode()}),
     ENTRY20("V20", new String[]{GRADE_INVALID.getCode()}),
+    ENTRY35("V35", new String[]{SCCP_INVALID_DATE.getCode()}),
     ;
 
     @Getter

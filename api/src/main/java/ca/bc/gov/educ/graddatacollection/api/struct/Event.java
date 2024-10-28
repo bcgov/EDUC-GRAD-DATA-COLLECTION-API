@@ -42,9 +42,11 @@ public class Event {
   /**
    * The school batch ID
    */
-  private String sdcSchoolBatchID;
+  private String incomingFilesetID;
   /**
    * The student ID
    */
-  private String sdcSchoolStudentID;
+  private String demographicStudentID;
+  private String assessmentStudentID;
+  private String courseStudentID;
 }
