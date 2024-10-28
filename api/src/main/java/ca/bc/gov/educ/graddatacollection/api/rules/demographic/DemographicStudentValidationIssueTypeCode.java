@@ -10,7 +10,6 @@ import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssue
 
 public enum DemographicStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D02' or 'E02'", ERROR),
   STUDENT_CITIZENSHIP_CODE_INVALID("STUDENTCITIZENSHIPCODEINVALID", "Invalid citizenship code - must be C, O or blank.", ERROR),
   SCCP_INVALID_DATE("SCCPINVALIDDATE", "Invalid SCCP completion date (YYYYMMDD).", ERROR),
   SCCP_INVALID_STUDENT_PROGRAM("SCCPINVALIDSTUDENTPROGRAM", "Student must be on the SCCP program. SCCP Completion date not updated.", WARNING),

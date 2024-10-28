@@ -41,19 +41,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV101DemographicTxIDRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError1.size()).isZero();
-
-        var demographicStudent = createMockDemographicStudent();
-        demographicStudent.setTransactionID("123");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.TX_ID.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.TXID_INVALID.getCode());
-    }
-
-    @Test
     void testV116DemographicStudentCitizenship() {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
