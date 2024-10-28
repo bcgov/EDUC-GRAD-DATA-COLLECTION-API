@@ -4,46 +4,6 @@ metadata:
   name: "${REPO_NAME}-${BRANCH}-deployment"
   labels:
     template: "${REPO_NAME}-template"
-parameters:
-  - name: REPO_NAME
-    description: Application repository name
-    required: true
-  - name: BRANCH
-    description: Job identifier (e.g., 'backend' or 'frontend')
-    required: true
-  - name: NAMESPACE
-    description: Target namespace reference (e.g., 'e14b44-dev')
-    required: true
-  - name: APP_NAME
-    description: Application name
-    required: true
-  - name: CONTAINER_PORT
-    description: The port on which the application will be accessible
-    value: "8080"
-    required: false
-  - name: TAG
-    description: The identifying tag for this specific deployment
-    required: true
-  - name: MIN_REPLICAS
-    description: The minimum number of replicas
-    value: MIN_REPLICAS
-    required: true
-  - name: MAX_REPLICAS
-    description: The maximum number of replicas
-    value: MAX_REPLICAS
-    required: true
-  - name: MIN_CPU
-    description: The minimum amount of CPU
-    required: true
-  - name: MAX_CPU
-    description: The maximum amount of CPU
-    required: true
-  - name: MIN_MEM
-    description: The minimum amount of memory
-    required: true
-  - name: MAX_MEM
-    description: The maximum amount of memory
-    required: true
 objects:
   - apiVersion: apps/v1
     kind: Deployment
@@ -197,3 +157,43 @@ objects:
             target:
               type: Utilization
               averageUtilization: 200
+parameters:
+  - name: REPO_NAME
+    description: Application repository name
+    required: true
+  - name: BRANCH
+    description: Job identifier (e.g., 'backend' or 'frontend')
+    required: true
+  - name: NAMESPACE
+    description: Target namespace reference (e.g., 'e14b44-dev')
+    required: true
+  - name: APP_NAME
+    description: Application name
+    required: true
+  - name: CONTAINER_PORT
+    description: The port on which the application will be accessible
+    value: "8080"
+    required: false
+  - name: TAG
+    description: The identifying tag for this specific deployment
+    required: true
+  - name: MIN_REPLICAS
+    description: The minimum number of replicas
+    value: MIN_REPLICAS
+    required: true
+  - name: MAX_REPLICAS
+    description: The maximum number of replicas
+    value: MAX_REPLICAS
+    required: true
+  - name: MIN_CPU
+    description: The minimum amount of CPU
+    required: true
+  - name: MAX_CPU
+    description: The maximum amount of CPU
+    required: true
+  - name: MIN_MEM
+    description: The minimum amount of memory
+    required: true
+  - name: MAX_MEM
+    description: The maximum amount of memory
+    required: true
