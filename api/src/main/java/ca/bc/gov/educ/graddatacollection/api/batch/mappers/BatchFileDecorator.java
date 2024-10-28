@@ -118,14 +118,25 @@ public abstract class BatchFileDecorator implements BatchFileMapper {
         entity.setTransactionID(StringMapper.trimAndUppercase(assessmentDetails.getTransactionCode()));
         entity.setLocalID(StringMapper.trimAndUppercase(assessmentDetails.getLocalId()));
         entity.setCourseCode(StringMapper.trimAndUppercase(assessmentDetails.getCourseCode()));
+        entity.setCourseLevel(StringMapper.trimAndUppercase(assessmentDetails.getCourseLevel()));
         entity.setCourseYear(StringMapper.trimAndUppercase(assessmentDetails.getCourseYear()));
         entity.setCourseMonth(StringMapper.trimAndUppercase(assessmentDetails.getCourseMonth()));
+        entity.setInterimLetterGrade(StringMapper.trimAndUppercase(assessmentDetails.getInterimLetterGrade()));
+        entity.setInterimSchoolPercent(StringMapper.trimAndUppercase(assessmentDetails.getInterimSchoolPercentage()));
+        entity.setFinalSchoolPercent(StringMapper.trimAndUppercase(assessmentDetails.getFinalSchoolPercentage()));
+        entity.setExamPercent(StringMapper.trimAndUppercase(assessmentDetails.getExamPercentage()));
+        entity.setFinalPercent(StringMapper.trimAndUppercase(assessmentDetails.getFinalPercentage()));
+        entity.setFinalLetterGrade(StringMapper.trimAndUppercase(assessmentDetails.getFinalLetterGrade()));
         entity.setIsElectronicExam(StringMapper.trimAndUppercase(assessmentDetails.getEExamFlag()));
         entity.setLocalCourseID(StringMapper.trimAndUppercase(assessmentDetails.getLocalCourseId()));
         entity.setProvincialSpecialCase(StringMapper.trimAndUppercase(assessmentDetails.getProvSpecCase()));
         entity.setCourseStatus(StringMapper.trimAndUppercase(assessmentDetails.getCourseStatus()));
         entity.setLastName(StringMapper.trimAndUppercase(assessmentDetails.getLegalSurname()));
+        entity.setNumberOfCredits(StringMapper.trimAndUppercase(assessmentDetails.getNumCredits()));
+        entity.setCourseType(StringMapper.trimAndUppercase(assessmentDetails.getCourseType()));
+        entity.setToWriteFlag(StringMapper.trimAndUppercase(assessmentDetails.getWriteFlag()));
 
         return entity;
     }
+
 }
