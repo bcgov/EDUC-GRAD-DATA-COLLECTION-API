@@ -10,7 +10,7 @@ import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssue
 
 public enum DemographicStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D02' or 'E02'.", ERROR),
+  STUDENT_CITIZENSHIP_CODE_INVALID("STUDENTCITIZENSHIPCODEINVALID", "Invalid citizenship code - must be C, O or blank.", ERROR),
   GRADE_INVALID("GRADEINVALID", "Invalid grade.", ERROR),
   GRADE_NOT_IN_GRAD("GRADENOTINGRAD", "Is this the students' true grade?", WARNING),
   GRADE_AG_INVALID("GRADEAGINVALID", "Student reported on the Adult Graduation program (1950) must be grade AD or AN.", WARNING),
