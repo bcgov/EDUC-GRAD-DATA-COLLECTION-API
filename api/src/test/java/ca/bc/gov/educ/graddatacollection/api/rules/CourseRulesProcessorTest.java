@@ -20,12 +20,12 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV201CourseTxIDRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         var courseStudent = createMockCourseStudent();
         courseStudent.setTransactionID("123");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(), courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.TX_ID.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.TXID_INVALID.getCode());
