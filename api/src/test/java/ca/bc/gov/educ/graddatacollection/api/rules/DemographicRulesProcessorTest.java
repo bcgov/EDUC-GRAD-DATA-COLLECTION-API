@@ -11,7 +11,6 @@ import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
@@ -37,6 +36,26 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new CitizenshipCode("", "Blank", "Valid for Blank Citizenship", 3, "2020-01-01", "2099-12-31")
                 )
         );
+    }
+
+    @Test
+    void testV102DemographicStudentPEN() {
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        demographicStudent.setPen("");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK.getCode());
+
+        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        demographicStudent2.setPen(null);
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK.getCode());
     }
 
     @Test
