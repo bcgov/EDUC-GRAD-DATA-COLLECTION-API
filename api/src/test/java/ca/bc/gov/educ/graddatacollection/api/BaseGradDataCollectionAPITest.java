@@ -4,6 +4,9 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessment;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +32,35 @@ public abstract class BaseGradDataCollectionAPITest {
   @AfterEach
   public void resetState() {
 
+  }
+
+  public Session createMockSession() {
+    LocalDateTime currentDate = LocalDateTime.now();
+
+    var assessments = new ArrayList<Assessment>();
+    var mockAssessment = createMockAssessment("LTE10");
+    assessments.add(mockAssessment);
+
+    return Session.builder()
+            .sessionID(UUID.randomUUID().toString())
+            .schoolYear(String.valueOf(currentDate.getYear()))
+            .courseYear(Integer.toString(currentDate.getYear()))
+            .courseMonth(Integer.toString(currentDate.getMonthValue()))
+            .activeFromDate(currentDate.minusMonths(2).toString())
+            .activeUntilDate(currentDate.plusMonths(2).toString())
+            .assessments(assessments)
+            .build();
+  }
+
+  public Assessment createMockAssessment(String assessmentTypeCode) {
+    return Assessment.builder()
+            .sessionID(UUID.randomUUID().toString())
+            .assessmentTypeCode(assessmentTypeCode)
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().toString())
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateDate(LocalDateTime.now().toString())
+            .build();
   }
 
   public IncomingFilesetEntity createMockIncomingFilesetEntityWithDEMFile(UUID schoolID) {
