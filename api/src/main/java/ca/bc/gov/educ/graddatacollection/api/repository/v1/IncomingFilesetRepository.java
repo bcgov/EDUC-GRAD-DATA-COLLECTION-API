@@ -10,5 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface IncomingFilesetRepository extends JpaRepository<IncomingFilesetEntity, UUID>, JpaSpecificationExecutor<IncomingFilesetEntity> {
+    Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCode(UUID schoolID, String statusCode);
     Optional<IncomingFilesetEntity> findBySchoolID(UUID schoolID);
 }
