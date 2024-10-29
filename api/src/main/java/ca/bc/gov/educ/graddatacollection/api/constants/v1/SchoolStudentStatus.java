@@ -5,7 +5,12 @@ import lombok.Getter;
 
 public enum SchoolStudentStatus {
     LOADED("LOADED"),
-    DELETED("DELETED"),
+
+    ERROR("ERROR"),
+    WARNING("WARNING"),
+    VERIFIED("VERIFIED"),
+    UPDATED("UPDATED"),
+    DELETED("DELETED")
     ;
 
     @Getter

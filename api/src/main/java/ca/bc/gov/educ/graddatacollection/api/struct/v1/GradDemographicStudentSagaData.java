@@ -17,6 +17,6 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GradDemographicStudentSagaData implements Serializable {
   private static final long serialVersionUID = -2329245910142215178L;
-  private DemographicStudentEntity demographicStudentEntity;
+  private DemographicStudent demographicStudent;
   private SchoolTombstone school;
 }
