@@ -45,8 +45,8 @@ public class EventTaskScheduler {
   }
 
 
-  @Scheduled(cron = "${scheduled.jobs.process.loaded.sdc.students.cron}")
-  @SchedulerLock(name = "PROCESS_LOADED_STUDENTS", lockAtLeastFor = "${scheduled.jobs.process.loaded.sdc.students.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.loaded.sdc.students.cron.lockAtMostFor}")
+  @Scheduled(cron = "${scheduled.jobs.process.loaded.grad.students.cron}")
+  @SchedulerLock(name = "PROCESS_LOADED_STUDENTS", lockAtLeastFor = "${scheduled.jobs.process.loaded.grad.students.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.loaded.grad.students.cron.lockAtMostFor}")
   public void processLoadedStudents() {
     LockAssert.assertLocked();
     log.debug("Started processLoadedStudents scheduler");

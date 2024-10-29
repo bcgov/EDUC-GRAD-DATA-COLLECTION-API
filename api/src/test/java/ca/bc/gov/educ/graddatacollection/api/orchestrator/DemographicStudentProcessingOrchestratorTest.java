@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaEventRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -48,6 +49,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @Autowired
     SagaRepository sagaRepository;
     @Autowired
+    SagaEventRepository sagaEventRepository;
+    @Autowired
     MessagePublisher messagePublisher;
     @Autowired
     DemographicStudentRepository demographicStudentRepository;
@@ -60,8 +63,12 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
 
     @BeforeEach
     public void setUp() {
-        Mockito.reset(this.messagePublisher);
-        Mockito.reset(this.restUtils);
+        Mockito.reset(messagePublisher);
+        Mockito.reset(restUtils);
+        sagaEventRepository.deleteAll();
+        sagaRepository.deleteAll();
+        demographicStudentRepository.deleteAll();
+        incomingFilesetRepository.deleteAll();
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();

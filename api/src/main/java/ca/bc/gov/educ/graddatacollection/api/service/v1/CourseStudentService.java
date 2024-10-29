@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
@@ -42,7 +43,7 @@ public class CourseStudentService {
                         var school = this.restUtils.getSchoolBySchoolID(incomingFilesetEntity.get().getSchoolID().toString());
                         gradCourseStudentSagaData.setSchool(school.get());
                     }
-                    gradCourseStudentSagaData.setCourseStudentEntity(el);
+                    gradCourseStudentSagaData.setCourseStudent(CourseStudentMapper.mapper.toCourseStudent(el));
                     return gradCourseStudentSagaData;
                 }).toList();
         this.publishUnprocessedStudentRecordsForProcessing(courseStudentSagaData);
@@ -55,7 +56,7 @@ public class CourseStudentService {
     private void sendIndividualStudentAsMessageToTopic(final GradCourseStudentSagaData courseStudentSagaData) {
         final var eventPayload = JsonUtil.getJsonString(courseStudentSagaData);
         if (eventPayload.isPresent()) {
-            final Event event = Event.builder().eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).courseStudentID(String.valueOf(courseStudentSagaData.getCourseStudentEntity().getCourseStudentID())).build();
+            final Event event = Event.builder().eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).courseStudentID(String.valueOf(courseStudentSagaData.getCourseStudent().getCourseStudentID())).build();
             final var eventString = JsonUtil.getJsonString(event);
             if (eventString.isPresent()) {
                 this.messagePublisher.dispatchMessage(TopicsEnum.READ_COURSE_STUDENTS_FROM_TOPIC.toString(), eventString.get().getBytes());

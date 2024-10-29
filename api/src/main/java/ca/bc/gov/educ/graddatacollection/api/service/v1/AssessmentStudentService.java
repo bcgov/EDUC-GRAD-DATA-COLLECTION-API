@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
@@ -42,7 +43,7 @@ public class AssessmentStudentService {
                         var school = this.restUtils.getSchoolBySchoolID(incomingFilesetEntity.get().getSchoolID().toString());
                         gradAssessmentStudentSagaData.setSchool(school.get());
                     }
-                    gradAssessmentStudentSagaData.setAssessmentStudentEntity(el);
+                    gradAssessmentStudentSagaData.setAssessmentStudent(AssessmentStudentMapper.mapper.toAssessmentStudent(el));
                     return gradAssessmentStudentSagaData;
                 }).toList();
         this.publishUnprocessedStudentRecordsForProcessing(assessmentStudentSagaData);
@@ -55,7 +56,7 @@ public class AssessmentStudentService {
     private void sendIndividualStudentAsMessageToTopic(final GradAssessmentStudentSagaData assessmentStudentSagaData) {
         final var eventPayload = JsonUtil.getJsonString(assessmentStudentSagaData);
         if (eventPayload.isPresent()) {
-            final Event event = Event.builder().eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).assessmentStudentID(String.valueOf(assessmentStudentSagaData.getAssessmentStudentEntity().getAssessmentStudentID())).build();
+            final Event event = Event.builder().eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).assessmentStudentID(String.valueOf(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID())).build();
             final var eventString = JsonUtil.getJsonString(event);
             if (eventString.isPresent()) {
                 this.messagePublisher.dispatchMessage(TopicsEnum.READ_ASSESSMENT_STUDENTS_FROM_TOPIC.toString(), eventString.get().getBytes());

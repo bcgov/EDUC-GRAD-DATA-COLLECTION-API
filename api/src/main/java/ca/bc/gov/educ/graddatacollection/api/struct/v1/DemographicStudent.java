@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
@@ -14,9 +15,10 @@ import java.util.List;
 @Data
 @SuperBuilder
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString(callSuper = true)
-public class DemographicStudent implements Serializable {
+public class DemographicStudent extends BaseRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
