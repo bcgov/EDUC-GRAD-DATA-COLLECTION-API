@@ -23,7 +23,7 @@ public class Assessment extends BaseRequest implements Serializable {
     private String assessmentID;
 
     @ReadOnlyProperty
-    private Session session;
+    private String sessionID;
 
     @ReadOnlyProperty
     private String assessmentTypeCode;

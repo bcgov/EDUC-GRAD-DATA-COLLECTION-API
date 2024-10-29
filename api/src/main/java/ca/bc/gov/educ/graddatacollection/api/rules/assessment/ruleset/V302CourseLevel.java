@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
@@ -17,22 +18,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V301 | ERROR    | For assessment registration data the transaction ID is                | -            |
- *                     expected to be E06 or D06
+ *  | V302 | WARNING  | Invalid Course Level entry, value will be ignored.                    | -            |
+ *                      Value should be blank.
  */
 @Component
 @Slf4j
-@Order(100)
-public class V301AssessmentTxID implements AssessmentValidationBaseRule {
+@Order(110)
+public class V302CourseLevel implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of TransactionID-V301: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V302: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of TransactionID-V301: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V302: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -42,13 +43,12 @@ public class V301AssessmentTxID implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of TransactionID-V301 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V302 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        var txID = student.getTransactionID();
-        if (StringUtils.isAllEmpty(txID) || (!txID.equals("E06") && !txID.equals("D06"))) {
-            log.debug("TransactionID-V301: TX_ID must be 'E06' OR TX_ID = 'D06' for assessmentStudentID :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.TX_ID, AssessmentStudentValidationIssueTypeCode.TXID_INVALID));
+        if (StringUtils.isNotBlank(student.getCourseLevel())) {
+            log.debug("V302: Invalid Course Level entry, value will be ignored. Value should be blank for assessmentStudentID :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.COURSE_LEVEL, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK));
         }
         return errors;
     }

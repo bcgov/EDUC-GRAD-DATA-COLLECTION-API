@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules.demographic;
 import lombok.Getter;
 
 public enum DemographicStudentValidationFieldCode {
+  STUDENT_PEN("STUDENT_PEN"),
   STUDENT_CITIZENSHIP_CODE("STUDENT_CITIZENSHIP_CODE"),
   STUDENT_GRADE("STUDENT_GRADE"),
   STUDENT_STATUS("STUDENT_STATUS"),

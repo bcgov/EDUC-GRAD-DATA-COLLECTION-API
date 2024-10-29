@@ -7,7 +7,9 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidatio
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,14 +20,19 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private CourseStudentRulesProcessor rulesProcessor;
 
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     void testV201CourseTxIDRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         var courseStudent = createMockCourseStudent();
         courseStudent.setTransactionID("123");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(), courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.TX_ID.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.TXID_INVALID.getCode());

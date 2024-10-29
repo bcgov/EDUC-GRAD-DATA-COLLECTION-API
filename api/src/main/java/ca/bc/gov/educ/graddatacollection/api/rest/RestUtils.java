@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Stream;
 
 /**
  * This class is used for REST calls
@@ -443,7 +441,7 @@ public class RestUtils {
     val writeLock = this.assessmentSessionLock.writeLock();
     try {
       writeLock.lock();
-      List<Session> sessions = this.getAssessmentSession();
+      List<Session> sessions = this.getAssessmentSessions();
 
       for (val session : sessions) {
         this.sessionMap.put(session.getSessionID(), session);
@@ -456,7 +454,7 @@ public class RestUtils {
     log.info("Loaded  {} Assessment session map to memory", this.sessionMap.values().size());
   }
 
-  public Optional<Session> getAssessmentSessionByCourseMonthAndYear(Integer courseMonth, Integer courseYear) {
+  public Optional<Session> getAssessmentSessionByCourseMonthAndYear(String courseMonth, String courseYear) {
     if(sessionMap.isEmpty()) {
       log.info("Assessment session map is empty reloading schools");
       populateAssessmentSessionMap();
@@ -465,7 +463,7 @@ public class RestUtils {
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
   }
 
-  public List<Session> getAssessmentSession() {
+  private List<Session> getAssessmentSessions() {
     UUID correlationID = UUID.randomUUID();
     try {
       log.info("Calling EAS API to load assessment sessions to memory");

@@ -9,7 +9,7 @@ import java.util.Map;
 import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode.*;
 
 public enum DemographicStudentValidationIssueTypeCode {
-
+  STUDENT_PEN_BLANK("STUDENTPENBLANK", "PEN is blank. Correct PEN in system or through PEN Web.", ERROR),
   STUDENT_CITIZENSHIP_CODE_INVALID("STUDENTCITIZENSHIPCODEINVALID", "Invalid citizenship code - must be C, O or blank.", ERROR),
   GRADE_INVALID("GRADEINVALID", "Invalid grade.", ERROR),
   GRADE_NOT_IN_GRAD("GRADENOTINGRAD", "Is this the students' true grade?", WARNING),
