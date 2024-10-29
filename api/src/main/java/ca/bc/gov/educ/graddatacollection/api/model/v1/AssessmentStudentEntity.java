@@ -72,6 +72,36 @@ public class AssessmentStudentEntity {
   @Column(name = "LAST_NAME")
   String lastName;
 
+  @Column(name = "COURSE_LEVEL")
+  String courseLevel;
+
+  @Column(name = "INTERIM_LETTER_GRADE")
+  String interimLetterGrade;
+
+  @Column(name = "INTERIM_SCHOOL_PERCENT")
+  String interimSchoolPercent;
+
+  @Column(name = "FINAL_SCHOOL_PERCENT")
+  String finalSchoolPercent;
+
+  @Column(name = "EXAM_PERCENT")
+  String examPercent;
+
+  @Column(name = "FINAL_PERCENT")
+  String finalPercent;
+
+  @Column(name = "FINAL_LETTER_GRADE")
+  String finalLetterGrade;
+
+  @Column(name = "NUM_CREDITS")
+  String numberOfCredits;
+
+  @Column(name = "CRSE_TYPE")
+  String courseType;
+
+  @Column(name = "TO_WRITE_FLAG")
+  String toWriteFlag;
+
   @NotNull(message = "create user cannot be null")
   @Column(name = "CREATE_USER", updatable = false)
   @Size(max = 100)
