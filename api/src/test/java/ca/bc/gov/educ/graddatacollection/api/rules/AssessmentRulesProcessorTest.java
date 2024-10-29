@@ -58,4 +58,26 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode());
     }
+
+    @Test
+    void testV302CourseLevelRule() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(demStudent.getPen());
+        assessmentStudent.setLocalID(demStudent.getLocalID());
+        assessmentStudent.setLastName(demStudent.getLastName());
+        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        assessmentStudent.setCourseLevel("123");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.COURSE_LEVEL.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getCode());
+    }
 }
