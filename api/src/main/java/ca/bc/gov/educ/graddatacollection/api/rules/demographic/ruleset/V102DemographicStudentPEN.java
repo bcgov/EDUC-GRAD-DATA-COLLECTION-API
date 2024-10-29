@@ -7,12 +7,12 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
@@ -44,7 +44,7 @@ public class V102DemographicStudentPEN implements DemographicValidationBaseRule 
         log.debug("In executeValidation of StudentPEN-v102 for demographicStudentPen :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (student.getPen() == null || student.getPen().isBlank()) {
+        if (StringUtils.isEmpty(student.getPen())) {
             log.debug("StudentPEN-v102: PEN is blank. Correct PEN in system or through PEN Web. for demographicStudentPen :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK));
         }
