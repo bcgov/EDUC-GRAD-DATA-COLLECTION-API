@@ -19,23 +19,22 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V120 | WARN     | If student is reported on any other graduation program or SCCP their  | V117, V130   |
- *  |      |          |  reported grade should not be AD or AN.	                              |              |
- *
+ *  | V112 | WARN     | If student is reported on the Adult graduation program (1950)         | V117, V130   |
+ *  |      |          | their reported grade must be AD or AN.                                |              |
  */
 
 @Component
 @Slf4j
-@Order(2000)
-public class V120DemographicStudentGrade implements DemographicValidationBaseRule {
+@Order(1200)
+public class V112DemographicStudentGradeProgram implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentGrade-V120: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentGrade-V112: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V20", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V12", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentGrade-V120: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentGrade-V112: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -45,13 +44,13 @@ public class V120DemographicStudentGrade implements DemographicValidationBaseRul
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentGrade-V120 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentGrade-V112 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (GradRequirementYearCodes.getNonAdultGraduationProgramYearCodes().stream().anyMatch(nonAdultGradYear -> Objects.equals(nonAdultGradYear, student.getGradRequirementYear()))
-            && SchoolGradeCodes.getGradAdultGrades().stream().anyMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
-            log.debug("StudentGrade-V120:  Student grade should not be AD or AN for the reported graduation program for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID));
+        if (GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(adultGradYear -> Objects.equals(adultGradYear, student.getGradRequirementYear()))
+            && SchoolGradeCodes.getGradAdultGrades().stream().noneMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
+            log.debug("StudentGrade-V112: Student reported on the Adult Graduation program (1950) must be grade AD or AN for demographicStudentID :: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID));
         }
         return errors;
     }

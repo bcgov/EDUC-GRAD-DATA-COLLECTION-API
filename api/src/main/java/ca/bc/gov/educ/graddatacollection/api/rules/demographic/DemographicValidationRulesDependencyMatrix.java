@@ -9,8 +9,8 @@ import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.Demographi
 
 public enum DemographicValidationRulesDependencyMatrix {
     // TODO v19 and v20 must rely on v30
-    ENTRY19("V19", new String[]{GRADE_INVALID.getCode()}),
-    ENTRY20("V20", new String[]{GRADE_INVALID.getCode()}),
+    ENTRY19("V12", new String[]{GRADE_INVALID.getCode()}),
+    ENTRY20("V13", new String[]{GRADE_INVALID.getCode()}),
     ENTRY27("V27", new String[]{SCCP_INVALID_DATE.getCode()}),
     ;
 

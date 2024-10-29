@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
@@ -8,7 +9,6 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,22 +19,23 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V117 | ERROR    | Must be a valid grade (K-12, AD, AN, HS, SU, GA)              	     | -            |
+ *  | V113 | WARN     | If student is reported on any other graduation program or SCCP their  | V117, V130   |
+ *  |      |          |  reported grade should not be AD or AN.	                              |              |
  *
  */
 
 @Component
 @Slf4j
-@Order(1700)
-public class V117DemographicStudentGrade implements DemographicValidationBaseRule {
+@Order(1300)
+public class V113DemographicStudentGradeProgram implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentGrade-V117: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentGrade-V113: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V13", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentGrade-V117: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentGrade-V113: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -44,13 +45,13 @@ public class V117DemographicStudentGrade implements DemographicValidationBaseRul
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentGrade-V117 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentGrade-V113 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isEmpty(student.getGrade())
-            || SchoolGradeCodes.getAllSchoolGrades().stream().noneMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
-            log.debug("StudentGrade-V117: Must be a valid grade (K-12, AD, AN, HS, SU, GA) for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID));
+        if (GradRequirementYearCodes.getNonAdultGraduationProgramYearCodes().stream().anyMatch(nonAdultGradYear -> Objects.equals(nonAdultGradYear, student.getGradRequirementYear()))
+            && SchoolGradeCodes.getGradAdultGrades().stream().anyMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
+            log.debug("StudentGrade-V113:  Student grade should not be AD or AN for the reported graduation program for demographicStudentID :: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID));
         }
         return errors;
     }

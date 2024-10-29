@@ -34,11 +34,11 @@ public class V126DemographicSCCPCompletionDate implements DemographicValidationB
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SCCPCompletionDate-V126: for demographicSCCPDate :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of SCCPCompletionDate-V126: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of SCCPCompletionDate-V126: Condition returned - {} for demographicSCCPDate :: {}" ,
+        log.debug("In shouldExecute of SCCPCompletionDate-V126: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -48,7 +48,7 @@ public class V126DemographicSCCPCompletionDate implements DemographicValidationB
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of SCCPCompletionDate-V126 for demographicSCCPDate :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of SCCPCompletionDate-V126 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         String sccpCompletionDate = student.getSchoolCertificateCompletionDate();
@@ -56,7 +56,7 @@ public class V126DemographicSCCPCompletionDate implements DemographicValidationB
         if (StringUtils.isEmpty(sccpCompletionDate) ||
             !DateValidator.isValidYYYYMMDD(sccpCompletionDate) ||
             LocalDate.parse(sccpCompletionDate, YYYYMMDD_FORMATTER).isBefore(SCCP_EFFECTIVE_DATE)) {
-            log.debug("SCCPCompletionDate-V126: Invalid SCCP completion date (YYYYMMDD) for demographicSCCPDate :: {}", student.getDemographicStudentID());
+            log.debug("SCCPCompletionDate-V126: Invalid SCCP completion date (YYYYMMDD) for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE));
         }
         return errors;

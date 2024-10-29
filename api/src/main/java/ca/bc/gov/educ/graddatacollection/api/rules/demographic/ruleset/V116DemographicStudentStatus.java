@@ -13,28 +13,27 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V125 | ERROR    |  Must be a valid status	(A, D, T)                                     |              |
+ *  | V116 | ERROR    |  Check if "M" for merged                                              |              |
  *  |      |          |                                     	                              |              |
  *
  */
 
 @Component
 @Slf4j
-@Order(2500)
-public class V125DemographicStudentStatus implements DemographicValidationBaseRule {
+@Order(1600)
+public class V116DemographicStudentStatus implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentStatus-V125: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentStatus-V116: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentStatus-V125: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentStatus-V116: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -44,13 +43,13 @@ public class V125DemographicStudentStatus implements DemographicValidationBaseRu
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentStatus-V125 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentStatus-V116 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (student.getStudentStatusCode() == null ||
-            StudentStatusCodes.getValidStudentStatusCodes().stream().noneMatch(statusCode -> Objects.equals(statusCode, student.getStudentStatusCode()))) {
-            log.debug("StudentStatus-V125:Invalid student status - must be A, D, or T for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID));
+        if (student.getStudentStatusCode() != null &&
+            student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.M.getCode())) {
+            log.debug("StudentStatus-V116:Student PEN has been merged with a pre-existing PEN for demographicStudentID :: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED));
         }
         return errors;
     }
