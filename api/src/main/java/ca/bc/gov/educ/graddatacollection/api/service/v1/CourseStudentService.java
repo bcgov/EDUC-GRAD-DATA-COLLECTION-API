@@ -49,7 +49,7 @@ public class CourseStudentService {
             saveSdcStudent(currentStudentEntity.get());
             return validationErrors;
         } else {
-            throw new EntityNotFoundException(DemographicStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
+            throw new EntityNotFoundException(CourseStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
         }
     }
 
