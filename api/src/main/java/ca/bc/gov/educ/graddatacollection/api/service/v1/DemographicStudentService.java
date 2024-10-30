@@ -68,10 +68,6 @@ public class DemographicStudentService {
         entity.getDemographicStudentValidationIssueEntities().addAll(populateValidationErrors(validationErrors, entity));
         if(validationErrors.stream().anyMatch(val -> val.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
             entity.setStudentStatusCode(SchoolStudentStatus.ERROR.getCode());
-        } else if(validationErrors.stream().anyMatch(val -> val.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.WARNING.toString()))) {
-            entity.setStudentStatusCode(SchoolStudentStatus.WARNING.getCode());
-        } else{
-            entity.setStudentStatusCode(SchoolStudentStatus.VERIFIED.getCode());
         }
         return validationErrors;
     }

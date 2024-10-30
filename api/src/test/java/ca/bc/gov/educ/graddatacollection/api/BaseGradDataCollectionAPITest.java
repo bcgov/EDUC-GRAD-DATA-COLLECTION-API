@@ -13,9 +13,7 @@ import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessment;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
@@ -283,7 +281,7 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   @SneakyThrows
-  protected GradSagaEntity createMockSaga(final DemographicStudent demographicStudent) {
+  protected GradSagaEntity createDemMockSaga(final DemographicStudent demographicStudent) {
     return GradSagaEntity.builder()
             .updateDate(LocalDateTime.now().minusMinutes(15))
             .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
@@ -293,6 +291,20 @@ public abstract class BaseGradDataCollectionAPITest {
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
             .payload(JsonUtil.getJsonStringFromObject(GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
+            .build();
+  }
+
+  @SneakyThrows
+  protected GradSagaEntity createCourseMockSaga(final CourseStudent courseStudent) {
+    return GradSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
             .build();
   }
 }

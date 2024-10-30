@@ -101,7 +101,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         demographicStudentRepository.save(demographicStudentEntity);
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
-        val saga = this.createMockSaga(demographicStudent);
+        val saga = this.createDemMockSaga(demographicStudent);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
@@ -145,7 +145,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         demographicStudentRepository.save(demographicStudentEntity);
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
-        val saga = this.createMockSaga(demographicStudent);
+        val saga = this.createDemMockSaga(demographicStudent);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
