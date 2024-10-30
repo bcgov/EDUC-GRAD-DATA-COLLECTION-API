@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V112 | WARN     | If student is reported on the Adult graduation program (1950)         | V117, V130   |
+ *  | V112 | WARN     | If student is reported on the Adult graduation program (1950)         | V110, V121   |
  *  |      |          | their reported grade must be AD or AN.                                |              |
  */
 

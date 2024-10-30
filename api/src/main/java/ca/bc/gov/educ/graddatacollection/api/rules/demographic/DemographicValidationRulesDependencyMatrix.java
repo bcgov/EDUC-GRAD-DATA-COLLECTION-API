@@ -8,9 +8,9 @@ import java.util.Optional;
 import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode.*;
 
 public enum DemographicValidationRulesDependencyMatrix {
-    // TODO v19 and v20 must rely on v30
-    ENTRY19("V12", new String[]{GRADE_INVALID.getCode()}),
-    ENTRY20("V13", new String[]{GRADE_INVALID.getCode()}),
+    // TODO v12 and v13 must also rely on valid program v21
+    ENTRY12("V12", new String[]{GRADE_INVALID.getCode()}),
+    ENTRY13("V13", new String[]{GRADE_INVALID.getCode()}),
     ENTRY27("V27", new String[]{SCCP_INVALID_DATE.getCode()}),
     ;
 
