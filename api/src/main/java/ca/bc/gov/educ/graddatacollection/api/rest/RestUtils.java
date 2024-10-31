@@ -234,7 +234,7 @@ public class RestUtils {
   public List<GradGrade> getGradGrades() {
     log.info("Calling Grad api to load grades to memory");
     return this.webClient.get()
-            .uri(this.props.getGradApiURL() + "/grades")
+            .uri(this.props.getGradApiURL() + "/grade-codes")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GradGrade.class)
