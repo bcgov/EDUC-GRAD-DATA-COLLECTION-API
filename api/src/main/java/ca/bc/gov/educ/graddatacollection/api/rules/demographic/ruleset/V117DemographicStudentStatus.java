@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V117 | ERROR    |  Must be a valid status	(A, D, T)                                     |              |
+ *  | V117 | ERROR    |  Must be a valid status	(A, D, M, T)                                  |              |
  *  |      |          |                                     	                              |              |
  *
  */
@@ -48,7 +48,7 @@ public class V117DemographicStudentStatus implements DemographicValidationBaseRu
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (!StudentStatusCodes.getValidStudentStatusCodes().contains(student.getStudentStatusCode())) {
-            log.debug("StudentStatus-V117:Invalid student status - must be A, D, or T for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentStatus-V117:Invalid student status - must be A, D, M, or T for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID));
         }
         return errors;

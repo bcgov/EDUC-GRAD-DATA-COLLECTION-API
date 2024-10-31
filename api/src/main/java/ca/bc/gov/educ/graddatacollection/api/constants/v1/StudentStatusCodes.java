@@ -29,6 +29,7 @@ public enum StudentStatusCodes {
         List<String> codes = new ArrayList<>();
         codes.add(A.getCode());
         codes.add(D.getCode());
+        codes.add(M.getCode());
         codes.add(T.getCode());
         return codes;
     }
