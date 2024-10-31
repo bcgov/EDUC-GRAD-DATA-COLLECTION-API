@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V111 | WARN     | Must be a valid grade that is currently effective in GRAD             | -            |
+ *  | V111 | WARN     | Must be a valid grade that is currently effective in GRAD             | V110         |
  *
  */
 
@@ -38,7 +38,7 @@ public class V111DemographicStudentGrade implements DemographicValidationBaseRul
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentGrade-V111: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V11", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentGrade-V111: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
