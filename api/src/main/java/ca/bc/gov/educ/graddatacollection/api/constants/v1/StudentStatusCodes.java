@@ -32,4 +32,8 @@ public enum StudentStatusCodes {
         codes.add(T.getCode());
         return codes;
     }
+
+    public static String getStudentStatusCodeM() {
+        return M.getCode();
+    }
 }
