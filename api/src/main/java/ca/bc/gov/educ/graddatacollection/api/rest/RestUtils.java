@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -53,6 +54,7 @@ public class RestUtils {
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, GradGrade> gradGradeMap = new ConcurrentHashMap<>();
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -65,6 +67,7 @@ public class RestUtils {
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock gradGradeSessionLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -98,6 +101,7 @@ public class RestUtils {
     this.populateAuthorityMap();
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
+    this.populateGradGradesMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -208,6 +212,32 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(CitizenshipCode.class)
+            .collectList()
+            .block();
+  }
+
+  public void populateGradGradesMap() {
+    val writeLock = this.gradGradeSessionLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val grade : this.getGradGrades()) {
+        this.gradGradeMap.put(grade.getGrade(), grade);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache grad grade {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} grad grades to memory", this.gradGradeMap.values().size());
+  }
+
+  public List<GradGrade> getGradGrades() {
+    log.info("Calling Grad api to load grades to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradApiURL() + "/grades")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GradGrade.class)
             .collectList()
             .block();
   }

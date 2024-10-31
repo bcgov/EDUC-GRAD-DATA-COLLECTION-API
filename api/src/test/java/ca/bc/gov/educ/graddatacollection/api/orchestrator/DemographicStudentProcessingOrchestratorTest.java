@@ -92,7 +92,6 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
 
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);
         demographicStudentEntity.setDemographicStudentID(null);
-        demographicStudentEntity.setStudentStatusCode("LOADED");
         demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         demographicStudentEntity.setUpdateDate(LocalDateTime.now());
         demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);

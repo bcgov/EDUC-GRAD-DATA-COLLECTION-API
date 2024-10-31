@@ -27,11 +27,11 @@ public class V102DemographicStudentPEN implements DemographicValidationBaseRule 
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentPEN-v102: for demographicStudentPen :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentPEN-v102: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentPEN-v102: Condition returned - {} for demographicStudentPen :: {}" ,
+        log.debug("In shouldExecute of StudentPEN-v102: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -41,11 +41,11 @@ public class V102DemographicStudentPEN implements DemographicValidationBaseRule 
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentPEN-v102 for demographicStudentPen :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentPEN-v102 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isEmpty(student.getPen())) {
-            log.debug("StudentPEN-v102: PEN is blank. Correct PEN in system or through PEN Web. for demographicStudentPen :: {}", student.getDemographicStudentID());
+            log.debug("StudentPEN-v102: PEN is blank. Correct PEN in system or through PEN Web. for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK));
         }
         return errors;
