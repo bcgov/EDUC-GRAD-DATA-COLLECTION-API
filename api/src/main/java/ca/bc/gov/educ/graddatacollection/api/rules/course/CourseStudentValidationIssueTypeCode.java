@@ -1,16 +1,13 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course;
 
-import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode.ERROR;
-
 public enum CourseStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXIDINVALID", "TX_ID must be one of 'D08' or 'E08'");
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname and Local ID.");
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 

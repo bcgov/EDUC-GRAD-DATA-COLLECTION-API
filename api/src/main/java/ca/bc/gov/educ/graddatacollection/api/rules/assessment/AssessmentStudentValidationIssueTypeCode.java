@@ -7,7 +7,6 @@ import java.util.Map;
 
 public enum AssessmentStudentValidationIssueTypeCode {
 
-  TXID_INVALID("TXID_INVALID", "TX_ID must be one of 'E06' or 'D06'."),
   DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level value is ignored and must be blank."),
   COURSE_CODE_INVALID("COURSE_CODE_INVALID", "The Assessment Code provided is not valid for the Assessment Session specified."),
