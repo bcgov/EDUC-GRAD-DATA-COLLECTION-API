@@ -1,20 +1,19 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
@@ -28,6 +27,12 @@ import java.util.Objects;
 @Slf4j
 @Order(1400)
 public class V114DemographicProgramCode15 implements DemographicValidationBaseRule {
+
+    private final RestUtils restUtils;
+
+    public V114DemographicProgramCode15(RestUtils restUtils) {
+        this.restUtils = restUtils;
+    }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
@@ -48,10 +53,34 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
         log.debug("In executeValidation of ProgramCode15-V114 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        // todo
-        if (true) {
-            log.debug("ProgramCode15-V114: Student grade should not be AD or AN for the reported graduation program for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID));
+        List<CareerProgramCode> careerProgramCodes = restUtils.getCareerPrograms();
+        List<OptionalProgramCode> optionalProgramCodes = restUtils.getOptionalPrograms();
+
+        Set<String> careerProgramCodeSet = new HashSet<>();
+        Set<String> optionalProgramCodeSet = new HashSet<>();
+
+        careerProgramCodes.forEach(c -> careerProgramCodeSet.add(c.getCode()));
+        optionalProgramCodes.forEach(o -> optionalProgramCodeSet.add(o.getOptProgramCode()));
+
+        List<String> studentProgramCodes = new ArrayList<>();
+        Collections.addAll(studentProgramCodes,
+                student.getProgramCode1(),
+                student.getProgramCode2(),
+                student.getProgramCode3(),
+                student.getProgramCode4(),
+                student.getProgramCode5()
+        );
+
+        for (String programCode : studentProgramCodes) {
+            if (!careerProgramCodeSet.contains(programCode) && !optionalProgramCodeSet.contains(programCode)) {
+                log.debug("ProgramCode15-V114:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}", programCode, student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID
+                ));
+                break;
+            }
         }
         return errors;
     }
