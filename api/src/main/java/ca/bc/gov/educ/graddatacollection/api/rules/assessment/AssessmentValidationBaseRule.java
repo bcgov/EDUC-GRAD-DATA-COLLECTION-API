@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AssessmentValidationBaseRule extends Rule<StudentRuleData, AssessmentStudentValidationIssue> {
+
   default AssessmentStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, AssessmentStudentValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode){
     AssessmentStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new AssessmentStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());

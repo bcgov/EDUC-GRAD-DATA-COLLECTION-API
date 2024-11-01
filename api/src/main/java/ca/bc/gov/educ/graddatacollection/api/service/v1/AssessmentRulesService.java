@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -24,6 +25,14 @@ public class AssessmentRulesService {
     public boolean containsDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname, String localID) {
         var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(incomingFilesetID, surname, pen, localID);
         return !results.isEmpty();
+    }
+
+    public DemographicStudentEntity getDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname, String localID) {
+        var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(incomingFilesetID, surname, pen, localID);
+        if(!results.isEmpty()) {
+            return results.get(0);
+        }
+        return null;
     }
 
     public boolean courseIsValidForSession(String year, String month, String courseCode){
