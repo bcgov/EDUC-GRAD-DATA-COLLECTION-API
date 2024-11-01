@@ -16,7 +16,8 @@ public enum AssessmentStudentValidationFieldCode {
   NUMBER_OF_CREDITS("NUMBER_OF_CREDITS"),
   COURSE_TYPE("COURSE_TYPE"),
   TO_WRITE_FLAG("TO_WRITE_FLAG"),
-  EXAM_SCHOOL("EXAM_SCHOOL");
+  EXAM_SCHOOL("EXAM_SCHOOL"),
+  COURSE_SESSION("COURSE_SESSION");
 
   @Getter
   private final String code;

@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(160)
 public class V308FinalSchoolPercentage implements AssessmentValidationBaseRule {
 
     @Override

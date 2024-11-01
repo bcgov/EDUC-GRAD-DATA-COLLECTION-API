@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(210)
 public class V314NumberOfCredits implements AssessmentValidationBaseRule {
 
     @Override

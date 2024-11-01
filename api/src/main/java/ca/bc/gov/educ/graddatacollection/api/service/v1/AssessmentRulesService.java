@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
@@ -18,6 +19,7 @@ public class AssessmentRulesService {
 
     private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
+    private final AssessmentStudentRepository assessmentStudentRepository;
 
     public boolean containsDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname, String localID) {
         var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(incomingFilesetID, surname, pen, localID);
@@ -40,7 +42,8 @@ public class AssessmentRulesService {
         var session = restUtils.getAssessmentSessionByCourseMonthAndYear(month, year);
 
         if(session.isPresent()){
-            return session.get().getAssessments().stream().filter(assessment -> assessment.getAssessmentTypeCode().equalsIgnoreCase(courseCode)).findFirst().get().getAssessmentID();
+            var returnAssessment = session.get().getAssessments().stream().filter(assessment -> assessment.getAssessmentTypeCode().equalsIgnoreCase(courseCode)).findFirst().orElse(null);
+            return returnAssessment != null ? returnAssessment.getAssessmentID() : null;
         }
         return null;
     }
@@ -51,5 +54,9 @@ public class AssessmentRulesService {
 
     public Student getStudent(String pen){
         return restUtils.getStudentByPEN(UUID.randomUUID(), pen);
+    }
+
+    public boolean checkIfStudentHasDuplicatesInFileset(String pen, String courseCode, String courseMonth, String courseYear){
+        return assessmentStudentRepository.countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(pen, courseCode, courseMonth, courseYear) > 1;
     }
 }

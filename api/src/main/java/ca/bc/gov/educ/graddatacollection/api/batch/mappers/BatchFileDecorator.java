@@ -9,21 +9,17 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.UUID;
 
 @Slf4j
 public abstract class BatchFileDecorator implements BatchFileMapper {
     private final BatchFileMapper delegate;
-    private final RestUtils restUtils;
 
-    protected BatchFileDecorator(BatchFileMapper delegate, RestUtils restUtils) {
+    protected BatchFileDecorator(BatchFileMapper delegate) {
         this.delegate = delegate;
-        this.restUtils = restUtils;
     }
 
     @Override
@@ -139,13 +135,6 @@ public abstract class BatchFileDecorator implements BatchFileMapper {
         entity.setNumberOfCredits(StringMapper.trimAndUppercase(assessmentDetails.getNumCredits()));
         entity.setCourseType(StringMapper.trimAndUppercase(assessmentDetails.getCourseType()));
         entity.setToWriteFlag(StringMapper.trimAndUppercase(assessmentDetails.getWriteFlag()));
-
-        if(StringUtils.isNotBlank(assessmentDetails.getExamMincode())) {
-            var school = restUtils.getSchoolByMincode(assessmentDetails.getExamMincode());
-            if(school.isPresent()) {
-                entity.setExamSchoolID(UUID.fromString(school.get().getSchoolId()));
-            }
-        }
 
         return entity;
     }

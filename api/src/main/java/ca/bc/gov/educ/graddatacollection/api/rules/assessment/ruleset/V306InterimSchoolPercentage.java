@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(140)
 public class V306InterimSchoolPercentage implements AssessmentValidationBaseRule {
 
     @Override

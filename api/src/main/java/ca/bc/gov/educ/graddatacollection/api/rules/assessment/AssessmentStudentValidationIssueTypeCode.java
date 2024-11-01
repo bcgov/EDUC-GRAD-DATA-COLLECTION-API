@@ -23,7 +23,9 @@ public enum AssessmentStudentValidationIssueTypeCode {
   NUMBER_OF_CREDITS_NOT_BLANK("NUMBER_OF_CREDITS_NOT_BLANK", "Number of credits value is ignored and must be blank."),
   COURSE_TYPE_NOT_BLANK("COURSE_TYPE_NOT_BLANK", "Course type value is ignored and must be blank."),
   TO_WRITE_FLAG_NOT_BLANK("TO_WRITE_FLAG_NOT_BLANK", "To write flag value is ignored and must be blank."),
-  EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid exam school provided.");
+  EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid exam school provided."),
+  DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "The assessment session is a duplicate of an existing assessment session for this student."),
+  COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is in a Francophone school and cannot register for this assessment session for this student.");
 
   private static final Map<String, AssessmentStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 

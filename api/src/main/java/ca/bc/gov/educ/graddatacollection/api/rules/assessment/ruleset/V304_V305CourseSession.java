@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentV
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ import java.util.UUID;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(130)
 public class V304_V305CourseSession implements AssessmentValidationBaseRule {
 
     private final AssessmentRulesService assessmentRulesService;
@@ -58,14 +59,17 @@ public class V304_V305CourseSession implements AssessmentValidationBaseRule {
 
         var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
         var studentApiStudent = assessmentRulesService.getStudent(student.getPen());
-        var studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
 
-        if (studAssessmentDetail.isHasPriorRegistration()) {
-            log.debug("V304: The assessment session is a duplicate of an existing assessment session for this student/assessment/level :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP));
+        AssessmentStudentDetailResponse studAssessmentDetail = null;
+
+        if(studentApiStudent != null) {
+            studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
         }
 
-        if (Integer.parseInt(studAssessmentDetail.getNumberOfAttempts()) >= 2) {
+        if (studAssessmentDetail == null || studAssessmentDetail.isHasPriorRegistration()) {
+            log.debug("V304: The assessment session is a duplicate of an existing assessment session for this student/assessment/level :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP));
+        }else if (Integer.parseInt(studAssessmentDetail.getNumberOfAttempts()) >= 2) {
             log.debug("V305: Student has already reached the maximum number of writes for this Assessment :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED));
         }

@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(230)
 public class V316ToWriteFlag implements AssessmentValidationBaseRule {
 
     @Override

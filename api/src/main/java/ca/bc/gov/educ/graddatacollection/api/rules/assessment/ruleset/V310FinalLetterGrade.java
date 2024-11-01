@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(180)
 public class V310FinalLetterGrade implements AssessmentValidationBaseRule {
 
     @Override

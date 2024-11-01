@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(120)
+@Order(190)
 public class V311ProvincialSpecialCase implements AssessmentValidationBaseRule {
 
     @Override
