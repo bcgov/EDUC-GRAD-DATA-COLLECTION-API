@@ -12,6 +12,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessmen
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.ProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -58,6 +59,8 @@ public class RestUtils {
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   private final Map<String, GradGrade> gradGradeMap = new ConcurrentHashMap<>();
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, ProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, ProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -69,7 +72,9 @@ public class RestUtils {
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
-  private final ReadWriteLock gradGradeSessionLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock gradGradeLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -104,6 +109,8 @@ public class RestUtils {
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
     this.populateGradGradesMap();
+    this.populateCareerProgramsMap();
+    this.populateOptionalProgramsMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -219,7 +226,7 @@ public class RestUtils {
   }
 
   public void populateGradGradesMap() {
-    val writeLock = this.gradGradeSessionLock.writeLock();
+    val writeLock = this.gradGradeLock.writeLock();
     try {
       writeLock.lock();
       for (val grade : this.getGradGrades()) {
@@ -231,6 +238,58 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} grad grades to memory", this.gradGradeMap.values().size());
+  }
+
+  public void populateCareerProgramsMap() {
+    val writeLock = this.careerProgramLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getCareerPrograms()) {
+        this.careerProgramCodesMap.put(program.getProgramCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache career program {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} career programs to memory", this.careerProgramCodesMap.values().size());
+  }
+
+  public void populateOptionalProgramsMap() {
+    val writeLock = this.optionalProgramLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getOptionalPrograms()) {
+        this.optionalProgramCodesMap.put(program.getProgramCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache optional program {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} optional programs to memory", this.optionalProgramCodesMap.values().size());
+  }
+
+  public List<ProgramCode> getCareerPrograms() {
+    log.info("Calling Grad api to load career programs to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradApiURL() + "/todo")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(ProgramCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<ProgramCode> getOptionalPrograms() {
+    log.info("Calling Grad api to load optional programs to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradApiURL() + "/todo")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(ProgramCode.class)
+            .collectList()
+            .block();
   }
 
   public List<GradGrade> getGradGrades() {
