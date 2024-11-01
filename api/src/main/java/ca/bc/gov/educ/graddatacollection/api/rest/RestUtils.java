@@ -2,15 +2,17 @@ package ca.bc.gov.educ.graddatacollection.api.rest;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
-import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
@@ -461,6 +463,29 @@ public class RestUtils {
     }
     return sessionMap.values().stream().
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public AssessmentStudentDetailResponse getAssessmentStudentDetail(UUID studentID, UUID assessmentID) {
+    try {
+      final TypeReference<AssessmentStudentDetailResponse> refPenMatchResult = new TypeReference<>() {
+      };
+      var assessmentStudent = new AssessmentStudentGet();
+      assessmentStudent.setAssessmentID(assessmentID.toString());
+      assessmentStudent.setStudentID(studentID.toString());
+      Object event = Event.builder().eventType(EventType.GET_STUDENT_ASSESSMENT_DETAILS).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.EAS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET GET_STUDENT_ASSESSMENT_DETAILS service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
   }
 
   private List<Session> getAssessmentSessions() {

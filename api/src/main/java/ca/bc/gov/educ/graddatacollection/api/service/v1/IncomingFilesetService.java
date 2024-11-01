@@ -84,7 +84,7 @@ public class IncomingFilesetService {
         uploadCount.setUploadDate(String.valueOf(fileSetEntity.getXamFileUploadDate()));
 
         var assessmentTotalCount = assessmentStudentRepository.countByIncomingFileset_IncomingFilesetID(fileSetEntity.getIncomingFilesetID());
-        var assessmentLoadedCount = assessmentStudentRepository.countByStudentStatusCodeAndAndIncomingFileset_IncomingFilesetID(SchoolStudentStatus.LOADED.getCode(), fileSetEntity.getIncomingFilesetID());
+        var assessmentLoadedCount = assessmentStudentRepository.countByStudentStatusCodeAndIncomingFileset_IncomingFilesetID(SchoolStudentStatus.LOADED.getCode(), fileSetEntity.getIncomingFilesetID());
         uploadCount.setPercentageStudentsProcessed(String.valueOf(getPercentageOfStudentsProcessed((assessmentTotalCount - assessmentLoadedCount), assessmentTotalCount)));
         return uploadCount;
     }
