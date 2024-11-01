@@ -42,7 +42,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new CitizenshipCode("", "Blank", "Valid for Blank Citizenship", 3, "2020-01-01", "2099-12-31")
                 )
         );
-
         when(restUtils.getGradGrades()).thenReturn(
                 List.of(
                         new GradGrade("08", "Grade 8", "", 1, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "8", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
@@ -57,7 +56,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradGrade("GA", "Graduated Adult", "", 10, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "GA", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
                 )
         );
-
         when(restUtils.getCareerPrograms()).thenReturn(
                 List.of(
                         new CareerProgramCode("AA", "Art Careers", "", 1, "20200101", "20990101"),
@@ -65,7 +63,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new CareerProgramCode("AC", "Agribusiness", "", 3, "20200101", "20990101")
                 )
         );
-
         when(restUtils.getOptionalPrograms()).thenReturn(
                 List.of(
                         new OptionalProgramCode(UUID.randomUUID(), "FR", "SCCP French Certificate", "", 1, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
