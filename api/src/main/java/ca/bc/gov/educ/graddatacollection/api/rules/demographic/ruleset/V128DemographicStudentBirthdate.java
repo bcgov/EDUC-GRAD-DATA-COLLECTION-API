@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(2800)
+@Order(50)
 public class V128DemographicStudentBirthdate implements DemographicValidationBaseRule {
 
     @Override
