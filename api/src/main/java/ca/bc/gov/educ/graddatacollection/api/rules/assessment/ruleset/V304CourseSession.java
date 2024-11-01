@@ -57,12 +57,11 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-        var studentApiStudent = assessmentRulesService.getStudent(student.getPen());
 
         AssessmentStudentDetailResponse studAssessmentDetail = null;
 
-        if(studentApiStudent != null) {
-            studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
+        if(studentRuleData.getStudentApiStudent() != null) {
+            studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentRuleData.getStudentApiStudent().getStudentID()), UUID.fromString(assessmentID));
         }
 
         if (studAssessmentDetail == null || (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && studAssessmentDetail.isHasPriorRegistration())) {

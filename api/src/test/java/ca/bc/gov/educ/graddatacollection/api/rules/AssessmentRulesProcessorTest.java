@@ -605,4 +605,90 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.COURSE_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getCode());
     }
+
+
+    @Test
+    void testV320ValidStudentInDEMRule() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setMiddleName("ABC");
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(demStudent.getPen());
+        assessmentStudent.setLocalID(demStudent.getLocalID());
+        assessmentStudent.setLastName(demStudent.getLastName());
+        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Session session = new Session();
+        Assessment assessment = new Assessment();
+        assessment.setAssessmentID(UUID.randomUUID().toString());
+        session.setAssessments(Arrays.asList(assessment));
+        assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
+
+        Student stud = new Student();
+        stud.setStudentID(UUID.randomUUID().toString());
+        stud.setDob(demStudent.getBirthdate());
+        stud.setLegalLastName(demStudent.getLastName());
+        stud.setLegalFirstName(demStudent.getFirstName());
+        stud.setLegalMiddleNames(demStudent.getMiddleName());
+        stud.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        Student stud2 = new Student();
+        stud2.setStudentID(UUID.randomUUID().toString());
+        stud2.setDob(demStudent.getBirthdate());
+        stud2.setLegalLastName(demStudent.getLastName());
+        stud2.setLegalFirstName(demStudent.getFirstName());
+        stud2.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud2);
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.PEN.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+
+        Student stud3 = new Student();
+        stud3.setStudentID(UUID.randomUUID().toString());
+        stud3.setDob(demStudent.getBirthdate());
+        stud3.setLegalLastName(demStudent.getLastName());
+        stud3.setLegalMiddleNames(demStudent.getMiddleName());
+        stud3.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud3);
+
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.PEN.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+
+        Student stud4 = new Student();
+        stud4.setStudentID(UUID.randomUUID().toString());
+        stud4.setDob(demStudent.getBirthdate());
+        stud4.setLegalFirstName(demStudent.getFirstName());
+        stud4.setLegalMiddleNames(demStudent.getMiddleName());
+        stud4.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud4);
+
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError4.size()).isNotZero();
+        assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.PEN.getCode());
+        assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+
+        Student stud5 = new Student();
+        stud5.setStudentID(UUID.randomUUID().toString());
+        stud5.setLegalLastName(demStudent.getLastName());
+        stud5.setLegalFirstName(demStudent.getFirstName());
+        stud5.setLegalMiddleNames(demStudent.getMiddleName());
+        stud5.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud5);
+
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError5.size()).isNotZero();
+        assertThat(validationError5.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.PEN.getCode());
+        assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+    }
 }
