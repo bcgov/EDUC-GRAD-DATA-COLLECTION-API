@@ -60,6 +60,12 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
             if(!pattern.matcher(student.getPostalCode()).matches()) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID));
             }
+            if (!StringUtils.equalsIgnoreCase("BC", student.getProvincialCode())) {
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID));
+            }
+            if (!StringUtils.equalsIgnoreCase("CA", student.getCountryCode())) {
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID));
+            }
         }
         return errors;
     }
