@@ -50,7 +50,7 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
         if (SchoolGradeCodes.getGrades12AndAD().stream().noneMatch(grade -> Objects.equals(grade, student.getGrade()))) {
             log.debug("StudentAddress-v107: Student address must exist for students in grades 12 or AD. for demographicStudentAddress :: {}", student.getDemographicStudentID());
 
-            if (StringUtils.isEmpty(student.getAddressLine1()) && StringUtils.isEmpty(student.getAddressLine2())) {
+            if (StringUtils.isAllEmpty(student.getAddressLine1(), student.getAddressLine2())) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK));
             }
             if (StringUtils.isEmpty(student.getCity())) {
