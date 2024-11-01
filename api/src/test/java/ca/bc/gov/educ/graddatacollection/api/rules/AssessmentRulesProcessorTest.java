@@ -158,6 +158,61 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testV304CourseSessionRule() {
+        Session sess = createMockSession();
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(sess));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(demStudent.getPen());
+        assessmentStudent.setLocalID(demStudent.getLocalID());
+        assessmentStudent.setLastName(demStudent.getLastName());
+        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        assessmentStudent.setCourseCode("LTE10");
+
+        Session session = new Session();
+        Assessment assessment = new Assessment();
+        assessment.setAssessmentID(UUID.randomUUID().toString());
+        session.setAssessments(Arrays.asList(assessment));
+        assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
+        response.setHasPriorRegistration(true);
+        response.setNumberOfAttempts("1");
+        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getCode());
+
+        response.setHasPriorRegistration(false);
+        response.setNumberOfAttempts("3");
+        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
+
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED.getCode());
+
+        response.setHasPriorRegistration(false);
+        response.setNumberOfAttempts("1");
+        response.setAlreadyWrittenAssessment(true);
+        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
+
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
+        assertThat(validationError4.size()).isNotZero();
+        assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.COURSE_STATUS.getCode());
+        assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN.getCode());
+    }
+
+    @Test
     void testV306InterimSchoolPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);

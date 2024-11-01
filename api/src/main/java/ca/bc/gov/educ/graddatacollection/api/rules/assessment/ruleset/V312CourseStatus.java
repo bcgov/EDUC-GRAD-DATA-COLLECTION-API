@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(200)
+@Order(111)
 public class V312CourseStatus implements AssessmentValidationBaseRule {
 
     @Override
