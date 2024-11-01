@@ -320,4 +320,11 @@ public enum SchoolGradeCodes {
         codes.add(AN.getCode());
         return codes;
     }
+
+    public static List<String> getGrades12AndAD() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE12.getCode());
+        codes.add(AD.getCode());
+        return codes;
+    }
 }
