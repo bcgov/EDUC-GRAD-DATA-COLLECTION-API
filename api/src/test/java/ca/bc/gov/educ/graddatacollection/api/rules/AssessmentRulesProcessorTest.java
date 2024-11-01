@@ -206,6 +206,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         response.setAlreadyWrittenAssessment(true);
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
+        assessmentStudent.setCourseStatus("W");
+
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(AssessmentStudentValidationFieldCode.COURSE_STATUS.getCode());
