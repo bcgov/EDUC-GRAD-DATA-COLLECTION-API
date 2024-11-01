@@ -273,7 +273,7 @@ public class RestUtils {
   public List<ProgramCode> getCareerPrograms() {
     log.info("Calling Grad api to load career programs to memory");
     return this.webClient.get()
-            .uri(this.props.getGradApiURL() + "/todo")
+            .uri(this.props.getGradProgramApiURL() + "/careerprogram")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(ProgramCode.class)
@@ -284,7 +284,7 @@ public class RestUtils {
   public List<ProgramCode> getOptionalPrograms() {
     log.info("Calling Grad api to load optional programs to memory");
     return this.webClient.get()
-            .uri(this.props.getGradApiURL() + "/todo")
+            .uri(this.props.getGradProgramApiURL() + "/optionalprograms")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(ProgramCode.class)
@@ -295,7 +295,7 @@ public class RestUtils {
   public List<GradGrade> getGradGrades() {
     log.info("Calling Grad api to load grades to memory");
     return this.webClient.get()
-            .uri(this.props.getGradApiURL() + "/grade-codes")
+            .uri(this.props.getGradStudentApiURL() + "/grade-codes")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GradGrade.class)
