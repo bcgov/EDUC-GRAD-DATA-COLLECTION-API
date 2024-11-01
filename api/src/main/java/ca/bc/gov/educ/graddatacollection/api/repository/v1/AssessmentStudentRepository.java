@@ -13,5 +13,7 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
     List<AssessmentStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     long countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID schoolID, String studentStatusCode);
     long countByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
-    long countByStudentStatusCodeAndAndIncomingFileset_IncomingFilesetID(String studentStatusCode, UUID incomingFilesetID);
+    long countByStudentStatusCodeAndIncomingFileset_IncomingFilesetID(String studentStatusCode, UUID incomingFilesetID);
+
+    long countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(String pen, String courseCode, String courseMonth, String courseYear);
 }

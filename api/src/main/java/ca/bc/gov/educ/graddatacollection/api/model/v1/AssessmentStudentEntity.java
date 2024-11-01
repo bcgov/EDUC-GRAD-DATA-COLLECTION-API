@@ -102,6 +102,9 @@ public class AssessmentStudentEntity {
   @Column(name = "TO_WRITE_FLAG")
   String toWriteFlag;
 
+  @Column(name = "EXAM_SCHOOL_ID")
+  UUID examSchoolID;
+
   @NotNull(message = "create user cannot be null")
   @Column(name = "CREATE_USER", updatable = false)
   @Size(max = 100)

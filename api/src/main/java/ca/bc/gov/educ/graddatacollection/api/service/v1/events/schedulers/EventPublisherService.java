@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.graddatacollection.api.service.v1;
+package ca.bc.gov.educ.graddatacollection.api.service.v1.events.schedulers;
 
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;

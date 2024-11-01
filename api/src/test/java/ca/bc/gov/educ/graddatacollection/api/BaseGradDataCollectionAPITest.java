@@ -1,14 +1,18 @@
 package ca.bc.gov.educ.graddatacollection.api;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
+import ca.bc.gov.educ.graddatacollection.api.constants.SagaEnum;
+import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessment;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -179,14 +183,14 @@ public abstract class BaseGradDataCollectionAPITest {
             .courseMonth("01")
             .courseYear("2024")
             .studentStatusCode("ACTIVE")
-            .courseStatus("ACTIVE")
+            .courseStatus("A")
             .lastName("JACKSON")
             .localCourseID("123")
             .isElectronicExam("N")
             .courseCode("LTE10")
-            .provincialSpecialCase("N/A")
             .localID("8887555")
             .transactionID("E06")
+            .examSchoolID(UUID.randomUUID())
             .build();
   }
 
@@ -271,5 +275,19 @@ public abstract class BaseGradDataCollectionAPITest {
     independentAuthority.setAuthorityTypeCode("INDEPENDNT");
     independentAuthority.setPhoneNumber("123456789");
     return independentAuthority;
+  }
+
+  @SneakyThrows
+  protected GradSagaEntity createMockSaga(final DemographicStudent demographicStudent) {
+    return GradSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
+            .build();
   }
 }

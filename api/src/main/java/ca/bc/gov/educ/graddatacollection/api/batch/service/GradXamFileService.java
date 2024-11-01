@@ -2,7 +2,9 @@ package ca.bc.gov.educ.graddatacollection.api.batch.service;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.batch.mappers.BatchFileMapper;
-import ca.bc.gov.educ.graddatacollection.api.batch.struct.*;
+import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileBatchProcessor;
+import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentAssessmentDetails;
+import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentXamFile;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
@@ -11,14 +13,17 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import com.nimbusds.jose.util.Pair;
-import lombok.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.sf.flatpack.DataSet;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,8 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MINCODE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
-import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.FINAL_PERCENTAGE;
-import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.VENDOR_ID;
 import static lombok.AccessLevel.PRIVATE;
 
 @Service("stdxam")
@@ -44,6 +47,8 @@ public class GradXamFileService implements GradFileBatchProcessor {
     private final IncomingFilesetService incomingFilesetService;
     @Getter(PRIVATE)
     private final GradFileValidator gradFileValidator;
+    @Getter(PRIVATE)
+    private final RestUtils restUtils;
 
     @Override
     public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
@@ -67,13 +72,19 @@ public class GradXamFileService implements GradFileBatchProcessor {
         final IncomingFilesetEntity entity = mapper.toIncomingXAMBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
         for (final var student : batchFile.getAssessmentData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var assessmentStudentEntity = mapper.toXAMStudentEntity(student, entity);
+            if(StringUtils.isNotBlank(student.getExamMincode())) {
+                var school = restUtils.getSchoolByMincode(student.getExamMincode());
+                if(school.isPresent()) {
+                    assessmentStudentEntity.setExamSchoolID(UUID.fromString(school.get().getSchoolId()));
+                }
+            }
             entity.getAssessmentStudentEntities().add(assessmentStudentEntity);
         }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
     
     public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
-        var fileSetEntity = incomingFilesetRepository.findBySchoolID(UUID.fromString(schoolID));
+        var fileSetEntity = incomingFilesetRepository.findBySchoolIDAndFilesetStatusCode(UUID.fromString(schoolID), FilesetStatus.LOADED.getCode());
         if(fileSetEntity.isPresent()) {
             var currentFileset = fileSetEntity.get();
             var pairStudentList = compareAndShoreUpStudentList(currentFileset, incomingFilesetEntity);
