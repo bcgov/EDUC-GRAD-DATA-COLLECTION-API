@@ -4,10 +4,10 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,21 +17,28 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V201 | ERROR    | For course data the transaction ID is expected to be E08 or D08	     | -            |
- *
+ *  | V201 | ERROR    | Must match a PEN in the .DEM file along with Student Surname,         | -            |
+ *                      Mincode and Student Local ID
  */
 @Component
 @Slf4j
 @Order(100)
-public class V201CourseTxID implements CourseValidationBaseRule {
+public class V201StudentPEN implements CourseValidationBaseRule {
+
+    private final CourseRulesService courseRulesService;
+
+    public V201StudentPEN(CourseRulesService courseRulesService) {
+        this.courseRulesService = courseRulesService;
+    }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of TransactionID-V201: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        log.debug("In shouldExecute of V201: for assessment {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
+                studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of TransactionID-V201: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V201: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -41,13 +48,14 @@ public class V201CourseTxID implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of TransactionID-V201 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V201 for assessmentStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var txID = student.getTransactionID();
-        if (StringUtils.isAllEmpty(txID) || (!txID.equals("D08") && !txID.equals("E08"))) {
-            log.debug("TransactionID-V201: TX_ID must be 'D08' OR TX_ID = 'E08' for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.TX_ID, CourseStudentValidationIssueTypeCode.TXID_INVALID));
+        var isPresent = courseRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+
+        if (!isPresent) {
+            log.debug("V201: This student is missing demographic data based on Student PEN, Surname and Local Id for courseStudentID :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING));
         }
         return errors;
     }
