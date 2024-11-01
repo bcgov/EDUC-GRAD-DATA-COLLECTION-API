@@ -2,6 +2,8 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,5 +34,22 @@ public class AssessmentRulesService {
             return session.get().getAssessments().stream().anyMatch(assessment -> assessment.getAssessmentTypeCode().equalsIgnoreCase(courseCode));
         }
         return false;
+    }
+
+    public String getAssessmentID(String year, String month, String courseCode){
+        var session = restUtils.getAssessmentSessionByCourseMonthAndYear(month, year);
+
+        if(session.isPresent()){
+            return session.get().getAssessments().stream().filter(assessment -> assessment.getAssessmentTypeCode().equalsIgnoreCase(courseCode)).findFirst().get().getAssessmentID();
+        }
+        return null;
+    }
+
+    public AssessmentStudentDetailResponse getAssessmentStudentDetail(UUID studentID, UUID assessmentID){
+        return restUtils.getAssessmentStudentDetail(studentID, assessmentID);
+    }
+
+    public Student getStudent(String pen){
+        return restUtils.getStudentByPEN(UUID.randomUUID(), pen);
     }
 }
