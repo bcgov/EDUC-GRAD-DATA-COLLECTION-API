@@ -22,7 +22,7 @@ import java.util.UUID;
  *  |-------------|----------|------------------------------------------------------------------------------------------------------------|--------------|
  *  | V304        | ERROR    | The assessment session is a duplicate of an existing assessment session for this student/assessment/level  |--------------|
  *  |             | ERROR    | Student has already reached the maximum number of writes for this Assessment specified                     |--------------|
- *  |             | ERROR    | Assessment has been written by the student, deletion not allowed                                           |--------------|
+ *  |             | ERROR    | Assessment has been written by the student, withdrawal is not allowed                                           |--------------|
  *
  */
 @Component
@@ -71,8 +71,8 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
         }else if (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && Integer.parseInt(studAssessmentDetail.getNumberOfAttempts()) >= 2) {
             log.debug("V304: Student has already reached the maximum number of writes for this Assessment :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED));
-        }else if (studAssessmentDetail.isAlreadyWrittenAssessment()) {
-            log.debug("V304: Assessment has been written by the student, deletion not allowed :: {}", student.getAssessmentStudentID());
+        }else if (studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && studAssessmentDetail.isAlreadyWrittenAssessment()) {
+            log.debug("V304: Assessment has been written by the student, withdrawal is not allowed :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN));
         }
         return errors;
