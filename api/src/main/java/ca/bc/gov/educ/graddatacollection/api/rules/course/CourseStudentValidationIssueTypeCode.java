@@ -8,7 +8,8 @@ import java.util.Map;
 public enum CourseStudentValidationIssueTypeCode {
 
   DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname and Local ID."),
-  DEM_ISSUE("DEM_ISSUE", "Student CRS record will not be processed due to an issue with the student's demographics.");
+  DEM_ISSUE("DEM_ISSUE", "Student CRS record will not be processed due to an issue with the student's demographics."),
+  COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 
