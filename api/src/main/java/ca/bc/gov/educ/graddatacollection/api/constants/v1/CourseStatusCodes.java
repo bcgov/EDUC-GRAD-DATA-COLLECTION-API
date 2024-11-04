@@ -2,9 +2,6 @@ package ca.bc.gov.educ.graddatacollection.api.constants.v1;
 
 import lombok.Getter;
 
-/**
- * The enum for school category codes
- */
 @Getter
 public enum CourseStatusCodes {
     ACTIVE("A"),

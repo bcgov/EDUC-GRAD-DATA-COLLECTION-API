@@ -9,7 +9,9 @@ public enum CourseStudentValidationIssueTypeCode {
 
   DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname and Local ID."),
   DEM_ISSUE("DEM_ISSUE", "Student CRS record will not be processed due to an issue with the student's demographics."),
-  COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),;
+  COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),
+  COURSE_CODE_INVALID_Q("COURSE_CODE_INVALID_Q", "Q-coded courses are no longer accepted."),
+  COURSE_MONTH_INVALID("COURSE_MONTH_INVALID", "Course month must be between 01 and 12.");
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 

@@ -139,4 +139,34 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_STATUS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode());
     }
+
+    @Test
+    void testV209CourseMonthRule() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent();
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setCourseMonth("55");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_MONTH.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getCode());
+    }
 }
