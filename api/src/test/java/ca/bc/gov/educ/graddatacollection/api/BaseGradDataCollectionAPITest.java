@@ -160,7 +160,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .courseMonth("01")
             .courseYear("2024")
             .studentStatusCode("ACTIVE")
-            .courseStatus("ACTIVE")
+            .courseStatus("A")
             .lastName("JACKSON")
             .courseType("BIG")
             .courseDescription("COMP")

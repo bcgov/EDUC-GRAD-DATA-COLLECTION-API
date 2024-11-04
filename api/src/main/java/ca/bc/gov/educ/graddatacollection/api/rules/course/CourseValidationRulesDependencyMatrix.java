@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum CourseValidationRulesDependencyMatrix {
-    ENTRY1("V01", new String[]{});
+    ENTRY1("V202", new String[]{CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode()});
 
     @Getter
     private final String ruleID;
