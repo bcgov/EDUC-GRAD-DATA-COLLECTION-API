@@ -5,8 +5,6 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode.TXID_INVALID;
-
 public enum CourseValidationRulesDependencyMatrix {
     ENTRY1("V202", new String[]{CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode()});
 
