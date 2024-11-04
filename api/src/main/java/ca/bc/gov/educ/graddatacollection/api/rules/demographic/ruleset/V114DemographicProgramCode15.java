@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalPro
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +73,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
         );
 
         for (String programCode : studentProgramCodes) {
-            if (!careerProgramCodeSet.contains(programCode) && !optionalProgramCodeSet.contains(programCode)) {
+            if (StringUtils.isNotEmpty(programCode) &&
+                    !careerProgramCodeSet.contains(programCode) && !optionalProgramCodeSet.contains(programCode)) {
                 log.debug("ProgramCode15-V114:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}", programCode, student.getDemographicStudentID());
                 errors.add(createValidationIssue(
                         StudentValidationIssueSeverityCode.ERROR,
