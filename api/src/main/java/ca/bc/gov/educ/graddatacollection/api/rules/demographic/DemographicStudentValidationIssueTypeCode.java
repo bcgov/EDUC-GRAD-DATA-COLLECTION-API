@@ -25,6 +25,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   SCCP_INVALID_DATE("SCCPINVALIDDATE", "Invalid SCCP completion date (YYYYMMDD)."),
   SCCP_INVALID_STUDENT_PROGRAM("SCCPINVALIDSTUDENTPROGRAM", "Student must be on the SCCP program. SCCP Completion date not updated."),
   STUDENT_BIRTHDATE_INVALID("STUDENTBIRTHDATEINVALID", "Student date of birth is not valid."),
+  STUDENT_PROGRAM_CODE_INVALID("STUDENTPROGRAMCODEINVALID", "Invalid Career Program code / Invalid Optional Program code."),
   ;
 
   private static final Map<String, DemographicStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();

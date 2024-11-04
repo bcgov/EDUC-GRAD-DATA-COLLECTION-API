@@ -140,6 +140,11 @@ public abstract class BaseGradDataCollectionAPITest {
             .transactionID("D02")
             .schoolCertificateCompletionDate("20240202")
             .gradRequirementYear("SCCP")
+            .programCode1("AA")
+            .programCode2("AB")
+            .programCode3("AC")
+            .programCode4("FR")
+            .programCode5("DD")
             .build();
   }
 
