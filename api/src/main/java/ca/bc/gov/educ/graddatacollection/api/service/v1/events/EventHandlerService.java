@@ -39,6 +39,7 @@ public class EventHandlerService {
   private final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
   private final CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator;
   private final AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
+  public static String NO_EXECUTION_MSG = "Execution is not required for this message returning EVENT is :: {}";
 
   @Autowired
   public EventHandlerService(final SagaService sagaService, final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator, CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator, AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator) {
@@ -54,7 +55,7 @@ public class EventHandlerService {
       final GradDemographicStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(GradDemographicStudentSagaData.class, event.getEventPayload());
       final var sagaOptional = this.getSagaService().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()), UUID.fromString(sagaData.getDemographicStudent().getIncomingFilesetID()), SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
-        log.trace("Execution is not required for this message returning EVENT is :: {}", event);
+        log.trace(NO_EXECUTION_MSG, event);
         return;
       }
       val saga = this.demographicStudentProcessingOrchestrator
@@ -75,7 +76,7 @@ public class EventHandlerService {
       final GradCourseStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(GradCourseStudentSagaData.class, event.getEventPayload());
       final var sagaOptional = this.getSagaService().findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getCourseStudent().getCourseStudentID()), UUID.fromString(sagaData.getCourseStudent().getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
-        log.trace("Execution is not required for this message returning EVENT is :: {}", event);
+        log.trace(NO_EXECUTION_MSG, event);
         return;
       }
       val saga = this.courseStudentProcessingOrchestrator
@@ -85,7 +86,7 @@ public class EventHandlerService {
                       null,
                       null,
                       UUID.fromString(sagaData.getCourseStudent().getCourseStudentID()));
-      log.debug("Starting dem student processing orchestrator :: {}", saga);
+      log.debug("Starting course student processing orchestrator :: {}", saga);
       this.courseStudentProcessingOrchestrator.startSaga(saga);
     }
   }
@@ -96,7 +97,7 @@ public class EventHandlerService {
       final GradAssessmentStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(GradAssessmentStudentSagaData.class, event.getEventPayload());
       final var sagaOptional = this.getSagaService().findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getAssessmentStudent().getAssessmentStudentID()), UUID.fromString(sagaData.getAssessmentStudent().getIncomingFilesetID()), SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
-        log.trace("Execution is not required for this message returning EVENT is :: {}", event);
+        log.trace(NO_EXECUTION_MSG, event);
         return;
       }
       val saga = this.assessmentStudentProcessingOrchestrator
@@ -106,7 +107,7 @@ public class EventHandlerService {
                       null,
                       UUID.fromString(sagaData.getAssessmentStudent().getAssessmentStudentID()),
                       null);
-      log.debug("Starting dem student processing orchestrator :: {}", saga);
+      log.debug("Starting assessment student processing orchestrator :: {}", saga);
       this.assessmentStudentProcessingOrchestrator.startSaga(saga);
     }
   }
