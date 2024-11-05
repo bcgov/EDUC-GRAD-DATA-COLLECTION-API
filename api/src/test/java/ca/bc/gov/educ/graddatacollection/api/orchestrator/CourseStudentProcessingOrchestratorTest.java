@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -51,6 +52,8 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator;
+    @Autowired
+    DemographicStudentRepository demographicStudentRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -74,10 +77,16 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(mockFileset);
+        var savedFileSet = incomingFilesetRepository.save(mockFileset);
+
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
 
         var courseStudentEntity = createMockCourseStudent();
-        courseStudentEntity.setIncomingFileset(mockFileset);
+        courseStudentEntity.setPen(demStudent.getPen());
+        courseStudentEntity.setLocalID(demStudent.getLocalID());
+        courseStudentEntity.setLastName(demStudent.getLastName());
+        courseStudentEntity.setIncomingFileset(demStudent.getIncomingFileset());
         courseStudentEntity.setCourseStudentID(null);
         courseStudentEntity.setStudentStatusCode("LOADED");
         courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -86,6 +95,14 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
 
         courseStudentRepository.save(courseStudentEntity);
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
         val saga = this.createCourseMockSaga(courseStudent);
@@ -103,7 +120,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.courseStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_COURSE_STUDENT);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR);
 
         val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
