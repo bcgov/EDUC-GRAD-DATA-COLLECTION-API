@@ -2,14 +2,19 @@ package ca.bc.gov.educ.graddatacollection.api.rest;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
-import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
@@ -53,7 +58,10 @@ public class RestUtils {
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, GradGrade> gradGradeMap = new ConcurrentHashMap<>();
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -65,6 +73,9 @@ public class RestUtils {
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock gradGradeLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -98,6 +109,9 @@ public class RestUtils {
     this.populateAuthorityMap();
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
+    this.populateGradGradesMap();
+    this.populateCareerProgramsMap();
+    this.populateOptionalProgramsMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -208,6 +222,84 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(CitizenshipCode.class)
+            .collectList()
+            .block();
+  }
+
+  public void populateGradGradesMap() {
+    val writeLock = this.gradGradeLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val grade : this.getGradGrades()) {
+        this.gradGradeMap.put(grade.getGrade(), grade);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache grad grade {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} grad grades to memory", this.gradGradeMap.values().size());
+  }
+
+  public void populateCareerProgramsMap() {
+    val writeLock = this.careerProgramLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getCareerPrograms()) {
+        this.careerProgramCodesMap.put(program.getCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache career program {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} career programs to memory", this.careerProgramCodesMap.values().size());
+  }
+
+  public void populateOptionalProgramsMap() {
+    val writeLock = this.optionalProgramLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getOptionalPrograms()) {
+        this.optionalProgramCodesMap.put(program.getOptProgramCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache optional program {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} optional programs to memory", this.optionalProgramCodesMap.values().size());
+  }
+
+  public List<CareerProgramCode> getCareerPrograms() {
+    log.info("Calling Grad api to load career programs to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradProgramApiURL() + "/careerprogram")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(CareerProgramCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<OptionalProgramCode> getOptionalPrograms() {
+    log.info("Calling Grad api to load optional programs to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradProgramApiURL() + "/optionalprograms")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(OptionalProgramCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<GradGrade> getGradGrades() {
+    log.info("Calling Grad api to load grades to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradStudentApiURL() + "/grade-codes")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GradGrade.class)
             .collectList()
             .block();
   }
@@ -431,6 +523,29 @@ public class RestUtils {
     }
     return sessionMap.values().stream().
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public AssessmentStudentDetailResponse getAssessmentStudentDetail(UUID studentID, UUID assessmentID) {
+    try {
+      final TypeReference<AssessmentStudentDetailResponse> refPenMatchResult = new TypeReference<>() {
+      };
+      var assessmentStudent = new AssessmentStudentGet();
+      assessmentStudent.setAssessmentID(assessmentID.toString());
+      assessmentStudent.setStudentID(studentID.toString());
+      Object event = Event.builder().eventType(EventType.GET_STUDENT_ASSESSMENT_DETAILS).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.EAS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET GET_STUDENT_ASSESSMENT_DETAILS service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
   }
 
   private List<Session> getAssessmentSessions() {

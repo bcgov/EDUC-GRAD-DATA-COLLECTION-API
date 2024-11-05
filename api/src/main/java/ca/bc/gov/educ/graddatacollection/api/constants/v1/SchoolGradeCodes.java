@@ -26,7 +26,10 @@ public enum SchoolGradeCodes {
     GRADE12("GRADE12","12", 15),
     SECONDARY_UNGRADED("SECUNGR","SU", 16),
     GRADUATED_ADULT("GRADULT","GA", 17),
-    HOMESCHOOL("HOMESCL","HS", 18);
+    HOMESCHOOL("HOMESCL","HS", 18),
+    AD("GRADEAD","AD", 19),
+    AN("GRADEAN","AN", 20),
+    ;
 
     @Getter
     private final String code;
@@ -224,6 +227,8 @@ public enum SchoolGradeCodes {
         codes.add(SECONDARY_UNGRADED.getCode());
         codes.add(GRADUATED_ADULT.getCode());
         codes.add(HOMESCHOOL.getCode());
+        codes.add(AD.getCode());
+        codes.add(AN.getCode());
         return codes;
     }
 
@@ -306,6 +311,20 @@ public enum SchoolGradeCodes {
         List<String> codes = new ArrayList<>();
         codes.add(KINDHALF.getCode());
         codes.addAll(getNonIndependentKtoGAGrades());
+        return codes;
+    }
+
+    public static List<String> getGradAdultGrades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(AD.getCode());
+        codes.add(AN.getCode());
+        return codes;
+    }
+
+    public static List<String> getGrades12AndAD() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE12.getCode());
+        codes.add(AD.getCode());
         return codes;
     }
 }

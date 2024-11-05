@@ -5,11 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessment;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
@@ -143,6 +138,11 @@ public abstract class BaseGradDataCollectionAPITest {
             .transactionID("D02")
             .schoolCertificateCompletionDate("20240202")
             .gradRequirementYear("SCCP")
+            .programCode1("AA")
+            .programCode2("AB")
+            .programCode3("AC")
+            .programCode4("FR")
+            .programCode5("DD")
             .build();
   }
 
@@ -158,7 +158,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .courseMonth("01")
             .courseYear("2024")
             .studentStatusCode("ACTIVE")
-            .courseStatus("ACTIVE")
+            .courseStatus("A")
             .lastName("JACKSON")
             .courseType("BIG")
             .courseDescription("COMP")
@@ -186,14 +186,14 @@ public abstract class BaseGradDataCollectionAPITest {
             .courseMonth("01")
             .courseYear("2024")
             .studentStatusCode("ACTIVE")
-            .courseStatus("ACTIVE")
+            .courseStatus("A")
             .lastName("JACKSON")
             .localCourseID("123")
             .isElectronicExam("N")
             .courseCode("LTE10")
-            .provincialSpecialCase("N/A")
             .localID("8887555")
             .transactionID("E06")
+            .examSchoolID(UUID.randomUUID())
             .build();
   }
 

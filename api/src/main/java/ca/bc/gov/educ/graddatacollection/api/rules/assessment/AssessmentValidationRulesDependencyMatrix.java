@@ -5,10 +5,11 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode.TXID_INVALID;
-
 public enum AssessmentValidationRulesDependencyMatrix {
-    ENTRY1("V01", new String[]{TXID_INVALID.getCode()});
+    ENTRY1("V304", new String[]{AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode(), AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID.getCode(), AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode()}),
+    ENTRY2("V318", new String[]{AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode(), AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID.getCode()}),
+    ENTRY3("V319", new String[]{AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID.getCode()}),
+    ENTRY4("V320", new String[]{AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode()});
 
     @Getter
     private final String ruleID;
