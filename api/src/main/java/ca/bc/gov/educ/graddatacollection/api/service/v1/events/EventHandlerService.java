@@ -39,7 +39,7 @@ public class EventHandlerService {
   private final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
   private final CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator;
   private final AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
-  public static String NO_EXECUTION_MSG = "Execution is not required for this message returning EVENT is :: {}";
+  public static final String NO_EXECUTION_MSG = "Execution is not required for this message returning EVENT is :: {}";
 
   @Autowired
   public EventHandlerService(final SagaService sagaService, final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator, CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator, AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator) {
