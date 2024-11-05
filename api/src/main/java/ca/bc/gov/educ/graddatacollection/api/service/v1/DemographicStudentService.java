@@ -72,7 +72,7 @@ public class DemographicStudentService {
         return validationErrors;
     }
 
-    public static Set<DemographicStudentValidationIssueEntity> populateValidationErrors(final List<DemographicStudentValidationIssue> issues, final DemographicStudentEntity demographicStudent) {
+    public Set<DemographicStudentValidationIssueEntity> populateValidationErrors(final List<DemographicStudentValidationIssue> issues, final DemographicStudentEntity demographicStudent) {
         final Set<DemographicStudentValidationIssueEntity> validationErrors = new HashSet<>();
         issues.forEach(issue -> {
             final DemographicStudentValidationIssueEntity error = new DemographicStudentValidationIssueEntity();

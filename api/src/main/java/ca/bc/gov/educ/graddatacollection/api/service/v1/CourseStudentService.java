@@ -73,7 +73,7 @@ public class CourseStudentService {
         return validationErrors;
     }
 
-    public static Set<CourseStudentValidationIssueEntity> populateValidationErrors(final List<CourseStudentValidationIssue> issues, final CourseStudentEntity courseStudentEntity) {
+    public Set<CourseStudentValidationIssueEntity> populateValidationErrors(final List<CourseStudentValidationIssue> issues, final CourseStudentEntity courseStudentEntity) {
         final Set<CourseStudentValidationIssueEntity> validationErrors = new HashSet<>();
         issues.forEach(issue -> {
             final CourseStudentValidationIssueEntity error = new CourseStudentValidationIssueEntity();
