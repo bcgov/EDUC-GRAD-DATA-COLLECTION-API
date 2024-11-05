@@ -3,16 +3,19 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
+import ca.bc.gov.educ.graddatacollection.api.orchestrator.AssessmentStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.DemographicStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.events.EventHandlerService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradAssessmentStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,9 +44,15 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    AssessmentStudentRepository assessmentStudentRepository;
+    @Autowired
+    AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
+    @Autowired
     SagaRepository sagaRepository;
     @Autowired
     DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
+    @Autowired
+    CourseStudentRepository courseStudentRepository;
     @Autowired
     EventHandlerService eventHandlerService;
 
@@ -82,6 +91,74 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         eventHandlerService.handleProcessDemStudentsEvent(event);
 
         var sagaEntity = sagaRepository.findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(demographicStudentEntity.getDemographicStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_DEM_STUDENTS_SAGA", "COMPLETED");
+        assertThat(sagaEntity).isPresent();
+    }
+
+    @Test
+    void testHandleProcessCourseStudentsEvent() throws JsonProcessingException {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        var courseStudentEntity = createMockCourseStudent();
+        courseStudentEntity.setIncomingFileset(mockFileset);
+        courseStudentEntity.setCourseStudentID(null);
+        courseStudentEntity.setStudentStatusCode("LOADED");
+        courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        courseStudentEntity.setUpdateDate(LocalDateTime.now());
+        courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        courseStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        courseStudentRepository.save(courseStudentEntity);
+
+        val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
+
+        val sagaData = GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val event = Event.builder()
+                .eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING)
+                .eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+
+        eventHandlerService.handleProcessCourseStudentsEvent(event);
+
+        var sagaEntity = sagaRepository.findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(courseStudentEntity.getCourseStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_COURSE_STUDENTS_SAGA", "COMPLETED");
+        assertThat(sagaEntity).isPresent();
+    }
+
+    @Test
+    void testHandleProcessAssessmentStudentsEvent() throws JsonProcessingException {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        var assessmentStudentEntity = createMockAssessmentStudent();
+        assessmentStudentEntity.setIncomingFileset(mockFileset);
+        assessmentStudentEntity.setAssessmentStudentID(null);
+        assessmentStudentEntity.setStudentStatusCode("LOADED");
+        assessmentStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        assessmentStudentEntity.setUpdateDate(LocalDateTime.now());
+        assessmentStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        assessmentStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        assessmentStudentRepository.save(assessmentStudentEntity);
+
+        val assessmentStudent = AssessmentStudentMapper.mapper.toAssessmentStudent(assessmentStudentEntity);
+
+        val sagaData = GradAssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
+        val event = Event.builder()
+                .eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING)
+                .eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+
+        eventHandlerService.handleProcessAssessmentStudentsEvent(event);
+
+        var sagaEntity = sagaRepository.findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(assessmentStudentEntity.getAssessmentStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_ASSESSMENT_STUDENTS_SAGA", "COMPLETED");
         assertThat(sagaEntity).isPresent();
     }
 }

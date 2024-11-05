@@ -3,25 +3,31 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -29,9 +35,60 @@ import java.util.Optional;
 public class CourseStudentService {
     private final MessagePublisher messagePublisher;
     private final IncomingFilesetRepository incomingFilesetRepository;
+    private final CourseStudentRepository courseStudentRepository;
     private final RestUtils restUtils;
+    private final CourseStudentRulesProcessor courseStudentRulesProcessor;
+    private static final String COURSE_STUDENT_ID = "courseStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<CourseStudentValidationIssue> validateStudent(final UUID courseStudentID, SchoolTombstone schoolTombstone) {
+        var currentStudentEntity = this.courseStudentRepository.findById(courseStudentID);
+        if(currentStudentEntity.isPresent()) {
+            var validationErrors = runValidationRules(currentStudentEntity.get(), schoolTombstone);
+            saveSdcStudent(currentStudentEntity.get());
+            return validationErrors;
+        } else {
+            throw new EntityNotFoundException(CourseStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
+        }
+    }
+
+    public void saveSdcStudent(CourseStudentEntity studentEntity) {
+        studentEntity.setUpdateDate(LocalDateTime.now());
+        this.courseStudentRepository.save(studentEntity);
+    }
+
+    public List<CourseStudentValidationIssue> runValidationRules(CourseStudentEntity courseStudentEntity, SchoolTombstone schoolTombstone) {
+        StudentRuleData studentRuleData = new StudentRuleData();
+        studentRuleData.setCourseStudentEntity(courseStudentEntity);
+        studentRuleData.setSchool(schoolTombstone);
+
+        val validationErrors = this.courseStudentRulesProcessor.processRules(studentRuleData);
+        var entity = studentRuleData.getCourseStudentEntity();
+        entity.getCourseStudentValidationIssueEntities().clear();
+        entity.getCourseStudentValidationIssueEntities().addAll(populateValidationErrors(validationErrors, entity));
+        if(validationErrors.stream().anyMatch(val -> val.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
+            entity.setStudentStatusCode(SchoolStudentStatus.ERROR.getCode());
+        }
+        return validationErrors;
+    }
+
+    public Set<CourseStudentValidationIssueEntity> populateValidationErrors(final List<CourseStudentValidationIssue> issues, final CourseStudentEntity courseStudentEntity) {
+        final Set<CourseStudentValidationIssueEntity> validationErrors = new HashSet<>();
+        issues.forEach(issue -> {
+            final CourseStudentValidationIssueEntity error = new CourseStudentValidationIssueEntity();
+            error.setValidationIssueFieldCode(issue.getValidationIssueFieldCode());
+            error.setValidationIssueSeverityCode(issue.getValidationIssueSeverityCode());
+            error.setValidationIssueCode(issue.getValidationIssueCode());
+            error.setCourseStudent(courseStudentEntity);
+            error.setCreateDate(LocalDateTime.now());
+            error.setUpdateDate(LocalDateTime.now());
+            error.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+            error.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+            validationErrors.add(error);
+        });
+        return validationErrors;
+    }
 
     @Async("publisherExecutor")
     public void prepareAndSendCourseStudentsForFurtherProcessing(final List<CourseStudentEntity> courseStudentEntities) {

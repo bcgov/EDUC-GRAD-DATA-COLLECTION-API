@@ -172,6 +172,14 @@ public class SagaService {
     return this.getSagaRepository().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(demographicStudentID, incomingFilesetID, sagaName, status);
   }
 
+  public Optional<GradSagaEntity> findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(final UUID courseStudentID, final UUID incomingFilesetID, final String sagaName, final String status) {
+    return this.getSagaRepository().findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(courseStudentID, incomingFilesetID, sagaName, status);
+  }
+
+  public Optional<GradSagaEntity> findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(final UUID assessmentStudentID, final UUID incomingFilesetID, final String sagaName, final String status) {
+    return this.getSagaRepository().findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(assessmentStudentID, incomingFilesetID, sagaName, status);
+  }
+
   /**
    * Find all completable future.
    *
