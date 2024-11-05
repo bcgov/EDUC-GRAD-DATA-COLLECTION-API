@@ -307,4 +307,18 @@ public abstract class BaseGradDataCollectionAPITest {
             .payload(JsonUtil.getJsonStringFromObject(GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
             .build();
   }
+
+  @SneakyThrows
+  protected GradSagaEntity createAssessmentMockSaga(final AssessmentStudent assessmentStudent) {
+    return GradSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(GradAssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build()))
+            .build();
+  }
 }

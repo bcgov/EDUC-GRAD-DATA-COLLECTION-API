@@ -9,7 +9,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Builder
@@ -122,6 +124,18 @@ public class AssessmentStudentEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   LocalDateTime updateDate;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "assessmentStudent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = AssessmentStudentValidationIssueEntity.class)
+  Set<AssessmentStudentValidationIssueEntity> assessmentStudentValidationIssueEntities;
+
+  public Set<AssessmentStudentValidationIssueEntity> getAssessmentStudentValidationIssueEntities() {
+    if (this.assessmentStudentValidationIssueEntities == null) {
+      this.assessmentStudentValidationIssueEntities = new HashSet<>();
+    }
+    return this.assessmentStudentValidationIssueEntities;
+  }
 
   public int getUniqueObjectHash() {
     return Objects.hash(incomingFileset.getSchoolID(), localID, pen, lastName, courseCode, courseYear, courseMonth, isElectronicExam, localCourseID, provincialSpecialCase, courseStatus, lastName);
