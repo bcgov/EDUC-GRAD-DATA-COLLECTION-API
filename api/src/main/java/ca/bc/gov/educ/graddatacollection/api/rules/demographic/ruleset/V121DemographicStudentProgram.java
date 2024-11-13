@@ -20,10 +20,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V121 | ERROR    | Must be a valid program                                               |              |
- *  |      |          | Students on Adult Graduation Program must be coded 1950.
- *                      Students on B.C. Graduation Program must be coded 2023 (or 2018,
- *                      2004, 1996, 1986 if already graduated on these earlier programs).
- *                      Students on SCCP must be coded SCCP.
+ *  |      |          |                                                                       |              |
  */
 
 @Component
