@@ -15,11 +15,10 @@ import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.ProgramRequirementCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -33,8 +32,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -108,6 +105,17 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
                         new OptionalProgramCode(UUID.randomUUID(), "FR", "SCCP French Certificate", "", 1, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
                         new OptionalProgramCode(UUID.randomUUID(), "AD", "Advanced Placement", "", 2, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
                         new OptionalProgramCode(UUID.randomUUID(), "DD", "Dual Dogwood", "", 3, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
+                )
+        );
+        when(restUtils.getProgramRequirementCodes()).thenReturn(
+                List.of(
+                        new ProgramRequirementCode("1950", "Adult Graduation Program", "Description for 1950", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "1", "A", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("2023", "B.C. Graduation Program", "Description for 2023", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "2", "B", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("2018", "B.C. Graduation Program 2018", "Description for 2018", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "3", "C", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("2004", "B.C. Graduation Program 2004", "Description for 2004", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "4", "D", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("1996", "B.C. Graduation Program 1996", "Description for 1996", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "5", "E", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("1986", "B.C. Graduation Program 1986", "Description for 1986", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "6", "F", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
                 )
         );
     }
