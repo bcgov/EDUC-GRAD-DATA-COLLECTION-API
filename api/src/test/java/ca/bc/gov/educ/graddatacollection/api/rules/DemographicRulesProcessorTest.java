@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStuden
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.ProgramRequirementCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -68,6 +69,17 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new OptionalProgramCode(UUID.randomUUID(), "FR", "SCCP French Certificate", "", 1, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
                         new OptionalProgramCode(UUID.randomUUID(), "AD", "Advanced Placement", "", 2, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
                         new OptionalProgramCode(UUID.randomUUID(), "DD", "Dual Dogwood", "", 3, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
+                )
+        );
+        when(restUtils.getProgramRequirementCodes()).thenReturn(
+                List.of(
+                        new ProgramRequirementCode("1950", "Adult Graduation Program", "Description for 1950", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "1", "A", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("2023", "B.C. Graduation Program", "Description for 2023", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "2", "B", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("2018", "B.C. Graduation Program 2018", "Description for 2018", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "3", "C", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("2004", "B.C. Graduation Program 2004", "Description for 2004", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "4", "D", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("1996", "B.C. Graduation Program 1996", "Description for 1996", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "5", "E", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("1986", "B.C. Graduation Program 1986", "Description for 1986", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "6", "F", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
+                        new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", "REQ_TYPE", "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
                 )
         );
     }
@@ -277,6 +289,27 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getCode());
     }
+
+    @Test
+    void testV121DemographicStudentProgramRule() {
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        demographicStudent.setGradRequirementYear("1332");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
+
+        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        demographicStudent2.setGradRequirementYear(null);
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
+    }
+
 
     @Test
     void testV126DemographicSCCPCompletionDate() {

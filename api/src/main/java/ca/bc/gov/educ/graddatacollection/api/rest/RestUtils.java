@@ -14,6 +14,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.ProgramRequirementCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -62,6 +63,7 @@ public class RestUtils {
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
   private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, ProgramRequirementCode> programRequirementCodeMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -76,6 +78,7 @@ public class RestUtils {
   private final ReadWriteLock gradGradeLock = new ReentrantReadWriteLock();
   private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock programRequirementLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -112,6 +115,7 @@ public class RestUtils {
     this.populateGradGradesMap();
     this.populateCareerProgramsMap();
     this.populateOptionalProgramsMap();
+    this.populateProgramRequirementCodesMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -215,17 +219,6 @@ public class RestUtils {
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
   }
 
-  public List<CitizenshipCode> getScholarshipsCitizenshipCodes() {
-    log.info("Calling Scholarships api to load citizenship codes to memory");
-    return this.webClient.get()
-            .uri(this.props.getScholarshipsApiURL() + "/citizenship-codes")
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(CitizenshipCode.class)
-            .collectList()
-            .block();
-  }
-
   public void populateGradGradesMap() {
     val writeLock = this.gradGradeLock.writeLock();
     try {
@@ -269,6 +262,43 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} optional programs to memory", this.optionalProgramCodesMap.values().size());
+  }
+
+  public void populateProgramRequirementCodesMap() {
+    val writeLock = this.programRequirementLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getProgramRequirementCodes()) {
+        this.programRequirementCodeMap.put(program.getProReqCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache program requirement codes {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} program requirement codes to memory", this.programRequirementCodeMap.values().size());
+  }
+
+  public List<ProgramRequirementCode> getProgramRequirementCodes() {
+    log.info("Calling Grad api to load program requirement codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradProgramApiURL() + "/programrequirementcode")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(ProgramRequirementCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<CitizenshipCode> getScholarshipsCitizenshipCodes() {
+    log.info("Calling Scholarships api to load citizenship codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getScholarshipsApiURL() + "/citizenship-codes")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(CitizenshipCode.class)
+            .collectList()
+            .block();
   }
 
   public List<CareerProgramCode> getCareerPrograms() {
