@@ -18,9 +18,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +41,7 @@ public class DemographicStudentService {
     private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
     private final DemographicStudentRulesProcessor demographicStudentRulesProcessor;
+    private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -127,6 +126,10 @@ public class DemographicStudentService {
         } else {
             log.error(EVENT_EMPTY_MSG, demographicStudentSagaData);
         }
+    }
+
+    public void flagErrorOnStudent(final DemographicStudent demographicStudent) {
+        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen());
     }
 
 }

@@ -73,7 +73,7 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<GradCo
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final GradCourseStudentSagaData gradCourseStudentSagaData) {
-    //This is ok
+    courseStudentService.flagErrorOnStudent(gradCourseStudentSagaData.getCourseStudent());
   }
 
 }

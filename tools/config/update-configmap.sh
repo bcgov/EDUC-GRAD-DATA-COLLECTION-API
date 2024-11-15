@@ -61,6 +61,13 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -H "Authorization: Bearer $TKN" \
   -d "{\"description\": \"Write Grad Collection Data\",\"id\": \"WRITE_GRAD_COLLECTION\",\"name\": \"WRITE_GRAD_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
+echo
+echo Writing scope READ_FILESET_STUDENT_ERROR
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Read Fileset Student Error\",\"id\": \"READ_FILESET_STUDENT_ERROR\",\"name\": \"READ_FILESET_STUDENT_ERROR\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
 if [[ -n "$GRAD_APIServiceClientID" && -n "$GRAD_APIServiceClientSecret" && ("$envValue" = "dev" || "$envValue" = "test") ]]; then
   echo
   echo Creating client grad-data-collection-api-service with secret

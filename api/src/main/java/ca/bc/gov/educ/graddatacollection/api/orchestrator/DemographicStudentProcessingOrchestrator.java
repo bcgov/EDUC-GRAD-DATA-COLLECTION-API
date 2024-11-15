@@ -76,7 +76,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<G
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final GradDemographicStudentSagaData gradDemographicStudentSagaData) {
-    //This is ok
+    demographicStudentService.flagErrorOnStudent(gradDemographicStudentSagaData.getDemographicStudent());
   }
 
 }

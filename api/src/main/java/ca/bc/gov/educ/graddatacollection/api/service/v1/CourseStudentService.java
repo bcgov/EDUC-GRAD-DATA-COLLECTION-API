@@ -38,6 +38,7 @@ public class CourseStudentService {
     private final CourseStudentRepository courseStudentRepository;
     private final RestUtils restUtils;
     private final CourseStudentRulesProcessor courseStudentRulesProcessor;
+    private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String COURSE_STUDENT_ID = "courseStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
@@ -123,6 +124,10 @@ public class CourseStudentService {
         } else {
             log.error(EVENT_EMPTY_MSG, courseStudentSagaData);
         }
+    }
+
+    public void flagErrorOnStudent(final CourseStudent courseStudent) {
+        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen());
     }
 
 }
