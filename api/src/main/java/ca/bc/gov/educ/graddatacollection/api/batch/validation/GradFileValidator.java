@@ -24,6 +24,7 @@ import java.util.UUID;
 @Slf4j
 public class GradFileValidator {
     public static final String TOO_LONG = "TOO LONG";
+    public static final String FILE_TYPE = "stddem";
 
     private final DemographicStudentRepository demographicStudentRepository;
     private final CourseStudentRepository courseStudentRepository;
@@ -37,9 +38,9 @@ public class GradFileValidator {
         this.restUtils = restUtils;
     }
 
-    public byte[] getUploadedFileBytes(@NonNull final String guid, final GradFileUpload fileUpload) throws FileUnProcessableException {
+    public byte[] getUploadedFileBytes(@NonNull final String guid, final GradFileUpload fileUpload, String fileType) throws FileUnProcessableException {
         byte[] bytes = Base64.getDecoder().decode(fileUpload.getFileContents());
-        if (bytes.length == 0) {
+        if (fileType.equalsIgnoreCase(FILE_TYPE) && bytes.length == 0) {
             throw new FileUnProcessableException(FileError.EMPTY_FILE, guid, GradCollectionStatus.LOAD_FAIL);
         }
         return bytes;
