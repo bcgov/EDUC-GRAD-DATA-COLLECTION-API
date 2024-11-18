@@ -306,5 +306,90 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(summary1.getCounts().get(0).getPercentageStudentsProcessed()).isEqualTo("0");
     }
 
+    @Test
+    void testProcessGradFile_givenEmptyCourseFile_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("empty-file.stdcrs")
+                .fileType("stdcrs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("empty-file.stdcrs");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+    }
+
+    @Test
+    void testProcessGradFile_givenEmptyXAMFile_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("empty-file.stdxam")
+                .fileType("stdxam")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getXamFileName()).isEqualTo("empty-file.stdxam");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+    }
+
+    @Test
+    void testProcessGradFile_givenEmptyDEMFile_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("empty-file.stddem")
+                .fileType("stddem")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+    }
 
 }
