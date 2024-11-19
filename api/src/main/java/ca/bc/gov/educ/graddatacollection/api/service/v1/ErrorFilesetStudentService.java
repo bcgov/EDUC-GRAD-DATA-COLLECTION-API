@@ -25,7 +25,7 @@ public class ErrorFilesetStudentService {
             var stud =  preexisting.get();
             stud.setLocalID(localID);
             stud.setLastName(lastName);
-            stud.setGivenName(firstName);
+            stud.setFirstName(firstName);
             stud.setBirthDate(birthDate);
             errorFilesetStudentRepository.save(stud);
         }else{
@@ -35,7 +35,7 @@ public class ErrorFilesetStudentService {
             newErrorFilesetStudent.setPen(pen);
             if(isDemLoad) {
                 newErrorFilesetStudent.setLastName(lastName);
-                newErrorFilesetStudent.setGivenName(firstName);
+                newErrorFilesetStudent.setFirstName(firstName);
                 newErrorFilesetStudent.setLocalID(localID);
                 newErrorFilesetStudent.setBirthDate(birthDate);
             }

@@ -33,8 +33,8 @@ public class ErrorFilesetStudentEntity {
     @Column(name = "LAST_NAME")
     String lastName;
 
-    @Column(name = "GIVEN_NAME")
-    String givenName;
+    @Column(name = "FIRST_NAME")
+    String firstName;
 
     @Column(name = "BIRTHDATE")
     String birthDate;

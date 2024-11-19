@@ -116,7 +116,7 @@ public abstract class BaseGradDataCollectionAPITest {
   public ErrorFilesetStudentEntity createMockErrorFilesetEntity(IncomingFilesetEntity incomingFileset) {
     return ErrorFilesetStudentEntity.builder()
             .incomingFileset(incomingFileset)
-            .givenName("Jane")
+            .firstName("Jane")
             .lastName("Smith")
             .localID("123456789")
             .pen("123459987")
