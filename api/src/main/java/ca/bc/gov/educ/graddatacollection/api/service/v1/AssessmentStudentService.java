@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
@@ -132,7 +133,12 @@ public class AssessmentStudentService {
     }
 
     public void flagErrorOnStudent(final AssessmentStudent assessmentStudent) {
-        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null, null);
+        try {
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null, null);
+        } catch (Exception e) {
+            log.info("Adding student to error fileset failed, will be retried :: {}", e);
+            throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
+        }
     }
 
 }
