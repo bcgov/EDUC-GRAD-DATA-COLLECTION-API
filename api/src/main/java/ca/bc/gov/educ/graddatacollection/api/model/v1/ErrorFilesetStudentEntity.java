@@ -36,7 +36,7 @@ public class ErrorFilesetStudentEntity {
     @Column(name = "GIVEN_NAME")
     String givenName;
 
-    @Column(name = "BIRTH_DATE")
+    @Column(name = "BIRTHDATE")
     String birthDate;
 
     @ToString.Exclude
