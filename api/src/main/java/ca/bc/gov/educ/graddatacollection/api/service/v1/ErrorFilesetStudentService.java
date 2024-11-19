@@ -8,6 +8,8 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +21,7 @@ public class ErrorFilesetStudentService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
     private final IncomingFilesetRepository incomingFilesetRepository;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, boolean isDemLoad, String firstName, String lastName, String localID, String birthDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
         if (preexisting.isPresent() && isDemLoad) {
