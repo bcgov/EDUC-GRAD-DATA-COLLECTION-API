@@ -40,6 +40,6 @@ public class ErrorFilesetStudentController implements ErrorFilesetStudentEndpoin
                 );
         return this.errorFilesetStudentSearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toStructure));
+                .thenApplyAsync(student -> student.map(mapper::toStructure));
     }
 }
