@@ -10,7 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
@@ -109,7 +109,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -154,7 +154,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)

@@ -8,11 +8,9 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradAssessmentStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
@@ -25,11 +23,11 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 
 @Component
 @Slf4j
-public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<GradAssessmentStudentSagaData> {
+public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<AssessmentStudentSagaData> {
   private final AssessmentStudentService assessmentStudentService;
 
   protected AssessmentStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, AssessmentStudentService assessmentStudentService) {
-    super(sagaService, messagePublisher, GradAssessmentStudentSagaData.class, SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA_TOPIC.toString());
+    super(sagaService, messagePublisher, AssessmentStudentSagaData.class, SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA_TOPIC.toString());
       this.assessmentStudentService = assessmentStudentService;
   }
 
@@ -45,7 +43,7 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<Gr
 
   }
 
-  public void validateCourseStudentRecord(final Event event, final GradSagaEntity saga, final GradAssessmentStudentSagaData gradAssessmentStudentSagaData) {
+  public void validateCourseStudentRecord(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(VALIDATE_ASSESSMENT_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
@@ -54,7 +52,7 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<Gr
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_ASSESSMENT_STUDENT);
 
-    var validationErrors = assessmentStudentService.validateStudent(UUID.fromString(gradAssessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), gradAssessmentStudentSagaData.getSchool());
+    var validationErrors = assessmentStudentService.validateStudent(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), assessmentStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
     } else {
@@ -66,16 +64,16 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<Gr
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void createCourseStudentRecordInGrad(final Event event, final GradSagaEntity saga, final GradAssessmentStudentSagaData gradAssessmentStudentSagaData) {
+  public void createCourseStudentRecordInGrad(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
     //TODO
   }
 
-  public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final GradAssessmentStudentSagaData gradAssessmentStudentSagaData) {
+  public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
     //TODO
   }
 
-  private void completeWithError(final Event event, final GradSagaEntity saga, final GradAssessmentStudentSagaData gradAssessmentStudentSagaData) {
-    //This is ok
+  private void completeWithError(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
+    assessmentStudentService.flagErrorOnStudent(assessmentStudentSagaData.getAssessmentStudent());
   }
 
 }

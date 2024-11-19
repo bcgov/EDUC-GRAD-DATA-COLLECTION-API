@@ -14,9 +14,9 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.events.EventHandlerService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradAssessmentStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.val;
@@ -32,7 +32,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
     @MockBean
@@ -82,7 +82,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
 
-        val sagaData = GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_DEM_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_DEM_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -116,7 +116,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
 
-        val sagaData = GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -150,7 +150,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val assessmentStudent = AssessmentStudentMapper.mapper.toAssessmentStudent(assessmentStudentEntity);
 
-        val sagaData = GradAssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
+        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS)

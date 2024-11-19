@@ -7,7 +7,9 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -16,7 +18,10 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +43,7 @@ public class AssessmentStudentService {
     private final RestUtils restUtils;
     private final AssessmentStudentRepository assessmentStudentRepository;
     private final AssessmentStudentRulesProcessor assessmentStudentRulesProcessor;
+    private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String ASSESSMENT_STUDENT_ID = "assessmentStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
@@ -92,9 +98,9 @@ public class AssessmentStudentService {
 
     @Async("publisherExecutor")
     public void prepareAndSendAssessmentStudentsForFurtherProcessing(final List<AssessmentStudentEntity> assessmentStudentEntity) {
-        final List<GradAssessmentStudentSagaData> assessmentStudentSagaData = assessmentStudentEntity.stream()
+        final List<AssessmentStudentSagaData> assessmentStudentSagaData = assessmentStudentEntity.stream()
                 .map(el -> {
-                    val gradAssessmentStudentSagaData = new GradAssessmentStudentSagaData();
+                    val gradAssessmentStudentSagaData = new AssessmentStudentSagaData();
                     Optional<IncomingFilesetEntity> incomingFilesetEntity = this.incomingFilesetRepository.findById(el.getIncomingFileset().getIncomingFilesetID());
                     if(incomingFilesetEntity.isPresent()) {
                         var school = this.restUtils.getSchoolBySchoolID(incomingFilesetEntity.get().getSchoolID().toString());
@@ -106,11 +112,11 @@ public class AssessmentStudentService {
         this.publishUnprocessedStudentRecordsForProcessing(assessmentStudentSagaData);
     }
 
-    public void publishUnprocessedStudentRecordsForProcessing(final List<GradAssessmentStudentSagaData> assessmentStudentSagaData) {
+    public void publishUnprocessedStudentRecordsForProcessing(final List<AssessmentStudentSagaData> assessmentStudentSagaData) {
         assessmentStudentSagaData.forEach(this::sendIndividualStudentAsMessageToTopic);
     }
 
-    private void sendIndividualStudentAsMessageToTopic(final GradAssessmentStudentSagaData assessmentStudentSagaData) {
+    private void sendIndividualStudentAsMessageToTopic(final AssessmentStudentSagaData assessmentStudentSagaData) {
         final var eventPayload = JsonUtil.getJsonString(assessmentStudentSagaData);
         if (eventPayload.isPresent()) {
             final Event event = Event.builder().eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).assessmentStudentID(String.valueOf(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID())).build();
@@ -123,6 +129,10 @@ public class AssessmentStudentService {
         } else {
             log.error(EVENT_EMPTY_MSG, assessmentStudentSagaData);
         }
+    }
+
+    public void flagErrorOnStudent(final AssessmentStudent assessmentStudent) {
+        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null);
     }
 
 }
