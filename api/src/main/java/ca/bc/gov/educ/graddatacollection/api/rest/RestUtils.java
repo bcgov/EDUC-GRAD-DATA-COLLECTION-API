@@ -11,10 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.ProgramRequirementCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -524,6 +521,26 @@ public class RestUtils {
 
     } catch (final Exception ex) {
       log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public GradStudentRecord getGradStudentRecordByStudentID(UUID correlationID, String studentID) {
+    try {
+      final TypeReference<GradStudentRecord> refGradStudentRecordResult = new TypeReference<>() {
+      };
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), refGradStudentRecordResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET GRAD STUDENT RECORD service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
