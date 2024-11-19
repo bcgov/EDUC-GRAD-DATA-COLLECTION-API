@@ -132,7 +132,7 @@ public class DemographicStudentService {
     }
 
     public void flagErrorOnStudent(final DemographicStudent demographicStudent) {
-        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), true, demographicStudent.getFirstName(), demographicStudent.getLastName(), demographicStudent.getLocalID());
+        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), true, demographicStudent.getFirstName(), demographicStudent.getLastName(), demographicStudent.getLocalID(), demographicStudent.getBirthdate());
     }
 
 }

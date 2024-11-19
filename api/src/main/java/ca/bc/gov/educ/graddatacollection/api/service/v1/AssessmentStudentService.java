@@ -132,7 +132,7 @@ public class AssessmentStudentService {
     }
 
     public void flagErrorOnStudent(final AssessmentStudent assessmentStudent) {
-        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null);
+        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null, null);
     }
 
 }

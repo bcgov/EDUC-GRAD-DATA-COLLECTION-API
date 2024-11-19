@@ -19,13 +19,14 @@ public class ErrorFilesetStudentService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
     private final IncomingFilesetRepository incomingFilesetRepository;
 
-    public void flagErrorOnStudent(UUID incomingFilesetID, String pen, boolean isDemLoad, String firstName, String lastName, String localID) {
+    public void flagErrorOnStudent(UUID incomingFilesetID, String pen, boolean isDemLoad, String firstName, String lastName, String localID, String birthDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
         if (preexisting.isPresent() && isDemLoad) {
             var stud =  preexisting.get();
             stud.setLocalID(localID);
-            stud.setLastName(pen);
-            stud.setGivenName(pen);
+            stud.setLastName(lastName);
+            stud.setGivenName(firstName);
+            stud.setBirthDate(birthDate);
             errorFilesetStudentRepository.save(stud);
         }else{
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
@@ -36,10 +37,9 @@ public class ErrorFilesetStudentService {
                 newErrorFilesetStudent.setLastName(lastName);
                 newErrorFilesetStudent.setGivenName(firstName);
                 newErrorFilesetStudent.setLocalID(localID);
+                newErrorFilesetStudent.setBirthDate(birthDate);
             }
             errorFilesetStudentRepository.save(newErrorFilesetStudent);
         }
-
-
     }
 }

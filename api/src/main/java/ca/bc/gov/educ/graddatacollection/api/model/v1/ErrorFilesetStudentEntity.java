@@ -36,6 +36,9 @@ public class ErrorFilesetStudentEntity {
     @Column(name = "GIVEN_NAME")
     String givenName;
 
+    @Column(name = "BIRTH_DATE")
+    String birthDate;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @ManyToOne(optional = false, targetEntity = IncomingFilesetEntity.class)
