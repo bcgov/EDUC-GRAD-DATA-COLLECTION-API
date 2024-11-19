@@ -1,12 +1,10 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.ErrorFilesetValidationIssueType;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.CodeTableAPIEndpoint;
 
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValidationIssueTypeCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
