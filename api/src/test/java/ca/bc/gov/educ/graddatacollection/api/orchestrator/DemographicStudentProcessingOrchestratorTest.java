@@ -16,10 +16,8 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgr
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -33,10 +31,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_DEM_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
@@ -135,7 +133,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -179,7 +177,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)

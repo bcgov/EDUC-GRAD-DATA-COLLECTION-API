@@ -113,6 +113,17 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
+  public ErrorFilesetStudentEntity createMockErrorFilesetEntity(IncomingFilesetEntity incomingFileset) {
+    return ErrorFilesetStudentEntity.builder()
+            .incomingFileset(incomingFileset)
+            .givenName("Jane")
+            .lastName("Smith")
+            .localID("123456789")
+            .pen("123459987")
+            .build();
+  }
+
+
   public DemographicStudentEntity createMockDemographicStudent(IncomingFilesetEntity incomingFileset) {
     return DemographicStudentEntity.builder()
             .demographicStudentID(UUID.randomUUID())
@@ -290,7 +301,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
             .build();
   }
 
@@ -304,7 +315,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
             .build();
   }
 
@@ -318,7 +329,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(GradAssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build()))
             .build();
   }
 }

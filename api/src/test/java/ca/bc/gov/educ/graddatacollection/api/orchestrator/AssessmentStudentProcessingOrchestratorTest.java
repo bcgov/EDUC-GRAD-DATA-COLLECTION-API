@@ -4,14 +4,15 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
-import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaEventRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradAssessmentStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
@@ -31,7 +32,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_ASSESSMENT_STUDENT;
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_COURSE_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -95,7 +95,7 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradAssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
+        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)

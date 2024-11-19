@@ -18,7 +18,10 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -95,9 +98,9 @@ public class DemographicStudentService {
 
     @Async("publisherExecutor")
     public void prepareAndSendDemStudentsForFurtherProcessing(final List<DemographicStudentEntity> demographicStudentEntities) {
-        final List<GradDemographicStudentSagaData> demographicStudentSagaData = demographicStudentEntities.stream()
+        final List<DemographicStudentSagaData> demographicStudentSagaData = demographicStudentEntities.stream()
                 .map(el -> {
-                    val gradDemographicStudentSagaData = new GradDemographicStudentSagaData();
+                    val gradDemographicStudentSagaData = new DemographicStudentSagaData();
                     Optional<IncomingFilesetEntity> incomingFilesetEntity = this.incomingFilesetRepository.findById(el.getIncomingFileset().getIncomingFilesetID());
                     if(incomingFilesetEntity.isPresent()) {
                         var school = this.restUtils.getSchoolBySchoolID(incomingFilesetEntity.get().getSchoolID().toString());
@@ -109,11 +112,11 @@ public class DemographicStudentService {
         this.publishUnprocessedStudentRecordsForProcessing(demographicStudentSagaData);
     }
 
-    public void publishUnprocessedStudentRecordsForProcessing(final List<GradDemographicStudentSagaData> demographicStudentSagaData) {
+    public void publishUnprocessedStudentRecordsForProcessing(final List<DemographicStudentSagaData> demographicStudentSagaData) {
         demographicStudentSagaData.forEach(this::sendIndividualStudentAsMessageToTopic);
     }
 
-    private void sendIndividualStudentAsMessageToTopic(final GradDemographicStudentSagaData demographicStudentSagaData) {
+    private void sendIndividualStudentAsMessageToTopic(final DemographicStudentSagaData demographicStudentSagaData) {
         final var eventPayload = JsonUtil.getJsonString(demographicStudentSagaData);
         if (eventPayload.isPresent()) {
             final Event event = Event.builder().eventType(EventType.READ_DEM_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_DEM_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).demographicStudentID(String.valueOf(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID())).build();
@@ -129,7 +132,7 @@ public class DemographicStudentService {
     }
 
     public void flagErrorOnStudent(final DemographicStudent demographicStudent) {
-        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen());
+        errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), true, demographicStudent.getFirstName(), demographicStudent.getLastName(), demographicStudent.getLocalID());
     }
 
 }

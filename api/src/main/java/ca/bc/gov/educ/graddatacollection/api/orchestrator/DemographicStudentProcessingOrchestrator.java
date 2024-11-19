@@ -10,13 +10,11 @@ import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
@@ -25,11 +23,11 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 
 @Component
 @Slf4j
-public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<GradDemographicStudentSagaData> {
+public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<DemographicStudentSagaData> {
   private final DemographicStudentService demographicStudentService;
 
   protected DemographicStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, DemographicStudentService demographicStudentService) {
-    super(sagaService, messagePublisher, GradDemographicStudentSagaData.class, SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_DEM_STUDENTS_SAGA_TOPIC.toString());
+    super(sagaService, messagePublisher, DemographicStudentSagaData.class, SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_DEM_STUDENTS_SAGA_TOPIC.toString());
       this.demographicStudentService = demographicStudentService;
   }
 
@@ -45,7 +43,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<G
 
   }
 
-  public void validateDEMStudentRecord(final Event event, final GradSagaEntity saga, final GradDemographicStudentSagaData gradDemographicStudentSagaData) {
+  public void validateDEMStudentRecord(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(VALIDATE_DEM_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
@@ -55,7 +53,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<G
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_DEM_STUDENT);
 
     // call For dem validation
-    var validationErrors = demographicStudentService.validateStudent(UUID.fromString(gradDemographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), gradDemographicStudentSagaData.getSchool());
+    var validationErrors = demographicStudentService.validateStudent(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), demographicStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
       eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR);
     } else {
@@ -67,16 +65,16 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<G
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void createDEMStudentRecordInGrad(final Event event, final GradSagaEntity saga, final GradDemographicStudentSagaData gradDemographicStudentSagaData) {
+  public void createDEMStudentRecordInGrad(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
     //TODO
   }
 
-  public void updateDemStudentStatus(final Event event, final GradSagaEntity saga, final GradDemographicStudentSagaData gradDemographicStudentSagaData) {
+  public void updateDemStudentStatus(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
     //TODO
   }
 
-  private void completeWithError(final Event event, final GradSagaEntity saga, final GradDemographicStudentSagaData gradDemographicStudentSagaData) {
-    demographicStudentService.flagErrorOnStudent(gradDemographicStudentSagaData.getDemographicStudent());
+  private void completeWithError(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
+    demographicStudentService.flagErrorOnStudent(demographicStudentSagaData.getDemographicStudent());
   }
 
 }

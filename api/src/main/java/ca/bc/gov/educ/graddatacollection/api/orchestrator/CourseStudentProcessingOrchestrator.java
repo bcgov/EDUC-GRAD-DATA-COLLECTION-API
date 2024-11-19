@@ -10,7 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
@@ -23,11 +23,11 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 
 @Component
 @Slf4j
-public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<GradCourseStudentSagaData> {
+public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<CourseStudentSagaData> {
   private final CourseStudentService courseStudentService;
 
   protected CourseStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CourseStudentService courseStudentService) {
-    super(sagaService, messagePublisher, GradCourseStudentSagaData.class, SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_COURSE_STUDENTS_SAGA_TOPIC.toString());
+    super(sagaService, messagePublisher, CourseStudentSagaData.class, SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_COURSE_STUDENTS_SAGA_TOPIC.toString());
       this.courseStudentService = courseStudentService;
   }
 
@@ -43,7 +43,7 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<GradCo
 
   }
 
-  public void validateCourseStudentRecord(final Event event, final GradSagaEntity saga, final GradCourseStudentSagaData gradCourseStudentSagaData) {
+  public void validateCourseStudentRecord(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(VALIDATE_COURSE_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
@@ -52,7 +52,7 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<GradCo
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_COURSE_STUDENT);
 
-    var validationErrors = courseStudentService.validateStudent(UUID.fromString(gradCourseStudentSagaData.getCourseStudent().getCourseStudentID()), gradCourseStudentSagaData.getSchool());
+    var validationErrors = courseStudentService.validateStudent(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), courseStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
       eventBuilder.eventOutcome(VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR);
     } else {
@@ -64,16 +64,16 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<GradCo
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void createCourseStudentRecordInGrad(final Event event, final GradSagaEntity saga, final GradCourseStudentSagaData gradCourseStudentSagaData) {
+  public void createCourseStudentRecordInGrad(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
     //TODO
   }
 
-  public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final GradCourseStudentSagaData gradCourseStudentSagaData) {
+  public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
     //TODO
   }
 
-  private void completeWithError(final Event event, final GradSagaEntity saga, final GradCourseStudentSagaData gradCourseStudentSagaData) {
-    courseStudentService.flagErrorOnStudent(gradCourseStudentSagaData.getCourseStudent());
+  private void completeWithError(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
+    courseStudentService.flagErrorOnStudent(courseStudentSagaData.getCourseStudent());
   }
 
 }

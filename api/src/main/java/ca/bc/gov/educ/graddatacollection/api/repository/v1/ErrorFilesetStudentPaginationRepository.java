@@ -5,10 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ErrorFilesetStudentRepository extends JpaRepository<ErrorFilesetStudentEntity, UUID>, JpaSpecificationExecutor<ErrorFilesetStudentEntity> {
-    Optional<ErrorFilesetStudentEntity> findByIncomingFileset_IncomingFilesetIDAndPen(UUID incomingFilesetId, String pen);
+public interface ErrorFilesetStudentPaginationRepository extends JpaRepository<ErrorFilesetStudentEntity, UUID>, JpaSpecificationExecutor<ErrorFilesetStudentEntity> {
+
 }

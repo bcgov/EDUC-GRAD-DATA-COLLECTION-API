@@ -9,9 +9,9 @@ import ca.bc.gov.educ.graddatacollection.api.orchestrator.DemographicStudentProc
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradAssessmentStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradCourseStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
@@ -52,7 +52,7 @@ public class EventHandlerService {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleProcessDemStudentsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_DEM_STUDENTS_FOR_PROCESSING_SUCCESS) {
-      final GradDemographicStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(GradDemographicStudentSagaData.class, event.getEventPayload());
+      final DemographicStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(DemographicStudentSagaData.class, event.getEventPayload());
       final var sagaOptional = this.getSagaService().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()), UUID.fromString(sagaData.getDemographicStudent().getIncomingFilesetID()), SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
@@ -73,7 +73,7 @@ public class EventHandlerService {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleProcessCourseStudentsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS) {
-      final GradCourseStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(GradCourseStudentSagaData.class, event.getEventPayload());
+      final CourseStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(CourseStudentSagaData.class, event.getEventPayload());
       final var sagaOptional = this.getSagaService().findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getCourseStudent().getCourseStudentID()), UUID.fromString(sagaData.getCourseStudent().getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
@@ -94,7 +94,7 @@ public class EventHandlerService {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleProcessAssessmentStudentsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS) {
-      final GradAssessmentStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(GradAssessmentStudentSagaData.class, event.getEventPayload());
+      final AssessmentStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(AssessmentStudentSagaData.class, event.getEventPayload());
       final var sagaOptional = this.getSagaService().findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getAssessmentStudent().getAssessmentStudentID()), UUID.fromString(sagaData.getAssessmentStudent().getIncomingFilesetID()), SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
