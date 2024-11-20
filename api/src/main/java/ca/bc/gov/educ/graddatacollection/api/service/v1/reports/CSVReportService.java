@@ -18,6 +18,7 @@ import java.io.OutputStreamWriter;
 import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ErrorReportHeaders.*;
+import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportTypeCodes.*;
 
 @Service
 @Slf4j
@@ -51,6 +52,7 @@ public class CSVReportService {
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(STUDENT_ERROR_REPORT.getCode());
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
             return downloadableReport;
 
