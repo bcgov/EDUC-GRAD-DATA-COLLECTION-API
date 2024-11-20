@@ -6,6 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableRepor
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -14,7 +15,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final CSVReportService csvReportService;
 
     @Override
-    public DownloadableReportResponse generateErrorReport() {
-        return csvReportService.generateErrorReport();
+    public DownloadableReportResponse generateErrorReport(UUID incomingFilesetId) {
+        return csvReportService.generateErrorReport(incomingFilesetId);
     }
 }
