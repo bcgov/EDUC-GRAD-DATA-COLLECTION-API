@@ -76,11 +76,11 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -d "{\"description\": \"Read Fileset Student Error\",\"id\": \"READ_FILESET_STUDENT_ERROR\",\"name\": \"READ_FILESET_STUDENT_ERROR\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
-echo Writing scope SCOPE_READ_GRAD_COLLECTION_CODES
+echo Writing scope READ_GRAD_COLLECTION_CODES
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Read Grad Data Collection Codes\",\"id\": \"SCOPE_READ_GRAD_COLLECTION_CODES\",\"name\": \"SCOPE_READ_GRAD_COLLECTION_CODES\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+  -d "{\"description\": \"Read Grad Data Collection Codes\",\"id\": \"READ_GRAD_COLLECTION_CODES\",\"name\": \"READ_GRAD_COLLECTION_CODES\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 
 if [[ -n "$GRAD_APIServiceClientID" && -n "$GRAD_APIServiceClientSecret" && ("$envValue" = "dev" || "$envValue" = "test") ]]; then
