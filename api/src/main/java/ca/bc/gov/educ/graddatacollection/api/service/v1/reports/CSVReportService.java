@@ -6,11 +6,11 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRe
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -22,10 +22,14 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportT
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class CSVReportService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
     private static final ErrorFilesetStudentMapper errorFilesetStudentMapper = ErrorFilesetStudentMapper.mapper;
+
+    @Autowired
+    public CSVReportService(ErrorFilesetStudentRepository errorFilesetStudentRepository) {
+        this.errorFilesetStudentRepository = errorFilesetStudentRepository;
+    }
 
     public DownloadableReportResponse generateErrorReport(UUID incomingFilesetId) {
         List<ErrorFilesetStudent> results = errorFilesetStudentRepository.findAllByIncomingFileset_IncomingFilesetID(incomingFilesetId)
@@ -74,7 +78,7 @@ public class CSVReportService {
         );
     }
 
-    private String processValidationIssuesForField(List<ErrorFilesetStudentValidationIssue> issues) {
+    public String processValidationIssuesForField(List<ErrorFilesetStudentValidationIssue> issues) {
         if (issues == null || issues.isEmpty()) {
             return "";
         }
