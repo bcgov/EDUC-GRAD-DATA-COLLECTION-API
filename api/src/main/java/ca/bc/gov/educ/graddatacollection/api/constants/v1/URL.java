@@ -10,5 +10,6 @@ public final class URL {
   public static final String BASE_URL_FILESET = BASE_URL + "/fileset";
   public static final String PAGINATED = "/paginated";
   public static final String VALIDATION_ISSUE_TYPE_CODES = "/validation-issue-type-codes";
+  public static final String BASE_URL_REPORT_GENERATION = BASE_URL + "/reportGeneration";
 
 }
