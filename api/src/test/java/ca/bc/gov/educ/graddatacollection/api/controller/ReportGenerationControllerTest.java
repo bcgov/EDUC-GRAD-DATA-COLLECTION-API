@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.controller;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -50,22 +51,24 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     void testGetStudentErrorReport_validUUID_ShouldReturnReportData() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_FILESET_STUDENT_ERROR";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
+        var incomingFileSet = incomingFilesetRepository.save(fileSet);
         errorFilesetStudentRepository.save(createMockErrorFilesetEntity(incomingFileSet));
         var errorFileset2 = createMockErrorFilesetEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        this.mockMvc.perform(get(URL.BASE_URL_REPORT_GENERATION + "/" + "errorReport" + "/" + incomingFileSet.getIncomingFilesetID()).with(mockAuthority)).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get(URL.BASE_URL_REPORT_GENERATION + "/" + "errorReport" + "/" + school.getSchoolId()).with(mockAuthority)).andDo(print()).andExpect(status().isOk());
     }
 
     @Test
     void testGetStudentErrorReport_noMatchUUID_ShouldReturnOk() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_FILESET_STUDENT_ERROR";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-        this.mockMvc.perform(get(URL.BASE_URL_REPORT_GENERATION + "/" + "errorReport" + "/" + UUID.randomUUID()).with(mockAuthority)).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get(URL.BASE_URL_REPORT_GENERATION + "/" + "errorReport" + "/" + UUID.randomUUID()).with(mockAuthority)).andDo(print()).andExpect(status().is4xxClientError());
     }
 }
