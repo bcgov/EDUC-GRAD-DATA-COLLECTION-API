@@ -43,8 +43,6 @@ public class GradGrade implements Serializable {
 
     private String expected;
 
-    private String grade;
-
     private String createUser;
 
     private LocalDateTime createDate;
