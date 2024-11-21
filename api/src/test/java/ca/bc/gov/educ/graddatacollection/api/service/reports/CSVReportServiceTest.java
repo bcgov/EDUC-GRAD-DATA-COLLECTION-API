@@ -61,7 +61,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testProcessValidationIssuesForField() {
+    void testProcessValidationIssuesForFieldCourse() {
         ErrorFilesetStudentValidationIssue error = new ErrorFilesetStudentValidationIssue();
         error.setErrorFilesetValidationIssueTypeCode("COURSE");
         error.setValidationIssueSeverityCode("ERROR");
@@ -72,6 +72,21 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
 
 
         String result = csvReportService.processValidationIssuesForField(results);
-        Assertions.assertEquals("COURSE ERROR PEN DEM_DATA_MISSING", result);
+        Assertions.assertEquals("COURSE ERROR This student is missing demographic data based on Student PEN, Surname and Local ID.", result);
+    }
+
+    @Test
+    void testProcessValidationIssuesForFieldAssessment() {
+        ErrorFilesetStudentValidationIssue error = new ErrorFilesetStudentValidationIssue();
+        error.setErrorFilesetValidationIssueTypeCode("ASSESSMENT");
+        error.setValidationIssueSeverityCode("ERROR");
+        error.setValidationIssueFieldCode("PEN");
+        error.setValidationIssueCode("DEM_DATA_MISSING");
+        List<ErrorFilesetStudentValidationIssue> results = new ArrayList<>();
+        results.add(error);
+
+
+        String result = csvReportService.processValidationIssuesForField(results);
+        Assertions.assertEquals("ASSESSMENT ERROR This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID.", result);
     }
 }
