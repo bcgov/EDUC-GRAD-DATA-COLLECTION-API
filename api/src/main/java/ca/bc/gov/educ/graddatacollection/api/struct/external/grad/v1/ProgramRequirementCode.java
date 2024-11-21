@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -49,9 +48,9 @@ public class ProgramRequirementCode implements Serializable {
 
     private String createUser;
 
-    private LocalDateTime createDate;
+    private String createDate;
 
     private String updateUser;
 
-    private LocalDateTime updateDate;
+    private String updateDate;
 }

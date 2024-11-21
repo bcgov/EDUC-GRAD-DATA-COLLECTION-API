@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.struct.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

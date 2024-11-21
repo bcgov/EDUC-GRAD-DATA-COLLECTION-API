@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -36,18 +35,18 @@ public class GradGrade implements Serializable {
     private Integer displayOrder;
 
     @NotNull(message = "effectiveDate cannot be null.")
-    private LocalDateTime effectiveDate;
+    private String effectiveDate;
 
     @NotNull(message = "expiryDate cannot be null.")
-    private LocalDateTime expiryDate;
+    private String expiryDate;
 
     private String expected;
 
     private String createUser;
 
-    private LocalDateTime createDate;
+    private String createDate;
 
     private String updateUser;
 
-    private LocalDateTime updateDate;
+    private String updateDate;
 }

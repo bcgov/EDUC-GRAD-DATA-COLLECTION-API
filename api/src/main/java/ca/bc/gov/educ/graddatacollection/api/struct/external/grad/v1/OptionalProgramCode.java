@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -30,9 +29,9 @@ public class OptionalProgramCode implements Serializable {
 
     private Integer displayOrder;
 
-    private LocalDateTime effectiveDate;
+    private String effectiveDate;
 
-    private LocalDateTime expiryDate;
+    private String expiryDate;
 
     private String graduationProgramCode;
 
@@ -40,9 +39,9 @@ public class OptionalProgramCode implements Serializable {
 
     private String createUser;
 
-    private LocalDateTime createDate;
+    private String createDate;
 
     private String updateUser;
 
-    private LocalDateTime updateDate;
+    private String updateDate;
 }
