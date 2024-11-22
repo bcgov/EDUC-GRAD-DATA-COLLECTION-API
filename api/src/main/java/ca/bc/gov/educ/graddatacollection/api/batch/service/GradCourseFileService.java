@@ -39,7 +39,7 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.VERIFICATION_FLAG;
 import static lombok.AccessLevel.PRIVATE;
 
-@Service("stdcrs")
+@Service("crs")
 @RequiredArgsConstructor
 @Slf4j
 public class GradCourseFileService implements GradFileBatchProcessor {
@@ -94,7 +94,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             currentFileset.setCrsFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getCourseStudentEntities().clear();
-            currentFileset.getCourseStudentEntities().addAll(pairStudentList.getLeft());
+            currentFileset.getCourseStudentEntities().addAll(pairStudentList);
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
             incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
@@ -105,34 +105,10 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
     }
 
-    private Pair<List<CourseStudentEntity>, List<UUID>> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
-        Map<Integer, CourseStudentEntity> incomingStudentsHashCodes = new HashMap<>();
-        Map<Integer,CourseStudentEntity> finalStudentsMap = new HashMap<>();
-        List<UUID> removedStudents = new ArrayList<>();
-        incomingFileset.getCourseStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-        log.debug("Found {} current students in CRS file", currentFileset.getDemographicStudentEntities().size());
-        log.debug("Found {} incoming students in CRS file", incomingStudentsHashCodes.size());
-
-        currentFileset.getCourseStudentEntities().forEach(currentStudent -> {
-            var currentStudentHash = currentStudent.getUniqueObjectHash();
-            if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudent.getStudentStatusCode().equals(SchoolStudentStatus.DELETED.toString())){
-                finalStudentsMap.put(currentStudentHash, currentStudent);
-            }else{
-                removedStudents.add(currentStudent.getCourseStudentID());
-            }
-        });
-
-        AtomicInteger newStudCount = new AtomicInteger();
-        incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
-            if(!finalStudentsMap.containsKey(incomingStudentHash)){
-                newStudCount.getAndIncrement();
-                finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
-            }
-        });
-
-        finalStudentsMap.values().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
-        log.debug("Found {} new students for IncomingFilesetID {} in CRS File", newStudCount, currentFileset.getIncomingFilesetID());
-        return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
+    private List<CourseStudentEntity> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
+        log.debug("Found {} incoming students in CRS file", incomingFileset.getCourseStudentEntities().size());
+        incomingFileset.getCourseStudentEntities().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
+        return incomingFileset.getCourseStudentEntities().stream().toList();
     }
 
     private GradStudentCourseDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
