@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.ReportGenerationEndpoint;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.reports.CSVReportService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
@@ -17,13 +19,13 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final IncomingFilesetRepository incomingFilesetRepository;
 
     @Override
-    public DownloadableReportResponse generateErrorReport(UUID schoolID) {
-        var filesetOptional = incomingFilesetRepository.findBySchoolID(schoolID);
+    public DownloadableReportResponse generateErrorReport(UUID incomingFilesetID) {
+        var filesetOptional = incomingFilesetRepository.findById(incomingFilesetID);
         if (filesetOptional.isPresent()) {
             var fileset = filesetOptional.get();
             return csvReportService.generateErrorReport(fileset.getIncomingFilesetID());
         } else {
-            throw new IllegalArgumentException("No incoming fileset found for the given school ID: " + schoolID);
+            throw new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString());
         }
     }
 }

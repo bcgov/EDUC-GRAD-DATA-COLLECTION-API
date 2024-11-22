@@ -14,9 +14,9 @@ import java.util.UUID;
 
 @RequestMapping(URL.BASE_URL_REPORT_GENERATION)
 public interface ReportGenerationEndpoint {
-    @GetMapping("/errorReport/{schoolID}")
+    @GetMapping("/errorReport/{incomingFilesetID}")
     @PreAuthorize("hasAuthority('SCOPE_READ_FILESET_STUDENT_ERROR')")
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-    DownloadableReportResponse generateErrorReport(@PathVariable("schoolID") UUID incomingFilesetId);
+    DownloadableReportResponse generateErrorReport(@PathVariable("incomingFilesetID") UUID incomingFilesetId);
 }
