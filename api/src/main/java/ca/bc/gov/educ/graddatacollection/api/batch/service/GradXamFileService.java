@@ -35,7 +35,7 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MI
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
-@Service("stdxam")
+@Service("xam")
 @RequiredArgsConstructor
 @Slf4j
 public class GradXamFileService implements GradFileBatchProcessor {
@@ -96,7 +96,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
             currentFileset.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getAssessmentStudentEntities().clear();
-            currentFileset.getAssessmentStudentEntities().addAll(pairStudentList.getLeft());
+            currentFileset.getAssessmentStudentEntities().addAll(pairStudentList);
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
             incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
@@ -107,34 +107,10 @@ public class GradXamFileService implements GradFileBatchProcessor {
         }
     }
 
-    private Pair<List<AssessmentStudentEntity>, List<UUID>> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
-        Map<Integer, AssessmentStudentEntity> incomingStudentsHashCodes = new HashMap<>();
-        Map<Integer,AssessmentStudentEntity> finalStudentsMap = new HashMap<>();
-        List<UUID> removedStudents = new ArrayList<>();
-        incomingFileset.getAssessmentStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-        log.debug("Found {} current students in XAM file", currentFileset.getDemographicStudentEntities().size());
-        log.debug("Found {} incoming students in XAM file", incomingStudentsHashCodes.size());
-
-        currentFileset.getAssessmentStudentEntities().forEach(currentStudent -> {
-            var currentStudentHash = currentStudent.getUniqueObjectHash();
-            if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudent.getStudentStatusCode().equals(SchoolStudentStatus.DELETED.toString())){
-                finalStudentsMap.put(currentStudentHash, currentStudent);
-            }else{
-                removedStudents.add(currentStudent.getAssessmentStudentID());
-            }
-        });
-
-        AtomicInteger newStudCount = new AtomicInteger();
-        incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
-            if(!finalStudentsMap.containsKey(incomingStudentHash)){
-                newStudCount.getAndIncrement();
-                finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
-            }
-        });
-
-        finalStudentsMap.values().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
-        log.debug("Found {} new students for IncomingFilesetID {} in XAM File", newStudCount, currentFileset.getIncomingFilesetID());
-        return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
+    private List<AssessmentStudentEntity> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
+        log.debug("Found {} current students in XAM file", incomingFileset.getAssessmentStudentEntities().size());
+        incomingFileset.getAssessmentStudentEntities().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
+        return incomingFileset.getAssessmentStudentEntities().stream().toList();
     }
 
     private GradStudentAssessmentDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {

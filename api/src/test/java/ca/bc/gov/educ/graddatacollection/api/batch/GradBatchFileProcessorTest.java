@@ -60,8 +60,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         GradFileUpload demFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-dem-file.stddem")
-                .fileType("stddem")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
                 .build();
 
         gradBatchFileProcessor.processBatchFile(demFile, school.getSchoolId());
@@ -70,8 +70,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.stddem");
-        assertThat(entity.getCrsFileName()).isEqualTo("Test.stdcrs");
+        assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
+        assertThat(entity.getCrsFileName()).isEqualTo("Test.crs");
         assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
@@ -94,8 +94,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         GradFileUpload crsFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-crs-file.stdcrs")
-                .fileType("stdcrs")
+                .fileName("student-crs-file.crs")
+                .fileType("crs")
                 .build();
 
         gradBatchFileProcessor.processBatchFile(crsFile, school.getSchoolId());
@@ -104,8 +104,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getDemFileName()).isEqualTo("Test.stddem");
-        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.stdcrs");
+        assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
+        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
         assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
@@ -129,8 +129,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         GradFileUpload xamFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-xam-file.stdxam")
-                .fileType("stdxam")
+                .fileName("student-xam-file.xam")
+                .fileType("xam")
                 .build();
 
         gradBatchFileProcessor.processBatchFile(xamFile, school.getSchoolId());
@@ -139,8 +139,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getDemFileName()).isEqualTo("Test.stddem");
-        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.stdxam");
+        assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
+        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
         assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
