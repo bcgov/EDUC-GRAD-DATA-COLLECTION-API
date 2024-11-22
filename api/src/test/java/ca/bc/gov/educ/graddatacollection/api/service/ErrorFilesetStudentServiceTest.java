@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -23,8 +22,6 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     @MockBean
     protected RestUtils restUtils;
     @Autowired
-    DemographicStudentRepository demographicStudentRepository;
-    @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     ErrorFilesetStudentRepository errorFilesetStudentRepository;
@@ -34,6 +31,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        this.incomingFilesetRepository.deleteAll();
+        this.errorFilesetStudentRepository.deleteAll();
     }
 
     @Test

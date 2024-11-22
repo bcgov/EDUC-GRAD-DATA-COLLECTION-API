@@ -10,7 +10,9 @@ public enum ErrorReportHeaders {
     LAST_NAME("Last Name"),
     FIRST_NAME("First Name"),
     DATE_OF_BIRTH("Date of Birth"),
-    VALIDATION_ISSUES("Validation Issues");
+    FILE_TYPE("File Type"),
+    SEVERITY_CODE("Severity Code"),
+    DESCRIPTION("Description");
 
     private final String code;
     ErrorReportHeaders(String code) { this.code = code; }

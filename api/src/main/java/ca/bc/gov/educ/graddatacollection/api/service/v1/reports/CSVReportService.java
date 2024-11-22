@@ -7,7 +7,6 @@ import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentV
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -41,18 +40,17 @@ public class CSVReportService {
                 .toList();
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN.getCode(),LOCAL_ID.getCode(), LAST_NAME.getCode(), FIRST_NAME.getCode(), DATE_OF_BIRTH.getCode(), VALIDATION_ISSUES.getCode())
+                .setHeader(PEN.getCode(),LOCAL_ID.getCode(), LAST_NAME.getCode(), FIRST_NAME.getCode(), DATE_OF_BIRTH.getCode(), FILE_TYPE.getCode(), SEVERITY_CODE.getCode(), DESCRIPTION.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
-            for (ErrorFilesetStudent result : results) {
-                List<String> csvRowData = prepareErrorDataForCsv(result);
-
-                if (csvRowData != null) {
-                    csvPrinter.printRecord(csvRowData);
+            for (ErrorFilesetStudent student : results) {
+                List<List<String>> rows = prepareErrorDataForCsv(student);
+                for (List<String> row : rows) {
+                    csvPrinter.printRecord(row);
                 }
             }
 
@@ -68,39 +66,23 @@ public class CSVReportService {
         }
     }
 
-    private List<String> prepareErrorDataForCsv(ErrorFilesetStudent result) {
-        String validationIssues = processValidationIssuesForField(result.getErrorFilesetStudentValidationIssues());
-
-        return Arrays.asList(
-           result.getPen(),
-           result.getLocalID(),
-           result.getLastName(),
-           result.getFirstName(),
-           null,
-           validationIssues
-        );
-    }
-
-    public String processValidationIssuesForField(List<ErrorFilesetStudentValidationIssue> issues) {
-        if (issues == null || issues.isEmpty()) {
-            return "";
-        }
-
-        return issues.stream()
-                .filter(Objects::nonNull)
-                .map(issue -> String.format(
-                        "%s %s %s",
+    public List<List<String>> prepareErrorDataForCsv(ErrorFilesetStudent result) {
+        return result.getErrorFilesetStudentValidationIssues().stream()
+                .map(issue -> Arrays.asList(
+                        result.getPen(),
+                        result.getLocalID(),
+                        result.getLastName(),
+                        result.getFirstName(),
+                        "",
                         issue.getErrorFilesetValidationIssueTypeCode(),
                         issue.getValidationIssueSeverityCode(),
-                        switch (issue.getErrorFilesetValidationIssueTypeCode()){
+                        switch (issue.getErrorFilesetValidationIssueTypeCode()) {
                             case "ASSESSMENT" -> AssessmentStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
                             case "COURSE" -> CourseStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            case "DEMOGRAPHIC" -> DemographicStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
+                            case "DEMOGRAPHICS" -> DemographicStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
                             default -> "";
                         }
                 ))
-                .distinct()
-                .reduce((a, b) -> a + ";\n" + b)
-                .orElse("");
+                .toList();
     }
 }
