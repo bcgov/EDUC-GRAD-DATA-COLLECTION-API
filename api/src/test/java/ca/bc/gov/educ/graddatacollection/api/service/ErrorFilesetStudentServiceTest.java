@@ -34,6 +34,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        errorFilesetStudentRepository.deleteAll();
+        incomingFilesetRepository.deleteAll();
     }
 
     @Test
