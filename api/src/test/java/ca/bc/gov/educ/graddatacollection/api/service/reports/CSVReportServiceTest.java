@@ -46,8 +46,8 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessValidationIssuesForFieldEmpty() {
         var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
-        errorFilesetStudentRepository.save(createMockErrorFilesetEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetEntity(incomingFileSet);
+        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchool();

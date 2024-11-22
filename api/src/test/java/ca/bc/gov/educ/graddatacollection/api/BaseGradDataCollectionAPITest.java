@@ -113,7 +113,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public ErrorFilesetStudentEntity createMockErrorFilesetEntity(IncomingFilesetEntity incomingFileset) {
+  public ErrorFilesetStudentEntity createMockErrorFilesetStudentEntity(IncomingFilesetEntity incomingFileset) {
     return ErrorFilesetStudentEntity.builder()
             .incomingFileset(incomingFileset)
             .firstName("Jane")

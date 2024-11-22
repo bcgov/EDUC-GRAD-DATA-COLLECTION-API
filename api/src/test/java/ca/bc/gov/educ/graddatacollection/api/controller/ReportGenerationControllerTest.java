@@ -1,11 +1,11 @@
 package ca.bc.gov.educ.graddatacollection.api.controller;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -57,8 +57,8 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
         IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded();
         fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
         var incomingFileSet = incomingFilesetRepository.save(fileSet);
-        errorFilesetStudentRepository.save(createMockErrorFilesetEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetEntity(incomingFileSet);
+        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
 

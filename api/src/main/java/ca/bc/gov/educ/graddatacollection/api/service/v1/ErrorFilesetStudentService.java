@@ -31,7 +31,7 @@ public class ErrorFilesetStudentService {
             stud.setFirstName(firstName);
             stud.setBirthDate(birthDate);
             errorFilesetStudentRepository.save(stud);
-        }else{
+        }else if(preexisting.isEmpty()){
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
             ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
             newErrorFilesetStudent.setIncomingFileset(fileSet);
