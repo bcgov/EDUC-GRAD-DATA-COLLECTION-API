@@ -79,6 +79,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
 
+    @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
     public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
         var fileSetEntity = incomingFilesetRepository.findBySchoolIDAndFilesetStatusCode(UUID.fromString(schoolID), FilesetStatus.LOADED.getCode());
         if(fileSetEntity.isPresent()) {
