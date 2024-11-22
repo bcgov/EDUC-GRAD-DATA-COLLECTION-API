@@ -62,7 +62,7 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
 
-        this.mockMvc.perform(get(URL.BASE_URL_REPORT_GENERATION + "/" + "errorReport" + "/" + school.getSchoolId()).with(mockAuthority)).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get(URL.BASE_URL_REPORT_GENERATION + "/" + "errorReport" + "/" + incomingFileSet.getIncomingFilesetID()).with(mockAuthority)).andDo(print()).andExpect(status().isOk());
     }
 
     @Test
