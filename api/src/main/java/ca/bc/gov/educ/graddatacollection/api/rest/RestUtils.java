@@ -224,7 +224,7 @@ public class RestUtils {
     try {
       writeLock.lock();
       for (val grade : this.getGradGrades()) {
-        this.gradGradeMap.put(grade.getGrade(), grade);
+        this.gradGradeMap.put(grade.getStudentGradeCode(), grade);
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache grad grade {}", ex);

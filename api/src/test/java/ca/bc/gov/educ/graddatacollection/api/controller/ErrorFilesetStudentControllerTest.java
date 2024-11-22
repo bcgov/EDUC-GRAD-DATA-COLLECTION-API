@@ -54,8 +54,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentPaginated_Always_ShouldReturnStatusOk() throws Exception {
         var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
-        errorFilesetStudentRepository.save(createMockErrorFilesetEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetEntity(incomingFileSet);
+        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchool();
@@ -74,8 +74,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentsPaginated_withName_ShouldReturnStatusOk() throws Exception {
         var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
-        errorFilesetStudentRepository.save(createMockErrorFilesetEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetEntity(incomingFileSet);
+        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);

@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.struct;
 
-import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
