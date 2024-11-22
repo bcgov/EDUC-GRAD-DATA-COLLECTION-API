@@ -26,7 +26,7 @@ public class ProgramRequirementCode implements Serializable {
     private String description;
 
     @Size(max = 10)
-    private String requirementTypeCode;
+    private RequirementTypeCode requirementTypeCode;
 
     private String requiredCredits;
 
