@@ -25,10 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LEGAL_SURNAME;
@@ -71,7 +73,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) {
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) throws FileUnProcessableException {
         log.debug("Going to persist CRS data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingCRSBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
         for (final var student : batchFile.getCourseData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
@@ -79,7 +81,19 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             entity.getCourseStudentEntities().add(crsStudentEntity);
         }
 
+        if(!entity.getCourseStudentEntities().isEmpty()) {
+            var hasCurrentOrFutureSession = entity.getCourseStudentEntities().stream().filter(this::validateCourseYearAndMonth).findFirst();
+            if(hasCurrentOrFutureSession.isEmpty()) {
+                throw new FileUnProcessableException(COURSE_FILE_SESSION_ERROR, guid, GradCollectionStatus.LOAD_FAIL);
+            }
+        }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
+    }
+
+    private boolean validateCourseYearAndMonth(CourseStudentEntity courseStudentEntity) {
+        var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
+        var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
+        return courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12);
     }
 
     @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))

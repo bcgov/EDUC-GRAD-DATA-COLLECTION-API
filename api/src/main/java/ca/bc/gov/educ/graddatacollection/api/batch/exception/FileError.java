@@ -44,7 +44,7 @@ public enum FileError {
   INVALID_ROW_LENGTH("$?"),
 
   FILE_NOT_ALLOWED("File type not allowed"),
-
+  COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future Course Session"),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**
