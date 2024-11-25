@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 public class GradFileValidator {
     public static final String TOO_LONG = "TOO LONG";
-    public static final String FILE_TYPE = "stddem";
+    public static final String FILE_TYPE = "dem";
 
     private final DemographicStudentRepository demographicStudentRepository;
     private final CourseStudentRepository courseStudentRepository;

@@ -19,6 +19,23 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     Optional<IncomingFilesetEntity> findBySchoolID(UUID schoolID);
 
     @Query(value="""
+    SELECT inFileset
+    FROM DemographicStudentEntity dse, IncomingFilesetEntity inFileset, CourseStudentEntity cs, AssessmentStudentEntity assessment
+    WHERE dse.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID
+    AND cs.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID
+    AND assessment.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID
+    AND (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
+    AND (select count(cs2) from CourseStudentEntity cs2 where cs2.studentStatusCode = 'LOADED' and cs2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
+    AND (select count(as2) from AssessmentStudentEntity as2 where as2.studentStatusCode = 'LOADED' and as2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
+    AND inFileset.incomingFilesetID
+    IN (SELECT incoming.incomingFilesetID FROM IncomingFilesetEntity incoming 
+    WHERE incoming.filesetStatusCode != 'COMPLETED'
+    AND incoming.demFileStatusCode = 'LOADED'
+    AND incoming.crsFileStatusCode = 'LOADED'
+    AND incoming.xamFileStatusCode = 'LOADED')""")
+    List<IncomingFilesetEntity> findCompletedCollectionsForStatusUpdate();
+
+    @Query(value="""
     SELECT dse FROM DemographicStudentEntity dse WHERE dse.demographicStudentID
     NOT IN (SELECT saga.demographicStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.demographicStudentID IS NOT NULL)
