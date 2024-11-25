@@ -97,8 +97,16 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
             var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
             var nextYear = LocalDate.now().getYear() + 1;
-            return (courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12))
-                    || (courseYear == nextYear && (courseMonth >= 1 && courseMonth <= 8));
+            var lastYear = LocalDate.now().getYear() - 1;
+
+            var currentMonth = LocalDate.now().getMonthValue();
+            if(currentMonth >= 10) {
+                return (courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12))
+                        || (courseYear == nextYear && (courseMonth >= 1 && courseMonth <= 8));
+            } else {
+                return (courseYear == lastYear && (courseMonth >= 9 && courseMonth <= 12))
+                        || (courseYear == LocalDate.now().getYear() && (courseMonth >= 1 && courseMonth <= 8));
+            }
         }
         return false;
     }
