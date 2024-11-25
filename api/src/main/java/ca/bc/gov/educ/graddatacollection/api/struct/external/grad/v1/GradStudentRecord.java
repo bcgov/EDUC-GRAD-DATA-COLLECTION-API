@@ -14,4 +14,7 @@ public class GradStudentRecord {
     private String schoolOfRecord;
     private String studentStatusCode;
 
+    public GradStudentRecord() {
+        //for testing
+    }
 }

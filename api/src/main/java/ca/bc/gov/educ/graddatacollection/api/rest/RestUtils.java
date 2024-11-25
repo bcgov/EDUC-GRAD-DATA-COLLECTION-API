@@ -527,11 +527,11 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public GradStudentRecord getGradStudentRecordByStudentID(UUID correlationID, String studentID) {
+  public GradStudentRecord getGradStudentRecordByStudentID(UUID correlationID, UUID studentID) {
     try {
       final TypeReference<GradStudentRecord> refGradStudentRecordResult = new TypeReference<>() {
       };
-      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID).build();
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID.toString()).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), refGradStudentRecordResult);
@@ -542,7 +542,7 @@ public class RestUtils {
     } catch (final Exception ex) {
       log.error("Error occurred calling GET GRAD STUDENT RECORD service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
-      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
     }
   }
 

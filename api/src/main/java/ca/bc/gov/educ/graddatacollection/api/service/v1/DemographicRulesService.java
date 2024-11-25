@@ -13,7 +13,7 @@ public class DemographicRulesService {
 
     private final RestUtils restUtils;
 
-    public GradStudentRecord getGradStudentRecord(String studentID){
+    public GradStudentRecord getGradStudentRecord(UUID studentID){
         return restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), studentID);
     }
 }
