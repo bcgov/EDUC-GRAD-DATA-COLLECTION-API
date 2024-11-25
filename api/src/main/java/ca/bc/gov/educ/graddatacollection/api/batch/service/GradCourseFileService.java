@@ -19,6 +19,7 @@ import com.nimbusds.jose.util.Pair;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataSet;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -91,9 +92,13 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     }
 
     private boolean validateCourseYearAndMonth(CourseStudentEntity courseStudentEntity) {
-        var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
-        var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
-        return courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12);
+        if(StringUtils.isNotEmpty(courseStudentEntity.getCourseMonth()) && StringUtils.isNumeric(courseStudentEntity.getCourseMonth())
+                && StringUtils.isNotEmpty(courseStudentEntity.getCourseYear()) && StringUtils.isNumeric(courseStudentEntity.getCourseYear())) {
+            var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
+            var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
+            return courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12);
+        }
+        return false;
     }
 
     @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
