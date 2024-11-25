@@ -16,7 +16,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V118 | ERROR    |  Student Status must match PEN                                        |              |
+ *  | V118 | ERROR    |  Student Status must match PEN                                        |  v117        |
  *  |      |          |                                     	                              |              |
  *
  */
@@ -30,8 +30,7 @@ public class V118DemographicStudentStatus implements DemographicValidationBaseRu
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentStatus-V118: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        // todo: should probably rely on v117 - doesn't specify in doc
-        var shouldExecute = true;
+        var shouldExecute =  isValidationDependencyResolved("V18", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentStatus-V118: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
