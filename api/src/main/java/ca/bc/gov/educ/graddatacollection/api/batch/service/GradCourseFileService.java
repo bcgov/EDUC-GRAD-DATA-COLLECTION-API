@@ -96,7 +96,9 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 && StringUtils.isNotEmpty(courseStudentEntity.getCourseYear()) && StringUtils.isNumeric(courseStudentEntity.getCourseYear())) {
             var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
             var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
-            return courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12);
+            var nextYear = LocalDate.now().getYear() + 1;
+            return (courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12))
+                    || (courseYear == nextYear && (courseMonth >= 1 && courseMonth <= 8));
         }
         return false;
     }
