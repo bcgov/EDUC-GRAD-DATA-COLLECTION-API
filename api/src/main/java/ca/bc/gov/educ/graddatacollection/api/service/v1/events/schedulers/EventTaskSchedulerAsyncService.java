@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1.events.schedulers;
 
 
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -85,6 +86,15 @@ public class EventTaskSchedulerAsyncService {
       log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
+
+    var completedFilesets = this.incomingFilesetRepository.findCompletedCollectionsForStatusUpdate();
+    completedFilesets.forEach(completedFileset -> {
+      completedFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
+      completedFileset.setDemFileStatusCode(FilesetStatus.COMPLETED.getCode());
+      completedFileset.setCrsFileStatusCode(FilesetStatus.COMPLETED.getCode());
+      completedFileset.setXamFileStatusCode(FilesetStatus.COMPLETED.getCode());
+    });
+    incomingFilesetRepository.saveAll(completedFilesets);
 
     final var demographicStudentEntities = this.incomingFilesetRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
     log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());

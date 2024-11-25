@@ -71,7 +71,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .demFileUploadDate(LocalDateTime.now())
             .crsFileUploadDate(null)
             .xamFileUploadDate(null)
-            .demFileName("Test.stddem")
+            .demFileName("Test.dem")
             .crsFileName(null)
             .xamFileName(null)
             .demFileStatusCode("LOADED")
@@ -88,7 +88,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .crsFileUploadDate(LocalDateTime.now())
             .xamFileUploadDate(null)
             .demFileName(null)
-            .crsFileName("Test.stdcrs")
+            .crsFileName("Test.crs")
             .xamFileName(null)
             .demFileStatusCode("NOTLOADED")
             .crsFileStatusCode("LOADED")
@@ -103,15 +103,26 @@ public abstract class BaseGradDataCollectionAPITest {
             .demFileUploadDate(LocalDateTime.now())
             .crsFileUploadDate(LocalDateTime.now())
             .xamFileUploadDate(LocalDateTime.now())
-            .demFileName("Test.stddem")
-            .crsFileName("Test.stdcrs")
-            .xamFileName("Test.stdxam")
+            .demFileName("Test.dem")
+            .crsFileName("Test.crs")
+            .xamFileName("Test.xam")
             .demFileStatusCode("LOADED")
             .crsFileStatusCode("LOADED")
             .xamFileStatusCode("LOADED")
             .filesetStatusCode("LOADED")
             .build();
   }
+
+  public ErrorFilesetStudentEntity createMockErrorFilesetStudentEntity(IncomingFilesetEntity incomingFileset) {
+    return ErrorFilesetStudentEntity.builder()
+            .incomingFileset(incomingFileset)
+            .firstName("Jane")
+            .lastName("Smith")
+            .localID("123456789")
+            .pen("123459987")
+            .build();
+  }
+
 
   public DemographicStudentEntity createMockDemographicStudent(IncomingFilesetEntity incomingFileset) {
     return DemographicStudentEntity.builder()
@@ -290,7 +301,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
             .build();
   }
 
@@ -304,7 +315,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(GradCourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
             .build();
   }
 
@@ -318,7 +329,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(GradAssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build()))
             .build();
   }
 }

@@ -1,0 +1,102 @@
+package ca.bc.gov.educ.graddatacollection.api.rest;
+
+import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static ca.bc.gov.educ.graddatacollection.api.rest.RestUtils.NATS_TIMEOUT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+class RestUtilsTest {
+    @Mock
+    private WebClient webClient;
+
+    @Mock
+    private WebClient chesWebClient;
+
+    @Mock
+    private MessagePublisher messagePublisher;
+
+    @InjectMocks
+    private RestUtils restUtils;
+
+    @Mock
+    private ApplicationProperties props;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        restUtils = spy(new RestUtils(chesWebClient, webClient, props, messagePublisher));
+    }
+
+    @Test
+    void testGetGradStudentRecord_WhenRequestTimesOut_ShouldThrowGradDataCollectionAPIRuntimeException() {
+        UUID correlationID = UUID.randomUUID();
+        UUID studentID = UUID.randomUUID();
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        GradDataCollectionAPIRuntimeException exception = assertThrows(
+                GradDataCollectionAPIRuntimeException.class,
+                () -> restUtils.getGradStudentRecordByStudentID(correlationID, studentID)
+        );
+
+        assertEquals(NATS_TIMEOUT + correlationID, exception.getMessage());
+    }
+
+    @Test
+    void testGetGradStudentRecord_WhenExceptionOccurs_ShouldThrowGradDataCollectionAPIRuntimeException() {
+        UUID correlationID = UUID.randomUUID();
+        UUID studentID = UUID.randomUUID();
+        Exception mockException = new Exception("exception");
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.failedFuture(mockException));
+
+        assertThrows(
+                GradDataCollectionAPIRuntimeException.class,
+                () -> restUtils.getGradStudentRecordByStudentID(correlationID, studentID)
+        );
+    }
+
+    @Test
+    void testGetGradStudentRecord_WhenValidStudentID_ShouldReturnGradStudentRecord() {
+        UUID correlationID = UUID.randomUUID();
+        UUID studentID = UUID.randomUUID();
+
+        GradStudentRecord expectedRecord = new GradStudentRecord(
+                "Program A",
+                "20230615",
+                "School XYZ",
+                "Active"
+        );
+
+        String jsonResponse = "{\"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecord\":\"School XYZ\",\"studentStatusCode\":\"Active\"}";
+        byte[] mockResponseData = jsonResponse.getBytes();
+
+        io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
+        when(mockMessage.getData()).thenReturn(mockResponseData);
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        GradStudentRecord actualRecord = restUtils.getGradStudentRecordByStudentID(correlationID, studentID);
+
+        assertEquals(expectedRecord, actualRecord);
+    }
+}

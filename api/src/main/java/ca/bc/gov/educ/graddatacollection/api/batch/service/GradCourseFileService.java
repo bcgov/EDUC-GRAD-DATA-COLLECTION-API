@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
+import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -18,16 +19,19 @@ import com.nimbusds.jose.util.Pair;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataSet;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LEGAL_SURNAME;
@@ -39,7 +43,7 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.VERIFICATION_FLAG;
 import static lombok.AccessLevel.PRIVATE;
 
-@Service("stdcrs")
+@Service("crs")
 @RequiredArgsConstructor
 @Slf4j
 public class GradCourseFileService implements GradFileBatchProcessor {
@@ -70,7 +74,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) {
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) throws FileUnProcessableException {
         log.debug("Going to persist CRS data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingCRSBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
         for (final var student : batchFile.getCourseData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
@@ -78,9 +82,26 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             entity.getCourseStudentEntities().add(crsStudentEntity);
         }
 
+        if(!entity.getCourseStudentEntities().isEmpty()) {
+            var hasCurrentOrFutureSession = entity.getCourseStudentEntities().stream().filter(this::validateCourseYearAndMonth).findFirst();
+            if(hasCurrentOrFutureSession.isEmpty()) {
+                throw new FileUnProcessableException(COURSE_FILE_SESSION_ERROR, guid, GradCollectionStatus.LOAD_FAIL);
+            }
+        }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
 
+    private boolean validateCourseYearAndMonth(CourseStudentEntity courseStudentEntity) {
+        if(StringUtils.isNotEmpty(courseStudentEntity.getCourseMonth()) && StringUtils.isNumeric(courseStudentEntity.getCourseMonth())
+                && StringUtils.isNotEmpty(courseStudentEntity.getCourseYear()) && StringUtils.isNumeric(courseStudentEntity.getCourseYear())) {
+            var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
+            var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
+            return courseYear == LocalDate.now().getYear() && (courseMonth >= 9 && courseMonth <= 12);
+        }
+        return false;
+    }
+
+    @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
     public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
         var fileSetEntity = incomingFilesetRepository.findBySchoolIDAndFilesetStatusCode(UUID.fromString(schoolID), FilesetStatus.LOADED.getCode());
         if(fileSetEntity.isPresent()) {
@@ -94,7 +115,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             currentFileset.setCrsFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getCourseStudentEntities().clear();
-            currentFileset.getCourseStudentEntities().addAll(pairStudentList.getLeft());
+            currentFileset.getCourseStudentEntities().addAll(pairStudentList);
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
             incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
@@ -105,34 +126,10 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
     }
 
-    private Pair<List<CourseStudentEntity>, List<UUID>> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
-        Map<Integer, CourseStudentEntity> incomingStudentsHashCodes = new HashMap<>();
-        Map<Integer,CourseStudentEntity> finalStudentsMap = new HashMap<>();
-        List<UUID> removedStudents = new ArrayList<>();
-        incomingFileset.getCourseStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-        log.debug("Found {} current students in CRS file", currentFileset.getDemographicStudentEntities().size());
-        log.debug("Found {} incoming students in CRS file", incomingStudentsHashCodes.size());
-
-        currentFileset.getCourseStudentEntities().forEach(currentStudent -> {
-            var currentStudentHash = currentStudent.getUniqueObjectHash();
-            if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudent.getStudentStatusCode().equals(SchoolStudentStatus.DELETED.toString())){
-                finalStudentsMap.put(currentStudentHash, currentStudent);
-            }else{
-                removedStudents.add(currentStudent.getCourseStudentID());
-            }
-        });
-
-        AtomicInteger newStudCount = new AtomicInteger();
-        incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
-            if(!finalStudentsMap.containsKey(incomingStudentHash)){
-                newStudCount.getAndIncrement();
-                finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
-            }
-        });
-
-        finalStudentsMap.values().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
-        log.debug("Found {} new students for IncomingFilesetID {} in CRS File", newStudCount, currentFileset.getIncomingFilesetID());
-        return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
+    private List<CourseStudentEntity> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
+        log.debug("Found {} incoming students in CRS file", incomingFileset.getCourseStudentEntities().size());
+        incomingFileset.getCourseStudentEntities().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
+        return incomingFileset.getCourseStudentEntities().stream().toList();
     }
 
     private GradStudentCourseDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {

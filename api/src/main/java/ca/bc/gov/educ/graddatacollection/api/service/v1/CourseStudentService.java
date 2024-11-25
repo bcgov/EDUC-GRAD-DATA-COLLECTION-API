@@ -5,9 +5,12 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -16,7 +19,10 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +44,7 @@ public class CourseStudentService {
     private final CourseStudentRepository courseStudentRepository;
     private final RestUtils restUtils;
     private final CourseStudentRulesProcessor courseStudentRulesProcessor;
+    private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String COURSE_STUDENT_ID = "courseStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
@@ -92,9 +99,9 @@ public class CourseStudentService {
 
     @Async("publisherExecutor")
     public void prepareAndSendCourseStudentsForFurtherProcessing(final List<CourseStudentEntity> courseStudentEntities) {
-        final List<GradCourseStudentSagaData> courseStudentSagaData = courseStudentEntities.stream()
+        final List<CourseStudentSagaData> courseStudentSagaData = courseStudentEntities.stream()
                 .map(el -> {
-                    val gradCourseStudentSagaData = new GradCourseStudentSagaData();
+                    val gradCourseStudentSagaData = new CourseStudentSagaData();
                     Optional<IncomingFilesetEntity> incomingFilesetEntity = this.incomingFilesetRepository.findById(el.getIncomingFileset().getIncomingFilesetID());
                     if(incomingFilesetEntity.isPresent()) {
                         var school = this.restUtils.getSchoolBySchoolID(incomingFilesetEntity.get().getSchoolID().toString());
@@ -106,11 +113,11 @@ public class CourseStudentService {
         this.publishUnprocessedStudentRecordsForProcessing(courseStudentSagaData);
     }
 
-    public void publishUnprocessedStudentRecordsForProcessing(final List<GradCourseStudentSagaData> courseStudentSagaData) {
+    public void publishUnprocessedStudentRecordsForProcessing(final List<CourseStudentSagaData> courseStudentSagaData) {
         courseStudentSagaData.forEach(this::sendIndividualStudentAsMessageToTopic);
     }
 
-    private void sendIndividualStudentAsMessageToTopic(final GradCourseStudentSagaData courseStudentSagaData) {
+    private void sendIndividualStudentAsMessageToTopic(final CourseStudentSagaData courseStudentSagaData) {
         final var eventPayload = JsonUtil.getJsonString(courseStudentSagaData);
         if (eventPayload.isPresent()) {
             final Event event = Event.builder().eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).courseStudentID(String.valueOf(courseStudentSagaData.getCourseStudent().getCourseStudentID())).build();
@@ -122,6 +129,15 @@ public class CourseStudentService {
             }
         } else {
             log.error(EVENT_EMPTY_MSG, courseStudentSagaData);
+        }
+    }
+
+    public void flagErrorOnStudent(final CourseStudent courseStudent) {
+        try{
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), false, null, null, null, null);
+        } catch (Exception e) {
+            log.info("Adding student to error fileset failed, will be retried :: {}", e);
+            throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
         }
     }
 

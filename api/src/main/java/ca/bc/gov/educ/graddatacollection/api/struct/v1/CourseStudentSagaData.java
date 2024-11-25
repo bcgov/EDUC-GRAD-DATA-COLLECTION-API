@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GradCourseStudentSagaData implements Serializable {
+public class CourseStudentSagaData implements Serializable {
   private static final long serialVersionUID = -2329245910142215178L;
   private CourseStudent courseStudent;
   private SchoolTombstone school;

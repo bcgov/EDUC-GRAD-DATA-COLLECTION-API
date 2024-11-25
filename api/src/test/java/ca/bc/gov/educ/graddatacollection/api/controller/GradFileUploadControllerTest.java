@@ -98,8 +98,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-dem-file-incorrect-length.stddem")
-                .fileType("stddem")
+                .fileName("student-dem-file-incorrect-length.dem")
+                .fileType("dem")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
@@ -120,8 +120,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-xam-file-incorrect-length.stdxam")
-                .fileType("stdxam")
+                .fileName("student-xam-file-incorrect-length.xam")
+                .fileType("xam")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
@@ -142,8 +142,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-crs-file-incorrect-length.stdcrs")
-                .fileType("stdcrs")
+                .fileName("student-crs-file-incorrect-length.crs")
+                .fileType("crs")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + UUID.randomUUID() + "/file")
@@ -165,8 +165,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-xam-file.stdxam")
-                .fileType("stdxam")
+                .fileName("student-xam-file.xam")
+                .fileType("xam")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
@@ -179,7 +179,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(result).hasSize(1);
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.stdxam");
+        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
         assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
@@ -200,8 +200,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-crs-file.stdcrs")
-                .fileType("stdcrs")
+                .fileName("student-crs-file.crs")
+                .fileType("crs")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
@@ -214,7 +214,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(result).hasSize(1);
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.stdcrs");
+        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
         assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
@@ -235,8 +235,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-dem-file.stddem")
-                .fileType("stddem")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
@@ -249,7 +249,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(result).hasSize(1);
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.stddem");
+        assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
         assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
@@ -265,7 +265,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(schoolTombstone.getSchoolId()));
-        mockFileset.setXamFileName("Test.STDXAM");
+        mockFileset.setXamFileName("Test.XAM");
         mockFileset.setXamFileStatusCode("LOADED");
         mockFileset.setXamFileUploadDate(LocalDateTime.now());
         incomingFilesetRepository.save(mockFileset);
@@ -276,8 +276,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload demFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
-                .fileName("student-dem-file.stddem")
-                .fileType("stddem")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
                 .build();
 
         this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
@@ -302,9 +302,94 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<FileUploadSummary>() {});
         assertThat(summary1.getSchoolID()).isEqualTo(schoolTombstone.getSchoolId());
         assertThat(summary1.getCounts()).hasSize(3);
-        assertThat(summary1.getCounts().get(0).getFileName()).isEqualTo("student-dem-file.stddem");
+        assertThat(summary1.getCounts().get(0).getFileName()).isEqualTo("student-dem-file.dem");
         assertThat(summary1.getCounts().get(0).getPercentageStudentsProcessed()).isEqualTo("0");
     }
 
+    @Test
+    void testProcessGradFile_givenEmptyCourseFile_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("empty-file.crs")
+                .fileType("crs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("empty-file.crs");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+    }
+
+    @Test
+    void testProcessGradFile_givenEmptyXAMFile_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("empty-file.xam")
+                .fileType("xam")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getXamFileName()).isEqualTo("empty-file.xam");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+    }
+
+    @Test
+    void testProcessGradFile_givenEmptyDEMFile_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("empty-file.dem")
+                .fileType("dem")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+    }
 
 }

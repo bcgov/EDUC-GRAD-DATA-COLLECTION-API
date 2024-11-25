@@ -12,14 +12,10 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaEventRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.OptionalProgramCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradDemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -33,10 +29,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_DEM_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
@@ -84,16 +80,16 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         );
         when(restUtils.getGradGrades()).thenReturn(
                 List.of(
-                        new GradGrade("08", "Grade 8", "", 1, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "8", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("09", "Grade 9", "", 2, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "9", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("10", "Grade 10", "", 3, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "10", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("11", "Grade 11", "", 4, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "11", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("12", "Grade 12", "", 5, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "12", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("AD", "Adult", "", 6, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "AD", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("AN", "Adult Non-Graduate", "", 7, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "AN", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("HS", "Home School", "", 8, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "HS", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("SU", "Secondary Ungraded", "", 9, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "SU", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new GradGrade("GA", "Graduated Adult", "", 10, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), null, "GA", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
+                        new GradGrade("08", "Grade 8", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "8", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("09", "Grade 9", "", 2, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "9", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("10", "Grade 10", "", 3, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "10", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("11", "Grade 11", "", 4, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "11", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("12", "Grade 12", "", 5, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "12", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("AD", "Adult", "", 6, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "AD", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("AN", "Adult Non-Graduate", "", 7, "2020-01-01T00:00:00","2099-12-31T23:59:59", "AN", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("HS", "Home School", "", 8, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "HS", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("SU", "Secondary Ungraded", "", 9, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "SU", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("GA", "Graduated Adult", "", 10, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "GA", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
         when(restUtils.getCareerPrograms()).thenReturn(
@@ -105,9 +101,20 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         );
         when(restUtils.getOptionalPrograms()).thenReturn(
                 List.of(
-                        new OptionalProgramCode(UUID.randomUUID(), "FR", "SCCP French Certificate", "", 1, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new OptionalProgramCode(UUID.randomUUID(), "AD", "Advanced Placement", "", 2, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now()),
-                        new OptionalProgramCode(UUID.randomUUID(), "DD", "Dual Dogwood", "", 3, LocalDateTime.parse("2020-01-01T00:00:00"), LocalDateTime.parse("2099-12-31T23:59:59"), "", "", "unitTests", LocalDateTime.now(), "unitTests", LocalDateTime.now())
+                        new OptionalProgramCode(UUID.randomUUID(), "FR", "SCCP French Certificate", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "", "", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new OptionalProgramCode(UUID.randomUUID(), "AD", "Advanced Placement", "", 2, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "", "", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new OptionalProgramCode(UUID.randomUUID(), "DD", "Dual Dogwood", "", 3, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "", "", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+                )
+        );
+        when(restUtils.getProgramRequirementCodes()).thenReturn(
+                List.of(
+                        new ProgramRequirementCode("1950", "Adult Graduation Program", "Description for 1950", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "1", "A", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new ProgramRequirementCode("2023", "B.C. Graduation Program", "Description for 2023", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "2", "B", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new ProgramRequirementCode("2018", "B.C. Graduation Program 2018", "Description for 2018", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "3", "C", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new ProgramRequirementCode("2004", "B.C. Graduation Program 2004", "Description for 2004", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "4", "D", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new ProgramRequirementCode("1996", "B.C. Graduation Program 1996", "Description for 1996", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "5", "E", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new ProgramRequirementCode("1986", "B.C. Graduation Program 1986", "Description for 1986", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "6", "F", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
     }
@@ -135,7 +142,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -179,7 +186,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = GradDemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)

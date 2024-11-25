@@ -127,7 +127,7 @@ public class AssessmentStudentEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "assessmentStudent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = AssessmentStudentValidationIssueEntity.class)
+  @OneToMany(mappedBy = "assessmentStudent", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = AssessmentStudentValidationIssueEntity.class)
   Set<AssessmentStudentValidationIssueEntity> assessmentStudentValidationIssueEntities;
 
   public Set<AssessmentStudentValidationIssueEntity> getAssessmentStudentValidationIssueEntities() {

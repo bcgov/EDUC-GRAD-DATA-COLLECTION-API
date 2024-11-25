@@ -36,7 +36,7 @@ import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.IN
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
-@Service("stddem")
+@Service("dem")
 @Slf4j
 @RequiredArgsConstructor
 public class GradDemFileService implements GradFileBatchProcessor {
@@ -79,6 +79,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
 
+    @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
     public IncomingFilesetEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final IncomingFilesetEntity incomingFilesetEntity, @NonNull final String schoolID) {
         var fileSetEntity = incomingFilesetRepository.findBySchoolIDAndFilesetStatusCode(UUID.fromString(schoolID), FilesetStatus.LOADED.getCode());
         if(fileSetEntity.isPresent()) {
@@ -92,7 +93,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
             currentFileset.setDemFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getDemographicStudentEntities().clear();
-            currentFileset.getDemographicStudentEntities().addAll(pairStudentList.getLeft());
+            currentFileset.getDemographicStudentEntities().addAll(pairStudentList );
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
             incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
@@ -103,37 +104,11 @@ public class GradDemFileService implements GradFileBatchProcessor {
         }
     }
 
-    private Pair<List<DemographicStudentEntity>, List<UUID>> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
-        Map<Integer,DemographicStudentEntity> incomingStudentsHashCodes = new HashMap<>();
-        Map<Integer,DemographicStudentEntity> finalStudentsMap = new HashMap<>();
-        List<UUID> removedStudents = new ArrayList<>();
-        incomingFileset.getDemographicStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-        log.debug("Found {} current students in DEM File", currentFileset.getDemographicStudentEntities().size());
-        log.debug("Found {} incoming students in DEM File", incomingStudentsHashCodes.size());
-
-        currentFileset.getDemographicStudentEntities().forEach(currentStudent -> {
-            var currentStudentHash = currentStudent.getUniqueObjectHash();
-            if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudent.getStudentStatusCode().equals(SchoolStudentStatus.DELETED.toString())){
-                finalStudentsMap.put(currentStudentHash, currentStudent);
-            }else{
-                removedStudents.add(currentStudent.getDemographicStudentID());
-            }
-        });
-
-        AtomicInteger newStudCount = new AtomicInteger();
-        incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
-            if(!finalStudentsMap.containsKey(incomingStudentHash)){
-                newStudCount.getAndIncrement();
-                finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
-            }
-        });
-
-        finalStudentsMap.values().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
-        log.debug("Found {} new students for IncomingFilesetID {} in DEM File", newStudCount, currentFileset.getIncomingFilesetID());
-        return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
+    private List<DemographicStudentEntity> compareAndShoreUpStudentList(IncomingFilesetEntity currentFileset, IncomingFilesetEntity incomingFileset){
+        log.debug("Found {} incoming students in DEM File", incomingFileset.getDemographicStudentEntities().size());
+        incomingFileset.getDemographicStudentEntities().forEach(finalStudent -> finalStudent.setIncomingFileset(currentFileset));
+        return incomingFileset.getDemographicStudentEntities().stream().toList();
     }
-
-
 
     private GradStudentDemogDetails getStudentDemogDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());

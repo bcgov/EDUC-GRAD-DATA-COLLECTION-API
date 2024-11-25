@@ -21,9 +21,9 @@ public enum FileError {
   /**
    * The filetype ended in the wrong extension and may be the wrong filetype.
    */
-  INVALID_FILE_EXTENSION("File extension invalid. Files must be of type \".stddem\" or \".stdcrs\" or \".stdxam\"."),
+  INVALID_FILE_EXTENSION("File extension invalid. Files must be of type \".dem\" or \".crs\" or \".xam\"."),
 
-  NO_FILE_EXTENSION("No file extension provided. Files must be of type \".ver\" or \".std\"."),
+  NO_FILE_EXTENSION("No file extension provided. Files must be of type \".dem\" or \".crs\" or \".xam\"."),
 
   CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. Mincode is: $?"),
 
@@ -44,7 +44,7 @@ public enum FileError {
   INVALID_ROW_LENGTH("$?"),
 
   FILE_NOT_ALLOWED("File type not allowed"),
-
+  COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**
