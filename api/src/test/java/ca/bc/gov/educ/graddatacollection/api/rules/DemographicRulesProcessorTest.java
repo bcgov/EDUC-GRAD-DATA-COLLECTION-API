@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStuden
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -82,6 +83,14 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecord("03636011");
+        gradStudentRecord.setStudentStatusCode("CUR");
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
 
     @Test
@@ -292,23 +301,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV119DemographicStudentStatus() {
-        Student student = new Student();
-        student.setStudentID(UUID.randomUUID().toString());
-
-        GradStudentRecord gradStudentRecord = new GradStudentRecord();
-        gradStudentRecord.setSchoolOfRecord("03636018");
-        gradStudentRecord.setStudentStatusCode("CUR");
-        when(restUtils.getGradStudentRecordByStudentID(any(UUID.class), any(UUID.class))).thenReturn(gradStudentRecord);
-
         StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
-        studentRuleData.setStudentApiStudent(student);
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
         var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
         demographicStudent.setStudentStatusCode("T");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
-        studentRuleData2.setStudentApiStudent(student);
+        SchoolTombstone schoolTombstone = createMockSchool();
+        schoolTombstone.setMincode("03636011");
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), schoolTombstone);
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
