@@ -12,6 +12,7 @@ public enum DemographicValidationRulesDependencyMatrix {
     ENTRY11("V11", new String[]{GRADE_INVALID.getCode()}),
     ENTRY12("V12", new String[]{GRADE_INVALID.getCode()}),
     ENTRY13("V13", new String[]{GRADE_INVALID.getCode()}),
+    ENTRY23("V23", new String[]{STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()}),
     ENTRY27("V27", new String[]{SCCP_INVALID_DATE.getCode()}),
     ;
 
