@@ -45,6 +45,7 @@ public class V120DemographicStudentStatus implements DemographicValidationBaseRu
         var student = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of StudentStatus-V120 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
+        // how do we know if this is a new student to grad?
         // todo: if this is a new student to GRAD and the student status in the data colleciton file is one of "T" or "D"
         if (false) {
             log.debug("StudentStatus-V120:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
