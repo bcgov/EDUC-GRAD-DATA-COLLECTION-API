@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
+import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
@@ -27,6 +29,12 @@ import java.util.Objects;
 @Slf4j
 @Order(1900)
 public class V119DemographicStudentStatus implements DemographicValidationBaseRule {
+
+    private final RestUtils restUtils;
+
+    public V119DemographicStudentStatus(RestUtils restUtils) {
+        this.restUtils = restUtils;
+    }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
@@ -46,10 +54,23 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
         var student = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of StudentStatus-V119 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-        // todo: check student status against GRAD
-        // todo: if student status T and the mincode provided in the data file does not match the current School of Record in GRAD and the student status on the students GRAD data is CUR throw error
-        if (false) {
-            log.debug("StudentStatus-V119:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
+
+        try {
+            // questioning using student id for get grad student
+            var gradStudent = restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), UUID.fromString(studentRuleData.getStudentApiStudent().getStudentID()));
+            if (student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.T.getCode()) &&
+                studentRuleData.getSchool().getMincode().equalsIgnoreCase(gradStudent.getSchoolOfRecord()) &&
+                    // todo is this actually "CUR" in the grad student record data table
+                gradStudent.getStudentStatusCode().equalsIgnoreCase("CUR")) {
+                log.debug("StudentStatus-V119:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH));
+            }
+
+        } catch (GradDataCollectionAPIRuntimeException e) {
+            log.debug("StudentStatus-V119:Student No GRAD student record found for demographicStudentID: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH));
+        } catch (Exception e) {
+            log.debug("StudentStatus-V119:Student No STUDENT API student record found for demographicStudentID: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH));
         }
         return errors;
