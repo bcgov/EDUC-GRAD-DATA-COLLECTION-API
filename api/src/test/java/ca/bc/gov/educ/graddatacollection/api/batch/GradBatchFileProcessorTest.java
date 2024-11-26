@@ -206,4 +206,39 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(93);
     }
+
+    @Test
+    void testProcessCRSFile_givenFileWithSessionInTheFuture_shouldSaveFileToDB() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/crs-file-with-future-session.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload crsFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("crs-file-with-future-session.crs")
+                .fileType("crs")
+                .build();
+
+        gradBatchFileProcessor.processBatchFile(crsFile, school.getSchoolId());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
+        assertThat(entity.getCrsFileName()).isEqualTo("crs-file-with-future-session.crs");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+
+        final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(3);
+    }
 }
