@@ -43,8 +43,6 @@ public class DemographicRulesService {
             studentRuleData.setGradStudentRecord(gradStudent);
             return gradStudent;
 
-        } catch (IllegalArgumentException e) {
-            throw new GradDataCollectionAPIRuntimeException("DemographicRulesService: Invalid student ID format: " + studentRuleData.getStudentApiStudent().getStudentID());
         } catch (Exception e) {
             throw new GradDataCollectionAPIRuntimeException("DemographicRulesService: Error fetching GradStudentRecord for student ID: " + studentRuleData.getStudentApiStudent().getStudentID());
         }
