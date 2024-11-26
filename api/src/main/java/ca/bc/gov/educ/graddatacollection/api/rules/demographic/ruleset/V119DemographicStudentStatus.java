@@ -65,10 +65,8 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
 
         } catch (GradDataCollectionAPIRuntimeException e) {
             log.debug("StudentStatus-V119:Student No GRAD student record found for demographicStudentID: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH));
-        } catch (Exception e) {
-            log.debug("StudentStatus-V119:Student No STUDENT API student record found for demographicStudentID: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH));
+            //todo should not finding a grad student fail the test?
+            //errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH));
         }
         return errors;
     }
