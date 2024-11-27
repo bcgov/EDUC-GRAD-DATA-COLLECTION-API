@@ -3,11 +3,12 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -30,6 +32,9 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
+
+    @InjectMocks
+    private DemographicRulesService demographicRulesService;
 
     @Autowired
     private DemographicStudentRulesProcessor rulesProcessor;
@@ -353,7 +358,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
         when(restUtils.getGradStudentRecordByStudentID(any(UUID.class), any(UUID.class)))
-                .thenThrow(new GradDataCollectionAPIRuntimeException("Error fetching GradStudentRecord Mock"));
+                .thenThrow(new EntityNotFoundException(GradStudentRecord.class));
 
         var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
         demographicStudent.setStudentStatusCode("D");

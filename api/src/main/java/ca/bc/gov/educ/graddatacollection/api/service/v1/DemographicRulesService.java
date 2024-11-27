@@ -1,5 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -39,9 +39,15 @@ public class DemographicRulesService {
 
         log.debug("DemographicRulesService:getGradStudentRecord: Fetching GradStudentRecord for student ID: {}", studentRuleData.getStudentApiStudent().getStudentID());
         UUID studentUUID = UUID.fromString(studentRuleData.getStudentApiStudent().getStudentID());
-        GradStudentRecord gradStudent = restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), studentUUID);
 
-        studentRuleData.setGradStudentRecord(gradStudent);
-        return gradStudent;
+        try {
+            GradStudentRecord gradStudent = restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), studentUUID);
+            studentRuleData.setGradStudentRecord(gradStudent);
+            return gradStudent;
+        } catch (EntityNotFoundException e) {
+            log.warn("No GradStudentRecord found for student ID: {}", studentUUID);
+            studentRuleData.setGradStudentRecord(null);
+            return null;
+        }
     }
 }
