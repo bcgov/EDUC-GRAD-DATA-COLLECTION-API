@@ -52,20 +52,18 @@ public class V118DemographicStudentStatus implements DemographicValidationBaseRu
         var demStudent = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of StudentStatus-V118 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-        try {
-            var student = demographicRulesService.getStudentApiStudent(studentRuleData);
-            if (
-                !(
-                    demStudent.getStudentStatusCode().equalsIgnoreCase(student.getStatusCode()) ||
-                    ("A".equalsIgnoreCase(student.getStatusCode()) && "T".equalsIgnoreCase(demStudent.getStudentStatusCode()))
-                )
-            ) {
-                log.debug("StudentStatus-V118: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH));
-            }
-        } catch (GradDataCollectionAPIRuntimeException e) {
-            log.debug("StudentStatus-V118:Student No student api student record found for demographicStudentID: {}", demStudent.getDemographicStudentID());
+
+        var student = demographicRulesService.getStudentApiStudent(studentRuleData);
+        if (
+            !(
+                demStudent.getStudentStatusCode().equalsIgnoreCase(student.getStatusCode()) ||
+                ("A".equalsIgnoreCase(student.getStatusCode()) && "T".equalsIgnoreCase(demStudent.getStudentStatusCode()))
+            )
+        ) {
+            log.debug("StudentStatus-V118: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH));
         }
+
         return errors;
     }
 }
