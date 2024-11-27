@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
@@ -42,7 +41,7 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentProgram-V123: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V23", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V123", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentProgram-V123: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
@@ -56,23 +55,18 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
         var student = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of StudentProgram-V123 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-        try {
-            var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData);
 
-            List<ProgramRequirementCode> programRequirementCodes = restUtils.getProgramRequirementCodes();
+        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData);
 
-            if (programRequirementCodes.stream().anyMatch(code -> code.getProReqCode().equalsIgnoreCase(gradStudent.getProgram())
-                    && code.getRequirementTypeCode().getExpiryDate().before(Date.valueOf(gradStudent.getProgramCompletionDate())))) {
-                log.debug("StudentProgram-V123: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED));
-            }
-        } catch (GradDataCollectionAPIRuntimeException e) {
-            log.debug("StudentStatus-V123:Student No GRAD student record found for demographicStudentID: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED));
-        } catch (Exception e) {
-            log.debug("StudentStatus-V123:Student No STUDENT API student record found for demographicStudentID: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED));
+        List<ProgramRequirementCode> programRequirementCodes = restUtils.getProgramRequirementCodes();
+
+        if (gradStudent != null &&
+            programRequirementCodes.stream().anyMatch(code -> code.getProReqCode().equalsIgnoreCase(gradStudent.getProgram()) &&
+            code.getRequirementTypeCode().getExpiryDate().before(Date.valueOf(gradStudent.getProgramCompletionDate())))) {
+            log.debug("StudentProgram-V123: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED));
         }
+
         return errors;
     }
 }

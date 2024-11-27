@@ -7,16 +7,12 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRep
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.FileUploadSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -25,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +31,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -257,53 +251,6 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(5);
-    }
-
-    @Test
-    void testProcessGradFileCheckProgress_givenOtherFilesProcessing_ShouldReturnStatusOk() throws Exception {
-        SchoolTombstone schoolTombstone = this.createMockSchool();
-        schoolTombstone.setMincode("07965039");
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(schoolTombstone.getSchoolId()));
-        mockFileset.setXamFileName("Test.XAM");
-        mockFileset.setXamFileStatusCode("LOADED");
-        mockFileset.setXamFileUploadDate(LocalDateTime.now());
-        incomingFilesetRepository.save(mockFileset);
-
-        // Upload file for first sdcSchoolCollection
-        final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
-        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-        GradFileUpload demFile = GradFileUpload.builder()
-                .fileContents(fileContents)
-                .createUser("ABC")
-                .fileName("student-dem-file.dem")
-                .fileType("dem")
-                .build();
-
-        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
-                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
-                .header("correlationID", UUID.randomUUID().toString())
-                .content(JsonUtil.getJsonStringFromObject(demFile))
-                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
-
-        // Verify results for DEM students
-        final var result =  incomingFilesetRepository.findAll();
-        assertThat(result).hasSize(1);
-        final var entity = result.get(0);
-        final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
-        assertThat(uploadedDEMStudents).hasSize(5);
-
-        // Get file summary for uploaded file
-        var resultActions1 = this.mockMvc.perform(get(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
-                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_GRAD_COLLECTION")))
-                .header("correlationID", UUID.randomUUID().toString())
-                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
-
-        val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<FileUploadSummary>() {});
-        assertThat(summary1.getSchoolID()).isEqualTo(schoolTombstone.getSchoolId());
-        assertThat(summary1.getCounts()).hasSize(3);
-        assertThat(summary1.getCounts().get(0).getFileName()).isEqualTo("student-dem-file.dem");
-        assertThat(summary1.getCounts().get(0).getPercentageStudentsProcessed()).isEqualTo("0");
     }
 
     @Test

@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.rest;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -534,13 +536,24 @@ public class RestUtils {
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID.toString()).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
-        return objectMapper.readValue(responseMessage.getData(), refGradStudentRecordResult);
+        String responseData = new String(responseMessage.getData(), StandardCharsets.UTF_8);
+
+        Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
+
+        if ("not found".equals(response.get("exception"))) {
+          throw new EntityNotFoundException(GradStudentRecord.class);
+        } else if ("error".equals(response.get("exception"))) {
+          log.error("An error occurred while fetching GradStudentRecord for Student ID {}", studentID);
+          throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
+        }
+
+        return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
-        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
       }
 
     } catch (final Exception ex) {
-      log.error("Error occurred calling GET GRAD STUDENT RECORD service :: " + ex.getMessage());
+      log.error("Error occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
     }

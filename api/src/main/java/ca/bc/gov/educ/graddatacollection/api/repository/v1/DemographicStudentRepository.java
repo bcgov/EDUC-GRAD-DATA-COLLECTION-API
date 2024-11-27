@@ -12,8 +12,6 @@ import java.util.UUID;
 public interface DemographicStudentRepository extends JpaRepository<DemographicStudentEntity, UUID>, JpaSpecificationExecutor<DemographicStudentEntity> {
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     long countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID schoolID, String studentStatusCode);
-    long countByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
-    long countByStudentStatusCodeAndAndIncomingFileset_IncomingFilesetID(String studentStatusCode, UUID incomingFilesetID);
 
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(UUID incomingFilesetID, String lastName, String pen, String localID);
 }
