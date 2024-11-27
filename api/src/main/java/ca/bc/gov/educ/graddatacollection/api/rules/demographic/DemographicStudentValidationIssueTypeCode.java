@@ -1,12 +1,9 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic;
 
-import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode.*;
 
 public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_PEN_BLANK("STUDENTPENBLANK", "PEN is blank. Correct PEN in system or through PEN Web."),
@@ -22,6 +19,9 @@ public enum DemographicStudentValidationIssueTypeCode {
   GRADE_OG_INVALID("GRADEOGINVALID", "Student grade should not be AD or AN for the reported graduation program."),
   STUDENT_STATUS_MERGED("STUDENTSTATUSMERGED", "Student PEN has been merged with a pre-existing PEN."),
   STUDENT_STATUS_INVALID("STUDENTSTATUSINVALID", "Invalid student status - must be A, D, or T."),
+  STUDENT_STATUS_PEN_MISMATCH("STUDENTSTATUSPENMISMATCH", "The submitted STUDENT STATUS does not match the ministry database. If the submitted STUDENT STATUS is correct, submit PEN update request through the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login."),
+  STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH("STUDENTSTATUSSCHOOLOFRECORDMISMATCH", "Student cannot be reported as T = terminated because the reporting school does not match the student's current school in the GRAD database. The student's DEM file will not be processed."),
+  STUDENT_STATUS_INCORRECT_NEW_STUDENT("STUDENTSTATUSINCORRECTNEWSTUDENT", "Student cannot be adopted into the GRAD database with a status of T = terminated or D = deceased. The student's DEM file will not be processed."),
   SCCP_INVALID_DATE("SCCPINVALIDDATE", "Invalid SCCP completion date (YYYYMMDD)."),
   SCCP_INVALID_STUDENT_PROGRAM("SCCPINVALIDSTUDENTPROGRAM", "Student must be on the SCCP program. SCCP Completion date not updated."),
   STUDENT_BIRTHDATE_INVALID("STUDENTBIRTHDATEINVALID", "Student date of birth is not valid."),
