@@ -39,7 +39,7 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentStatus-V119: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute =  isValidationDependencyResolved("V19", validationErrorsMap);
+        var shouldExecute =  isValidationDependencyResolved("V119", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentStatus-V119: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,

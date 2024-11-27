@@ -38,7 +38,7 @@ public class V120DemographicStudentStatus implements DemographicValidationBaseRu
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentStatus-V120: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute =  isValidationDependencyResolved("V20", validationErrorsMap);
+        var shouldExecute =  isValidationDependencyResolved("V120", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentStatus-V120: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,

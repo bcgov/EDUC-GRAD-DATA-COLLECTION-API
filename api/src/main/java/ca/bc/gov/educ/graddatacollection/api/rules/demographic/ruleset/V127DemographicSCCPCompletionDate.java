@@ -29,7 +29,7 @@ public class V127DemographicSCCPCompletionDate implements DemographicValidationB
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of SCCPCompletionDate-V127: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V27", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V127", validationErrorsMap);
 
         log.debug("In shouldExecute of SCCPCompletionDate-V127: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,

@@ -33,7 +33,7 @@ public class V113DemographicStudentGradeProgram implements DemographicValidation
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentGrade-V113: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V13", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V113", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentGrade-V113: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
