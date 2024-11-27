@@ -32,9 +32,4 @@ public class GradFileUploadController implements GradFileUploadEndpoint {
         log.info("File data committed for file: " + fileUpload.getFileName());
         return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(incomingFilesetEntity));
     }
-
-    @Override
-    public ResponseEntity<FileUploadSummary> isBeingProcessed(String schoolID) {
-        return ResponseEntity.ok(incomingFilesetService.getSummaryOfFilesBeingProcessed(UUID.fromString(schoolID)));
-    }
 }

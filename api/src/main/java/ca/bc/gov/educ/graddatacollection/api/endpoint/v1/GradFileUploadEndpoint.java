@@ -24,10 +24,4 @@ public interface GradFileUploadEndpoint {
     @Schema(name = "FileUpload", implementation = GradFileUpload.class)
     ResponseEntity<IncomingFileset> processSdcBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "schoolID") String schoolID, @RequestHeader(name = "correlationID") String correlationID);
 
-    @GetMapping("/{schoolID}/file")
-    @PreAuthorize("hasAuthority('SCOPE_READ_GRAD_COLLECTION')")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
-    @Transactional(readOnly = true)
-    @Tag(name = "Endpoint to check if provided GRAD file is already in progress", description = "Endpoint to check if provided GRAD file is in progress")
-    ResponseEntity<FileUploadSummary> isBeingProcessed(@PathVariable(name = "schoolID") String schoolID);
 }
