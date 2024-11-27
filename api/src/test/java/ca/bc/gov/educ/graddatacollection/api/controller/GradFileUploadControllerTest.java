@@ -7,16 +7,12 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRep
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.FileUploadSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -25,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
