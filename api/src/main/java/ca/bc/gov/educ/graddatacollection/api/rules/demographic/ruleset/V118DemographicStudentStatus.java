@@ -54,17 +54,17 @@ public class V118DemographicStudentStatus implements DemographicValidationBaseRu
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         try {
             var student = demographicRulesService.getStudentApiStudent(demStudent.getPen());
-            if (!(demStudent.getStudentStatusCode().equalsIgnoreCase(student.getStatusCode()) ||
-                    ("A".equalsIgnoreCase(student.getStatusCode()) && ("T".equalsIgnoreCase(demStudent.getStudentStatusCode())))
-            )) {
+            if (
+                !(
+                    demStudent.getStudentStatusCode().equalsIgnoreCase(student.getStatusCode()) ||
+                    ("A".equalsIgnoreCase(student.getStatusCode()) && "T".equalsIgnoreCase(demStudent.getStudentStatusCode()))
+                )
+            ) {
                 log.debug("StudentStatus-V118: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH));
             }
-
         } catch (GradDataCollectionAPIRuntimeException e) {
             log.debug("StudentStatus-V118:Student No student api student record found for demographicStudentID: {}", demStudent.getDemographicStudentID());
-            //todo should not finding a student api student fail the test?
-            //errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH));
         }
         return errors;
     }
