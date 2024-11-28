@@ -100,6 +100,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecord("03636018");
         gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("false");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
 
@@ -399,6 +400,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecord("03636011");
         gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("false");
         gradStudentRecord.setProgram("EXP");
         gradStudentRecord.setProgramCompletionDate("2024-01-01");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
@@ -407,6 +409,23 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED.getCode());
+    }
+
+    @Test
+    void testV125DemographicStudentProgramRule() {
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecord("03636011");
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("true");
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getCode());
     }
 
 
