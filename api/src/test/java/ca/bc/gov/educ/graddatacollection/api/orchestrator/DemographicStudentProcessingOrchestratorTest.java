@@ -127,6 +127,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecord("03636018");
         gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("false");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
 

@@ -9,10 +9,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class GradStudentRecord {
 
+    private String studentID;
     private String program;
     private String programCompletionDate;
     private String schoolOfRecord;
     private String studentStatusCode;
+    private String graduated;
 
     public GradStudentRecord() {
         //for testing

@@ -80,13 +80,15 @@ class RestUtilsTest {
         UUID studentID = UUID.randomUUID();
 
         GradStudentRecord expectedRecord = new GradStudentRecord(
+                "123456789",
                 "Program A",
                 "20230615",
                 "School XYZ",
-                "Active"
+                "Active",
+                "true"
         );
 
-        String jsonResponse = "{\"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecord\":\"School XYZ\",\"studentStatusCode\":\"Active\"}";
+        String jsonResponse = "{\"studentID\":\"123456789\", \"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecord\":\"School XYZ\",\"studentStatusCode\":\"Active\", \"graduated\":\"true\"}";
         byte[] mockResponseData = jsonResponse.getBytes();
 
         io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
