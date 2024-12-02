@@ -175,23 +175,20 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV108DemographicStudentAdultBirthdate() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError1.size()).isZero();
 
         var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
         demographicStudent.setGradRequirementYear(GradRequirementYearCodes.YEAR_1950.getCode());
         demographicStudent.setBirthdate("20200101");
         demographicStudent.setGrade("AD");
-        demographicStudent.setSchoolCertificateCompletionDate("20200101");
+        demographicStudent.setSchoolCertificateCompletionDate("");
         assertThat(demographicStudent.getGradRequirementYear()).isEqualTo(GradRequirementYearCodes.YEAR_1950.getCode());
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(null);
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        // v127 always warns if not on SCCP
-        Assertions.assertTrue(validationError2.stream().anyMatch(error -> error.getValidationIssueCode().equalsIgnoreCase(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getCode())));
-        Assertions.assertTrue(validationError2.stream().anyMatch(error -> error.getValidationIssueFieldCode().equalsIgnoreCase(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode())));
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getCode());
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
     }
 
     @Test
@@ -474,9 +471,12 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent3 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
         demographicStudent3.setSchoolCertificateCompletionDate(null);
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE.getCode());
-        assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode());
+        assertThat(validationError4.size()).isZero();
+
+        var demographicStudent4 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        demographicStudent4.setSchoolCertificateCompletionDate("");
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError5.size()).isZero();
     }
 
     @Test
