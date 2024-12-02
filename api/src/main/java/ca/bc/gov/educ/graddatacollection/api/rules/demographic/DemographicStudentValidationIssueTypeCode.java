@@ -28,7 +28,8 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_BIRTHDATE_ADULT("STUDENTBIRTHDATEADULT", "Student cannot start the Adult Graduation Program before 18 years."),
   STUDENT_PROGRAM_CODE_INVALID("STUDENTPROGRAMCODEINVALID", "Invalid Career Program code / Invalid Optional Program code."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID("STUDENTPROGRAMGRADREQUIREMENTYEARINVALID", "Invalid graduation program code."),
-  STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED("STUDENTPROGRAMGRADREQUIREMENTYEARPROGRAMCLOSED", "Reported graduation program is closed. Students will not be able to graduate on this program.")
+  STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED("STUDENTPROGRAMGRADREQUIREMENTYEARPROGRAMCLOSED", "Reported graduation program is closed. Students will not be able to graduate on this program."),
+  STUDENT_PROGRAM_ALREADY_GRADUATED("STUDENTPROGRAMALREADYGRADUATED", "The student has already graduated so their program code cannot be changed. The student's DEM file will not be processed.")
   ;
 
   private static final Map<String, DemographicStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
