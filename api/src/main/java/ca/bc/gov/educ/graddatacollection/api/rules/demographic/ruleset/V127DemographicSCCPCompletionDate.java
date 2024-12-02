@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V127 | WARN     | Student must be on the SCCP program	                           	      | V126         |
+ *  | V127 | WARN     | Student must be on the SCCP program	                           	      |   -          |
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V127DemographicSCCPCompletionDate implements DemographicValidationB
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of SCCPCompletionDate-V127: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V127", validationErrorsMap);
+        var shouldExecute = true;
 
         log.debug("In shouldExecute of SCCPCompletionDate-V127: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
