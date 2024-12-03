@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
@@ -14,6 +15,8 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.events.EventHandlerService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
@@ -31,6 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +73,16 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecord("03636018");
+        gradStudentRecord.setStudentStatusCode("CUR");
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);
         demographicStudentEntity.setDemographicStudentID(null);
