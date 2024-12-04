@@ -53,7 +53,7 @@ public class V120DemographicStudentStatus implements DemographicValidationBaseRu
         log.debug("In executeValidation of StudentStatus-V120 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        GradStudentRecord gradStudentRecord = demographicRulesService.getGradStudentRecord(studentRuleData);
+        GradStudentRecord gradStudentRecord = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         if (gradStudentRecord == null &&
             (student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.T.getCode())
             || student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.D.getCode()))) {

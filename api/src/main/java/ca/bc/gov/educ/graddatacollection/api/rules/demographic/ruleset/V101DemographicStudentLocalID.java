@@ -51,7 +51,7 @@ public class V101DemographicStudentLocalID implements DemographicValidationBaseR
         log.debug("In executeValidation of studentLocalD-v101 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var student = demographicRulesService.getStudentApiStudent(studentRuleData);
+        var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (student != null &&
             StringUtils.isNotBlank(student.getLocalID()) &&

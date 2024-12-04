@@ -55,7 +55,7 @@ public class V108DemographicStudentAdultBirthdate implements DemographicValidati
         var student = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of SCCPCompletionDate-V108 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData);
+        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
         if (gradStudent == null &&
             GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear())) &&

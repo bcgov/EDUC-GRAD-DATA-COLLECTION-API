@@ -50,7 +50,7 @@ public class V103DemographicStudentPEN implements DemographicValidationBaseRule 
         log.debug("In executeValidation of StudentPEN-v103 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var student = demographicRulesService.getStudentApiStudent(studentRuleData);
+        var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (student == null) {
             log.debug("StudentPEN-v103: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web. for demographicStudentID :: {}", demStudent.getDemographicStudentID());

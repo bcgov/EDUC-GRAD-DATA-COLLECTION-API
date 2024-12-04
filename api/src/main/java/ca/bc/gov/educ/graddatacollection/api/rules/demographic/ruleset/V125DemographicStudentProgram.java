@@ -51,7 +51,7 @@ public class V125DemographicStudentProgram implements DemographicValidationBaseR
         log.debug("In executeValidation of StudentProgram-V125 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData);
+        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
         if (gradStudent != null &&
             gradStudent.getGraduated().equalsIgnoreCase("true")) {
