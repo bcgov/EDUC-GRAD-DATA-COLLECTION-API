@@ -1,33 +1,49 @@
 package ca.bc.gov.educ.graddatacollection.api.service.reports;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.reports.CSVReportService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     CSVReportService csvReportService;
 
+    @MockBean
+    private RestUtils restUtils;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
     }
 
     @Test
     void testPrepareErrorDataForCsvEmptyIssues() {
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
-        student.setLocalID("LOC123");
+        student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
         student.setErrorFilesetStudentValidationIssues(new ArrayList<>());
@@ -46,7 +62,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
-        student.setLocalID("LOC123");
+        student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
         student.setErrorFilesetStudentValidationIssues(List.of(issue));
@@ -57,7 +73,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         assertEquals(
                 List.of(
                         "123456789",
-                        "LOC123",
+                        "8887555",
                         "Doe",
                         "John",
                         "",
@@ -78,7 +94,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
-        student.setLocalID("LOC123");
+        student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
         student.setErrorFilesetStudentValidationIssues(List.of(issue));
@@ -89,7 +105,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         assertEquals(
                 List.of(
                         "123456789",
-                        "LOC123",
+                        "8887555",
                         "Doe",
                         "John",
                         "",
@@ -110,7 +126,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
-        student.setLocalID("LOC123");
+        student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
         student.setErrorFilesetStudentValidationIssues(List.of(issue));
@@ -121,7 +137,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         assertEquals(
                 List.of(
                         "123456789",
-                        "LOC123",
+                        "8887555",
                         "Doe",
                         "John",
                         "",

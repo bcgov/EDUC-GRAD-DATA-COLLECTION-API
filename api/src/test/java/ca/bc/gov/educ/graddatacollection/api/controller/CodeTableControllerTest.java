@@ -40,7 +40,7 @@ class CodeTableControllerTest extends BaseGradDataCollectionAPITest {
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     this.mockMvc.perform(get(URL.BASE_URL + URL.VALIDATION_ISSUE_TYPE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].validationIssueTypeCode").value("STUDENTPENBLANK"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].validationIssueTypeCode").value("STUDENTLOCALIDMISMATCH"))
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
 }
