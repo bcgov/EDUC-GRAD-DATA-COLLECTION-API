@@ -93,9 +93,9 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(mockFileset);
+        var savedFileset = incomingFilesetRepository.save(mockFileset);
 
-        var courseStudentEntity = createMockCourseStudent();
+        var courseStudentEntity = createMockCourseStudent(savedFileset);
         courseStudentEntity.setCourseStudentID(null);
         courseStudentEntity.setStudentStatusCode("LOADED");
         courseStudentEntity.setIncomingFileset(mockFileset);

@@ -7,10 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaEventRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
@@ -55,6 +52,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     MessagePublisher messagePublisher;
     @Autowired
     DemographicStudentRepository demographicStudentRepository;
+    @Autowired
+    CourseStudentRepository courseStudentRepository;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
@@ -141,8 +140,12 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
+        var courseStudent = createMockCourseStudent(mockFileset);
+        courseStudentRepository.save(courseStudent);
+
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);
         demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setPen(courseStudent.getPen());
         demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         demographicStudentEntity.setUpdateDate(LocalDateTime.now());
         demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);

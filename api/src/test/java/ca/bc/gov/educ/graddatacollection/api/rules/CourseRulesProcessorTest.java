@@ -37,7 +37,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private DemographicStudentRepository demographicStudentRepository;
 
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -49,7 +48,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
         demographicStudentRepository.save(demStudent);
-        var courseStudent = createMockCourseStudent();
+        var courseStudent = createMockCourseStudent(savedFileSet);
         courseStudent.setPen(demStudent.getPen());
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
@@ -66,9 +65,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var courseStudent2 = createMockCourseStudent();
+        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet2 = incomingFilesetRepository.save(incomingFileset2);
+        var courseStudent2 = createMockCourseStudent(savedFileSet2);
         courseStudent2.setTransactionID("123");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent2, createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset2), courseStudent2, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode());
@@ -80,7 +81,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
         demographicStudentRepository.save(demStudent);
-        var courseStudent = createMockCourseStudent();
+        var courseStudent = createMockCourseStudent(savedFileSet);
         courseStudent.setPen(demStudent.getPen());
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
@@ -116,7 +117,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
         demographicStudentRepository.save(demStudent);
-        var courseStudent = createMockCourseStudent();
+        var courseStudent = createMockCourseStudent(savedFileSet);
         courseStudent.setPen(demStudent.getPen());
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());

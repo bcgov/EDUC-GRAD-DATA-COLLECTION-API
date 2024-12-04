@@ -4,6 +4,8 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
@@ -39,6 +41,12 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Autowired
     private DemographicStudentRulesProcessor rulesProcessor;
+
+    @Autowired
+    private IncomingFilesetRepository incomingFilesetRepository;
+
+    @Autowired
+    private CourseStudentRepository courseStudentRepository;
 
     @MockBean
     private RestUtils restUtils;
@@ -107,7 +115,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV101DemographicStudentLocalID() {
-        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
@@ -118,7 +134,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_LOCAL_ID.getCode());
@@ -131,26 +147,34 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError3 = rulesProcessor.processRules(studentRuleData3);
         assertThat(validationError3.size()).isZero();
     }
 
     @Test
     void testV102DemographicStudentPEN() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setPen("");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setPen(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK.getCode());
@@ -158,13 +182,21 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV103DemographicStudentPEN() {
-        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        
+        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(null);
 
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
@@ -172,47 +204,81 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV107DemographicStudentAddress() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+    void testV104DemographicStudentPEN() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet2 = incomingFilesetRepository.save(incomingFileset2);
+        var demStudent2 = createMockDemographicStudent(savedFileSet2);
+        var courseStudent2 = createMockCourseStudent(savedFileSet2);
+        demStudent2.setIncomingFileset(courseStudent2.getIncomingFileset());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent2, createMockAssessmentStudent(), createMockSchool());
+        val validationError2 = rulesProcessor.processRules(studentRuleData2);
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH.getCode());
+    }
+
+    @Test
+    void testV107DemographicStudentAddress() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setAddressLine1("");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_ADDRESS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setAddressLine1(null);
         demographicStudent2.setAddressLine2("not null");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isZero();
 
-        var demographicStudent3 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setCity("");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_ADDRESS.getCode());
         assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getCode());
 
-        var demographicStudent4 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setPostalCode("123456");
-        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_ADDRESS.getCode());
         assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getCode());
 
-        var demographicStudent5 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent5 = createMockDemographicStudent(savedFileSet);
         demographicStudent5.setProvincialCode("AB");
-        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError6.size()).isNotZero();
         assertThat(validationError6.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_ADDRESS.getCode());
         assertThat(validationError6.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID.getCode());
 
-        var demographicStudent6 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent6 = createMockDemographicStudent(savedFileSet);
         demographicStudent6.setCountryCode("US");
-        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError7.size()).isNotZero();
         assertThat(validationError7.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_ADDRESS.getCode());
         assertThat(validationError7.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID.getCode());
@@ -220,8 +286,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV108DemographicStudentAdultBirthdate() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear(GradRequirementYearCodes.YEAR_1950.getCode());
         demographicStudent.setBirthdate("20200101");
         demographicStudent.setGrade("AD");
@@ -230,7 +303,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(null);
 
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getCode());
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
@@ -238,12 +311,20 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV109DemographicStudentCitizenship() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setCitizenship("Z");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_CITIZENSHIP_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getCode());
@@ -251,19 +332,27 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV110DemographicValidGradeRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGrade("22");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_GRADE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setGrade(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_GRADE.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode());
@@ -271,12 +360,20 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV111DemographicValidGradeRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGrade("07");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_GRADE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD.getCode());
@@ -284,13 +381,21 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV112DemographicValidGradeProgramRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear("1950");
         demographicStudent.setGrade("08");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_GRADE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID.getCode());
@@ -298,13 +403,21 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV113DemographicValidGradeProgramRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear("SCCP");
         demographicStudent.setGrade("AD");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_GRADE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID.getCode());
@@ -312,26 +425,34 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV114DemographicProgramCodeRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setProgramCode1("ZEE");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setProgramCode1("ZE");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
 
-        var demographicStudent3 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setProgramCode1("Z");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
@@ -339,37 +460,53 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV116DemographicValidStatusRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatusCode("M");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatusCode(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isZero();
     }
 
     @Test
     void testV117DemographicValidStatusRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatusCode("Z");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setStudentStatusCode(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getCode());
@@ -377,36 +514,52 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV118DemographicStudentStatus() {
-        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatusCode(StudentStatusCodes.D.getCode());
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setStudentStatusCode(StudentStatusCodes.T.getCode());
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError3 = rulesProcessor.processRules(studentRuleData3);
         assertThat(validationError3.size()).isZero();
     }
 
     @Test
     void testV119DemographicStudentStatus() {
-        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatusCode("T");
         SchoolTombstone schoolTombstone = createMockSchool();
         schoolTombstone.setMincode("03636012");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), schoolTombstone);
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), schoolTombstone);
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
@@ -415,7 +568,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV120DemographicStudentStatus() {
-        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
@@ -429,9 +590,9 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getGradStudentRecordByStudentID(any(UUID.class), any(UUID.class)))
                 .thenThrow(new EntityNotFoundException(GradStudentRecord.class));
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatusCode("D");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_STATUS.getCode());
@@ -440,19 +601,27 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV121DemographicStudentProgramRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear("1332");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setGradRequirementYear(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
@@ -460,7 +629,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV123DemographicStudentProgramRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -471,7 +648,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setProgramCompletionDate("2024-01-01");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED.getCode());
@@ -479,7 +656,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV125DemographicStudentProgramRule() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -488,7 +673,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setGraduated("true");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getCode());
@@ -497,51 +682,67 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV126DemographicSCCPCompletionDate() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setSchoolCertificateCompletionDate("20041312");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setSchoolCertificateCompletionDate("20042");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode());
 
-        var demographicStudent3 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setSchoolCertificateCompletionDate(null);
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isZero();
 
-        var demographicStudent4 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setSchoolCertificateCompletionDate("");
-        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError5.size()).isZero();
     }
 
     @Test
     void testV127DemographicSCCPCompletionDate() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear(GradRequirementYearCodes.YEAR_2023.getCode());
         assertThat(demographicStudent.getGradRequirementYear()).isEqualTo(GradRequirementYearCodes.YEAR_2023.getCode());
 
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setSchoolCertificateCompletionDate("20050701");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
 
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE.getCode());
@@ -550,40 +751,48 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV128DemographicStudentBirthdate() {
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var demographicStudent = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setBirthdate("");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
 
-        var demographicStudent2 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setBirthdate("2222");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
 
-        var demographicStudent3 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setBirthdate("1990010");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
         assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
 
-        var demographicStudent4 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setBirthdate("199001011");
-        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
         assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
 
-        var demographicStudent5 = createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var demographicStudent5 = createMockDemographicStudent(savedFileSet);
         demographicStudent5.setBirthdate(null);
-        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool()));
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError6.size()).isNotZero();
         assertThat(validationError6.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
         assertThat(validationError6.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());

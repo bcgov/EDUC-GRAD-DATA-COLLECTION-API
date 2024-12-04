@@ -9,6 +9,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_LOCAL_ID_MISMATCH("STUDENTLOCALIDMISMATCH", "The submitted STUDENT LOCAL ID does not match the ministry database. If the submitted STUDENT LOCAL ID is correct, submit PEN update request through Secure Messaging Inbox in EDX."),
   STUDENT_PEN_BLANK("STUDENTPENBLANK", "PEN is blank. Correct PEN in system or through PEN Web."),
   STUDENT_PEN_NOT_FOUND("STUDENTPENNOTFOUND", "Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web."),
+  STUDENT_PEN_MISMATCH("STUDENTPENMISMATCH", "Student in DEM file but not in CRS file (i.e., course data has not been submitted for this student)."),
   STUDENT_ADDRESS_BLANK("STUDENTADDRESSBLANK", "Missing student address."),
   STUDENT_CITY_BLANK("STUDENTCITYBLANK", "Missing student city."),
   STUDENT_POSTAL_CODE_INVALID("STUDENTPOSTALCODEINVALID", "Invalid postal code."),

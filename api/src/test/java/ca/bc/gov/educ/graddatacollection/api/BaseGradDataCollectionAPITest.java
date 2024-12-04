@@ -157,10 +157,10 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public CourseStudentEntity createMockCourseStudent() {
+  public CourseStudentEntity createMockCourseStudent(IncomingFilesetEntity incomingFileset) {
     return CourseStudentEntity.builder()
             .courseStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
+            .incomingFileset(incomingFileset)
             .pen("123456789")
             .createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now())
