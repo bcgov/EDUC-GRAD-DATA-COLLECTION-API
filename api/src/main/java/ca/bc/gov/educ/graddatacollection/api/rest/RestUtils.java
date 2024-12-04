@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rest;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
@@ -511,11 +512,18 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public Student getStudentByPEN(UUID correlationID, String assignedPEN) {
     try {
-      final TypeReference<Student> refPenMatchResult = new TypeReference<>() {
-      };
+      final TypeReference<Event> refEvent = new TypeReference<>() {};
+      final TypeReference<Student> refPenMatchResult = new TypeReference<>() {};
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
+        Event responseEvent = objectMapper.readValue(responseMessage.getData(), refEvent);
+
+        if (EventOutcome.STUDENT_NOT_FOUND.equals(responseEvent.getEventOutcome())) {
+          log.info("Student not found for PEN: {}", assignedPEN);
+          throw new EntityNotFoundException(Student.class);
+        }
+
         return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
       } else {
         throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);

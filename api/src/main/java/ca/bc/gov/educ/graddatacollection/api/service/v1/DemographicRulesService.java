@@ -22,9 +22,15 @@ public class DemographicRulesService {
         }
 
         log.debug("DemographicRulesService:getStudentApiStudent: Fetching student data using PEN: {}", studentRuleData.getDemographicStudentEntity().getPen());
-        Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), studentRuleData.getDemographicStudentEntity().getPen());
-        studentRuleData.setStudentApiStudent(studentApiStudent);
-        return studentApiStudent;
+        try {
+            Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), studentRuleData.getDemographicStudentEntity().getPen());
+            studentRuleData.setStudentApiStudent(studentApiStudent);
+            return studentApiStudent;
+        } catch (EntityNotFoundException e) {
+            log.warn("No StudentApiStudent found for PEN: {}", studentRuleData.getDemographicStudentEntity().getPen());
+            studentRuleData.setStudentApiStudent(null);
+            return null;
+        }
     }
 
 
@@ -35,6 +41,12 @@ public class DemographicRulesService {
 
         if (studentRuleData.getStudentApiStudent() == null) {
             getStudentApiStudent(studentRuleData);
+        }
+
+        if (studentRuleData.getStudentApiStudent() == null) {
+            log.warn("No GradStudentRecord found for null studentApiStudent Record");
+            studentRuleData.setGradStudentRecord(null);
+            return null;
         }
 
         log.debug("DemographicRulesService:getGradStudentRecord: Fetching GradStudentRecord for student ID: {}", studentRuleData.getStudentApiStudent().getStudentID());

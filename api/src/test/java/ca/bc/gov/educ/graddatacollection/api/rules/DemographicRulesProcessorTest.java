@@ -16,7 +16,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -97,6 +95,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         Student studentApiStudent = new Student();
         studentApiStudent.setStudentID(UUID.randomUUID().toString());
         studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -104,6 +103,37 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("false");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+    }
+
+    @Test
+    void testV101DemographicStudentLocalID() {
+        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        val validationError1 = rulesProcessor.processRules(studentRuleData);
+        assertThat(validationError1.size()).isZero();
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887554");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        val validationError2 = rulesProcessor.processRules(studentRuleData2);
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_LOCAL_ID.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH.getCode());
+
+        Student studentApiStudent2 = new Student();
+        studentApiStudent2.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent2.setPen("123456789");
+        studentApiStudent2.setLocalID("");
+        studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
+
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        val validationError3 = rulesProcessor.processRules(studentRuleData3);
+        assertThat(validationError3.size()).isZero();
     }
 
     @Test
@@ -124,6 +154,21 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK.getCode());
+    }
+
+    @Test
+    void testV103DemographicStudentPEN() {
+        StudentRuleData studentRuleData = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()),createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        val validationError1 = rulesProcessor.processRules(studentRuleData);
+        assertThat(validationError1.size()).isZero();
+
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(null);
+
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(createMockIncomingFilesetEntityWithAllFilesLoaded()), createMockCourseStudent(), createMockAssessmentStudent(), createMockSchool());
+        val validationError2 = rulesProcessor.processRules(studentRuleData2);
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PEN.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND.getCode());
     }
 
     @Test
@@ -377,6 +422,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         Student studentApiStudent = new Student();
         studentApiStudent.setStudentID(UUID.randomUUID().toString());
         studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
         studentApiStudent.setStatusCode(StudentStatusCodes.D.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
