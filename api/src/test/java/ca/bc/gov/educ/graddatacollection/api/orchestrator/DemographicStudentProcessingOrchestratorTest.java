@@ -122,6 +122,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         studentApiStudent.setStudentID(UUID.randomUUID().toString());
         studentApiStudent.setPen("123456789");
         studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -146,6 +148,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);
         demographicStudentEntity.setDemographicStudentID(null);
         demographicStudentEntity.setPen(courseStudent.getPen());
+        demographicStudentEntity.setFirstName("JIM");
+        demographicStudentEntity.setLastName("JACKSON");
         demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         demographicStudentEntity.setUpdateDate(LocalDateTime.now());
         demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
