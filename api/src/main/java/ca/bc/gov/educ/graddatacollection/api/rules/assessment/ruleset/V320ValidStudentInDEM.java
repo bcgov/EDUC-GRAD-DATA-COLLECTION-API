@@ -54,7 +54,7 @@ public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V320 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentApiStudent = assessmentRulesService.getStudent(student.getPen());
+        var studentApiStudent = assessmentRulesService.getStudentApiStudent(studentRuleData, student.getPen());
 
         var demographicStudentEntity = assessmentRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 

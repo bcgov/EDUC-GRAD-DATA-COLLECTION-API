@@ -58,7 +58,7 @@ public class V202ValidStudentInDEM implements CourseValidationBaseRule {
         log.debug("In executeValidation of V202 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentApiStudent = courseRulesService.getStudent(student.getPen());
+        var studentApiStudent = courseRulesService.getStudentApiStudent(studentRuleData, student.getPen());
 
         var demographicStudentEntity = courseRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 

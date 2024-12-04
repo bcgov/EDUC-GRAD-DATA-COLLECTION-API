@@ -53,7 +53,7 @@ public class V118DemographicStudentStatus implements DemographicValidationBaseRu
         log.debug("In executeValidation of StudentStatus-V118 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var student = demographicRulesService.getStudentApiStudent(studentRuleData);
+        var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
         if (student != null &&
             !(
                 demStudent.getStudentStatusCode().equalsIgnoreCase(student.getStatusCode()) ||
