@@ -13,6 +13,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_SURNAME_MISMATCH("STUDENTSURNAMEMISMATCH", "The submitted SURNAME does not match the ministry database. If the submitted SURNAME is correct, submit PEN update request through the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login"),
   STUDENT_MIDDLE_MISMATCH("STUDENTMIDDLEMISMATCH", "The submitted MIDDLE NAME does not match the ministry database. If the submitted MIDDLE NAME is correct, submit PEN update request the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login"),
   STUDENT_GIVEN_MISMATCH("STUDENTGIVENMISMATCH", "The submitted FIRST NAME does not match the ministry database. If the submitted FIRST NAME is correct, submit PEN update request through the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login"),
+  STUDENT_BIRTHDATE_MISMATCH("STUDENTBIRTHDATEMISMATCH", "The submitted BIRTHDATE does not match the ministry database. If the submitted BIRTHDATE is correct, submit PEN update request through the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login"),
   STUDENT_ADDRESS_BLANK("STUDENTADDRESSBLANK", "Missing student address."),
   STUDENT_CITY_BLANK("STUDENTCITYBLANK", "Missing student city."),
   STUDENT_POSTAL_CODE_INVALID("STUDENTPOSTALCODEINVALID", "Invalid postal code."),

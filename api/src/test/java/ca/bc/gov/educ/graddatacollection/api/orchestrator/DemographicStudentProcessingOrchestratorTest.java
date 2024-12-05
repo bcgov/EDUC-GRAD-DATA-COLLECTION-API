@@ -124,6 +124,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalLastName("JACKSON");
         studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setDob("19900101");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
