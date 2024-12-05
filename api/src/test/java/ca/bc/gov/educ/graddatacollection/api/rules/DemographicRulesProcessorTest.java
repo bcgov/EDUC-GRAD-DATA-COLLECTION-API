@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
@@ -709,6 +710,37 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
         assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
+    }
+
+    @Test
+    void testV122DemographicStudentProgramRule() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudent.setGradRequirementYear(GradRequirementYearCodes.YEAR_1950.getCode());
+        demographicStudent.setGrade("AD");
+        var school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID.getCode());
+
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
+        demographicStudent2.setGradRequirementYear(GradRequirementYearCodes.SCCP.getCode());
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID.getCode());
     }
 
     @Test
