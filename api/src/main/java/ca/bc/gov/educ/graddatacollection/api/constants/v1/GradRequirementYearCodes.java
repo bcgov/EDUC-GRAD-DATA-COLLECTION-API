@@ -33,6 +33,13 @@ public enum GradRequirementYearCodes {
         return codes;
     }
 
+    public static List<String> getOffshoreSchoolNotAllowedCodes() {
+        List<String> codes = getAdultGraduationProgramYearCodes();
+        codes.add(SCCP.getCode());
+        return codes;
+    }
+
+
     public static List<String> getNonAdultGraduationProgramYearCodes() {
         List<String> codes = new ArrayList<>();
         codes.add(YEAR_1986.getCode());

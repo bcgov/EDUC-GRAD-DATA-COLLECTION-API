@@ -23,7 +23,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V202 | ERROR    |  Student CRS record will not be processed due to an issue with the    |--------------|
+ *  | V202 | ERROR    |  Student CRS record will not be processed due to an issue with the    |-----V201-----|
  *                       student's demographics
  *
  */
