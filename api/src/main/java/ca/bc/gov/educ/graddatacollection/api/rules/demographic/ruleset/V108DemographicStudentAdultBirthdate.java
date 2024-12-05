@@ -39,11 +39,11 @@ public class V108DemographicStudentAdultBirthdate implements DemographicValidati
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SCCPCompletionDate-V108: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentAdultBirthdate-V108: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = isValidationDependencyResolved("V108", validationErrorsMap);
 
-        log.debug("In shouldExecute of SCCPCompletionDate-V108: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentAdultBirthdate-V108: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -53,14 +53,14 @@ public class V108DemographicStudentAdultBirthdate implements DemographicValidati
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of SCCPCompletionDate-V108 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentAdultBirthdate-V108 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
         if (gradStudent == null &&
             GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear())) &&
             Period.between(LocalDate.parse(student.getBirthdate(), DateTimeFormatter.ofPattern("yyyyMMdd")), LocalDate.from(student.getIncomingFileset().getDemFileUploadDate())).getYears() < 18) {
-            log.debug("SCCPCompletionDate-V108: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentAdultBirthdate-V108: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT));
         }
         return errors;

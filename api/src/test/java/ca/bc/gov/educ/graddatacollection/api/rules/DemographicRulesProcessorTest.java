@@ -106,6 +106,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("19900101");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -135,6 +136,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887554");
         studentApiStudent.setLegalLastName("JACKSON");
         studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setDob("19900101");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
@@ -150,6 +152,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent2.setLocalID("");
         studentApiStudent2.setLegalLastName("JACKSON");
         studentApiStudent2.setLegalFirstName("JIM");
+        studentApiStudent2.setDob("19900101");
         studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
@@ -275,6 +278,29 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testV106DemographicStudentBirthdate() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        val validationError1 = rulesProcessor.processRules(studentRuleData);
+        assertThat(validationError1.size()).isZero();
+
+        var demStudent2 = createMockDemographicStudent(savedFileSet);
+        demStudent2.setBirthdate("12341212");
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        val validationError2 = rulesProcessor.processRules(studentRuleData2);
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH.getCode());
+    }
+
+    @Test
     void testV107DemographicStudentAddress() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -338,6 +364,16 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demStudent = createMockDemographicStudent(savedFileSet);
         demStudent.setPen(courseStudent.getPen());
         demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("20200101");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear(GradRequirementYearCodes.YEAR_1950.getCode());
@@ -631,6 +667,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("19900101");
         studentApiStudent.setStatusCode(StudentStatusCodes.D.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 

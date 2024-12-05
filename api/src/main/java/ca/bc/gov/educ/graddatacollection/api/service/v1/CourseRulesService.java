@@ -27,7 +27,7 @@ public class CourseRulesService extends BaseRulesService {
     public DemographicStudentEntity getDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname, String localID) {
         var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(incomingFilesetID, surname, pen, localID);
         if(!results.isEmpty()) {
-            return results.get(0);
+            return results.getFirst();
         }
         return null;
     }
