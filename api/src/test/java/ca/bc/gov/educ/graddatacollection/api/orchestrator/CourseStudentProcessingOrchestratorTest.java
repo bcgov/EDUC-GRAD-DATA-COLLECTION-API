@@ -82,7 +82,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         var demStudent = createMockDemographicStudent(savedFileSet);
         demographicStudentRepository.save(demStudent);
 
-        var courseStudentEntity = createMockCourseStudent();
+        var courseStudentEntity = createMockCourseStudent(savedFileSet);
         courseStudentEntity.setPen(demStudent.getPen());
         courseStudentEntity.setLocalID(demStudent.getLocalID());
         courseStudentEntity.setLastName(demStudent.getLastName());
@@ -135,9 +135,9 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(mockFileset);
+        var savedFileset = incomingFilesetRepository.save(mockFileset);
 
-        var courseStudentEntity = createMockCourseStudent();
+        var courseStudentEntity = createMockCourseStudent(savedFileset);
         courseStudentEntity.setIncomingFileset(mockFileset);
         courseStudentEntity.setTransactionID("AB");
         courseStudentEntity.setCourseStudentID(null);
