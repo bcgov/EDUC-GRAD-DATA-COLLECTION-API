@@ -143,7 +143,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "",
                         "DEMOGRAPHICS",
                         "ERROR",
-                        "PEN is blank. Correct PEN in system or through PEN Web."
+                        "PEN is blank so the student record cannot be updated. Ensure the correct PEN appears in system data file extracts."
                 ),
                 result.get(0)
         );
