@@ -12,6 +12,7 @@ public enum CourseStudentValidationIssueTypeCode {
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),
   INTERIM_PCT_INVALID("INTERIM_PCT_INVALID", "Interim percent range must be 0 to 100. This course will not be updated."),
   FINAL_PCT_INVALID("FINAL_PCT_INVALID", "Final percent range must be 0 to 100. This course will not be updated."),
+  FINAL_PCT_NOT_BLANK("FINAL_PCT_NOT_BLANK", "For course session dates prior to 199409 the final percent must be blank. This course will not be updated."),
   ;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
