@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.DateTimeException;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,13 +46,17 @@ public class V218FinalPercent implements CourseValidationBaseRule {
         log.debug("In executeValidation of V218 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        int courseSession = Integer.parseInt(student.getCourseYear() + student.getCourseMonth());
+        try {
+            YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
 
-        if (courseSession < 199409 && !student.getFinalPercentage().isBlank()) {
-            log.debug("V218:Error: For course session dates prior to 199409 the final percent must be blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK));
+            YearMonth cutoffDate = YearMonth.of(1994, 9);
 
-
+            if (courseSession.isBefore(cutoffDate) && !student.getFinalPercentage().isBlank()) {
+                log.debug("V218: Error: For course session dates prior to 199409 the final percent must be blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK));
+            }
+        } catch (NumberFormatException | DateTimeException e) {
+            log.debug("V218: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
         }
         return errors;
     }
