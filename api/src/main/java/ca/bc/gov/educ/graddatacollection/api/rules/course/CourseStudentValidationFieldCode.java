@@ -6,6 +6,7 @@ public enum CourseStudentValidationFieldCode {
   PEN("PEN"),
   COURSE_STATUS("COURSE_STATUS"),
   INTERIM_PCT("INTERIM_PCT"),
+  FINAL_PCT("FINAL_PCT"),
   ;
 
   @Getter

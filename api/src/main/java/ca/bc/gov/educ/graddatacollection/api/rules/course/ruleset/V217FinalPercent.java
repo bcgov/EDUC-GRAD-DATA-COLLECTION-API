@@ -16,21 +16,21 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V214 | ERROR    | Interim percent cannot be negative or greater than 100                | -            |
+ *  | V217 | ERROR    | Final percent cannot be negative or greater than 100                  | -            |
  *
  */
 @Component
 @Slf4j
-@Order(140)
-public class V214InterimPercent implements CourseValidationBaseRule {
+@Order(170)
+public class V217FinalPercent implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V214: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        log.debug("In shouldExecute of V217: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of V214: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V217: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -40,20 +40,20 @@ public class V214InterimPercent implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V214 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V217 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (!student.getInterimPercentage().isBlank()) {
+        if (!student.getFinalPercentage().isBlank()) {
             try {
-                double interimPercentage = Double.parseDouble(student.getInterimPercentage());
+                double finalePercentage = Double.parseDouble(student.getFinalPercentage());
 
-                if (interimPercentage < 0 || interimPercentage > 100) {
-                    log.debug("V214: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_PCT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID));
+                if (finalePercentage < 0 || finalePercentage > 100) {
+                    log.debug("V217: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID));
                 }
             } catch (NumberFormatException e) {
-                log.debug("V214: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_PCT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID));
+                log.debug("V217: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID));
             }
 
         }
