@@ -60,6 +60,7 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   private final Map<String, GradGrade> gradGradeMap = new ConcurrentHashMap<>();
+  private final Map<String, LetterGrade> letterGradeMap = new ConcurrentHashMap<>();
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
   private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
@@ -76,6 +77,7 @@ public class RestUtils {
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
   private final ReadWriteLock gradGradeLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock letterGradeLock = new ReentrantReadWriteLock();
   private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock programRequirementLock = new ReentrantReadWriteLock();
@@ -113,6 +115,7 @@ public class RestUtils {
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
     this.populateGradGradesMap();
+    this.populateLetterGradeMap();
     this.populateCareerProgramsMap();
     this.populateOptionalProgramsMap();
     this.populateProgramRequirementCodesMap();
@@ -217,6 +220,21 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
+  }
+
+  public void populateLetterGradeMap() {
+    val writeLock = this.letterGradeLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val grade : this.getLetterGrades()) {
+        this.letterGradeMap.put(grade.getGrade(), grade);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache letter grade {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} letter grades to memory", this.letterGradeMap.values().size());
   }
 
   public void populateGradGradesMap() {
@@ -330,6 +348,17 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GradGrade.class)
+            .collectList()
+            .block();
+  }
+
+  public List<LetterGrade> getLetterGrades() {
+    log.info("Calling Grad student graduation api to load grades to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradStudentGraduationApiURL() + "/lettergrade")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(LetterGrade.class)
             .collectList()
             .block();
   }
