@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRu
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +44,7 @@ public class V214InterimPercent implements CourseValidationBaseRule {
         log.debug("In executeValidation of V214 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (!student.getInterimPercentage().isBlank()) {
+        if (StringUtils.isNotBlank(student.getInterimPercentage())) {
             try {
                 double interimPercentage = Double.parseDouble(student.getInterimPercentage());
 

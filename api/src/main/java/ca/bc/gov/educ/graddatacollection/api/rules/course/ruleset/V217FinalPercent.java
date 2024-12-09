@@ -6,6 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidatio
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ public class V217FinalPercent implements CourseValidationBaseRule {
         log.debug("In executeValidation of V217 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (!student.getFinalPercentage().isBlank()) {
+        if (StringUtils.isNotBlank(student.getFinalPercentage())) {
             try {
                 double finalePercentage = Double.parseDouble(student.getFinalPercentage());
 
