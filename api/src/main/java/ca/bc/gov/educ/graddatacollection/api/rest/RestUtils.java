@@ -115,6 +115,7 @@ public class RestUtils {
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
     this.populateGradGradesMap();
+    this.populateLetterGradeMap();
     this.populateCareerProgramsMap();
     this.populateOptionalProgramsMap();
     this.populateProgramRequirementCodesMap();
