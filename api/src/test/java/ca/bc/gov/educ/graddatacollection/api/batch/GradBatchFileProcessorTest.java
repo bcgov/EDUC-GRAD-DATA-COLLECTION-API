@@ -66,7 +66,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("dem")
                 .build();
 
-        gradBatchFileProcessor.processBatchFile(demFile, school.getSchoolId());
+        gradBatchFileProcessor.processSchoolBatchFile(demFile, school.getSchoolId());
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
 
@@ -100,7 +100,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("crs")
                 .build();
 
-        gradBatchFileProcessor.processBatchFile(crsFile, school.getSchoolId());
+        gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId());
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
 
@@ -135,7 +135,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("xam")
                 .build();
 
-        gradBatchFileProcessor.processBatchFile(xamFile, school.getSchoolId());
+        gradBatchFileProcessor.processSchoolBatchFile(xamFile, school.getSchoolId());
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
 
@@ -169,7 +169,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("crs")
                 .build();
 
-        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processBatchFile(crsFile, school.getSchoolId()));
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId()));
     }
 
     @Test
@@ -189,7 +189,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("crs")
                 .build();
 
-        gradBatchFileProcessor.processBatchFile(crsFile, school.getSchoolId());
+        gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId());
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
@@ -224,7 +224,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("crs")
                 .build();
 
-        gradBatchFileProcessor.processBatchFile(crsFile, school.getSchoolId());
+        gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId());
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
@@ -240,5 +240,118 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
         final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(3);
+    }
+
+    @Test
+    void testProcessDistrictBatchFile_givenSchoolOutsideDistrict_ShouldThrowException() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        var districtID = UUID.randomUUID();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload demFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
+                .build();
+
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processDistrictBatchFile(demFile, districtID.toString()));
+    }
+
+    @Test
+    void testProcessDistrictBatchFile_givenFileLoadInProgress_ShouldThrowException() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        var districtID = UUID.randomUUID();
+        school.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var savedFileSet = incomingFilesetRepository.save(mockFileset);
+
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setIncomingFileset(savedFileSet);
+        demStudent.setStudentStatusCode("LOADED");
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudentEntity = createMockAssessmentStudent();
+        assessmentStudentEntity.setIncomingFileset(savedFileSet);
+        assessmentStudentEntity.setStudentStatusCode("LOADED");
+        assessmentStudentRepository.save(assessmentStudentEntity);
+        var courseStudentEntity = createMockCourseStudent(savedFileSet);
+        courseStudentEntity.setStudentStatusCode("LOADED");
+        courseStudentRepository.save(courseStudentEntity);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload demFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
+                .build();
+
+        assertThrows(InvalidPayloadException.class, () -> gradBatchFileProcessor.processDistrictBatchFile(demFile, districtID.toString()));
+    }
+
+    @Test
+    void testProcessDistrictBatchFile_givenEmptyCRSFileIsCreatedBySchool_ShouldUpdateTheSameRecord() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        var districtID = UUID.randomUUID();
+        school.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload crsFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("school-empty-crs-file.crs")
+                .fileType("crs")
+                .build();
+
+        gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId());
+        final var schoolResult =  incomingFilesetRepository.findAll();
+        assertThat(schoolResult).hasSize(1);
+
+        final var entity = schoolResult.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
+        assertThat(entity.getCrsFileName()).isEqualTo("school-empty-crs-file.crs");
+        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+
+        final FileInputStream fis2 = new FileInputStream("src/test/resources/empty-file.txt");
+        final String fileContents2 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis2));
+        GradFileUpload crsFile2 = GradFileUpload.builder()
+                .fileContents(fileContents2)
+                .createUser("ABC")
+                .fileName("district-empty-crs-file.crs")
+                .fileType("crs")
+                .build();
+
+        gradBatchFileProcessor.processDistrictBatchFile(crsFile2, districtID.toString());
+        final var districtResult =  incomingFilesetRepository.findAll();
+        assertThat(districtResult).hasSize(1);
+
+        final var entity2 = districtResult.get(0);
+        assertThat(entity2.getIncomingFilesetID()).isNotNull();
+        assertThat(entity2.getDemFileName()).isEqualTo("Test.dem");
+        assertThat(entity2.getCrsFileName()).isEqualTo("district-empty-crs-file.crs");
+        assertThat(entity2.getDemFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity2.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity2.getCrsFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity2.getXamFileStatusCode()).isEqualTo("NOTLOADED");
     }
 }

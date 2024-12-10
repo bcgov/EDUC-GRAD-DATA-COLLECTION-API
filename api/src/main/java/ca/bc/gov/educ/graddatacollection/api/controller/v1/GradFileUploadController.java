@@ -20,9 +20,17 @@ public class GradFileUploadController implements GradFileUploadEndpoint {
     }
 
     @Override
-    public ResponseEntity<IncomingFileset> processSdcBatchFile(GradFileUpload fileUpload, String schoolID, String correlationID) {
+    public ResponseEntity<IncomingFileset> processSchoolBatchFile(GradFileUpload fileUpload, String schoolID) {
         log.info("Running file load for file: " + fileUpload.getFileName());
-        IncomingFilesetEntity incomingFilesetEntity = gradFileService.processBatchFile(fileUpload, schoolID);
+        IncomingFilesetEntity incomingFilesetEntity = gradFileService.processSchoolBatchFile(fileUpload, schoolID);
+        log.info("File data committed for file: " + fileUpload.getFileName());
+        return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(incomingFilesetEntity));
+    }
+
+    @Override
+    public ResponseEntity<IncomingFileset> processDistrictBatchFile(GradFileUpload fileUpload, String districtID) {
+        log.info("Running file load for file: " + fileUpload.getFileName());
+        IncomingFilesetEntity incomingFilesetEntity = gradFileService.processDistrictBatchFile(fileUpload, districtID);
         log.info("File data committed for file: " + fileUpload.getFileName());
         return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(incomingFilesetEntity));
     }

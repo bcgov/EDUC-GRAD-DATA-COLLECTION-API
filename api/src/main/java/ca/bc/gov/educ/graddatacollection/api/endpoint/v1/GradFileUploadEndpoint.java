@@ -18,8 +18,15 @@ public interface GradFileUploadEndpoint {
     @PostMapping("/{schoolID}/file")
     @PreAuthorize("hasAuthority('SCOPE_WRITE_GRAD_COLLECTION')")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
-    @Tag(name = "Endpoint to Upload an GRAD file and convert to json structure.", description = "Endpoint to Upload an GRAD file and convert to json structure")
+    @Tag(name = "Endpoint to upload a GRAD file and convert to json structure.", description = "Endpoint to upload a GRAD file and convert to json structure")
     @Schema(name = "FileUpload", implementation = GradFileUpload.class)
-    ResponseEntity<IncomingFileset> processSdcBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "schoolID") String schoolID, @RequestHeader(name = "correlationID") String correlationID);
+    ResponseEntity<IncomingFileset> processSchoolBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "schoolID") String schoolID);
+
+    @PostMapping("/district/{districtID}/file")
+    @PreAuthorize("hasAuthority('SCOPE_WRITE_GRAD_COLLECTION')")
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+    @Tag(name = "Endpoint for the district to upload a GRAD file and convert to json structure.", description = "Endpoint for the district to upload a GRAD file and convert to json structure")
+    @Schema(name = "FileUpload", implementation = GradFileUpload.class)
+    ResponseEntity<IncomingFileset> processDistrictBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "districtID") String districtID);
 
 }

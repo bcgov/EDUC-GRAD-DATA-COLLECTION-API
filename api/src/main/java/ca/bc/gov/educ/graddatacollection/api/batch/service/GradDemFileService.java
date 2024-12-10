@@ -8,14 +8,13 @@ import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogFile;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
-import com.nimbusds.jose.util.Pair;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
@@ -52,13 +50,21 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
+    public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         val batchFile = new GradStudentDemogFile();
-        this.populateBatchFile(guid, ds, batchFile, schoolID);
-        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
+        String incomingSchoolID = schoolID;
+        if(districtID != null) {
+          var schoolTombstone = gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
+          incomingSchoolID = schoolTombstone.getSchoolId();
+          this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
+          gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
+        } else {
+           this.populateSchoolBatchFile(guid, ds, batchFile, incomingSchoolID);
+        }
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
     }
 
-    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile, final String schoolID) throws FileUnProcessableException {
+    public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
             final var mincode = ds.getString(MINCODE.getName());
@@ -68,9 +74,21 @@ public class GradDemFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentDemogFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) {
+    public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
+        long index = 0;
+        while (ds.next()) {
+            gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
+            batchFile.getDemogData().add(this.getStudentDemogDetailRecordFromFile(ds, guid, index));
+            index++;
+        }
+    }
+
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentDemogFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) {
         log.debug("Going to persist DEM data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingDEMBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
+        if(districtID != null) {
+            entity.setDistrictID(UUID.fromString(districtID));
+        }
         for (final var student : batchFile.getDemogData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var demStudentEntity = mapper.toDEMStudentEntity(student, entity);
             entity.getDemographicStudentEntities().add(demStudentEntity);
