@@ -570,7 +570,7 @@ public class RestUtils {
     try {
       final TypeReference<GradStudentRecord> refGradStudentRecordResult = new TypeReference<>() {
       };
-      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID.toString()).build();
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(JsonUtil.getJsonStringFromObject(studentID)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         String responseData = new String(responseMessage.getData(), StandardCharsets.UTF_8);
