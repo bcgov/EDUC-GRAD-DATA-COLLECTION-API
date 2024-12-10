@@ -169,7 +169,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("crs")
                 .build();
 
-        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId()));
+        var id = school.getSchoolId();
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(crsFile, id));
     }
 
     @Test
@@ -261,7 +262,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("dem")
                 .build();
 
-        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processDistrictBatchFile(demFile, districtID.toString()));
+        var id = districtID.toString();
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processDistrictBatchFile(demFile, id));
     }
 
     @Test
@@ -296,7 +298,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("dem")
                 .build();
 
-        assertThrows(InvalidPayloadException.class, () -> gradBatchFileProcessor.processDistrictBatchFile(demFile, districtID.toString()));
+        var id = districtID.toString();
+        assertThrows(InvalidPayloadException.class, () -> gradBatchFileProcessor.processDistrictBatchFile(demFile, id));
     }
 
     @Test
