@@ -81,6 +81,7 @@ class RestUtilsTest {
 
         GradStudentRecord expectedRecord = new GradStudentRecord(
                 "123456789",
+                "",
                 "Program A",
                 "20230615",
                 "School XYZ",
@@ -88,7 +89,7 @@ class RestUtilsTest {
                 "true"
         );
 
-        String jsonResponse = "{\"studentID\":\"123456789\", \"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecord\":\"School XYZ\",\"studentStatusCode\":\"Active\", \"graduated\":\"true\"}";
+        String jsonResponse = "{\"studentID\":\"123456789\", \"exception\":\"\", \"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecord\":\"School XYZ\",\"studentStatusCode\":\"Active\", \"graduated\":\"true\"}";
         byte[] mockResponseData = jsonResponse.getBytes();
 
         io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);

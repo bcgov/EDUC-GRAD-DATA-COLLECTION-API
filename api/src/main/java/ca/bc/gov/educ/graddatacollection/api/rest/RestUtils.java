@@ -578,14 +578,13 @@ public class RestUtils {
 
         Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
 
-        if (response.containsKey(EXCEPTION)) {
-          if ("not found".equals(response.get(EXCEPTION))) {
-            throw new EntityNotFoundException(GradStudentRecord.class);
-          } else if ("error".equals(response.get(EXCEPTION))) {
-            log.error("An error occurred while fetching GradStudentRecord for Student ID {}", studentID);
-            throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
-          }
+        if ("not found".equals(response.get(EXCEPTION))) {
+          throw new EntityNotFoundException(GradStudentRecord.class);
+        } else if ("error".equals(response.get(EXCEPTION))) {
+          log.error("An error occurred while fetching GradStudentRecord for Student ID {}", studentID);
+          throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
         }
+
 
         return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
