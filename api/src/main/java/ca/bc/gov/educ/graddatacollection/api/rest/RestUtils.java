@@ -585,7 +585,7 @@ public class RestUtils {
           throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
         }
 
-
+        log.info("Success fetching GradStudentRecord for Student ID {}", studentID);
         return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
         throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
