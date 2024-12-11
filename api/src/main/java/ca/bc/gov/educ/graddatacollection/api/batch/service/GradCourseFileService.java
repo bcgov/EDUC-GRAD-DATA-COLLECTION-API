@@ -7,15 +7,13 @@ import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
-import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
-import com.nimbusds.jose.util.Pair;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataSet;
@@ -29,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
@@ -58,13 +55,21 @@ public class GradCourseFileService implements GradFileBatchProcessor {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException {
+    public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         val batchFile = new GradStudentCourseFile();
-        this.populateBatchFile(guid, ds, batchFile, schoolID);
-        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, schoolID);
+        String incomingSchoolID = schoolID;
+        if(districtID == null) {
+            this.populateSchoolBatchFile(guid, ds, batchFile, schoolID);
+        } else {
+            var schoolTombstone =  ds.getRowCount() == 0 ? gradFileValidator.getSchoolFromFileName(guid, fileUpload.getFileName()) : gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
+            incomingSchoolID = schoolTombstone.getSchoolId();
+            this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
+            gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
+        }
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
     }
 
-    public void populateBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, final String schoolID) throws FileUnProcessableException {
+    public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
             final var mincode = ds.getString(DEMBatchFile.MINCODE.getName());
@@ -74,9 +79,21 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, @NonNull final String schoolID) throws FileUnProcessableException {
+    public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
+        long index = 0;
+        while (ds.next()) {
+            gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
+            batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
+            index++;
+        }
+    }
+
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         log.debug("Going to persist CRS data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingCRSBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
+        if(districtID != null) {
+            entity.setDistrictID(UUID.fromString(districtID));
+        }
         for (final var student : batchFile.getCourseData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var crsStudentEntity = mapper.toCRSStudentEntity(student, entity);
             entity.getCourseStudentEntities().add(crsStudentEntity);

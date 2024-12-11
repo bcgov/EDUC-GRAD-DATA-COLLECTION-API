@@ -46,34 +46,41 @@ public class GradBatchFileProcessor {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public IncomingFilesetEntity processBatchFile(GradFileUpload fileUpload, String schoolID) {
+    public IncomingFilesetEntity processSchoolBatchFile(GradFileUpload fileUpload, String schoolID) {
+        return processFile(fileUpload, schoolID, null);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public IncomingFilesetEntity processDistrictBatchFile(GradFileUpload fileUpload, String districtID) {
+        return processFile(fileUpload, null, districtID);
+    }
+
+    public IncomingFilesetEntity processFile(GradFileUpload fileUpload, String schoolID, String districtID) {
         val stopwatch = Stopwatch.createStarted();
         final var guid = UUID.randomUUID().toString();
         Optional<Reader> batchFileReaderOptional = Optional.empty();
         try {
-        FileType fileDetails = FileType.findByCode(fileUpload.getFileType()).orElseThrow(() -> new FileUnProcessableException(FileError.FILE_NOT_ALLOWED, guid, GradCollectionStatus.LOAD_FAIL));
-        final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource(fileDetails.getMapperFileName())).getFile());
-        var byteArrayOutputStream = new ByteArrayInputStream(gradFileValidator.getUploadedFileBytes(guid, fileUpload, fileDetails.getCode()));
-        batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
-        final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
+            FileType fileDetails = FileType.findByCode(fileUpload.getFileType()).orElseThrow(() -> new FileUnProcessableException(FileError.FILE_NOT_ALLOWED, guid, GradCollectionStatus.LOAD_FAIL));
+            final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource(fileDetails.getMapperFileName())).getFile());
+            var byteArrayOutputStream = new ByteArrayInputStream(gradFileValidator.getUploadedFileBytes(guid, fileUpload, fileDetails.getCode()));
+            batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
+            final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
-        gradFileValidator.validateFileHasCorrectExtension(guid, fileUpload, fileDetails.getAllowedExtensions());
-        gradFileValidator.validateFileForFormatAndLength(guid, ds, fileDetails.getDetailedRecordSizeError());
-        gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
-
-        return studentDetailsMap.get(fileDetails.getCode()).populateBatchFileAndLoadData(guid, ds, fileUpload, schoolID);
-        } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
+            gradFileValidator.validateFileHasCorrectExtension(guid, fileUpload, fileDetails.getAllowedExtensions());
+            gradFileValidator.validateFileForFormatAndLength(guid, ds, fileDetails.getDetailedRecordSizeError());
+            return studentDetailsMap.get(fileDetails.getCode()).populateBatchFileAndLoadData(guid, ds, fileUpload, schoolID, districtID);
+        } catch (final FileUnProcessableException fileUnProcessableException) {
             log.error("File could not be processed exception :: {}", fileUnProcessableException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, schoolID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, districtID != null ? districtID : schoolID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
             List<FieldError> fieldErrorList = new ArrayList<>();
             fieldErrorList.add(validationError);
             error.addValidationErrors(fieldErrorList);
             throw new InvalidPayloadException(error);
-        } catch (final Exception e) { // need to check what to do in case of general exception.
+        } catch (final Exception e) {
             log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, schoolID , FileError.GENERIC_ERROR_MESSAGE.getMessage());
+            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, districtID != null ? districtID : schoolID , FileError.GENERIC_ERROR_MESSAGE.getMessage());
             List<FieldError> fieldErrorList = new ArrayList<>();
             fieldErrorList.add(validationError);
             error.addValidationErrors(fieldErrorList);

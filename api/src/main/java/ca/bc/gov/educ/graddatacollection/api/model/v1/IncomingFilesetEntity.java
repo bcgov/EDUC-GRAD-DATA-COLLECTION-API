@@ -36,6 +36,9 @@ public class IncomingFilesetEntity {
     @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
     private UUID schoolID;
 
+    @Column(name = "DISTRICT_ID", columnDefinition = "BINARY(16)")
+    private UUID districtID;
+
     @Column(name = "DEM_FILE_NAME")
     private String demFileName;
 
