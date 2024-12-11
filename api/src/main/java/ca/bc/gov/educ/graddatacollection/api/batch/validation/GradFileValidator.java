@@ -13,9 +13,13 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
+import net.sf.flatpack.Record;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +29,7 @@ import java.util.UUID;
 public class GradFileValidator {
     public static final String TOO_LONG = "TOO LONG";
     public static final String FILE_TYPE = "dem";
+    public static final String MINCODE = "mincode";
 
     private final DemographicStudentRepository demographicStudentRepository;
     private final CourseStudentRepository courseStudentRepository;
@@ -131,5 +136,71 @@ public class GradFileValidator {
         Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
         SchoolTombstone school = schoolOptional.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, schoolID));
         return school.getMincode();
+    }
+
+    public SchoolTombstone getSchoolFromFileMincodeField(final String guid, final DataSet ds) throws FileUnProcessableException {
+        var mincode = getSchoolMincode(guid, ds);
+        var school = getSchoolUsingMincode(mincode);
+        return school.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, mincode));
+    }
+
+    public SchoolTombstone getSchoolFromFileName(final String guid, String fileName) throws FileUnProcessableException {
+        String mincode = fileName.split("\\.")[0];
+        var school = getSchoolUsingMincode(mincode);
+        return school.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, mincode));
+    }
+
+    public String getSchoolMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
+        ds.goTop();
+        ds.next();
+
+        Optional<Record> firstRow = ds.getRecord();
+        String mincode = firstRow.map(row -> row.getString(MINCODE)).orElse(null);
+
+        if(mincode == null){
+            throw new FileUnProcessableException(FileError.MISSING_MINCODE, guid, GradCollectionStatus.LOAD_FAIL);
+        }
+        ds.goTop();
+        return mincode;
+    }
+
+    public Optional<SchoolTombstone> getSchoolUsingMincode(final String mincode) {
+        return restUtils.getSchoolByMincode(mincode);
+    }
+
+    public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
+        var currentDate = LocalDateTime.now();
+        LocalDateTime openDate = null;
+        LocalDateTime closeDate = null;
+        try {
+            openDate = LocalDateTime.parse(school.getOpenedDate());
+
+            if (openDate.isAfter(currentDate)){
+                throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+            }
+
+            if(school.getClosedDate() != null) {
+                closeDate = LocalDateTime.parse(school.getClosedDate());
+            }else{
+                closeDate = LocalDateTime.now().plusDays(5);
+            }
+        } catch (DateTimeParseException e) {
+            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_DATES, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+        }
+
+        if (!(openDate.isBefore(currentDate) && closeDate.isAfter(currentDate))) {
+            throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+        }
+
+        String schoolDistrictID = school.getDistrictId();
+
+        if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
+            throw new FileUnProcessableException(
+                    FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
+                    guid,
+                    GradCollectionStatus.LOAD_FAIL
+            );
+        }
+
     }
 }

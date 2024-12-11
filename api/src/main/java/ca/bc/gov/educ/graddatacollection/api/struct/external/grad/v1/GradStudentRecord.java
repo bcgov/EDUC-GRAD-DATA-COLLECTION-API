@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 public class GradStudentRecord {
 
     private String studentID;
+    private String exception;
     private String program;
     private String programCompletionDate;
     private String schoolOfRecord;

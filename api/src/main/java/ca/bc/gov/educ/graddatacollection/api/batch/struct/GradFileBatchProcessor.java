@@ -6,5 +6,5 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import net.sf.flatpack.DataSet;
 
 public interface GradFileBatchProcessor {
-    IncomingFilesetEntity populateBatchFileAndLoadData(final String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID) throws FileUnProcessableException;
+    IncomingFilesetEntity populateBatchFileAndLoadData(final String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException;
 }

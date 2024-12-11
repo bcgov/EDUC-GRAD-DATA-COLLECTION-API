@@ -53,6 +53,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RestUtils {
   public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   private static final String CONTENT_TYPE = "Content-Type";
+  private static final String EXCEPTION = "exception";
   private final Map<String, IndependentAuthority> authorityMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
@@ -577,13 +578,14 @@ public class RestUtils {
 
         Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
 
-        if ("not found".equals(response.get("exception"))) {
+        if ("not found".equals(response.get(EXCEPTION))) {
           throw new EntityNotFoundException(GradStudentRecord.class);
-        } else if ("error".equals(response.get("exception"))) {
+        } else if ("error".equals(response.get(EXCEPTION))) {
           log.error("An error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
         }
 
+        log.info("Success fetching GradStudentRecord for Student ID {}", studentID);
         return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
         throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
