@@ -11,11 +11,14 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidatio
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -142,6 +145,90 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testV212CourseSession() {
+        // Dynamically determine the current date and school year for testing - can't mock LocalDate.now()
+        LocalDate today = LocalDate.now();
+        int currentYear = (today.getMonthValue() >= 10) ? today.getYear() : today.getYear() - 1;
+        YearMonth currentSchoolYearStart = YearMonth.of(currentYear, 10);
+        YearMonth nextSchoolYearEnd = YearMonth.of(currentYear + 1, 9);
+
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
+
+        // Case 1: Valid course session (within the current school year)
+        courseStudent.setCourseYear(String.valueOf(currentSchoolYearStart.getYear()));
+        courseStudent.setCourseMonth("10");
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        // Case 2: Course session too old
+        courseStudent.setCourseYear("1983");
+        courseStudent.setCourseMonth("12");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_SESSION.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
+
+        // Case 3: Course session too far in the future
+        courseStudent.setCourseYear(String.valueOf(nextSchoolYearEnd.getYear() + 1));
+        courseStudent.setCourseMonth("02");
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_SESSION.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
+
+        // Case 4: Invalid course year and month - skips
+        courseStudent.setCourseYear(null);
+        courseStudent.setCourseMonth(null);
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError4.size()).isZero();
+
+        // Case 5: Boundary case - earliest valid date
+        courseStudent.setCourseYear("1984");
+        courseStudent.setCourseMonth("01");
+        courseStudent.setFinalPercentage("");
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError5.size()).isZero();
+
+        // Case 6: Boundary case - last month of next school year
+        courseStudent.setCourseYear(String.valueOf(nextSchoolYearEnd.getYear()));
+        courseStudent.setCourseMonth("09");
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError6.size()).isZero();
+
+        // Case 7: Boundary case - just before the earliest valid date
+        courseStudent.setCourseYear("1983");
+        courseStudent.setCourseMonth("12");
+        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError7.size()).isNotZero();
+        assertThat(validationError7.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_SESSION.getCode());
+        assertThat(validationError7.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
+
+        // Case 8: Boundary case - just after the next school year ends
+        courseStudent.setCourseYear(String.valueOf(nextSchoolYearEnd.getYear()));
+        courseStudent.setCourseMonth("10");
+        val validationError8 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError8.size()).isNotZero();
+        assertThat(validationError8.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_SESSION.getCode());
+        assertThat(validationError8.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
+    }
+
+    @Test
     void testV214InterimPercent() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -247,14 +334,14 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseYear(null);
         courseStudent.setCourseMonth(null);
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError3.size()).isZero();
 
         courseStudent.setFinalPercentage("94");
         courseStudent.setCourseYear("ABCD");
         courseStudent.setCourseMonth("12");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.FINAL_PCT.getCode());
-        assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getCode());
-        assertThat(validationError3.size()).isZero();
+        Assertions.assertTrue(validationError4.stream().anyMatch(validationError -> validationError.getValidationIssueFieldCode().equalsIgnoreCase(CourseStudentValidationFieldCode.FINAL_PCT.getCode())));
+        Assertions.assertTrue(validationError4.stream().anyMatch(validationError -> validationError.getValidationIssueCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getCode())));
     }
 }
