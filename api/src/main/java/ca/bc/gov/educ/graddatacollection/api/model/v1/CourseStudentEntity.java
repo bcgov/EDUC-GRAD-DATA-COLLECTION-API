@@ -62,6 +62,9 @@ public class CourseStudentEntity {
   @Column(name = "INTERIM_PERCENTAGE")
   String interimPercentage;
 
+  @Column(name = "INTERIM_GRADE")
+  String interimGrade;
+
   @Column(name = "FINAL_PERCENTAGE")
   String finalPercentage;
 
