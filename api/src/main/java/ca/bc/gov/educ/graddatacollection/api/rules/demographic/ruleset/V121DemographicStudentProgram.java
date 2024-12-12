@@ -56,7 +56,7 @@ public class V121DemographicStudentProgram implements DemographicValidationBaseR
         List<ProgramRequirementCode> programRequirementCodes = restUtils.getProgramRequirementCodes();
 
         if (StringUtils.isEmpty(student.getGradRequirementYear())
-        || programRequirementCodes.stream().noneMatch(code -> code.getProReqCode().equals(student.getGradRequirementYear()))) {
+        || programRequirementCodes.stream().noneMatch(code -> code.getProReqCode().equalsIgnoreCase(student.getGradRequirementYear()))) {
             log.debug("StudentProgram-V121: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID));
         }

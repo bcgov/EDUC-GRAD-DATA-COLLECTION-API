@@ -60,7 +60,7 @@ public class V212CourseSession implements CourseValidationBaseRule {
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID));
                 }
             } catch (NumberFormatException | DateTimeException e) {
-                log.debug("V218: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
+                log.debug("V212: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID));
             }
         }
