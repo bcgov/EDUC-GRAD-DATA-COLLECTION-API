@@ -14,6 +14,7 @@ public enum CourseValidationRulesDependencyMatrix {
     ENTRY221("V221", new String[]{CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getCode()}),
     ENTRY222("V222", new String[]{CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getCode()}),
     ENTRY223("V223", new String[]{CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getCode(), CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getCode()}),
+    ENTRY224("V224", new String[]{CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getCode(), CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getCode()}),
     ;
 
     @Getter
