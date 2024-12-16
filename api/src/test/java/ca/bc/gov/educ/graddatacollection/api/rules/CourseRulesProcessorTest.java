@@ -211,20 +211,15 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError4.size()).isZero();
 
         // Case 5: Boundary case - earliest valid date
-        // todo resolve conflict between v218 and v224 causing this to fail, if before 199409 final percent must be blank, however v224 states that if it's a valid session (after 198401) course percent must not be blank
-        /*
         courseStudent.setCourseYear("1984");
         courseStudent.setCourseMonth("01");
-        courseStudent.setFinalGrade("");
         courseStudent.setFinalPercentage("");
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError5.size()).isZero();
-         */
 
         // Case 6: Boundary case - last month of next school year
         courseStudent.setCourseYear(String.valueOf(nextSchoolYearEnd.getYear()));
         courseStudent.setCourseMonth("09");
-        courseStudent.setFinalPercentage("");
         courseStudent.setFinalGrade("");
         val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError6.size()).isZero();
