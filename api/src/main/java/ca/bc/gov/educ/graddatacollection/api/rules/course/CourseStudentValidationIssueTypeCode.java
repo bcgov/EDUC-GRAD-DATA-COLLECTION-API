@@ -19,7 +19,8 @@ public enum CourseStudentValidationIssueTypeCode {
   FINAL_LETTER_GRADE_INVALID("FINAL_LETTER_GRADE_INVALID", "Invalid Letter Grade"),
   FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH("FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH", "The final percent does not fall within the required range for the reported letter grade. This course will not be updated."),
   FINAL_LETTER_GRADE_RM("FINAL_LETTER_GRADE_RM", "RM can only be used for course codes GT or GTF. This course will not be updated."),
-  FINAL_LETTER_GRADE_NOT_RM("FINAL_LETTER_GRADE_NOT_RM", "Invalid letter grade reported for course code GT or GTF. Use RM (Requirement Met). This course will not be updated.")
+  FINAL_LETTER_GRADE_NOT_RM("FINAL_LETTER_GRADE_NOT_RM", "Invalid letter grade reported for course code GT or GTF. Use RM (Requirement Met). This course will not be updated."),
+  FINAL_LETTER_GRADE_AND_PERCENT_NOT_BLANK("FINAL_LETTER_GRADE_AND_PERCENT_NOT_BLANK", "Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated.")
   ;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
