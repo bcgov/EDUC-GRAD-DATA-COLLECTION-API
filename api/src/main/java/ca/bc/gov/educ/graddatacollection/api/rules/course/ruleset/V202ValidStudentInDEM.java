@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(101)
+@Order(20)
 public class V202ValidStudentInDEM implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;

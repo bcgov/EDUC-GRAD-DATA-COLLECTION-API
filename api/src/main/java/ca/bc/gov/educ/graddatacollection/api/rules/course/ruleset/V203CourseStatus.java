@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(111)
+@Order(30)
 public class V203CourseStatus implements CourseValidationBaseRule {
 
     @Override

@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(100)
+@Order(10)
 public class V201StudentPEN implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
