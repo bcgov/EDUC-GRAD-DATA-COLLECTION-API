@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
@@ -23,7 +24,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(280)
-public class V228GraduationRequirement implements CourseValidationBaseRule {
+public class V228CourseGraduationRequirement implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
@@ -40,12 +41,13 @@ public class V228GraduationRequirement implements CourseValidationBaseRule {
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V228 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudent = studentRuleData.getCourseStudentEntity();
+        var demStudent = studentRuleData.getDemographicStudentEntity();
+        log.debug("In executeValidation of V228 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if ("1986".equalsIgnoreCase(student.getCourseGraduationRequirement()) && StringUtils.isNotBlank(student.getCourseCode())) {
-            log.debug("V228: Error: Invalid entry. Values not applicable for students on the 1986 program. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+        if (demStudent.getGradRequirementYear().equalsIgnoreCase(GradRequirementYearCodes.YEAR_1986.getCode()) && StringUtils.isNotBlank(courseStudent.getCourseGraduationRequirement())) {
+            log.debug("V228: Error: Invalid entry. Values not applicable for students on the 1986 program. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID));
         }
         return errors;

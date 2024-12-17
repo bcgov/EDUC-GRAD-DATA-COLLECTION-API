@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -727,7 +728,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV228GraduationRequirement() {
+    void testV228CourseGraduationRequirement() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -749,8 +750,26 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        courseStudent.setCourseGraduationRequirement("1986");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet2 = incomingFilesetRepository.save(incomingFileset2);
+        var demStudent2 = createMockDemographicStudent(savedFileSet2);
+        demStudent2.setGradRequirementYear(GradRequirementYearCodes.YEAR_1986.getCode());
+        demographicStudentRepository.save(demStudent2);
+        courseStudent.setPen(demStudent2.getPen());
+        courseStudent.setLocalID(demStudent2.getLocalID());
+        courseStudent.setLastName(demStudent2.getLastName());
+        courseStudent.setIncomingFileset(demStudent2.getIncomingFileset());
+        courseStudent.setCourseGraduationRequirement("NOTBLANK");
+
+        Student stud2 = new Student();
+        stud2.setStudentID(UUID.randomUUID().toString());
+        stud2.setDob(demStudent2.getBirthdate());
+        stud2.setLegalLastName(demStudent2.getLastName());
+        stud2.setLegalFirstName(demStudent2.getFirstName());
+        stud2.setPen(demStudent2.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud2);
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.GRADUATION_REQUIREMENT.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID.getCode());
