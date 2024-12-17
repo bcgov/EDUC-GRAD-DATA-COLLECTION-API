@@ -6,9 +6,12 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -70,4 +73,9 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     order by ase.createDate
     LIMIT :numberOfStudentsToProcess""")
     List<AssessmentStudentEntity> findTopLoadedAssessmentStudentForProcessing(String numberOfStudentsToProcess);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM IncomingFilesetEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileStatusCode='NOTLOADED' OR crsFileStatusCode='NOTLOADED' OR xamFileStatusCode='NOTLOADED')")
+    void deleteStaleWithUpdateDateBefore(LocalDateTime oldestIncomingFilesetTimestamp);
 }

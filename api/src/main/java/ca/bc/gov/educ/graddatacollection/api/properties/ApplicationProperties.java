@@ -81,4 +81,6 @@ public class ApplicationProperties {
   private String chesTokenURL;
   @Value("${url.api.student}")
   private String studentApiURL;
+  @Value("${incoming.fileset.stale.in.hours}")
+  private Integer incomingFilesetStaleInHours;
 }
