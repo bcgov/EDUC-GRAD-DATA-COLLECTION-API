@@ -27,7 +27,7 @@ public class PurgeStaleIncomingFilesetsScheduler {
     @Scheduled(cron = "${scheduled.jobs.purge.stale.incoming.filesets.cron}")
     @SchedulerLock(name = "PurgeStaleIncomingFilesetsLock", lockAtLeastFor = "${scheduled.jobs.purge.stale.incoming.filesets.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.purge.stale.incoming.filesets.cron.lockAtMostFor}")
     @Transactional
-    public void pollIncomingFilesetTableAndPurgeExpiredRecords() {
+    public void purgeStaleIncomingFilesetsRecords() {
         LockAssert.assertLocked();
         log.info("Purging stale Incoming Filesets records from EDUC-STUDENT-DATA-COLLECTION-SAGA-API.");
         this.incomingFilesetService.purgeStaleIncomingFilesetRecords();
