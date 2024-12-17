@@ -23,7 +23,8 @@ public enum CourseStudentValidationIssueTypeCode {
   FINAL_LETTER_GRADE_NOT_RM("FINAL_LETTER_GRADE_NOT_RM", "Invalid letter grade reported for course code GT or GTF. Use RM (Requirement Met). This course will not be updated."),
   FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK("FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK", "Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated."),
   FINAL_LETTER_GRADE_OR_PERCENT_BLANK("FINAL_LETTER_GRADE_OR_PERCENT_BLANK", "Course session has passed with no final mark. Report final mark or change the course session date. This course will not be updated."),
-  FINAL_LETTER_GRADE_IE("FINAL_LETTER_GRADE_IE", "Course session date is more than 12 months old. Report final mark other than IE or update course session date if the course is still in progress.")
+  FINAL_LETTER_GRADE_IE("FINAL_LETTER_GRADE_IE", "Course session date is more than 12 months old. Report final mark other than IE or update course session date if the course is still in progress."),
+  EQUIVALENCY_CHALLENGE_CODE_INVALID("EQUIVALENCY_CHALLENGE_CODE_INVALID", "Invalid entry, the reported value will be ignored. Report E or C or leave blank. This course will not be updated.")
   ;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
