@@ -18,7 +18,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
+class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
     @MockBean
     protected RestUtils restUtils;
     @Autowired

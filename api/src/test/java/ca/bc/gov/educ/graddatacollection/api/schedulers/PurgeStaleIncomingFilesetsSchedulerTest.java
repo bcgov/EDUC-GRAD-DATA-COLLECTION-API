@@ -13,11 +13,11 @@ import static org.mockito.Mockito.verify;
 
 //Override the cron configuration for scheduled.jobs.purge.stale.incoming.filesets.cron for these tests to ensure the scheduler runs every second.
 @SpringBootTest(properties = "scheduled.jobs.purge.stale.incoming.filesets.cron=* * * * * *")
-public class PurgeStaleIncomingFilesetsSchedulerTest extends BaseGradDataCollectionAPITest {
+class PurgeStaleIncomingFilesetsSchedulerTest extends BaseGradDataCollectionAPITest {
     @SpyBean
     PurgeStaleIncomingFilesetsScheduler purgeStaleIncomingFilesetsScheduler;
     @Test
-    public void purgeStaleIncomingFilesetsSchedulerIsTriggered() {
+    void purgeStaleIncomingFilesetsSchedulerIsTriggered() {
         await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> verify(purgeStaleIncomingFilesetsScheduler, atLeast(1)).purgeStaleIncomingFilesetsRecords());
     }
 }
