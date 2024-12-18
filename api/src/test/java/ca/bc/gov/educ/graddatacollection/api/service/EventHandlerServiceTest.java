@@ -118,6 +118,9 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var savedFileset = incomingFilesetRepository.save(mockFileset);
 
+        var demStudent = createMockDemographicStudent(savedFileset);
+        demographicStudentRepository.save(demStudent);
+
         var courseStudentEntity = createMockCourseStudent(savedFileset);
         courseStudentEntity.setIncomingFileset(mockFileset);
         courseStudentEntity.setCourseStudentID(null);
