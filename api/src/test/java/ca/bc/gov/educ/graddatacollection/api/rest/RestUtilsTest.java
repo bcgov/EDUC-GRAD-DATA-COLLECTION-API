@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.rest;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -101,5 +104,21 @@ class RestUtilsTest {
         GradStudentRecord actualRecord = restUtils.getGradStudentRecordByStudentID(correlationID, studentID);
 
         assertEquals(expectedRecord, actualRecord);
+    }
+
+    @Test
+    void testPopulateEquivalencyChallengeCodeMap() {
+        List<EquivalencyChallengeCode> mockEquivalencyCodes = List.of(
+                new EquivalencyChallengeCode("E", "Equivalency", "Indicates course credit through equivalency.", "1", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                new EquivalencyChallengeCode("C", "Challenge", "Indicates course credit through challenge process.", "2", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+        );
+
+        doReturn(mockEquivalencyCodes).when(restUtils).getEquivalencyChallengeCodes();
+
+        restUtils.populateEquivalencyChallengeCodeMap();
+
+        assertEquals(2, restUtils.getEquivalencyChallengeCodes().size());
+        assertEquals("Equivalency", restUtils.getEquivalencyChallengeCodes().getFirst().getLabel());
+        assertEquals("Challenge", restUtils.getEquivalencyChallengeCodes().getLast().getLabel());
     }
 }
