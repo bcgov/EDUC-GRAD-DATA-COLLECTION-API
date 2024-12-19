@@ -66,6 +66,7 @@ public class RestUtils {
   private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, ProgramRequirementCode> programRequirementCodeMap = new ConcurrentHashMap<>();
+  private final Map<String, EquivalencyChallengeCode> equivalencyChallengeCodeMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -82,6 +83,7 @@ public class RestUtils {
   private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock programRequirementLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock equivalencyChallengeCodeLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -120,6 +122,7 @@ public class RestUtils {
     this.populateCareerProgramsMap();
     this.populateOptionalProgramsMap();
     this.populateProgramRequirementCodesMap();
+    this.populateEquivalencyChallengeCodeMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -296,6 +299,32 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} program requirement codes to memory", this.programRequirementCodeMap.values().size());
+  }
+
+  public void populateEquivalencyChallengeCodeMap() {
+    val writeLock = this.equivalencyChallengeCodeLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val equivalencyCode : this.getEquivalencyChallengeCodes()) {
+        this.equivalencyChallengeCodeMap.put(equivalencyCode.getEquivalentOrChallengeCode(), equivalencyCode);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache equivalent or challenge codes {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} equivalent or challenge codes to memory", this.equivalencyChallengeCodeMap.values().size());
+  }
+
+  public List<EquivalencyChallengeCode> getEquivalencyChallengeCodes() {
+    log.info("Calling Grad course api to load equivalent or challenge codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradCourseApiURL() + "/equivalentOrChallengeCodes")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(EquivalencyChallengeCode.class)
+            .collectList()
+            .block();
   }
 
   public List<ProgramRequirementCode> getProgramRequirementCodes() {

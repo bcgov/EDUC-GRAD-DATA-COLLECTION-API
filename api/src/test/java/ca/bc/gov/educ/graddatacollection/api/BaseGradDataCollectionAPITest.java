@@ -171,7 +171,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .studentStatusCode("ACTIVE")
             .courseStatus("A")
             .lastName("JACKSON")
-            .courseType("BIG")
+            .courseType("E")
             .courseDescription("COMP")
             .courseGraduationRequirement("5")
             .finalGrade("A")

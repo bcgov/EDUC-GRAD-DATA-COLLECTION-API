@@ -67,6 +67,8 @@ public class ApplicationProperties {
   private String gradStudentGraduationApiURL;
   @Value("${url.api.grad.program}")
   private String gradProgramApiURL;
+  @Value("${url.api.grad.course}")
+  private String gradCourseApiURL;
   @Value("${number.students.process.saga}")
   private String numberOfStudentsToProcessInSaga;
   @Value("${ches.endpoint.url}")
