@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum CourseStudentValidationIssueTypeCode {
 
-  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname and Local ID."),
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated."),
   DEM_ISSUE("DEM_ISSUE", "Student CRS record will not be processed due to an issue with the student's demographics."),
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated."),
@@ -25,7 +25,8 @@ public enum CourseStudentValidationIssueTypeCode {
   FINAL_LETTER_GRADE_OR_PERCENT_BLANK("FINAL_LETTER_GRADE_OR_PERCENT_BLANK", "Course session has passed with no final mark. Report final mark or change the course session date. This course will not be updated."),
   FINAL_LETTER_GRADE_IE("FINAL_LETTER_GRADE_IE", "Course session date is more than 12 months old. Report final mark other than IE or update course session date if the course is still in progress."),
   EQUIVALENCY_CHALLENGE_CODE_INVALID("EQUIVALENCY_CHALLENGE_CODE_INVALID", "Invalid entry, the reported value will be ignored. Report E or C or leave blank. This course will not be updated."),
-  GRADUATION_REQUIREMENT_INVALID("GRADUATION_REQUIREMENT_INVALID", "Invalid entry. Values not applicable for students on the 1986 program. This course will not be updated.")
+  GRADUATION_REQUIREMENT_INVALID("GRADUATION_REQUIREMENT_INVALID", "Invalid entry. Values not applicable for students on the 1986 program. This course will not be updated."),
+  GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID("GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID", "Invalid entry. Number of credits must be 4 where B reported for a Board Authority Authorized or Locally Developed course for a student on the 1996 program. This course will not be updated.")
   ;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();

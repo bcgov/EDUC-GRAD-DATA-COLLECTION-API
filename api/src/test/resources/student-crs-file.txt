@@ -85,9 +85,9 @@ E08M      079650391002490     131463218 PREC 11 20210693   93 A ALewis          
 E08M      079650391002490     131463218 PREC 12 20220193   93 A ALewis                    4         PRE-CALCULUS 12                           
 E08M      079650391002490     131463218 RBST 12 20220693   93 A ALewis                    4         URBAN STUDIES 12                          
 E08M      079650391002490     131463218 SC   10 20210499   99 A ALewis                    4         SCIENCE 10                                
-E08M      079650391002490     131463218 SS   10 20210497   97 A ALewis                    4         SOCIAL STUDIES 10                         
-E08M      079650391002490     131463218 YCPA 11A20220686   86 A ALewis                    4         BA LEADERSHIP 11                         B
-E08M      079650391002490     131463218 YPR  10B202011100  100A ALewis                    1         BA DISCOVERING SELF IN NATURE 10          
+E08M      079650391002490     131463218 SS   10 20290497   97 A ALewis                    4         SOCIAL STUDIES 10                         
+E08M      079650391002490     131463218 YCPA 11A20280686   86 A ALewis                    4         BA LEADERSHIP 11                         B
+E08M      079650391002490     131463218 YPR  10B202711100  100A ALewis                    1         BA DISCOVERING SELF IN NATURE 10          
 E08M      079650391002490     131463218 YPR  11B20240290   90 A ALewis                    1         BA DISCOVERING SELF IN NATURE 11          
-E08M      07965039            106201916         202406          AVANDERLEEK               0         ADVISORY BLOCK                            
-E08M      079650391002840     131455412         202406          AZeeuw                    0         ADVISORY BLOCK                            
+E08M      07965039            106201916         202506          AVANDERLEEK               0         ADVISORY BLOCK                            
+E08M      079650391002840     131455412         202606          AZeeuw                    0         ADVISORY BLOCK                            

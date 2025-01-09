@@ -79,7 +79,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "",
                         "COURSE",
                         "ERROR",
-                        "This student is missing demographic data based on Student PEN, Surname and Local ID."
+                        "This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated."
                 ),
                 result.get(0)
         );
