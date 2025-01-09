@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRu
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -53,7 +54,8 @@ public class V227EquivalencyChallenge implements CourseValidationBaseRule {
 
         List<EquivalencyChallengeCode> equivalencyChallengeCodesList = restUtils.getEquivalencyChallengeCodes();
 
-        if (equivalencyChallengeCodesList.stream().noneMatch(equivalencyChallengeCode -> student.getCourseType().equalsIgnoreCase(equivalencyChallengeCode.getEquivalentOrChallengeCode()))) {
+        if (StringUtils.isNotBlank(student.getCourseType()) &&
+                equivalencyChallengeCodesList.stream().noneMatch(equivalencyChallengeCode -> student.getCourseType().equalsIgnoreCase(equivalencyChallengeCode.getEquivalentOrChallengeCode()))) {
             log.debug("V227: Error: Invalid entry, the reported value will be ignored. Report E or C or leave blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.EQUIVALENCY_CHALLENGE, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID));
         }
