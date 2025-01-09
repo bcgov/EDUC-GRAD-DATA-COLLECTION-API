@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum CourseStudentValidationIssueTypeCode {
 
-  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname and Local ID."),
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated."),
   DEM_ISSUE("DEM_ISSUE", "Student CRS record will not be processed due to an issue with the student's demographics."),
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated."),
