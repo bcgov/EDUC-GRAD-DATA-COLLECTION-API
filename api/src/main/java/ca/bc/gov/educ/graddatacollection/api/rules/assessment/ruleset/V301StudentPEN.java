@@ -55,7 +55,7 @@ public class V301StudentPEN implements AssessmentValidationBaseRule {
 
         if (!isPresent) {
             log.debug("V301: This student is missing demographic data based on Student PEN, Surname, Mincode and Local Id for assessmentStudentID :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
         }
         return errors;
     }

@@ -54,7 +54,7 @@ public class V303CourseCode implements AssessmentValidationBaseRule {
 
         if (!assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode())) {
             log.debug("V303: The Assessment Code provided is not valid for the Assessment Session specified for assessmentStudentID :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID.getMessage()));
         }
         return errors;
     }

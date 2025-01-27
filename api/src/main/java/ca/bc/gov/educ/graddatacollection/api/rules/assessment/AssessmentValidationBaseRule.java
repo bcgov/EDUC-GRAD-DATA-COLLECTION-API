@@ -11,11 +11,12 @@ import java.util.Optional;
 
 public interface AssessmentValidationBaseRule extends Rule<StudentRuleData, AssessmentStudentValidationIssue> {
 
-  default AssessmentStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, AssessmentStudentValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode){
+  default AssessmentStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, AssessmentStudentValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description){
     AssessmentStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new AssessmentStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
+    sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
     return sdcSchoolCollectionStudentValidationIssue;
   }
 
