@@ -58,7 +58,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
         issue.setErrorFilesetValidationIssueTypeCode("COURSE");
         issue.setValidationIssueSeverityCode("ERROR");
-        issue.setValidationIssueCode("DEM_DATA_MISSING");
+        issue.setValidationIssueDescription("This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated.");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
@@ -90,7 +90,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
         issue.setErrorFilesetValidationIssueTypeCode("ASSESSMENT");
         issue.setValidationIssueSeverityCode("ERROR");
-        issue.setValidationIssueCode("DEM_DATA_MISSING");
+        issue.setValidationIssueDescription("This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID.");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
@@ -122,7 +122,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
         issue.setErrorFilesetValidationIssueTypeCode("DEMOGRAPHICS");
         issue.setValidationIssueSeverityCode("ERROR");
-        issue.setValidationIssueCode("STUDENTPENBLANK");
+        issue.setValidationIssueDescription("PEN is blank so the student record cannot be updated. Ensure the correct PEN appears in system data file extracts.");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");

@@ -76,12 +76,7 @@ public class CSVReportService {
                         "",
                         issue.getErrorFilesetValidationIssueTypeCode(),
                         issue.getValidationIssueSeverityCode(),
-                        switch (issue.getErrorFilesetValidationIssueTypeCode()) {
-                            case "ASSESSMENT" -> AssessmentStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            case "COURSE" -> CourseStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            case "DEMOGRAPHICS" -> DemographicStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            default -> "";
-                        }
+                        issue.getValidationIssueDescription()
                 ))
                 .toList();
     }
