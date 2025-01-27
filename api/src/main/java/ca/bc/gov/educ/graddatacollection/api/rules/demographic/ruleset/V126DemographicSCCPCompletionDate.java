@@ -57,7 +57,7 @@ public class V126DemographicSCCPCompletionDate implements DemographicValidationB
                 (!DateValidator.isValidYYYYMMDD(sccpCompletionDate) ||
                 LocalDate.parse(sccpCompletionDate, YYYYMMDD_FORMATTER).isBefore(SCCP_EFFECTIVE_DATE))) {
                 log.debug("SCCPCompletionDate-V126: Invalid SCCP completion date. Must be blank or YYYYMMDD. The student's DEM file will not be processed. for demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE,  DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getMessage()));
             }
 
         return errors;

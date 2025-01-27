@@ -48,7 +48,7 @@ public class V116DemographicStudentStatus implements DemographicValidationBaseRu
 
         if (StudentStatusCodes.getStudentStatusCodeM().equalsIgnoreCase(student.getStudentStatusCode())) {
             log.debug("StudentStatus-V116:Student PEN has been merged with a pre-existing PEN for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getMessage()));
         }
         return errors;
     }

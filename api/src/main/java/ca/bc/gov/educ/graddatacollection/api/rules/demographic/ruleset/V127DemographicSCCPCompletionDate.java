@@ -48,7 +48,7 @@ public class V127DemographicSCCPCompletionDate implements DemographicValidationB
         if (!StringUtils.isEmpty(student.getSchoolCertificateCompletionDate()) &&
                 !GradRequirementYearCodes.SCCP.getCode().equals(student.getGradRequirementYear())) {
             log.debug("SCCPCompletionDate-V127: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.SCCP_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM.getMessage()));
         }
         return errors;
     }

@@ -79,7 +79,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
                 errors.add(createValidationIssue(
                         StudentValidationIssueSeverityCode.ERROR,
                         DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE,
-                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
                 ));
                 break;
             }

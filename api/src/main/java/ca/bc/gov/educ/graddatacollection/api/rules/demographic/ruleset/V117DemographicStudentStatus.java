@@ -49,7 +49,7 @@ public class V117DemographicStudentStatus implements DemographicValidationBaseRu
 
         if (!StudentStatusCodes.getValidStudentStatusCodes().contains(student.getStudentStatusCode())) {
             log.debug("StudentStatus-V117:Invalid student status - must be A, D, M, or T for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage()));
         }
         return errors;
     }

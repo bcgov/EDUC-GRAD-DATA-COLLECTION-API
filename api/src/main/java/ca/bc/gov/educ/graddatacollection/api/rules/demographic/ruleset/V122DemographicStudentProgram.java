@@ -49,7 +49,7 @@ public class V122DemographicStudentProgram implements DemographicValidationBaseR
         if (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) &&
             GradRequirementYearCodes.getOffshoreSchoolNotAllowedCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear()))) {
             log.debug("StudentProgram-V122: Error: 1950 and SCCP are not valid program codes for offshore schools. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID.getMessage()));
         }
         return errors;
     }

@@ -51,20 +51,20 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
             log.debug("StudentAddress-v107: Student address must exist for students in grades 12 or AD. for demographicStudentAddress :: {}", student.getDemographicStudentID());
 
             if (StringUtils.isAllEmpty(student.getAddressLine1(), student.getAddressLine2())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getMessage()));
             }
             if (StringUtils.isEmpty(student.getCity())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getMessage()));
             }
             Pattern pattern = Pattern.compile("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$");
             if(!pattern.matcher(student.getPostalCode()).matches()) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getMessage()));
             }
             if (!StringUtils.equalsIgnoreCase("BC", student.getProvincialCode())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID.getMessage()));
             }
             if (!StringUtils.equalsIgnoreCase("CA", student.getCountryCode())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID.getMessage()));
             }
         }
         return errors;

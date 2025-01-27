@@ -56,7 +56,7 @@ public class V125DemographicStudentProgram implements DemographicValidationBaseR
         if (gradStudent != null &&
             gradStudent.getGraduated().equalsIgnoreCase("true")) {
             log.debug("StudentProgram-V125: Error: The student has already graduated so their program code cannot be changed. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getMessage()));
         }
 
         return errors;

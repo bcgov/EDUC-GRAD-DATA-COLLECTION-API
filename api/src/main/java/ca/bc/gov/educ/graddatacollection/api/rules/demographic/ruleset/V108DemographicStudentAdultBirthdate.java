@@ -61,7 +61,7 @@ public class V108DemographicStudentAdultBirthdate implements DemographicValidati
             GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear())) &&
             Period.between(LocalDate.parse(student.getBirthdate(), DateTimeFormatter.ofPattern("yyyyMMdd")), LocalDate.from(student.getIncomingFileset().getDemFileUploadDate())).getYears() < 18) {
             log.debug("StudentAdultBirthdate-V108: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getMessage()));
         }
         return errors;
     }

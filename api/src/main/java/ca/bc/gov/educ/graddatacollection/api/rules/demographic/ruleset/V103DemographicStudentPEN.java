@@ -54,7 +54,7 @@ public class V103DemographicStudentPEN implements DemographicValidationBaseRule 
 
         if (student == null) {
             log.debug("StudentPEN-v103: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND.getMessage()));
         }
         return errors;
     }

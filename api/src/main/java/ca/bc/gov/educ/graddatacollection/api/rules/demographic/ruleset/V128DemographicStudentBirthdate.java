@@ -53,13 +53,13 @@ public class V128DemographicStudentBirthdate implements DemographicValidationBas
         DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
         if (StringUtils.isEmpty(student.getBirthdate())) {
             log.debug("StudentBirthdate-v128: Student date of birth is not valid (EMPTY). for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage()));
         } else {
             try {
                 LocalDate.parse(student.getBirthdate(), format);
             } catch (DateTimeParseException ex) {
                 log.debug("StudentBirthdate-v128: Student date of birth is not valid (CANNOT PARSE). for demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage()));
             }
         }
 

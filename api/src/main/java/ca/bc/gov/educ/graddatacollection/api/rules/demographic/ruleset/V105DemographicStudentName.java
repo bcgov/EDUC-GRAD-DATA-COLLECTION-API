@@ -56,15 +56,15 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
         if (RuleUtil.validateStudentRecordExists(student)) {
             if (!RuleUtil.validateStudentSurnameMatches(demStudent, student)) {
                 log.debug("studentName-v105:Error: The submitted SURNAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getMessage()));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
                 log.debug("studentName-v105: Error: The submitted MIDDLE NAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH.getMessage()));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
                 log.debug("studentName-v105:Error: The submitted FIRST NAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH.getMessage()));
             }
         }
         return errors;
