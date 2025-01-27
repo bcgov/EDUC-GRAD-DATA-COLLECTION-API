@@ -50,11 +50,11 @@ public class V214InterimPercent implements CourseValidationBaseRule {
 
                 if (interimPercentage < 0 || interimPercentage > 100) {
                     log.debug("V214: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_PCT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_PCT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
                 }
             } catch (NumberFormatException e) {
                 log.debug("V214: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_PCT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_PCT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
             }
 
         }

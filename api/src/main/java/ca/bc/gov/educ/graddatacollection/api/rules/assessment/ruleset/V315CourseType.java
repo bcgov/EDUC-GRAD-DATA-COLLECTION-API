@@ -47,7 +47,7 @@ public class V315CourseType implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getCourseType())){
             log.debug("V315: Course type value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.COURSE_TYPE, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.COURSE_TYPE, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

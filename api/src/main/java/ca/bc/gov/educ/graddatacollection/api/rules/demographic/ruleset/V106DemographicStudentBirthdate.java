@@ -57,7 +57,7 @@ public class V106DemographicStudentBirthdate implements DemographicValidationBas
         if (RuleUtil.validateStudentRecordExists(studentApiStudent) &&
             !RuleUtil.validateStudentDOBMatches(demStudent, studentApiStudent)) {
             log.debug("StudentBirthdate-V106: Student birthdate must match what is in PEN for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH.getMessage()));
         }
         return errors;
     }

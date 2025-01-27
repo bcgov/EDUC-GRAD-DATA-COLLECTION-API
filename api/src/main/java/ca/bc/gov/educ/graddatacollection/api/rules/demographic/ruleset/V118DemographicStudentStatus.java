@@ -61,7 +61,7 @@ public class V118DemographicStudentStatus implements DemographicValidationBaseRu
             )
         ) {
             log.debug("StudentStatus-V118: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getMessage()));
         }
 
         return errors;

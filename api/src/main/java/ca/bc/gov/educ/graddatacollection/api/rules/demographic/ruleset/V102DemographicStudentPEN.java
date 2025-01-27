@@ -46,7 +46,7 @@ public class V102DemographicStudentPEN implements DemographicValidationBaseRule 
 
         if (StringUtils.isBlank(student.getPen())) {
             log.debug("StudentPEN-v102: PEN is blank. Correct PEN in system or through PEN Web. for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_BLANK.getMessage()));
         }
         return errors;
     }

@@ -54,7 +54,7 @@ public class V223FinalLetterGradePercent implements CourseValidationBaseRule {
 
                 if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalGrade()) || StringUtils.isNotBlank(student.getFinalPercentage()))) {
                     log.debug("V223: Error: Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
                 log.debug("V223: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());

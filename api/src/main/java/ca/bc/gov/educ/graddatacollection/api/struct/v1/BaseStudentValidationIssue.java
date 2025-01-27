@@ -28,4 +28,8 @@ public class BaseStudentValidationIssue extends BaseRequest {
   @Size(max = 10)
   @NotNull(message = "validationIssueFieldCode cannot be null")
   private String validationIssueFieldCode;
+
+  @Size(max = 4000)
+  @NotNull(message = "validationIssueDescription cannot be null")
+  private String validationIssueDescription;
 }

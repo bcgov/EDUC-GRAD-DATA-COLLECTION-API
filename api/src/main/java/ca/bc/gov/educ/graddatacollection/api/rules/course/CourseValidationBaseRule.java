@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseValidationBaseRule extends Rule<StudentRuleData, CourseStudentValidationIssue> {
-  default CourseStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, CourseStudentValidationFieldCode fieldCode, CourseStudentValidationIssueTypeCode typeCode){
+  default CourseStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, CourseStudentValidationFieldCode fieldCode, CourseStudentValidationIssueTypeCode typeCode, String description){
     CourseStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new CourseStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
+    sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
     return sdcSchoolCollectionStudentValidationIssue;
   }
 

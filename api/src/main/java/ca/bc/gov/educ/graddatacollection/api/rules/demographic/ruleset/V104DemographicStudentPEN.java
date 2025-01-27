@@ -54,7 +54,7 @@ public class V104DemographicStudentPEN implements DemographicValidationBaseRule 
 
         if (!isPresent) {
             log.debug("StudentPEN-v104: Student in DEM file but not in CRS file (i.e., course data has not been submitted for this student). for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH.getMessage()));
         }
         return errors;
     }

@@ -47,7 +47,7 @@ public class V316ToWriteFlag implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getToWriteFlag())){
             log.debug("V316: To write flag value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.TO_WRITE_FLAG, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.TO_WRITE_FLAG, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK.getMessage()));
         }
         return errors;
     }

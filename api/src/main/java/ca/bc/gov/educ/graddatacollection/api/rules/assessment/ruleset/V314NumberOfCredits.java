@@ -47,7 +47,7 @@ public class V314NumberOfCredits implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getNumberOfCredits())){
             log.debug("V314: Number of credits value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.NUMBER_OF_CREDITS, AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.NUMBER_OF_CREDITS, AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK.getMessage()));
         }
         return errors;
     }

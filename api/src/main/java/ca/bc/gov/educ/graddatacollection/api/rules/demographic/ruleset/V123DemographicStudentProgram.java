@@ -64,7 +64,7 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
             programRequirementCodes.stream().anyMatch(code -> code.getProReqCode().equalsIgnoreCase(gradStudent.getProgram()) &&
             code.getRequirementTypeCode().getExpiryDate().before(Date.valueOf(gradStudent.getProgramCompletionDate())))) {
             log.debug("StudentProgram-V123: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED.getMessage()));
         }
 
         return errors;

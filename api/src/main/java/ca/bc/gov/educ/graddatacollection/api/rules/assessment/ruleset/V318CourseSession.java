@@ -54,7 +54,7 @@ public class V318CourseSession implements AssessmentValidationBaseRule {
 
         if (assessmentRulesService.checkIfStudentHasDuplicatesInFileset(student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
             log.debug("V318: The assessment session is a duplicate of an existing assessment session for this student :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_SESSION, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_SESSION, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage()));
         }
         return errors;
     }

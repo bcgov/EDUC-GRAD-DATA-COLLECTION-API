@@ -47,7 +47,7 @@ public class V309FinalPercentage implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getFinalPercent())) {
             log.debug("V309: Final percentage result cannot be submitted by the school :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.FINAL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.FINAL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

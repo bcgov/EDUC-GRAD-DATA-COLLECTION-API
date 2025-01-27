@@ -58,7 +58,7 @@ public class V215InterimLetterGrade implements CourseValidationBaseRule {
 
         if (letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getInterimGrade()))) {
             log.debug("V215: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_LETTER_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_LETTER_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage()));
         }
         return errors;
     }
