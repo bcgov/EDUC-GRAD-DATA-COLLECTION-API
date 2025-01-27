@@ -50,15 +50,15 @@ public class V209CourseMonth implements CourseValidationBaseRule {
 
                 if (monthValue > 12 || monthValue < 1) {
                     log.debug("V209: Error: Course is not blank. Course month must be between 01 and 12 (January to December). This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage()));
                 }
             } catch (NumberFormatException e) {
                 log.debug("V225: Skipping validation due to invalid course month for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage()));
             }
         } else {
             log.debug("V209: Error: Course is blank. Course month must be between 01 and 12 (January to December). This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage()));
         }
         return errors;
     }

@@ -55,7 +55,7 @@ public class V225FinalLetterGrade implements CourseValidationBaseRule {
 
                 if (student.getFinalGrade().equalsIgnoreCase("IE") && courseSession.isBefore(cutoffDate)) {
                     log.debug("V225:Warning: Course session date is more than 12 months old. Report final mark other than IE or update course session date if the course is still in progress. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
                 log.debug("V225: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());

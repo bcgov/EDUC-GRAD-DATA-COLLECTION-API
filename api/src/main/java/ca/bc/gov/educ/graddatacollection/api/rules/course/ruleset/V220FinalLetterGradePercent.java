@@ -70,7 +70,7 @@ public class V220FinalLetterGradePercent implements CourseValidationBaseRule {
                             finalPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
                             finalPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
                         log.debug("V220: Error: The final percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH));
+                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
                     }
                 }
 

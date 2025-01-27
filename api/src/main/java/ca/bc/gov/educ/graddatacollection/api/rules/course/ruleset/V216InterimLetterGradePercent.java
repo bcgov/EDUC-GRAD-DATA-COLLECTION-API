@@ -61,7 +61,7 @@ public class V216InterimLetterGradePercent implements CourseValidationBaseRule {
                 interimPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
                 interimPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
             log.debug("V216: Error: The interim percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
         }
         return errors;
     }

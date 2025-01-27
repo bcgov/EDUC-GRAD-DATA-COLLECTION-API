@@ -47,7 +47,7 @@ public class V203CourseStatus implements CourseValidationBaseRule {
 
         if (StringUtils.isBlank(student.getCourseStatus()) || (!student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.ACTIVE.getCode()) && !student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.WITHDRAWN.getCode()))) {
             log.debug("V203: Course status must be A=active or W=withdraw :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
         }
         return errors;
     }
