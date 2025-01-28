@@ -27,6 +27,7 @@ import java.util.List;
 public class V105DemographicStudentName implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
+    private static final String MINISTRY_PEN_PARTIAL = " and the Ministry PEN system has: ";
 
     public V105DemographicStudentName(DemographicRulesService demographicRulesService) {
         this.demographicRulesService = demographicRulesService;
@@ -57,17 +58,17 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
             if (!RuleUtil.validateStudentSurnameMatches(demStudent, student)) {
                 log.debug("studentName-v105:Error: The submitted SURNAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH,
-        "SURNAME mismatch. School submitted: " + demStudent.getLastName() + " and the Ministry PEN system has: " + student.getLegalLastName() + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging <a href='https://educationdataexchange.gov.bc.ca/login'>https://educationdataexchange.gov.bc.ca/login</a>."));
+        "SURNAME mismatch. School submitted: " + demStudent.getLastName() + MINISTRY_PEN_PARTIAL + student.getLegalLastName() + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging <a href='https://educationdataexchange.gov.bc.ca/login'>https://educationdataexchange.gov.bc.ca/login</a>."));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
                 log.debug("studentName-v105: Error: The submitted MIDDLE NAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH,
-        "MIDDLE NAME mismatch. School submitted: " + demStudent.getMiddleName() + " and the Ministry PEN system has: " + student.getLegalMiddleNames() + ". If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging <a href='https://educationdataexchange.gov.bc.ca/login'>https://educationdataexchange.gov.bc.ca/login</a>."));
+        "MIDDLE NAME mismatch. School submitted: " + demStudent.getMiddleName() + MINISTRY_PEN_PARTIAL + student.getLegalMiddleNames() + ". If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging <a href='https://educationdataexchange.gov.bc.ca/login'>https://educationdataexchange.gov.bc.ca/login</a>."));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
                 log.debug("studentName-v105:Error: The submitted FIRST NAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH,
-        "FIRST NAME mismatch. School submitted: " + demStudent.getFirstName() + " and the Ministry PEN system has: " + student.getLegalFirstName() + ". If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging <a href='https://educationdataexchange.gov.bc.ca/login'>https://educationdataexchange.gov.bc.ca/login</a>."));
+        "FIRST NAME mismatch. School submitted: " + demStudent.getFirstName() + MINISTRY_PEN_PARTIAL + student.getLegalFirstName() + ". If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging <a href='https://educationdataexchange.gov.bc.ca/login'>https://educationdataexchange.gov.bc.ca/login</a>."));
             }
         }
         return errors;
