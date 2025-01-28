@@ -81,7 +81,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
-        gradStudentRecord.setSchoolOfRecord("03636018");
+        gradStudentRecord.setSchoolOfRecordId(school.getSchoolId());
         gradStudentRecord.setStudentStatusCode("CUR");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
