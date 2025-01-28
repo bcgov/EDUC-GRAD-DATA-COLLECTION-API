@@ -87,6 +87,7 @@ public class AssessmentStudentService {
             error.setValidationIssueFieldCode(issue.getValidationIssueFieldCode());
             error.setValidationIssueSeverityCode(issue.getValidationIssueSeverityCode());
             error.setValidationIssueCode(issue.getValidationIssueCode());
+            error.setValidationIssueDescription(issue.getValidationIssueDescription());
             error.setAssessmentStudent(assessmentStudentEntity);
             error.setCreateDate(LocalDateTime.now());
             error.setUpdateDate(LocalDateTime.now());

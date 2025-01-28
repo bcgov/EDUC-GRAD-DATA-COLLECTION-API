@@ -82,6 +82,7 @@ public class DemographicStudentService {
             error.setValidationIssueFieldCode(issue.getValidationIssueFieldCode());
             error.setValidationIssueSeverityCode(issue.getValidationIssueSeverityCode());
             error.setValidationIssueCode(issue.getValidationIssueCode());
+            error.setValidationIssueDescription(issue.getValidationIssueDescription());
             error.setDemographicStudent(demographicStudent);
             error.setCreateDate(LocalDateTime.now());
             error.setUpdateDate(LocalDateTime.now());

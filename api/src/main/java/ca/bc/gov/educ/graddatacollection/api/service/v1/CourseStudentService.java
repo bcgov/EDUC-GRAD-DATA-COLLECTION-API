@@ -87,6 +87,7 @@ public class CourseStudentService {
             error.setValidationIssueFieldCode(issue.getValidationIssueFieldCode());
             error.setValidationIssueSeverityCode(issue.getValidationIssueSeverityCode());
             error.setValidationIssueCode(issue.getValidationIssueCode());
+            error.setValidationIssueDescription(issue.getValidationIssueDescription());
             error.setCourseStudent(courseStudentEntity);
             error.setCreateDate(LocalDateTime.now());
             error.setUpdateDate(LocalDateTime.now());

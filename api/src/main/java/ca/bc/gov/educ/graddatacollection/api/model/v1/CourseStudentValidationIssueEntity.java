@@ -40,7 +40,7 @@ public class CourseStudentValidationIssueEntity {
   @Column(name = "VALIDATION_ISSUE_FIELD_CODE", nullable = false)
   private String validationIssueFieldCode;
 
-  @Column(name = "VALIDATION_ISSUE_DESCRIPTION", nullable = false)
+  @Column(name = "VALIDATION_ISSUE_DESCRIPTION", nullable = false, length = 4000)
   private String validationIssueDescription;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
