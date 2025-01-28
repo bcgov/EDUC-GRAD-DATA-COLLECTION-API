@@ -6,7 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidatio
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
-import io.micrometer.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -53,7 +53,7 @@ public class V225FinalLetterGrade implements CourseValidationBaseRule {
                 YearMonth currentDate = YearMonth.now();
                 YearMonth cutoffDate = YearMonth.of(currentDate.getYear() - 1, currentDate.getMonth());
 
-                if (student.getFinalGrade().equalsIgnoreCase("IE") && courseSession.isBefore(cutoffDate)) {
+                if (StringUtils.equalsIgnoreCase("IE", student.getFinalGrade()) && courseSession.isBefore(cutoffDate)) {
                     log.debug("V225:Warning: Course session date is more than 12 months old. Report final mark other than IE or update course session date if the course is still in progress. for courseStudentID :: {}", student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE.getMessage()));
                 }
