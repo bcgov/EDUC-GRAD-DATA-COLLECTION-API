@@ -19,8 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V223 | ERROR    | Final pct or Final Letter Grade should not be included for future     | V217, V219   |
- *  |      |          | courses                                                               |              |
+ *  | V223 | ERROR    | Final pct or Final Letter Grade should not be included for future     | V202, V217   |
+ *  |      |          | courses                                                               | V219         |
  *  |      |          | Future = Course Session > today's date                                |              |
  */
 @Component
