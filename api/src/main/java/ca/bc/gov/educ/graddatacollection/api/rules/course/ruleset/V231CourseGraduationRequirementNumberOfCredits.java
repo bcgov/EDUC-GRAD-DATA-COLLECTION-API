@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V231 | ERROR    | For the 1996 graduation program, check number of credits for Fine     |              |
+ *  | V231 | ERROR    | For the 1996 graduation program, check number of credits for Fine     |    V202      |
  *  |      |          | Arts/Applied Skills.                                                  |              |
  *  |      |          | If B - credits for course must be 4-credits	                          |              |
  *
@@ -31,7 +31,7 @@ public class V231CourseGraduationRequirementNumberOfCredits implements CourseVal
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V231: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V231", validationErrorsMap);
 
         log.debug("In shouldExecute of V231: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

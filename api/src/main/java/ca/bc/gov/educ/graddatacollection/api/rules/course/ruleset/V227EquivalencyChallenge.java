@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V227 | ERROR    | Must be a valid code	                                    	      |              |
+ *  | V227 | ERROR    | Must be a valid code	                                    	      |  V202        |
  *
  */
 @Component
@@ -37,7 +37,7 @@ public class V227EquivalencyChallenge implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V227: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V227", validationErrorsMap);
 
         log.debug("In shouldExecute of V227: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

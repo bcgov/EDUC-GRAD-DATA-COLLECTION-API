@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V209 | ERROR    | Course month must be between 01 and 12                                | -            |
+ *  | V209 | ERROR    | Course month must be between 01 and 12                                |   V202       |
  */
 @Component
 @Slf4j
@@ -29,7 +29,7 @@ public class V209CourseMonth implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V209: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V209", validationErrorsMap);
 
         log.debug("In shouldExecute of V209: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

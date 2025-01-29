@@ -22,8 +22,8 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V220 | ERROR    | Final letter grade must match final pct unless course session is	  | V217, V218   |
- *  |      |          | prior to 199409.                                                      | V219         |
+ *  | V220 | ERROR    | Final letter grade must match final pct unless course session is	  | V202, V217,  |
+ *  |      |          | prior to 199409.                                                      | V218, V219   |
  */
 @Component
 @Slf4j

@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V228 | ERROR    | Must be blank for 1986 graduation program	                          |              |
+ *  | V228 | ERROR    | Must be blank for 1986 graduation program	                          |  V202        |
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V228CourseGraduationRequirement implements CourseValidationBaseRule
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V228: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V228", validationErrorsMap);
 
         log.debug("In shouldExecute of V228: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V218 | ERROR    | If course session is prior to 199409 no Final percent should be       |              |
+ *  | V218 | ERROR    | If course session is prior to 199409 no Final percent should be       |   V202       |
  *                      entered for these courses.  This field should be blank.
  *
  */
@@ -32,7 +32,7 @@ public class V218FinalPercent implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V218: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V218", validationErrorsMap);
 
         log.debug("In shouldExecute of V218: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

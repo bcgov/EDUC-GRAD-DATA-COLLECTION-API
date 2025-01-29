@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V214 | ERROR    | Interim percent cannot be negative or greater than 100                | -            |
+ *  | V214 | ERROR    | Interim percent cannot be negative or greater than 100                | V202         |
  *
  */
 @Component
@@ -29,7 +29,7 @@ public class V214InterimPercent implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V214: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V214", validationErrorsMap);
 
         log.debug("In shouldExecute of V214: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

@@ -19,8 +19,8 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V216 | ERROR    | Interim percent must match interim letter grade if interim letter 	  | V214, V215   |
- *  |      |          | grade provided                                                        |              |
+ *  | V216 | ERROR    | Interim percent must match interim letter grade if interim letter 	  |  V202        |
+ *  |      |          | grade provided                                                        |  V214, V215  |
  */
 @Component
 @Slf4j

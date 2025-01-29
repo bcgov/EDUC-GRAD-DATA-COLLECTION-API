@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V203 | ERROR    |  Course status must be A=active or W=withdraw                         |--------------|
+ *  | V203 | ERROR    |  Course status must be A=active or W=withdraw                         |----V202------|
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V203CourseStatus implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V203: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V203", validationErrorsMap);
 
         log.debug("In shouldExecute of V203: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

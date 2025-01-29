@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V217 | ERROR    | Final percent cannot be negative or greater than 100                  | -            |
+ *  | V217 | ERROR    | Final percent cannot be negative or greater than 100                  | V202         |
  *
  */
 @Component
@@ -29,7 +29,7 @@ public class V217FinalPercent implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V217: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V217", validationErrorsMap);
 
         log.debug("In shouldExecute of V217: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

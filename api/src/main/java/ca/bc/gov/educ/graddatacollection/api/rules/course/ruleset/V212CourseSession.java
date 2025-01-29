@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V212 | ERROR    | Course session must be no greater than next school year or no less    | -            |
+ *  | V212 | ERROR    | Course session must be no greater than next school year or no less    | V202         |
  *                      than 198401
  */
 @Component
@@ -32,7 +32,7 @@ public class V212CourseSession implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V212: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V212", validationErrorsMap);
 
         log.debug("In shouldExecute of V212: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
