@@ -26,6 +26,7 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
             demographicStudent.getDemographicStudentValidationIssueEntities().forEach(demographicIssueEntity ->
                     filesetStudent.getErrorFilesetStudentValidationIssues().add(
                             getValidationIssue(ErrorFilesetValidationIssueType.DEMOGRAPHICS,
+                                    demographicIssueEntity.getValidationIssueDescription(),
                                     demographicIssueEntity.getValidationIssueCode(),
                                     demographicIssueEntity.getValidationIssueFieldCode(),
                                     demographicIssueEntity.getValidationIssueSeverityCode()))));
@@ -34,6 +35,7 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
             courseStudent.getCourseStudentValidationIssueEntities().forEach(courseIssueEntity ->
                     filesetStudent.getErrorFilesetStudentValidationIssues().add(
                             getValidationIssue(ErrorFilesetValidationIssueType.COURSE,
+                                    courseIssueEntity.getValidationIssueDescription(),
                                     courseIssueEntity.getValidationIssueCode(),
                                     courseIssueEntity.getValidationIssueFieldCode(),
                                     courseIssueEntity.getValidationIssueSeverityCode()))));
@@ -42,6 +44,7 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
             assessmentStudent.getAssessmentStudentValidationIssueEntities().forEach(assessmentIssueEntity ->
                     filesetStudent.getErrorFilesetStudentValidationIssues().add(
                             getValidationIssue(ErrorFilesetValidationIssueType.ASSESSMENT,
+                                    assessmentIssueEntity.getValidationIssueDescription(),
                                     assessmentIssueEntity.getValidationIssueCode(),
                                     assessmentIssueEntity.getValidationIssueFieldCode(),
                                     assessmentIssueEntity.getValidationIssueSeverityCode()))));
@@ -49,9 +52,10 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
     return filesetStudent;
   }
 
-  private ErrorFilesetStudentValidationIssue getValidationIssue(ErrorFilesetValidationIssueType errorFilesetValidationIssueType, String validationIssueCode, String validationIssueFieldCode, String validationIssueSeverityCode){
+  private ErrorFilesetStudentValidationIssue getValidationIssue(ErrorFilesetValidationIssueType errorFilesetValidationIssueType, String validationIssueDescription, String validationIssueCode, String validationIssueFieldCode, String validationIssueSeverityCode){
     ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
     issue.setErrorFilesetValidationIssueTypeCode(errorFilesetValidationIssueType.getCode());
+    issue.setValidationIssueDescription(validationIssueDescription);
     issue.setValidationIssueCode(validationIssueCode);
     issue.setValidationIssueFieldCode(validationIssueFieldCode);
     issue.setValidationIssueSeverityCode(validationIssueSeverityCode);
