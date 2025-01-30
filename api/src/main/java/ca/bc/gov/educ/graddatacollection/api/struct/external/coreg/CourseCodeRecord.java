@@ -11,4 +11,9 @@ public class CourseCodeRecord {
     private String courseID;
     private String externalCode;
     private String originatingSystem;
+
+    // for testing
+    public CourseCodeRecord() {
+
+    }
 }

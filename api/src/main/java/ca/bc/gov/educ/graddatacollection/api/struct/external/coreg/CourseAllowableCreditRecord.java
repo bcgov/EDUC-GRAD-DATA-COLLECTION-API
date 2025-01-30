@@ -13,4 +13,8 @@ public class CourseAllowableCreditRecord {
     private String courseID;
     private String startDate;
     private String endDate;
+
+    // for testing
+    public CourseAllowableCreditRecord(){
+    }
 }

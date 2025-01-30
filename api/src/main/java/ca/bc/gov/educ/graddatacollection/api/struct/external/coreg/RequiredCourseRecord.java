@@ -13,4 +13,7 @@ public class RequiredCourseRecord {
     private String courseID;
     private String startDate;
     private String endDate;
+
+    // for testing
+    public RequiredCourseRecord() {}
 }

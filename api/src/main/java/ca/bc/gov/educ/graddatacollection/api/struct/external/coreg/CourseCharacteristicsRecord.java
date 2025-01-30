@@ -13,4 +13,7 @@ public class CourseCharacteristicsRecord {
     private String type;
     private String code;
     private String description;
+
+    // for testing
+    public CourseCharacteristicsRecord() {}
 }

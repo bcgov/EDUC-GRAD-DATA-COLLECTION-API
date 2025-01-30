@@ -661,7 +661,7 @@ public class RestUtils {
     } catch (final Exception ex) {
       log.error("Error occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
-      throw new GradDataCollectionAPIRuntimeException("NATS_TIMEOUT: " + correlationID);
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
     }
   }
 
