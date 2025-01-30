@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 @Service
@@ -35,7 +37,6 @@ public class BaseRulesService {
         }
     }
 
-
     public GradStudentRecord getGradStudentRecord(StudentRuleData studentRuleData, String pen){
         if (studentRuleData.getGradStudentRecord() != null) {
             return studentRuleData.getGradStudentRecord();
@@ -61,6 +62,26 @@ public class BaseRulesService {
         } catch (EntityNotFoundException e) {
             log.warn("No GradStudentRecord found for student ID: {}", studentUUID);
             studentRuleData.setGradStudentRecord(null);
+            return null;
+        }
+    }
+
+    public CoregCoursesRecord getCoregCoursesRecord(StudentRuleData studentRuleData, String externalID) {
+        if (studentRuleData.getCoregCoursesRecordMap() != null && studentRuleData.getCoregCoursesRecordMap().containsKey(externalID)) {
+            return studentRuleData.getCoregCoursesRecordMap().get(externalID);
+        }
+
+        try {
+            CoregCoursesRecord coregCourses = restUtils.getCoursesByExternalID(UUID.randomUUID(), externalID);
+
+            if (studentRuleData.getCoregCoursesRecordMap() == null) {
+                studentRuleData.setCoregCoursesRecordMap(new HashMap<>());
+            }
+            studentRuleData.getCoregCoursesRecordMap().put(externalID, coregCourses);
+
+            return coregCourses;
+        } catch (EntityNotFoundException e) {
+            log.warn("No CoregCoursesRecord found for externalID: {}", externalID);
             return null;
         }
     }

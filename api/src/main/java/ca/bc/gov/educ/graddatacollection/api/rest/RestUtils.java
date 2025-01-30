@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
@@ -624,6 +625,43 @@ public class RestUtils {
       log.error("Error occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public CoregCoursesRecord getCoursesByExternalID(UUID correlationID, String externalID) {
+    try {
+      final TypeReference<CoregCoursesRecord> refCourseInformation = new TypeReference<>() {};
+
+      Event event = Event.builder()
+              .sagaId(correlationID)
+              .eventType(EventType.GET_COURSE_FROM_EXTERNAL_ID)
+              .eventPayload(externalID)
+              .replyTo("coreg-response-topic")
+              .build();
+
+      val responseMessage = this.messagePublisher
+              .requestMessage(TopicsEnum.COREG_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event))
+              .completeOnTimeout(null, 120, TimeUnit.SECONDS)
+              .get();
+
+      if (responseMessage == null) {
+        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+      }
+
+      byte[] responseData = responseMessage.getData();
+      if (responseData.length == 0) {
+        log.warn("No course information found for external ID {}", externalID);
+        throw new EntityNotFoundException(CoregCoursesRecord.class);
+      }
+
+      log.debug("Received response from NATS: {}", new String(responseData, StandardCharsets.UTF_8));
+      return objectMapper.readValue(responseData, refCourseInformation);
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException("NATS_TIMEOUT: " + correlationID);
     }
   }
 
