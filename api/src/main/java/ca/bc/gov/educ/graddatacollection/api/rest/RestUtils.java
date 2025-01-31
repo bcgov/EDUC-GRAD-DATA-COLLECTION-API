@@ -300,6 +300,7 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} program requirement codes to memory", this.programRequirementCodeMap.values().size());
+    log.debug(this.programRequirementCodeMap.values().toString());
   }
 
   public void populateEquivalencyChallengeCodeMap() {
