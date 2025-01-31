@@ -628,7 +628,7 @@ public class RestUtils {
     }
   }
 
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public CoregCoursesRecord getCoursesByExternalID(UUID correlationID, String externalID) {
     try {
       final TypeReference<CoregCoursesRecord> refCourseInformation = new TypeReference<>() {};
