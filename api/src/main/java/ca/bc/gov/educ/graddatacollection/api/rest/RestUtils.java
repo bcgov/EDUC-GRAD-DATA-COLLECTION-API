@@ -67,6 +67,7 @@ public class RestUtils {
   private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, ProgramRequirementCode> programRequirementCodeMap = new ConcurrentHashMap<>();
+  private final Map<String, GraduationProgramCode> gradProgramCodeMap = new ConcurrentHashMap<>();
   private final Map<String, EquivalencyChallengeCode> equivalencyChallengeCodeMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -84,6 +85,7 @@ public class RestUtils {
   private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock programRequirementLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock gradProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock equivalencyChallengeCodeLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
@@ -124,6 +126,7 @@ public class RestUtils {
     this.populateOptionalProgramsMap();
     this.populateProgramRequirementCodesMap();
     this.populateEquivalencyChallengeCodeMap();
+    this.populateGradProgramCodesMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -303,6 +306,22 @@ public class RestUtils {
     log.debug(this.programRequirementCodeMap.values().toString());
   }
 
+  public void populateGradProgramCodesMap() {
+    val writeLock = this.gradProgramLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getGraduationProgramCodes()) {
+        this.gradProgramCodeMap.put(program.getProgramCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache grad program codes {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} grad program codes to memory", this.gradProgramCodeMap.values().size());
+    log.debug(this.gradProgramCodeMap.values().toString());
+  }
+
   public void populateEquivalencyChallengeCodeMap() {
     val writeLock = this.equivalencyChallengeCodeLock.writeLock();
     try {
@@ -336,6 +355,17 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(ProgramRequirementCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<GraduationProgramCode> getGraduationProgramCodes() {
+    log.info("Calling Grad api to load graduation program codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradProgramApiURL() + "/programs")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GraduationProgramCode.class)
             .collectList()
             .block();
   }
