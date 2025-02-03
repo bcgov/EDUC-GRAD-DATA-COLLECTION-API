@@ -58,7 +58,7 @@ public class V120DemographicStudentStatus implements DemographicValidationBaseRu
             (student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.T.getCode())
             || student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.D.getCode()))) {
             log.debug("StudentStatus-V120:Student No GRAD student record found and dem record contains student status of T or D for demographicStudentID: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage(), student.getStudentStatusCode()));
         }
         return errors;
     }
