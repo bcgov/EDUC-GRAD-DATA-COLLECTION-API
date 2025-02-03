@@ -54,12 +54,21 @@ public class V121DemographicStudentProgram implements DemographicValidationBaseR
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodes();
+        String studentProgram = student.getGradRequirementYear();
 
-        if (StringUtils.isEmpty(student.getGradRequirementYear())
-        || graduationProgramCodes.stream().noneMatch(code -> code.getProgramCode().equalsIgnoreCase(student.getGradRequirementYear()))) {
-            log.debug("StudentProgram-V121: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
+        if (StringUtils.isNotEmpty(student.getGradRequirementYear())) {
+            boolean isValid = graduationProgramCodes.stream().anyMatch(code -> {
+                String gradCode = code.getProgramCode();
+                String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
+
+                return baseGradCode.equalsIgnoreCase(studentProgram);
+            });
+            if (!isValid) {
+                log.debug("StudentProgram-V121: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
+            }
         }
+
         return errors;
     }
 }

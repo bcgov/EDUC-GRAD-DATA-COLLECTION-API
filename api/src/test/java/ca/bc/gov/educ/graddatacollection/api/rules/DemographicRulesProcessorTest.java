@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -101,6 +102,18 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new ProgramRequirementCode("EXP", "Expired Program", "Description for Expired", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").expiryDate(Date.valueOf("2003-01-01")).build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
+        when(restUtils.getGraduationProgramCodes()).thenReturn(
+                List.of(
+                        new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("2018-EN", "B.C. Graduation Program 2018", "Description for 2018", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("2004-PF", "B.C. Graduation Program 2004", "Description for 2004", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("1996-EN", "B.C. Graduation Program 1996", "Description for 1996", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("1986-PF", "B.C. Graduation Program 1986", "Description for 1986", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("SCCP", "School Completion Certificate Program", "Description for SCCP", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("NONPROG", "Expired Program", "Description for Expired", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred")
+                )
+        );
         Student studentApiStudent = new Student();
         studentApiStudent.setStudentID(UUID.randomUUID().toString());
         studentApiStudent.setPen("123456789");
@@ -114,6 +127,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setSchoolOfRecordId("03636018");
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("false");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30 00:00:00.000");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
 
@@ -715,9 +729,8 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setGradRequirementYear(null);
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError3.size()).isNotZero();
-        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode());
-        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
+        assertThat(validationError3.stream().noneMatch(code -> code.getValidationIssueFieldCode().equalsIgnoreCase(DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE.getCode()))).isTrue();
+        assertThat(validationError3.stream().noneMatch(code -> code.getValidationIssueCode().equalsIgnoreCase(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()))).isTrue();
     }
 
     @Test
@@ -769,7 +782,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("false");
         gradStudentRecord.setProgram("EXP");
-        gradStudentRecord.setProgramCompletionDate("2024-01-01");
+        gradStudentRecord.setProgramCompletionDate("2224-01-01 00:00:00.000");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
@@ -795,6 +808,8 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setSchoolOfRecordId(UUID.randomUUID().toString());
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setProgramCompletionDate("2023-01-01 00:00:00.000");
+
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
