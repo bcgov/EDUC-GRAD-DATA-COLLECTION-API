@@ -147,8 +147,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .studentStatusCode("A")
             .localID("8887555")
             .transactionID("D02")
-            .schoolCertificateCompletionDate("20240202")
-            .gradRequirementYear("SCCP")
+            .gradRequirementYear("2023")
             .programCode1("AA")
             .programCode2("AB")
             .programCode3("AC")
@@ -157,10 +156,10 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public CourseStudentEntity createMockCourseStudent() {
+  public CourseStudentEntity createMockCourseStudent(IncomingFilesetEntity incomingFileset) {
     return CourseStudentEntity.builder()
             .courseStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
+            .incomingFileset(incomingFileset)
             .pen("123456789")
             .createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now())
@@ -171,13 +170,14 @@ public abstract class BaseGradDataCollectionAPITest {
             .studentStatusCode("ACTIVE")
             .courseStatus("A")
             .lastName("JACKSON")
-            .courseType("BIG")
+            .courseType("E")
             .courseDescription("COMP")
             .courseGraduationRequirement("5")
-            .finalGrade("15")
-            .finalPercentage("40")
+            .finalGrade("A")
+            .finalPercentage("92")
             .numberOfCredits("0")
-            .interimPercentage("60")
+            .interimPercentage("70")
+            .interimGrade("C+")
             .courseCode("123")
             .localID("8887555")
             .transactionID("E08")

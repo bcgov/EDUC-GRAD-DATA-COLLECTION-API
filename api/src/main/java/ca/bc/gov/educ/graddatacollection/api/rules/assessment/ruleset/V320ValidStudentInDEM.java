@@ -54,7 +54,7 @@ public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V320 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentApiStudent = assessmentRulesService.getStudent(student.getPen());
+        var studentApiStudent = assessmentRulesService.getStudentApiStudent(studentRuleData, student.getPen());
 
         var demographicStudentEntity = assessmentRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 
@@ -67,7 +67,7 @@ public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
             !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
             log.debug("V320: Student XAM record will not be processed due to an issue with the student's demographics :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;
     }

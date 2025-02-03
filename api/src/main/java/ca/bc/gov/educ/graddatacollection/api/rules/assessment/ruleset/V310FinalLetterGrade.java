@@ -47,7 +47,7 @@ public class V310FinalLetterGrade implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getFinalLetterGrade())) {
             log.debug("V310: Final letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.FINAL_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.FINAL_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

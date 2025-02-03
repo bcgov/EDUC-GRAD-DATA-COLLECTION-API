@@ -32,7 +32,7 @@ public class V112DemographicStudentGradeProgram implements DemographicValidation
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentGrade-V112: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V12", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V112", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentGrade-V112: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
@@ -50,7 +50,7 @@ public class V112DemographicStudentGradeProgram implements DemographicValidation
         if (GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(adultGradYear -> Objects.equals(adultGradYear, student.getGradRequirementYear()))
             && SchoolGradeCodes.getGradAdultGrades().stream().noneMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
             log.debug("StudentGrade-V112: Student reported on the Adult Graduation program (1950) must be grade AD or AN for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID.getMessage()));
         }
         return errors;
     }

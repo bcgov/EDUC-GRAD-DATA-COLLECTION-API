@@ -9,6 +9,8 @@ import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
@@ -26,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -68,6 +71,22 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
+        when(restUtils.getLetterGrades()).thenReturn(
+                List.of(
+                        new LetterGrade("A", "4", "Y", "The student demonstrates excellent or outstanding performance in relation to expected learning outcomes for the course or subject and grade.", "A", 100, 86, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("B", "3", "Y", "", "B", 85, 73, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("C+", "2.5", "Y", "", "C+", 72, 67, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("F", "0", "N", "", "F", 49, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("IE", "0", "N", "", "Insufficient Evidence", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("RM", "0", "Y", "", "Requirement Met", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+                )
+        );
+        when(restUtils.getEquivalencyChallengeCodes()).thenReturn(
+                List.of(
+                        new EquivalencyChallengeCode("E", "Equivalency", "Indicates that the course credit was earned through an equivalency review.", "1", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new EquivalencyChallengeCode("C", "Challenge", "Indicates that the course credit was earned through the challenge process.", "2", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+                )
+        );
     }
 
     @SneakyThrows
@@ -82,7 +101,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         var demStudent = createMockDemographicStudent(savedFileSet);
         demographicStudentRepository.save(demStudent);
 
-        var courseStudentEntity = createMockCourseStudent();
+        var courseStudentEntity = createMockCourseStudent(savedFileSet);
         courseStudentEntity.setPen(demStudent.getPen());
         courseStudentEntity.setLocalID(demStudent.getLocalID());
         courseStudentEntity.setLastName(demStudent.getLastName());
@@ -135,9 +154,12 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(mockFileset);
+        var savedFileset = incomingFilesetRepository.save(mockFileset);
 
-        var courseStudentEntity = createMockCourseStudent();
+        var demStudent = createMockDemographicStudent(savedFileset);
+        demographicStudentRepository.save(demStudent);
+
+        var courseStudentEntity = createMockCourseStudent(savedFileset);
         courseStudentEntity.setIncomingFileset(mockFileset);
         courseStudentEntity.setTransactionID("AB");
         courseStudentEntity.setCourseStudentID(null);

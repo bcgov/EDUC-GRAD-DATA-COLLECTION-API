@@ -23,13 +23,13 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V202 | ERROR    |  Student CRS record will not be processed due to an issue with the    |--------------|
+ *  | V202 | ERROR    |  Student CRS record will not be processed due to an issue with the    |-----V201-----|
  *                       student's demographics
  *
  */
 @Component
 @Slf4j
-@Order(101)
+@Order(20)
 public class V202ValidStudentInDEM implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
@@ -58,7 +58,7 @@ public class V202ValidStudentInDEM implements CourseValidationBaseRule {
         log.debug("In executeValidation of V202 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentApiStudent = courseRulesService.getStudent(student.getPen());
+        var studentApiStudent = courseRulesService.getStudentApiStudent(studentRuleData, student.getPen());
 
         var demographicStudentEntity = courseRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 
@@ -71,7 +71,7 @@ public class V202ValidStudentInDEM implements CourseValidationBaseRule {
             !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
             log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;
     }

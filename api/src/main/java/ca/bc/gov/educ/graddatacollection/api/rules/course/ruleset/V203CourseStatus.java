@@ -18,19 +18,19 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V203 | ERROR    |  Course status must be A=active or W=withdraw                         |--------------|
+ *  | V203 | ERROR    |  Course status must be A=active or W=withdraw                         |----V202------|
  *
  */
 @Component
 @Slf4j
-@Order(111)
+@Order(30)
 public class V203CourseStatus implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of V203: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V203", validationErrorsMap);
 
         log.debug("In shouldExecute of V203: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
@@ -47,7 +47,7 @@ public class V203CourseStatus implements CourseValidationBaseRule {
 
         if (StringUtils.isBlank(student.getCourseStatus()) || (!student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.ACTIVE.getCode()) && !student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.WITHDRAWN.getCode()))) {
             log.debug("V203: Course status must be A=active or W=withdraw :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
         }
         return errors;
     }

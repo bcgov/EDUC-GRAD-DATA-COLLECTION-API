@@ -38,7 +38,7 @@ public class V111DemographicStudentGrade implements DemographicValidationBaseRul
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentGrade-V111: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V11", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V111", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentGrade-V111: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
@@ -57,7 +57,7 @@ public class V111DemographicStudentGrade implements DemographicValidationBaseRul
 
         if (gradGrades.stream().noneMatch(grade -> Objects.equals(grade.getStudentGradeCode(), student.getGrade()))) {
             log.debug("StudentGrade-V111: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD, DemographicStudentValidationIssueTypeCode.GRADE_NOT_IN_GRAD.getMessage()));
         }
         return errors;
     }

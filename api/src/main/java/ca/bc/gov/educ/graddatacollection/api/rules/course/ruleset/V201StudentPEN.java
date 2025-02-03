@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(100)
+@Order(10)
 public class V201StudentPEN implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
@@ -55,7 +55,7 @@ public class V201StudentPEN implements CourseValidationBaseRule {
 
         if (!isPresent) {
             log.debug("V201: This student is missing demographic data based on Student PEN, Surname and Local Id for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
         }
         return errors;
     }

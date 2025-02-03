@@ -47,7 +47,7 @@ public class V308FinalSchoolPercentage implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getFinalSchoolPercent())) {
             log.debug("V308: Final school percentage value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.FINAL_SCHOOL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.FINAL_SCHOOL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

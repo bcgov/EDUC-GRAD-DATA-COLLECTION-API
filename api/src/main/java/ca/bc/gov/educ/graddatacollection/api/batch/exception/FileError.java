@@ -45,6 +45,14 @@ public enum FileError {
 
   FILE_NOT_ALLOWED("File type not allowed"),
   COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
+  SCHOOL_IS_CLOSED("Invalid school provided - school is closed."),
+  /**
+   * School is opening.
+   */
+  SCHOOL_IS_OPENING("Invalid school provided - school is not yet open."),
+  INVALID_SCHOOL_DATES("Invalid school dates - this was not expected."),
+  SCHOOL_OUTSIDE_OF_DISTRICT("The school referenced in the uploaded file does not belong to district."),
+  MISSING_MINCODE("No mincode found in file."),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**

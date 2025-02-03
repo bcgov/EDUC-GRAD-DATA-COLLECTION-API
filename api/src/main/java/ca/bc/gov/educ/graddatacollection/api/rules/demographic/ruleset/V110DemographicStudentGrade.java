@@ -50,7 +50,7 @@ public class V110DemographicStudentGrade implements DemographicValidationBaseRul
         if (StringUtils.isEmpty(student.getGrade())
             || SchoolGradeCodes.getAllSchoolGrades().stream().noneMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
             log.debug("StudentGrade-V110: Must be a valid grade (K-12, AD, AN, HS, SU, GA) for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage()));
         }
         return errors;
     }

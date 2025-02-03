@@ -6,9 +6,12 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,19 +23,15 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     @Query(value="""
     SELECT inFileset
-    FROM DemographicStudentEntity dse, IncomingFilesetEntity inFileset, CourseStudentEntity cs, AssessmentStudentEntity assessment
-    WHERE dse.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID
-    AND cs.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID
-    AND assessment.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID
+    FROM IncomingFilesetEntity inFileset
+    WHERE inFileset.filesetStatusCode != 'COMPLETED'
+    AND inFileset.demFileStatusCode = 'LOADED'
+    AND inFileset.crsFileStatusCode = 'LOADED'
+    AND inFileset.xamFileStatusCode = 'LOADED'
     AND (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
     AND (select count(cs2) from CourseStudentEntity cs2 where cs2.studentStatusCode = 'LOADED' and cs2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
     AND (select count(as2) from AssessmentStudentEntity as2 where as2.studentStatusCode = 'LOADED' and as2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
-    AND inFileset.incomingFilesetID
-    IN (SELECT incoming.incomingFilesetID FROM IncomingFilesetEntity incoming 
-    WHERE incoming.filesetStatusCode != 'COMPLETED'
-    AND incoming.demFileStatusCode = 'LOADED'
-    AND incoming.crsFileStatusCode = 'LOADED'
-    AND incoming.xamFileStatusCode = 'LOADED')""")
+    """)
     List<IncomingFilesetEntity> findCompletedCollectionsForStatusUpdate();
 
     @Query(value="""
@@ -70,4 +69,9 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     order by ase.createDate
     LIMIT :numberOfStudentsToProcess""")
     List<AssessmentStudentEntity> findTopLoadedAssessmentStudentForProcessing(String numberOfStudentsToProcess);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM IncomingFilesetEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileStatusCode='NOTLOADED' OR crsFileStatusCode='NOTLOADED' OR xamFileStatusCode='NOTLOADED')")
+    void deleteStaleWithUpdateDateBefore(LocalDateTime oldestIncomingFilesetTimestamp);
 }

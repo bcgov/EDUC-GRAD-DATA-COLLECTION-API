@@ -49,7 +49,7 @@ public class V319CourseCodeCSF implements AssessmentValidationBaseRule {
 
         if (studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) && student.getCourseCode().equalsIgnoreCase("LTF12")){
             log.debug("V319: Student is in a Francophone school and cannot register for this assessment session for this student :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getMessage()));
         }
         return errors;
     }

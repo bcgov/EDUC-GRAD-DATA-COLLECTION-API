@@ -1,19 +1,24 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class DemographicRulesService {
+public class DemographicRulesService extends BaseRulesService {
 
-    private final RestUtils restUtils;
+    private final CourseStudentRepository courseStudentRepository;
 
-    public GradStudentRecord getGradStudentRecord(UUID studentID){
-        return restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), studentID);
+    public DemographicRulesService(RestUtils restUtils, CourseStudentRepository courseStudentRepository) {
+        super(restUtils);
+        this.courseStudentRepository = courseStudentRepository;
+    }
+
+    public boolean containsCoursePenForStudent(UUID incomingFilesetID, String pen) {
+        var results = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(incomingFilesetID, pen);
+        return !results.isEmpty();
     }
 }

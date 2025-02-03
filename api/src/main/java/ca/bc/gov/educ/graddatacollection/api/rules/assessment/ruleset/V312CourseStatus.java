@@ -48,7 +48,7 @@ public class V312CourseStatus implements AssessmentValidationBaseRule {
 
         if (StringUtils.isBlank(student.getCourseStatus()) || (!student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.ACTIVE.getCode()) && !student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.WITHDRAWN.getCode()))) {
             log.debug("V312: Assessment registration must be A=active or W=withdraw :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
         }
         return errors;
     }

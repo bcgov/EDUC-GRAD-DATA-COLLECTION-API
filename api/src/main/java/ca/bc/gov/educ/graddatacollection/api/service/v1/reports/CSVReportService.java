@@ -3,9 +3,6 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1.reports;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.ErrorFilesetStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -76,12 +73,7 @@ public class CSVReportService {
                         "",
                         issue.getErrorFilesetValidationIssueTypeCode(),
                         issue.getValidationIssueSeverityCode(),
-                        switch (issue.getErrorFilesetValidationIssueTypeCode()) {
-                            case "ASSESSMENT" -> AssessmentStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            case "COURSE" -> CourseStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            case "DEMOGRAPHICS" -> DemographicStudentValidationIssueTypeCode.findByValue(issue.getValidationIssueCode()).getMessage();
-                            default -> "";
-                        }
+                        issue.getValidationIssueDescription()
                 ))
                 .toList();
     }

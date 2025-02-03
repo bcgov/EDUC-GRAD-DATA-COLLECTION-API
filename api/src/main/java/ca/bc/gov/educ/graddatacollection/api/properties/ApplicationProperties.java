@@ -63,8 +63,12 @@ public class ApplicationProperties {
   private String scholarshipsApiURL;
   @Value("${url.api.grad.student}")
   private String gradStudentApiURL;
+  @Value("${url.api.grad.student.graduation}")
+  private String gradStudentGraduationApiURL;
   @Value("${url.api.grad.program}")
   private String gradProgramApiURL;
+  @Value("${url.api.grad.course}")
+  private String gradCourseApiURL;
   @Value("${number.students.process.saga}")
   private String numberOfStudentsToProcessInSaga;
   @Value("${ches.endpoint.url}")
@@ -77,4 +81,6 @@ public class ApplicationProperties {
   private String chesTokenURL;
   @Value("${url.api.student}")
   private String studentApiURL;
+  @Value("${incoming.fileset.stale.in.hours}")
+  private Integer incomingFilesetStaleInHours;
 }

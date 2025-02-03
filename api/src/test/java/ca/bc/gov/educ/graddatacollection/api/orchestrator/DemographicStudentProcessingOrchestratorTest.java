@@ -3,17 +3,16 @@ package ca.bc.gov.educ.graddatacollection.api.orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaEventRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -29,6 +28,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     MessagePublisher messagePublisher;
     @Autowired
     DemographicStudentRepository demographicStudentRepository;
+    @Autowired
+    CourseStudentRepository courseStudentRepository;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
@@ -117,6 +120,33 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
                         new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
+        when(restUtils.getGraduationProgramCodes()).thenReturn(
+                List.of(
+                        new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("2018-EN", "B.C. Graduation Program 2018", "Description for 2018", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("2004-PF", "B.C. Graduation Program 2004", "Description for 2004", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("1996-EN", "B.C. Graduation Program 1996", "Description for 1996", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("1986-PF", "B.C. Graduation Program 1986", "Description for 1986", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("SCCP", "School Completion Certificate Program", "Description for SCCP", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                        new GraduationProgramCode("NONPROG", "Expired Program", "Description for Expired", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred")
+                )
+        );
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setDob("19900101");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecordId("03636018");
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("false");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30 00:00:00.000");
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
 
     @SneakyThrows
@@ -128,8 +158,14 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
+        var courseStudent = createMockCourseStudent(mockFileset);
+        courseStudentRepository.save(courseStudent);
+
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);
         demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setPen(courseStudent.getPen());
+        demographicStudentEntity.setFirstName("JIM");
+        demographicStudentEntity.setLastName("JACKSON");
         demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         demographicStudentEntity.setUpdateDate(LocalDateTime.now());
         demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);

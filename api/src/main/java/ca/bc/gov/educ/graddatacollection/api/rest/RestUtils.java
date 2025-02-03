@@ -1,13 +1,16 @@
 package ca.bc.gov.educ.graddatacollection.api.rest;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
@@ -34,6 +37,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +54,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RestUtils {
   public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   private static final String CONTENT_TYPE = "Content-Type";
+  private static final String EXCEPTION = "exception";
   private final Map<String, IndependentAuthority> authorityMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
@@ -57,10 +62,13 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   private final Map<String, GradGrade> gradGradeMap = new ConcurrentHashMap<>();
+  private final Map<String, LetterGrade> letterGradeMap = new ConcurrentHashMap<>();
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
   private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, ProgramRequirementCode> programRequirementCodeMap = new ConcurrentHashMap<>();
+  private final Map<String, GraduationProgramCode> gradProgramCodeMap = new ConcurrentHashMap<>();
+  private final Map<String, EquivalencyChallengeCode> equivalencyChallengeCodeMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -73,9 +81,12 @@ public class RestUtils {
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
   private final ReadWriteLock gradGradeLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock letterGradeLock = new ReentrantReadWriteLock();
   private final ReadWriteLock careerProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock optionalProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock programRequirementLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock gradProgramLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock equivalencyChallengeCodeLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -110,9 +121,12 @@ public class RestUtils {
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
     this.populateGradGradesMap();
+    this.populateLetterGradeMap();
     this.populateCareerProgramsMap();
     this.populateOptionalProgramsMap();
     this.populateProgramRequirementCodesMap();
+    this.populateEquivalencyChallengeCodeMap();
+    this.populateGradProgramCodesMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -216,6 +230,21 @@ public class RestUtils {
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
   }
 
+  public void populateLetterGradeMap() {
+    val writeLock = this.letterGradeLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val grade : this.getLetterGrades()) {
+        this.letterGradeMap.put(grade.getGrade(), grade);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache letter grade {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} letter grades to memory", this.letterGradeMap.values().size());
+  }
+
   public void populateGradGradesMap() {
     val writeLock = this.gradGradeLock.writeLock();
     try {
@@ -274,6 +303,49 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} program requirement codes to memory", this.programRequirementCodeMap.values().size());
+    log.debug(this.programRequirementCodeMap.values().toString());
+  }
+
+  public void populateGradProgramCodesMap() {
+    val writeLock = this.gradProgramLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val program : this.getGraduationProgramCodes()) {
+        this.gradProgramCodeMap.put(program.getProgramCode(), program);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache grad program codes {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} grad program codes to memory", this.gradProgramCodeMap.values().size());
+    log.debug(this.gradProgramCodeMap.values().toString());
+  }
+
+  public void populateEquivalencyChallengeCodeMap() {
+    val writeLock = this.equivalencyChallengeCodeLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val equivalencyCode : this.getEquivalencyChallengeCodes()) {
+        this.equivalencyChallengeCodeMap.put(equivalencyCode.getEquivalentOrChallengeCode(), equivalencyCode);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache equivalent or challenge codes {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} equivalent or challenge codes to memory", this.equivalencyChallengeCodeMap.values().size());
+  }
+
+  public List<EquivalencyChallengeCode> getEquivalencyChallengeCodes() {
+    log.info("Calling Grad course api to load equivalent or challenge codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradCourseApiURL() + "/equivalentOrChallengeCodes")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(EquivalencyChallengeCode.class)
+            .collectList()
+            .block();
   }
 
   public List<ProgramRequirementCode> getProgramRequirementCodes() {
@@ -283,6 +355,17 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(ProgramRequirementCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<GraduationProgramCode> getGraduationProgramCodes() {
+    log.info("Calling Grad api to load graduation program codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradProgramApiURL() + "/programs")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GraduationProgramCode.class)
             .collectList()
             .block();
   }
@@ -327,6 +410,17 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GradGrade.class)
+            .collectList()
+            .block();
+  }
+
+  public List<LetterGrade> getLetterGrades() {
+    log.info("Calling Grad student graduation api to load grades to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradStudentGraduationApiURL() + "/lettergrade")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(LetterGrade.class)
             .collectList()
             .block();
   }
@@ -509,11 +603,18 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public Student getStudentByPEN(UUID correlationID, String assignedPEN) {
     try {
-      final TypeReference<Student> refPenMatchResult = new TypeReference<>() {
-      };
+      final TypeReference<Event> refEvent = new TypeReference<>() {};
+      final TypeReference<Student> refPenMatchResult = new TypeReference<>() {};
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
+        Event responseEvent = objectMapper.readValue(responseMessage.getData(), refEvent);
+
+        if (EventOutcome.STUDENT_NOT_FOUND.equals(responseEvent.getEventOutcome())) {
+          log.info("Student not found for PEN: {}", assignedPEN);
+          throw new EntityNotFoundException(Student.class);
+        }
+
         return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
       } else {
         throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
@@ -534,13 +635,65 @@ public class RestUtils {
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID.toString()).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
-        return objectMapper.readValue(responseMessage.getData(), refGradStudentRecordResult);
+        String responseData = new String(responseMessage.getData(), StandardCharsets.UTF_8);
+
+        Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
+
+        if ("not found".equals(response.get(EXCEPTION))) {
+          throw new EntityNotFoundException(GradStudentRecord.class);
+        } else if ("error".equals(response.get(EXCEPTION))) {
+          log.error("An error occurred while fetching GradStudentRecord for Student ID {}", studentID);
+          throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
+        }
+
+        log.info("Success fetching GradStudentRecord for Student ID {}", studentID);
+        return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
-        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
       }
 
     } catch (final Exception ex) {
-      log.error("Error occurred calling GET GRAD STUDENT RECORD service :: " + ex.getMessage());
+      log.error("Error occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public CoregCoursesRecord getCoursesByExternalID(UUID correlationID, String externalID) {
+    try {
+      final TypeReference<CoregCoursesRecord> refCourseInformation = new TypeReference<>() {};
+
+      Event event = Event.builder()
+              .sagaId(correlationID)
+              .eventType(EventType.GET_COURSE_FROM_EXTERNAL_ID)
+              .eventPayload(externalID)
+              .replyTo("coreg-response-topic")
+              .build();
+
+      val responseMessage = this.messagePublisher
+              .requestMessage(TopicsEnum.COREG_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event))
+              .completeOnTimeout(null, 120, TimeUnit.SECONDS)
+              .get();
+
+      if (responseMessage == null) {
+        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+      }
+
+      byte[] responseData = responseMessage.getData();
+      if (responseData.length == 0) {
+        log.warn("No course information found for external ID {}", externalID);
+        throw new EntityNotFoundException(CoregCoursesRecord.class);
+      }
+
+      log.debug("Received response from NATS: {}", new String(responseData, StandardCharsets.UTF_8));
+      return objectMapper.readValue(responseData, refCourseInformation);
+
+    } catch (EntityNotFoundException ex) {
+      log.error("EntityNotFoundException occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
+      throw new EntityNotFoundException();
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
     }

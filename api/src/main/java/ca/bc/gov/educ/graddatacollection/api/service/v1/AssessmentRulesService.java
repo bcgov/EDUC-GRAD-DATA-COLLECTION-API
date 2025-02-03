@@ -5,8 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepo
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -15,12 +13,16 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class AssessmentRulesService {
+public class AssessmentRulesService extends BaseRulesService {
 
-    private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
     private final AssessmentStudentRepository assessmentStudentRepository;
+
+    public AssessmentRulesService(RestUtils restUtils, DemographicStudentRepository demographicStudentRepository, AssessmentStudentRepository assessmentStudentRepository) {
+        super(restUtils);
+        this.demographicStudentRepository = demographicStudentRepository;
+        this.assessmentStudentRepository = assessmentStudentRepository;
+    }
 
     public boolean containsDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname, String localID) {
         var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(incomingFilesetID, surname, pen, localID);
@@ -59,10 +61,6 @@ public class AssessmentRulesService {
 
     public AssessmentStudentDetailResponse getAssessmentStudentDetail(UUID studentID, UUID assessmentID){
         return restUtils.getAssessmentStudentDetail(studentID, assessmentID);
-    }
-
-    public Student getStudent(String pen){
-        return restUtils.getStudentByPEN(UUID.randomUUID(), pen);
     }
 
     public boolean checkIfStudentHasDuplicatesInFileset(String pen, String courseCode, String courseMonth, String courseYear){

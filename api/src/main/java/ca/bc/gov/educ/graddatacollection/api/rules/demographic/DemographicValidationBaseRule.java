@@ -10,11 +10,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DemographicValidationBaseRule extends Rule<StudentRuleData, DemographicStudentValidationIssue> {
-  default DemographicStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, DemographicStudentValidationFieldCode fieldCode, DemographicStudentValidationIssueTypeCode typeCode){
+  default DemographicStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, DemographicStudentValidationFieldCode fieldCode, DemographicStudentValidationIssueTypeCode typeCode, String description, String... messageArgs){
     DemographicStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new DemographicStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
+
+    String message = typeCode.getMessage();
+    if (messageArgs.length > 0) {
+      message = String.format(message, (Object[]) messageArgs);
+    }
+    sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(message);
+    sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
+
     return sdcSchoolCollectionStudentValidationIssue;
   }
 
