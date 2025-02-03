@@ -34,6 +34,14 @@ public enum StudentStatusCodes {
         return codes;
     }
 
+    public static List<String> getValidStudentStatusCodesExcludingM(){
+        List<String> codes = new ArrayList<>();
+        codes.add(A.getCode());
+        codes.add(D.getCode());
+        codes.add(T.getCode());
+        return codes;
+    }
+
     public static String getStudentStatusCodeM() {
         return M.getCode();
     }
