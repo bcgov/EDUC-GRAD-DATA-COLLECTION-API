@@ -13,19 +13,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V117 | ERROR    |  Must be a valid status	(A, D, M, T)                                  |              |
+ *  | V117 | ERROR    |  Must be a valid status	(A, D, T)                                     |              |
  *  |      |          |                                     	                              |              |
  *
  */
 
 @Component
 @Slf4j
-@Order(1700)
+@Order(1600)
 public class V117DemographicStudentStatus implements DemographicValidationBaseRule {
 
     @Override
@@ -47,8 +46,8 @@ public class V117DemographicStudentStatus implements DemographicValidationBaseRu
         log.debug("In executeValidation of StudentStatus-V117 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (!StudentStatusCodes.getValidStudentStatusCodes().contains(student.getStudentStatusCode())) {
-            log.debug("StudentStatus-V117:Invalid student status - must be A, D, M, or T for demographicStudentID :: {}", student.getDemographicStudentID());
+        if (!StudentStatusCodes.getValidStudentStatusCodesExcludingM().contains(student.getStudentStatusCode())) {
+            log.debug("StudentStatus-V117:Invalid student status - must be A, D, or T for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage()));
         }
         return errors;

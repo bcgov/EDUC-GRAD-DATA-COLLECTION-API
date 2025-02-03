@@ -13,6 +13,7 @@ public enum DemographicValidationRulesDependencyMatrix {
     ENTRY111("V111", new String[]{GRADE_INVALID.getCode()}),
     ENTRY112("V112", new String[]{GRADE_INVALID.getCode(), STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()}),
     ENTRY113("V113", new String[]{GRADE_INVALID.getCode(), STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()}),
+    ENTRY116("V116", new String[]{STUDENT_STATUS_INVALID.getCode(), STUDENT_PEN_NOT_FOUND.getCode()}),
     ENTRY118("V118", new String[]{STUDENT_STATUS_INVALID.getCode()}),
     ENTRY119("V119", new String[]{STUDENT_STATUS_INVALID.getCode()}),
     ENTRY120("V120", new String[]{STUDENT_STATUS_INVALID.getCode()}),
@@ -20,6 +21,7 @@ public enum DemographicValidationRulesDependencyMatrix {
     ENTRY123("V123", new String[]{STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()}),
     ENTRY125("V125", new String[]{STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()}),
     ENTRY127("V127", new String[]{SCCP_INVALID_DATE.getCode()}),
+    ENTRY130("V130", new String[]{STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode()})
     ;
 
     @Getter
