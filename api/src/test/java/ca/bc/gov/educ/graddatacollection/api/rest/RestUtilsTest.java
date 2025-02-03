@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -313,4 +314,21 @@ class RestUtilsTest {
         assertEquals("Adult Graduation Program", restUtils.getProgramRequirementCodes().getFirst().getLabel());
         assertEquals("B.C. Graduation Program", restUtils.getProgramRequirementCodes().getLast().getLabel());
     }
+
+    @Test
+    void testPopulateGradProgramCodesMap() {
+        List<GraduationProgramCode> mockGradPrograms = List.of(
+                new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred")
+        );
+
+        doReturn(mockGradPrograms).when(restUtils).getGraduationProgramCodes();
+
+        restUtils.populateGradProgramCodesMap();
+
+        assertEquals(2, restUtils.getGraduationProgramCodes().size());
+        assertEquals("Adult Graduation Program", restUtils.getGraduationProgramCodes().getFirst().getProgramName());
+        assertEquals("B.C. Graduation Program", restUtils.getGraduationProgramCodes().getLast().getProgramName());
+    }
+
 }
