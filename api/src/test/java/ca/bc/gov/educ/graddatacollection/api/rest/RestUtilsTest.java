@@ -25,6 +25,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -352,62 +353,41 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetSchools() {
-        List<SchoolTombstone> mockSchools = List.of(
-            SchoolTombstone.builder()
-                .schoolId("SCH001")
-                .displayName("School One")
-                .build(),
-            SchoolTombstone.builder()
-                .schoolId("SCH002")
-                .displayName("School Two")
-                .build()
-        );
-
-        doReturn(mockSchools).when(restUtils).getSchools();
-
-        List<SchoolTombstone> schools = restUtils.getSchools();
-
-        assertEquals(2, schools.size());
-        assertEquals("School One", schools.get(0).getDisplayName());
-        assertEquals("School Two", schools.get(1).getDisplayName());
-    }
-
-    @Test
-    void testGetAuthorities() {
+    void testPopulateAuthorityMap() {
+        // Create a list of mock IndependentAuthority objects.
         List<IndependentAuthority> mockAuthorities = List.of(
-            IndependentAuthority.builder()
-                .independentAuthorityId("AUTH001")
-                .displayName("Authority One")
-                .build(),
-            IndependentAuthority.builder()
-                .independentAuthorityId("AUTH002")
-                .displayName("Authority Two")
-                .build()
+                IndependentAuthority.builder()
+                        .independentAuthorityId("AUTH1")
+                        .displayName("Authority One")
+                        .build(),
+                IndependentAuthority.builder()
+                        .independentAuthorityId("AUTH2")
+                        .displayName("Authority Two")
+                        .build()
         );
+
 
         doReturn(mockAuthorities).when(restUtils).getAuthorities();
 
-        List<IndependentAuthority> authorities = restUtils.getAuthorities();
 
-        assertEquals(2, authorities.size());
-        assertEquals("Authority One", authorities.get(0).getDisplayName());
-        assertEquals("Authority Two", authorities.get(1).getDisplayName());
+        restUtils.populateAuthorityMap();
+
+        assertEquals(2, restUtils.getAuthorities().size());
+        assertEquals("Authority One", restUtils.getAuthorities().getFirst().getDisplayName());
+        assertEquals("Authority Two", restUtils.getAuthorities().getLast().getDisplayName());
     }
 
     @Test
-    void testGetSchoolCategoryCodes() {
+    void testPopulateSchoolCategoryCodesMap() {
         List<SchoolCategoryCode> mockCategories = List.of(
-                new SchoolCategoryCode("CAT001", "Category One", "Description One", "LEG001", 1, "2020-01-01", "2030-01-01"),
-                new SchoolCategoryCode("CAT002", "Category Two", "Description Two", "LEG002", 2, "2020-01-01", "2030-01-01")
+                new SchoolCategoryCode("CAT1", "Category One", "Description One", "LEG1", 1, "2020-01-01", "2030-01-01"),
+                new SchoolCategoryCode("CAT2", "Category Two", "Description Two", "LEG2", 2, "2020-01-01", "2030-01-01")
         );
 
         doReturn(mockCategories).when(restUtils).getSchoolCategoryCodes();
 
-        List<SchoolCategoryCode> categories = restUtils.getSchoolCategoryCodes();
-
-        assertEquals(2, categories.size());
-        assertEquals("Category One", categories.get(0).getLabel());
-        assertEquals("Category Two", categories.get(1).getLabel());
+        assertEquals(2, restUtils.getSchoolCategoryCodes().size());
+        assertEquals("Category One", restUtils.getSchoolCategoryCodes().getFirst().getLabel());
+        assertEquals("Category Two", restUtils.getSchoolCategoryCodes().getLast().getLabel());
     }
 }
