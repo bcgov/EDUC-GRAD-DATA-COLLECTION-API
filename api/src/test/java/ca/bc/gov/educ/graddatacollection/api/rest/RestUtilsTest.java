@@ -8,6 +8,10 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowab
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.IndependentAuthority;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +22,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -312,5 +318,76 @@ class RestUtilsTest {
         assertEquals(2, restUtils.getProgramRequirementCodes().size());
         assertEquals("Adult Graduation Program", restUtils.getProgramRequirementCodes().getFirst().getLabel());
         assertEquals("B.C. Graduation Program", restUtils.getProgramRequirementCodes().getLast().getLabel());
+    }
+
+    @Test
+    void testPopulateGradProgramCodesMap() {
+        List<GraduationProgramCode> mockGradPrograms = List.of(
+                new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
+                new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred")
+        );
+
+        doReturn(mockGradPrograms).when(restUtils).getGraduationProgramCodes();
+
+        restUtils.populateGradProgramCodesMap();
+
+        assertEquals(2, restUtils.getGraduationProgramCodes().size());
+        assertEquals("Adult Graduation Program", restUtils.getGraduationProgramCodes().getFirst().getProgramName());
+        assertEquals("B.C. Graduation Program", restUtils.getGraduationProgramCodes().getLast().getProgramName());
+    }
+
+    @Test
+    void testPopulateFacilityTypeCodesMap() {
+        List<FacilityTypeCode> mockFacilityTypes = List.of(
+                new FacilityTypeCode("FT1", "Facility One", "Description for Facility One", "LEG1", 1, "2020-01-01", "2030-01-01"),
+                new FacilityTypeCode("FT2", "Facility Two", "Description for Facility Two", "LEG2", 2, "2020-01-01", "2030-01-01")
+        );
+
+        doReturn(mockFacilityTypes).when(restUtils).getFacilityTypeCodes();
+
+        restUtils.populateFacilityTypeCodesMap();
+
+        assertEquals(2, restUtils.getFacilityTypeCodes().size());
+        assertEquals("Facility One", restUtils.getFacilityTypeCodes().getFirst().getLabel());
+        assertEquals("Facility Two", restUtils.getFacilityTypeCodes().getLast().getLabel());
+    }
+
+    @Test
+    void testPopulateAuthorityMap() {
+        // Create a list of mock IndependentAuthority objects.
+        List<IndependentAuthority> mockAuthorities = List.of(
+                IndependentAuthority.builder()
+                        .independentAuthorityId("AUTH1")
+                        .displayName("Authority One")
+                        .build(),
+                IndependentAuthority.builder()
+                        .independentAuthorityId("AUTH2")
+                        .displayName("Authority Two")
+                        .build()
+        );
+
+
+        doReturn(mockAuthorities).when(restUtils).getAuthorities();
+
+
+        restUtils.populateAuthorityMap();
+
+        assertEquals(2, restUtils.getAuthorities().size());
+        assertEquals("Authority One", restUtils.getAuthorities().getFirst().getDisplayName());
+        assertEquals("Authority Two", restUtils.getAuthorities().getLast().getDisplayName());
+    }
+
+    @Test
+    void testPopulateSchoolCategoryCodesMap() {
+        List<SchoolCategoryCode> mockCategories = List.of(
+                new SchoolCategoryCode("CAT1", "Category One", "Description One", "LEG1", 1, "2020-01-01", "2030-01-01"),
+                new SchoolCategoryCode("CAT2", "Category Two", "Description Two", "LEG2", 2, "2020-01-01", "2030-01-01")
+        );
+
+        doReturn(mockCategories).when(restUtils).getSchoolCategoryCodes();
+
+        assertEquals(2, restUtils.getSchoolCategoryCodes().size());
+        assertEquals("Category One", restUtils.getSchoolCategoryCodes().getFirst().getLabel());
+        assertEquals("Category Two", restUtils.getSchoolCategoryCodes().getLast().getLabel());
     }
 }

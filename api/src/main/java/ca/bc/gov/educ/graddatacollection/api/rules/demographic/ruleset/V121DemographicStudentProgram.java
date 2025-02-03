@@ -5,7 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.ProgramRequirementCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GraduationProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import io.micrometer.common.util.StringUtils;
@@ -53,13 +53,22 @@ public class V121DemographicStudentProgram implements DemographicValidationBaseR
         log.debug("In executeValidation of StudentProgram-V121 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        List<ProgramRequirementCode> programRequirementCodes = restUtils.getProgramRequirementCodes();
+        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodes();
+        String studentProgram = student.getGradRequirementYear();
 
-        if (!StringUtils.isEmpty(student.getGradRequirementYear())
-        && programRequirementCodes.stream().noneMatch(code -> code.getProReqCode().equalsIgnoreCase(student.getGradRequirementYear()))) {
-            log.debug("StudentProgram-V121: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
+        if (StringUtils.isNotEmpty(student.getGradRequirementYear())) {
+            boolean isValid = graduationProgramCodes.stream().anyMatch(code -> {
+                String gradCode = code.getProgramCode();
+                String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
+
+                return baseGradCode.equalsIgnoreCase(studentProgram);
+            });
+            if (!isValid) {
+                log.debug("StudentProgram-V121: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
+            }
         }
+
         return errors;
     }
 }
