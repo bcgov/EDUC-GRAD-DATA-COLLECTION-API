@@ -83,6 +83,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecordId(school.getSchoolId());
         gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("false");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);
