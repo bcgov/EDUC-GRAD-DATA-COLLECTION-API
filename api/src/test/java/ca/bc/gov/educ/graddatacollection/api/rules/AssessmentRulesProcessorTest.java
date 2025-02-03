@@ -661,7 +661,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        assessmentStudent.setExamSchoolID(null);
+        assessmentStudent.setExamSchoolID(UUID.randomUUID());
         when(this.restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.ofNullable(null));
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
