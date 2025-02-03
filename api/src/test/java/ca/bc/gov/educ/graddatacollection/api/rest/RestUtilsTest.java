@@ -8,6 +8,10 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowab
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.IndependentAuthority;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -331,4 +335,79 @@ class RestUtilsTest {
         assertEquals("B.C. Graduation Program", restUtils.getGraduationProgramCodes().getLast().getProgramName());
     }
 
+    @Test
+    void testPopulateFacilityTypeCodesMap() {
+        List<FacilityTypeCode> mockFacilityTypes = List.of(
+                new FacilityTypeCode("FT1", "Facility One", "Description for Facility One", "LEG1", 1, "2020-01-01", "2030-01-01"),
+                new FacilityTypeCode("FT2", "Facility Two", "Description for Facility Two", "LEG2", 2, "2020-01-01", "2030-01-01")
+        );
+
+        doReturn(mockFacilityTypes).when(restUtils).getFacilityTypeCodes();
+
+        restUtils.populateFacilityTypeCodesMap();
+
+        assertEquals(2, restUtils.getFacilityTypeCodes().size());
+        assertEquals("Facility One", restUtils.getFacilityTypeCodes().getFirst().getLabel());
+        assertEquals("Facility Two", restUtils.getFacilityTypeCodes().getLast().getLabel());
+    }
+
+    @Test
+    void testGetSchools() {
+        List<SchoolTombstone> mockSchools = List.of(
+            SchoolTombstone.builder()
+                .schoolId("SCH001")
+                .displayName("School One")
+                .build(),
+            SchoolTombstone.builder()
+                .schoolId("SCH002")
+                .displayName("School Two")
+                .build()
+        );
+
+        doReturn(mockSchools).when(restUtils).getSchools();
+
+        List<SchoolTombstone> schools = restUtils.getSchools();
+
+        assertEquals(2, schools.size());
+        assertEquals("School One", schools.get(0).getDisplayName());
+        assertEquals("School Two", schools.get(1).getDisplayName());
+    }
+
+    @Test
+    void testGetAuthorities() {
+        List<IndependentAuthority> mockAuthorities = List.of(
+            IndependentAuthority.builder()
+                .independentAuthorityId("AUTH001")
+                .displayName("Authority One")
+                .build(),
+            IndependentAuthority.builder()
+                .independentAuthorityId("AUTH002")
+                .displayName("Authority Two")
+                .build()
+        );
+
+        doReturn(mockAuthorities).when(restUtils).getAuthorities();
+
+        List<IndependentAuthority> authorities = restUtils.getAuthorities();
+
+        assertEquals(2, authorities.size());
+        assertEquals("Authority One", authorities.get(0).getDisplayName());
+        assertEquals("Authority Two", authorities.get(1).getDisplayName());
+    }
+
+    @Test
+    void testGetSchoolCategoryCodes() {
+        List<SchoolCategoryCode> mockCategories = List.of(
+                new SchoolCategoryCode("CAT001", "Category One", "Description One", "LEG001", 1, "2020-01-01", "2030-01-01"),
+                new SchoolCategoryCode("CAT002", "Category Two", "Description Two", "LEG002", 2, "2020-01-01", "2030-01-01")
+        );
+
+        doReturn(mockCategories).when(restUtils).getSchoolCategoryCodes();
+
+        List<SchoolCategoryCode> categories = restUtils.getSchoolCategoryCodes();
+
+        assertEquals(2, categories.size());
+        assertEquals("Category One", categories.get(0).getLabel());
+        assertEquals("Category Two", categories.get(1).getLabel());
+    }
 }
