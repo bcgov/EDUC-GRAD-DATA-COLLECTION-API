@@ -33,7 +33,7 @@ public class ErrorFilesetStudentService {
             stud.setLocalID(localID);
             stud.setLastName(lastName);
             stud.setFirstName(firstName);
-            stud.setBirthDate(birthDate);
+            stud.setBirthdate(birthDate);
             errorFilesetStudentRepository.save(stud);
         }else if(preexisting.isEmpty()){
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
@@ -44,7 +44,7 @@ public class ErrorFilesetStudentService {
                 newErrorFilesetStudent.setLastName(lastName);
                 newErrorFilesetStudent.setFirstName(firstName);
                 newErrorFilesetStudent.setLocalID(localID);
-                newErrorFilesetStudent.setBirthDate(birthDate);
+                newErrorFilesetStudent.setBirthdate(birthDate);
             }
             errorFilesetStudentRepository.save(newErrorFilesetStudent);
         }
