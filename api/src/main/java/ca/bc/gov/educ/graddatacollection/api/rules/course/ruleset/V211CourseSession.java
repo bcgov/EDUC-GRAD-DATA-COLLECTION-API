@@ -19,26 +19,26 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V210 | WARN     | Course session date plus day of 01 should not be before the course    |   V202, V209 |
- *  |      |          | start date                                                            |   V237       |
+ *  | V211 | WARN     | Course session date plus day of 01 should not be after the course     |   V202, V209 |
+ *  |      |          | completion date                                                       |   V237       |
  */
 @Component
 @Slf4j
-@Order(100)
-public class V210CourseSession implements CourseValidationBaseRule {
+@Order(110)
+public class V211CourseSession implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public V210CourseSession(CourseRulesService courseRulesService) {
+    public V211CourseSession(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V210: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        log.debug("In shouldExecute of V211: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V210", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V211", validationErrorsMap);
 
-        log.debug("In shouldExecute of V210: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V211: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -48,20 +48,20 @@ public class V210CourseSession implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V210 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V211 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         String paddedCourseCode = String.format("%-5s", student.getCourseCode());
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + student.getCourseLevel());
 
-        if (coursesRecord != null) {
+        if (coursesRecord != null && StringUtils.isNotBlank(coursesRecord.getCompletionEndDate())) {
             LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
-            String dateOnlyStr = coursesRecord.getStartDate().split(" ")[0];
-            LocalDate courseStartDate = LocalDate.parse(dateOnlyStr);
+            String dateOnlyStr = coursesRecord.getCompletionEndDate().split(" ")[0];
+            LocalDate courseCompletionEndDate = LocalDate.parse(dateOnlyStr);
 
-            if (courseSessionDate.isBefore(courseStartDate)) {
-                log.debug("V210: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage()));
+            if (courseSessionDate.isAfter(courseCompletionEndDate)) {
+                log.debug("V211: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID.getMessage()));
             }
         }
 

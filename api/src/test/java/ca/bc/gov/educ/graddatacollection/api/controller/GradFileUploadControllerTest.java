@@ -101,7 +101,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 0 has extraneous characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 1 has extraneous characters."));
     }
 
     @Test
@@ -123,7 +123,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 0 has extraneous characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 1 has extraneous characters."));
     }
 
     @Test
@@ -145,7 +145,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 0 is missing characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 1 is missing characters."));
     }
 
     @Test

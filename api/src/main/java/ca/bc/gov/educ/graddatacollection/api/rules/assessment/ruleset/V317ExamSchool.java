@@ -87,6 +87,8 @@ public class V317ExamSchool implements AssessmentValidationBaseRule {
             if (!(openDate.isBefore(currentDate) && closeDate.isAfter(currentDate))) {
                 return false;
             }
+        } else {
+            return false;
         }
         return true;
     }
