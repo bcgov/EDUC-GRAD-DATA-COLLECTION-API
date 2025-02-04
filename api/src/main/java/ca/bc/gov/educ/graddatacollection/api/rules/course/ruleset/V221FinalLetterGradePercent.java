@@ -22,27 +22,27 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V220 | ERROR    | Final letter grade must match final pct unless course session is	  | V202, V217,  |
- *  |      |          | prior to 199409.                                                      | V218, V219   |
+ *  | V221 | ERROR    | Final letter grade must match final pct unless course session is	  | V202, V218,  |
+ *  |      |          | prior to 199409.                                                      | V219, V220   |
  */
 @Component
 @Slf4j
-@Order(200)
-public class V220FinalLetterGradePercent implements CourseValidationBaseRule {
+@Order(210)
+public class V221FinalLetterGradePercent implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V220FinalLetterGradePercent(RestUtils restUtils) {
+    public V221FinalLetterGradePercent(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V220: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        log.debug("In shouldExecute of V221: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V220", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V221", validationErrorsMap);
 
-        log.debug("In shouldExecute of V220: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V221: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -52,7 +52,7 @@ public class V220FinalLetterGradePercent implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V220 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V221 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getCourseYear()) && StringUtils.isNotBlank(student.getCourseMonth())) {
@@ -69,13 +69,13 @@ public class V220FinalLetterGradePercent implements CourseValidationBaseRule {
                     if (optionalStudentLetterGrade.isEmpty() ||
                             finalPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
                             finalPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
-                        log.debug("V220: Error: The final percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                        log.debug("V221: Error: The final percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
                         errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
                     }
                 }
 
             } catch (NumberFormatException | DateTimeException e) {
-                log.debug("V220: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
+                log.debug("V221: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
             }
         }
         return errors;

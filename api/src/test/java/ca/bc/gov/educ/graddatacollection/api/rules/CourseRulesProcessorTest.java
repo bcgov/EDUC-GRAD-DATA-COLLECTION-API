@@ -466,7 +466,44 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV217FinalPercent() {
+    void testV217FinalLetterGradeAndPercentNotBlank() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        YearMonth validFutureCourseSession = YearMonth.now().plusMonths(6);
+        courseStudent.setCourseYear(String.valueOf(validFutureCourseSession.getYear()));
+        courseStudent.setCourseMonth(String.format("%02d", validFutureCourseSession.getMonthValue()));
+
+        courseStudent.setFinalGrade("");
+        courseStudent.setFinalPercentage("");
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setFinalGrade("A");
+        courseStudent.setFinalPercentage("90");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getCode());
+    }
+
+    @Test
+    void testV218FinalPercent() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -502,7 +539,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV218FinalPercent() {
+    void testV219FinalPercent() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -547,7 +584,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV219FinalLetterGrade() {
+    void testV220FinalLetterGrade() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -577,7 +614,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV2220FinalLetterGradePercent() {
+    void testV221FinalLetterGradePercent() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -607,7 +644,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV221FinalLetterGradeRM() {
+    void testV222FinalLetterGradeRM() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -640,7 +677,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV222FinalLetterGradeNotRM() {
+    void testV223FinalLetterGradeNotRM() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -671,43 +708,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.FINAL_LETTER_GRADE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_RM.getCode());
-    }
-
-    @Test
-    void testV223FinalLetterGradeAndPercentNotBlank() {
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudentRepository.save(demStudent);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        courseStudent.setPen(demStudent.getPen());
-        courseStudent.setLocalID(demStudent.getLocalID());
-        courseStudent.setLastName(demStudent.getLastName());
-        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
-        YearMonth validFutureCourseSession = YearMonth.now().plusMonths(6);
-        courseStudent.setCourseYear(String.valueOf(validFutureCourseSession.getYear()));
-        courseStudent.setCourseMonth(String.format("%02d", validFutureCourseSession.getMonthValue()));
-
-        courseStudent.setFinalGrade("");
-        courseStudent.setFinalPercentage("");
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError1.size()).isZero();
-
-        courseStudent.setFinalGrade("A");
-        courseStudent.setFinalPercentage("90");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getCode());
     }
 
     @Test

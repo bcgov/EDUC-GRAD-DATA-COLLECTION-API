@@ -19,22 +19,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V223 | ERROR    | Final pct or Final Letter Grade should not be included for future     | V202, V217   |
- *  |      |          | courses                                                               | V219         |
+ *  | V217 | ERROR    | Final pct or Final Letter Grade should not be included for future     | V202, V212   |
+ *  |      |          | courses                                                               |              |
  *  |      |          | Future = Course Session > today's date                                |              |
  */
 @Component
 @Slf4j
-@Order(230)
-public class V223FinalLetterGradePercent implements CourseValidationBaseRule {
+@Order(170)
+public class V217FinalLetterGradePercent implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V223: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        log.debug("In shouldExecute of V217: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V223", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V217", validationErrorsMap);
 
-        log.debug("In shouldExecute of V223: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V217: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -44,7 +44,7 @@ public class V223FinalLetterGradePercent implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V223 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V217 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getCourseYear()) && StringUtils.isNotBlank(student.getCourseMonth())) {
@@ -53,11 +53,11 @@ public class V223FinalLetterGradePercent implements CourseValidationBaseRule {
                 YearMonth currentDate = YearMonth.now();
 
                 if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalGrade()) || StringUtils.isNotBlank(student.getFinalPercentage()))) {
-                    log.debug("V223: Error: Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                    log.debug("V217: Error: Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
-                log.debug("V223: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
+                log.debug("V217: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
             }
         }
         return errors;
