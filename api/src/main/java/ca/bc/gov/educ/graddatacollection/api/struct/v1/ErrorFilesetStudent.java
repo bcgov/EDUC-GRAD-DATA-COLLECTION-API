@@ -36,6 +36,7 @@ public class ErrorFilesetStudent extends BaseRequest implements Serializable {
 
     private String firstName;
 
-    private List<ErrorFilesetStudentValidationIssue> errorFilesetStudentValidationIssues;
+    private String birthdate;
 
+    private List<ErrorFilesetStudentValidationIssue> errorFilesetStudentValidationIssues;
 }
