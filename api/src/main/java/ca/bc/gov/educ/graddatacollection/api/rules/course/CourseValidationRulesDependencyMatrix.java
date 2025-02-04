@@ -10,6 +10,7 @@ public enum CourseValidationRulesDependencyMatrix {
     ENTRY203("V203", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode()}),
     ENTRY209("V209", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode()}),
     ENTRY210("V210", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getCode()}),
+    ENTRY211("V211", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getCode()}),
     ENTRY212("V212", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode()}),
     ENTRY214("V214", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode()}),
     ENTRY215("V215", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()}),
