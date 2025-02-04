@@ -37,7 +37,7 @@ public class ErrorFilesetStudentEntity {
     String firstName;
 
     @Column(name = "BIRTHDATE")
-    String birthDate;
+    String birthdate;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
