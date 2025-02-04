@@ -17,21 +17,21 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V221 | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | V202, V219   |
+ *  | V223 | ERROR    | Course Code of GT/GTF can only have a letter grade of RM              | V202, V219   |
  *
  */
 @Component
 @Slf4j
-@Order(210)
-public class V221FinalLetterGrade implements CourseValidationBaseRule {
+@Order(230)
+public class V223FinalLetterGrade implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V221: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        log.debug("In shouldExecute of V223: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V221", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V223", validationErrorsMap);
 
-        log.debug("In shouldExecute of V221: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V223: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -41,14 +41,14 @@ public class V221FinalLetterGrade implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V221 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V223 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         List<String> acceptableCourses = List.of("GT", "GTF");
 
-        if (StringUtils.equalsIgnoreCase(student.getFinalGrade(), "RM") && acceptableCourses.stream().noneMatch(course -> StringUtils.equalsIgnoreCase(course, student.getCourseCode()))) {
-            log.debug("V221: Error: RM can only be used for course codes GT or GTF. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM.getMessage()));
+        if (acceptableCourses.stream().anyMatch(course -> StringUtils.equalsIgnoreCase(course, student.getCourseCode())) && !StringUtils.equalsIgnoreCase(student.getFinalGrade(), "RM")) {
+            log.debug("V223: Error: Invalid letter grade reported for course code GT or GTF.  Use RM (Requirement Met). This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_RM, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_RM.getMessage()));
         }
         return errors;
     }

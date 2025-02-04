@@ -11,16 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.DateTimeException;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V218 | ERROR    | If course session is prior to 199409 no Final percent should be       |   V202       |
- *                      entered for these courses.  This field should be blank.
+ *  | V218 | ERROR    | Final percent cannot be negative or greater than 100                  | V217         |
  *
  */
 @Component
@@ -47,20 +44,19 @@ public class V218FinalPercent implements CourseValidationBaseRule {
         log.debug("In executeValidation of V218 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(student.getCourseYear()) && StringUtils.isNotBlank(student.getCourseMonth())) {
+        if (StringUtils.isNotBlank(student.getFinalPercentage())) {
             try {
-                YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
+                double finalePercentage = Double.parseDouble(student.getFinalPercentage());
 
-                YearMonth cutoffDate = YearMonth.of(1994, 9);
-
-                if (courseSession.isBefore(cutoffDate) && !student.getFinalPercentage().isBlank()) {
-                    log.debug("V218: Error: For course session dates prior to 199409 the final percent must be blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
+                if (finalePercentage < 0 || finalePercentage > 100) {
+                    log.debug("V218: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
                 }
-            } catch (NumberFormatException | DateTimeException e) {
-                log.debug("V218: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
+            } catch (NumberFormatException e) {
+                log.debug("V218: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
             }
+
         }
         return errors;
     }

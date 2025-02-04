@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V222 | ERROR    | Course Code of GT/GTF can only have a letter grade of RM              | V202, V219   |
+ *  | V222 | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | V202, V219   |
  *
  */
 @Component
@@ -46,9 +46,9 @@ public class V222FinalLetterGrade implements CourseValidationBaseRule {
 
         List<String> acceptableCourses = List.of("GT", "GTF");
 
-        if (acceptableCourses.stream().anyMatch(course -> StringUtils.equalsIgnoreCase(course, student.getCourseCode())) && !StringUtils.equalsIgnoreCase(student.getFinalGrade(), "RM")) {
-            log.debug("V222: Error: Invalid letter grade reported for course code GT or GTF.  Use RM (Requirement Met). This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_RM, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_RM.getMessage()));
+        if (StringUtils.equalsIgnoreCase(student.getFinalGrade(), "RM") && acceptableCourses.stream().noneMatch(course -> StringUtils.equalsIgnoreCase(course, student.getCourseCode()))) {
+            log.debug("V222: Error: RM can only be used for course codes GT or GTF. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM.getMessage()));
         }
         return errors;
     }
