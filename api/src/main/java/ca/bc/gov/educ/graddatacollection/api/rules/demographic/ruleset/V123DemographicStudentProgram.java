@@ -14,8 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +22,9 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V123 | WARN     | Warn if the program is closed and the student has not yet graduated   |  V121        |
- *  |      |          |                                                                       |              |
+ *  |      |          | If the students' program completion date is null and the program has  |              |
+ *                      expired then Warning.                                                 |              |
+ *                      If the students' program completion date is not null - no warning     |              |
  */
 
 @Component
@@ -59,42 +59,32 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
         log.debug("In executeValidation of StudentProgram-V123 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-//        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-//
-//        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodes();
-//        String studentProgram = student.getGradRequirementYear();
+        var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
+        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodes();
+        String studentProgram = student.getGradRequirementYear();
 
-//        if (gradStudent != null && StringUtils.isNotEmpty(studentProgram)) {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-//            String completionDateStr = gradStudent.getProgramCompletionDate();
-//
-//            if (StringUtils.isEmpty(completionDateStr)) {
-//                log.debug("No program completion date provided for grad student with PEN {}. Skipping program closed validation.", student.getPen());
-//            } else {
-//                Date programCompletionDate;
-//
-//                try {
-//                    programCompletionDate = sdf.parse(gradStudent.getProgramCompletionDate());
-//                } catch (ParseException e) {
-//                    log.error("Error parsing program completion date: {}", gradStudent.getProgramCompletionDate());
-//                    throw new RuntimeException(e);
-//                }
-//
-//                boolean programClosed = graduationProgramCodes.stream().anyMatch(code -> {
-//                    String gradCode = code.getProgramCode();
-//                    String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
-//                    if (baseGradCode.equalsIgnoreCase(studentProgram)) {
-//                        return code.getExpiryDate().before(programCompletionDate);
-//                    }
-//                    return false;
-//                });
-//
-//                if (programClosed) {
-//                    log.debug("StudentProgram-V123: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
-//                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED.getMessage()));
-//                }
-//            }
-//        }
+        if (gradStudent != null && StringUtils.isNotEmpty(studentProgram)) {
+            String completionDateStr = gradStudent.getProgramCompletionDate();
+
+            if (StringUtils.isEmpty(completionDateStr)) {
+                Date now = new Date();
+                boolean programClosed = graduationProgramCodes.stream().anyMatch(code -> {
+                    String gradCode = code.getProgramCode();
+                    String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
+                    if (baseGradCode.equalsIgnoreCase(studentProgram)) {
+                        return code.getExpiryDate().before(now);
+                    }
+                    return false;
+                });
+
+                if (programClosed) {
+                    log.debug("StudentProgram-V123: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED.getMessage()));
+                }
+            } else {
+                log.debug("StudentProgram-V123: Program completion date provided for grad student with PEN {}. Skipping V123.", student.getPen());
+            }
+        }
         return errors;
     }
 }
