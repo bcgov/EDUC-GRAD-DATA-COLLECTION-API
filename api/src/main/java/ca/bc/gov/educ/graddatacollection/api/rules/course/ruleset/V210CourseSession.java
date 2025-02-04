@@ -20,7 +20,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V210 | WARN     | Course session date plus day of 01 should not be before the course    |   V202, V209 |
- *  |      |          | start date                                                            |              |
+ *  |      |          | start date                                                            |   V237       |
  */
 @Component
 @Slf4j
@@ -54,8 +54,7 @@ public class V210CourseSession implements CourseValidationBaseRule {
         String paddedCourseCode = String.format("%-5s", student.getCourseCode());
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + student.getCourseLevel());
 
-        // todo remove is not blank and regex on get course year if we add a rule to format check course year
-        if (coursesRecord != null && StringUtils.isNotBlank(student.getCourseYear()) && student.getCourseYear().matches("\\d{4}")) {
+        if (coursesRecord != null) {
             LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
             String dateOnlyStr = coursesRecord.getStartDate().split(" ")[0];
             LocalDate courseStartDate = LocalDate.parse(dateOnlyStr);
