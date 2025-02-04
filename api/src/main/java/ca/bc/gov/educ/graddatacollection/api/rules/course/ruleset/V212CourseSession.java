@@ -20,8 +20,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V212 | ERROR    | Course session must be no greater than next school year or no less    | V202         |
- *                      than 198401
+ *  | V212 | ERROR    | Course session must be no greater than next school year or no less    | V202, V209,  |
+ *                      than 198401                                                             V237
  */
 @Component
 @Slf4j
@@ -47,23 +47,22 @@ public class V212CourseSession implements CourseValidationBaseRule {
         log.debug("In executeValidation of V212 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(student.getCourseYear()) && StringUtils.isNotBlank(student.getCourseMonth())) {
-            try {
-                YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
-                YearMonth earliestValidDate = YearMonth.of(1984, 1);
-                LocalDate today = LocalDate.now();
-                YearMonth currentSchoolYearStart = YearMonth.of(today.getMonthValue() >= 10 ? today.getYear() : today.getYear() - 1, 10);
-                YearMonth nextSchoolYearEnd = YearMonth.of(currentSchoolYearStart.getYear() + 1, 9);
+        try {
+            YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
+            YearMonth earliestValidDate = YearMonth.of(1984, 1);
+            LocalDate today = LocalDate.now();
+            YearMonth currentSchoolYearStart = YearMonth.of(today.getMonthValue() >= 10 ? today.getYear() : today.getYear() - 1, 10);
+            YearMonth nextSchoolYearEnd = YearMonth.of(currentSchoolYearStart.getYear() + 1, 9);
 
-                if (courseSession.isBefore(earliestValidDate) || courseSession.isAfter(nextSchoolYearEnd)) {
-                    log.debug("V212: Error: Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
-                }
-            } catch (NumberFormatException | DateTimeException e) {
-                log.debug("V212: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
+            if (courseSession.isBefore(earliestValidDate) || courseSession.isAfter(nextSchoolYearEnd)) {
+                log.debug("V212: Error: Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
             }
+        } catch (NumberFormatException | DateTimeException e) {
+            log.debug("V212: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
         }
+
         return errors;
     }
 
