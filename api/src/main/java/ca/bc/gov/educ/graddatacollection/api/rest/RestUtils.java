@@ -627,7 +627,7 @@ public class RestUtils {
     }
   }
 
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class, EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public GradStudentRecord getGradStudentRecordByStudentID(UUID correlationID, UUID studentID) {
     try {
       final TypeReference<GradStudentRecord> refGradStudentRecordResult = new TypeReference<>() {
@@ -642,9 +642,10 @@ public class RestUtils {
         log.debug("getGradStudentRecordByStudentID response" + response.toString());
 
         if ("not found".equals(response.get(EXCEPTION))) {
+          log.error("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new EntityNotFoundException(GradStudentRecord.class);
         } else if ("error".equals(response.get(EXCEPTION))) {
-          log.error("An error occurred while fetching GradStudentRecord for Student ID {}", studentID);
+          log.error("An exception error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
         }
 
@@ -654,6 +655,9 @@ public class RestUtils {
         throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
       }
 
+    } catch (EntityNotFoundException ex) {
+      log.error("Entity Not Found occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
+      throw ex;
     } catch (final Exception ex) {
       log.error("Error occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
