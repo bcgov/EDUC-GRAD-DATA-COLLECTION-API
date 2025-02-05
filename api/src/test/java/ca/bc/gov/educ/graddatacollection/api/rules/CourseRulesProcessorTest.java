@@ -10,9 +10,11 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProc
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +27,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +73,18 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord traxCode = new CourseCodeRecord();
+        traxCode.setCourseID("856787");
+        traxCode.setExternalCode("PH   11");
+        traxCode.setOriginatingSystem("39"); // TRAX
+        courseCodes.add(traxCode);
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setCourseID("856787");
+        myEdBCCode.setExternalCode("MPH--11");
+        myEdBCCode.setOriginatingSystem("38"); // MyEdBC
+        courseCodes.add(myEdBCCode);
+        coursesRecord.setCourseCode(courseCodes);
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 
@@ -169,6 +185,83 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_STATUS.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode());
+    }
+
+    @Test
+    void testV206CourseCodeDefaultPasses() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileset = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileset);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileset);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        StudentRuleData ruleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        var issues = rulesProcessor.processRules(ruleData);
+        assertThat(issues).isEmpty();
+    }
+
+    @Test
+    void testV206CourseCodeWithOnlyMyEdBC() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileset = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileset);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileset);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        CoregCoursesRecord myEdBCOnlyRecord = new CoregCoursesRecord();
+        myEdBCOnlyRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        myEdBCOnlyRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setExternalCode("MPH--11");
+        myEdBCCode.setOriginatingSystem("38"); // MyEdBC only
+        courseCodes.add(myEdBCCode);
+        myEdBCOnlyRecord.setCourseCode(courseCodes);
+
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(myEdBCOnlyRecord);
+
+        StudentRuleData ruleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        var issues = rulesProcessor.processRules(ruleData);
+
+        assertThat(issues).isNotEmpty();
+        assertThat(issues.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(issues.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getCode());
+    }
+
+    @Test
+    void testV206CourseCodeWithRecordButNoCodes() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileset = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileset);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileset);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        CoregCoursesRecord emptyCodesRecord = new CoregCoursesRecord();
+        emptyCodesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        emptyCodesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        emptyCodesRecord.setCourseCode(new HashSet<>());  // No course code records
+
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(emptyCodesRecord);
+
+        StudentRuleData ruleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        var issues = rulesProcessor.processRules(ruleData);
+
+        assertThat(issues).isNotEmpty();
+        assertThat(issues.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(issues.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getCode());
     }
 
     @Test
@@ -279,6 +372,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         coursesRecord.setCompletionEndDate(null);
+        coursesRecord.setCourseCode(new HashSet<>());
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.stream().noneMatch(code -> code.getValidationIssueFieldCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID.getCode()))).isTrue();

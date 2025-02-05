@@ -5,6 +5,7 @@ import lombok.Getter;
 public enum CourseStudentValidationFieldCode {
   PEN("PEN"),
   COURSE_STATUS("COURSE_STATUS"),
+  COURSE_CODE("COURSE_CODE"),
   COURSE_SESSION("COURSE_SESSION"),
   COURSE_MONTH("COURSE_MONTH"),
   COURSE_YEAR("COURSE_YEAR"),
