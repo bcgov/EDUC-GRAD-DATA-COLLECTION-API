@@ -639,6 +639,8 @@ public class RestUtils {
 
         Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
 
+        log.debug("getGradStudentRecordByStudentID response" + response.toString());
+
         if ("not found".equals(response.get(EXCEPTION))) {
           throw new EntityNotFoundException(GradStudentRecord.class);
         } else if ("error".equals(response.get(EXCEPTION))) {
