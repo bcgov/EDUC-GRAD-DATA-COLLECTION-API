@@ -9,6 +9,8 @@ import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -28,9 +30,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_COURSE_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
@@ -87,6 +88,22 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
                         new EquivalencyChallengeCode("C", "Challenge", "Indicates that the course credit was earned through the challenge process.", "2", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
+        CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord traxCode = new CourseCodeRecord();
+        traxCode.setCourseID("856787");
+        traxCode.setExternalCode("PH   11");
+        traxCode.setOriginatingSystem("39"); // TRAX
+        courseCodes.add(traxCode);
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setCourseID("856787");
+        myEdBCCode.setExternalCode("MPH--11");
+        myEdBCCode.setOriginatingSystem("38"); // MyEdBC
+        courseCodes.add(myEdBCCode);
+        coursesRecord.setCourseCode(courseCodes);
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 
     @SneakyThrows
