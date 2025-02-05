@@ -13,6 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +57,7 @@ public class V211CourseSession implements CourseValidationBaseRule {
 
         if (coursesRecord != null && StringUtils.isNotBlank(coursesRecord.getCompletionEndDate())) {
             LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
-            String dateOnlyStr = coursesRecord.getCompletionEndDate().split(" ")[0];
-            LocalDate courseCompletionEndDate = LocalDate.parse(dateOnlyStr);
+            LocalDate courseCompletionEndDate = LocalDateTime.parse(coursesRecord.getCompletionEndDate()).toLocalDate();
 
             if (courseSessionDate.isAfter(courseCompletionEndDate)) {
                 log.debug("V211: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());

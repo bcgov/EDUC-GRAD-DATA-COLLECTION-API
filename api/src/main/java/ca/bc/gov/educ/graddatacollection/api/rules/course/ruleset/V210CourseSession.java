@@ -8,11 +8,11 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +56,7 @@ public class V210CourseSession implements CourseValidationBaseRule {
 
         if (coursesRecord != null) {
             LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
-            String dateOnlyStr = coursesRecord.getStartDate().split(" ")[0];
-            LocalDate courseStartDate = LocalDate.parse(dateOnlyStr);
+            LocalDate courseStartDate = LocalDateTime.parse(coursesRecord.getStartDate()).toLocalDate();
 
             if (courseSessionDate.isBefore(courseStartDate)) {
                 log.debug("V210: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());
