@@ -608,6 +608,12 @@ public class RestUtils {
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
+        byte[] data = responseMessage.getData();
+        if (data == null || data.length == 0) {
+          log.info("Empty response data for getStudentByPEN; treating as student not found for PEN: {}", assignedPEN);
+          throw new EntityNotFoundException(Student.class);
+        }
+
         log.debug("Response message for getStudentByPen: {}", responseMessage);
         Event responseEvent = objectMapper.readValue(responseMessage.getData(), refEvent);
 
