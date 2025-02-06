@@ -600,7 +600,7 @@ public class RestUtils {
     return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
   }
 
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class, EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public Student getStudentByPEN(UUID correlationID, String assignedPEN) {
     try {
       final TypeReference<Event> refEvent = new TypeReference<>() {};
@@ -608,6 +608,7 @@ public class RestUtils {
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
+        log.debug("Response message for getStudentByPen: {}", responseMessage);
         Event responseEvent = objectMapper.readValue(responseMessage.getData(), refEvent);
 
         if (EventOutcome.STUDENT_NOT_FOUND.equals(responseEvent.getEventOutcome())) {
@@ -620,8 +621,11 @@ public class RestUtils {
         throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
 
+    } catch (EntityNotFoundException ex) {
+      log.error("Entity Not Found occurred calling GET STUDENT service :: {}", ex.getMessage());
+      throw ex;
     } catch (final Exception ex) {
-      log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
+      log.error("Error occurred calling GET STUDENT service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
@@ -639,7 +643,7 @@ public class RestUtils {
 
         Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
 
-        log.debug("getGradStudentRecordByStudentID response" + response.toString());
+        log.debug("getGradStudentRecordByStudentID response{}", response.toString());
 
         if ("not found".equals(response.get(EXCEPTION))) {
           log.error("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
