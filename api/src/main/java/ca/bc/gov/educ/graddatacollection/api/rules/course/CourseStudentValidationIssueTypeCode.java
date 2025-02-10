@@ -12,6 +12,7 @@ public enum CourseStudentValidationIssueTypeCode {
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),
   COURSE_CODE_COREG_TRAX_INVALID("COURSE_CODE_COREG_TRAX_INVALID", "The submitted course code does not exist in the ministry course registry. This course cannot be updated."),
   COURSE_CODE_COREG_MYEDBC_INVALID("COURSE_CODE_COREG_MYEDBC_INVALID", "The submitted course code is a local course code, not a ministry code. This course cannot be updated."),
+  COURSE_SESSION_DUPLICATE("COURSE_SESSION_DUPLICATE", "Duplicate course and session date reported for the same student. These courses will not be updated."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated."),
   COURSE_MONTH_INVALID("COURSE_MONTH_INVALID", "Course month must be between 01 and 12 (January to December). This course will not be updated."),
   COURSE_YEAR_INVALID("COURSE_YEAR_INVALID", "Course year must be four digits. This course will not be updated."),
