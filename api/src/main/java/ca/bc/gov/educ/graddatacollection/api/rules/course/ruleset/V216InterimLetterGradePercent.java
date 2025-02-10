@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -51,6 +52,12 @@ public class V216InterimLetterGradePercent implements CourseValidationBaseRule {
         var student = studentRuleData.getCourseStudentEntity();
         log.debug("In executeValidation of V216 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
+
+        if (StringUtils.isBlank(student.getInterimPercentage())) {
+            log.debug("V216: Interim percentage is missing while an interim letter grade is provided for courseStudentID :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.INTERIM_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+            return errors;
+        }
 
         List<LetterGrade> letterGradeList = restUtils.getLetterGrades();
 
