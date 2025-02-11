@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
@@ -103,6 +104,15 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         myEdBCCode.setOriginatingSystem("38"); // MyEdBC
         courseCodes.add(myEdBCCode);
         coursesRecord.setCourseCode(courseCodes);
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 

@@ -60,8 +60,11 @@ public class V210CourseSession implements CourseValidationBaseRule {
 
             if (courseSessionDate.isBefore(courseStartDate)) {
                 log.debug("V210: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage()));
             }
+        } else {
+            log.debug("V210: Warning: No Coreg course record match. for courseStudentID :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage()));
         }
 
         return errors;

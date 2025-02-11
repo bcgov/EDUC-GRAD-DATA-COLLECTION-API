@@ -11,6 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProc
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
@@ -92,6 +93,15 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         myEdBCCode.setOriginatingSystem("38"); // MyEdBC
         courseCodes.add(myEdBCCode);
         coursesRecord.setCourseCode(courseCodes);
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 
@@ -234,6 +244,16 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseCodes.add(myEdBCCode);
         myEdBCOnlyRecord.setCourseCode(courseCodes);
 
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        myEdBCOnlyRecord.setCourseAllowableCredit(courseAllowableCredits);
+
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(myEdBCOnlyRecord);
 
         StudentRuleData ruleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
@@ -260,6 +280,16 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         emptyCodesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         emptyCodesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         emptyCodesRecord.setCourseCode(new HashSet<>());  // No course code records
+
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        emptyCodesRecord.setCourseAllowableCredit(courseAllowableCredits);
 
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(emptyCodesRecord);
 
@@ -413,6 +443,15 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         coursesRecord.setCompletionEndDate(null);
         coursesRecord.setCourseCode(new HashSet<>());
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.stream().noneMatch(code -> code.getValidationIssueFieldCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID.getCode()))).isTrue();
@@ -908,6 +947,36 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testV226NumberOfCredits() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setNumberOfCredits("4");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.NUMBER_OF_CREDITS.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getCode());
+    }
+
+    @Test
     void testV227EquivalencyChallengeCode() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -986,7 +1055,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV2231CourseGraduationRequirementNumberOfCredits() {
+    void testV231CourseGraduationRequirementNumberOfCredits() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
