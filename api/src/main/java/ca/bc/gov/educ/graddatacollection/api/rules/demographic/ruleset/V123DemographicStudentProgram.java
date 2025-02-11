@@ -71,7 +71,7 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
                 boolean programClosed = graduationProgramCodes.stream().anyMatch(code -> {
                     String gradCode = code.getProgramCode();
                     String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
-                    if (baseGradCode.equalsIgnoreCase(studentProgram)) {
+                    if (code.getExpiryDate() != null && baseGradCode.equalsIgnoreCase(studentProgram)) {
                         return code.getExpiryDate().before(now);
                     }
                     return false;
