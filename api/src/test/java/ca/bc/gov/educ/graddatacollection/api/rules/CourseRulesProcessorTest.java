@@ -12,6 +12,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidatio
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
@@ -1055,6 +1056,103 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testV229CourseGraduationRequirement() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setCourseGraduationRequirement("B");
+
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.GRADUATION_REQUIREMENT.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.GRAD_REQT_FINE_ARTS_APPLIED_SKILLS_1996_GRAD_PROG_INVALID.getCode());
+
+        demStudent.setGradRequirementYear("1996");
+
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError4.size()).isNotZero();
+        assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.GRADUATION_REQUIREMENT.getCode());
+        assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.GRAD_REQT_FINE_ARTS_APPLIED_SKILLS_1996_GRAD_PROG_INVALID.getCode());
+
+        demStudent.setGradRequirementYear(null);
+
+        CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord traxCode = new CourseCodeRecord();
+        traxCode.setCourseID("856787");
+        traxCode.setExternalCode("PH   11");
+        traxCode.setOriginatingSystem("39"); // TRAX
+        courseCodes.add(traxCode);
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setCourseID("856787");
+        myEdBCCode.setExternalCode("MPH--11");
+        myEdBCCode.setOriginatingSystem("38"); // MyEdBC
+        courseCodes.add(myEdBCCode);
+        coursesRecord.setCourseCode(courseCodes);
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
+        CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
+        courseCategory.setId("2932");
+        courseCategory.setType("CC");
+        courseCategory.setCode("BA");
+        courseCategory.setDescription("");
+        coursesRecord.setCourseCategory(courseCategory);
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(CourseStudentValidationFieldCode.GRADUATION_REQUIREMENT.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.GRAD_REQT_FINE_ARTS_APPLIED_SKILLS_1996_GRAD_PROG_INVALID.getCode());
+
+        var demStudent2 = createMockDemographicStudent(savedFileSet);
+        demStudent2.setGradRequirementYear("1996");
+
+        var courseStudent2 = createMockCourseStudent(savedFileSet);
+        courseStudent2.setPen(demStudent2.getPen());
+        courseStudent2.setLocalID(demStudent2.getLocalID());
+        courseStudent2.setLastName(demStudent2.getLastName());
+        courseStudent2.setIncomingFileset(demStudent2.getIncomingFileset());
+
+        Student stud2 = new Student();
+        stud2.setStudentID(UUID.randomUUID().toString());
+        stud2.setDob(demStudent2.getBirthdate());
+        stud2.setLegalLastName(demStudent2.getLastName());
+        stud2.setLegalFirstName(demStudent2.getFirstName());
+        stud2.setPen(demStudent2.getPen());
+        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud2);
+
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent2, courseStudent2, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError5.size()).isZero();
+    }
+
+    @Test
     void testV231CourseGraduationRequirementNumberOfCredits() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -1088,6 +1186,40 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setIncomingFileset(demStudent2.getIncomingFileset());
         courseStudent.setCourseGraduationRequirement("B");
         courseStudent.setNumberOfCredits("3");
+
+        CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord traxCode = new CourseCodeRecord();
+        traxCode.setCourseID("856787");
+        traxCode.setExternalCode("PH   11");
+        traxCode.setOriginatingSystem("39"); // TRAX
+        courseCodes.add(traxCode);
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setCourseID("856787");
+        myEdBCCode.setExternalCode("MPH--11");
+        myEdBCCode.setOriginatingSystem("38"); // MyEdBC
+        courseCodes.add(myEdBCCode);
+        coursesRecord.setCourseCode(courseCodes);
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
+        CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
+        courseCategory.setId("2932");
+        courseCategory.setType("CC");
+        courseCategory.setCode("BA");
+        courseCategory.setDescription("");
+        coursesRecord.setCourseCategory(courseCategory);
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
+
+        demStudent2.setGradRequirementYear("1996");
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
