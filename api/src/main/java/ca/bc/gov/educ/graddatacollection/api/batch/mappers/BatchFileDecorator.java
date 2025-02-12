@@ -76,6 +76,7 @@ public abstract class BatchFileDecorator implements BatchFileMapper {
         entity.setProgramCadreFlag(StringMapper.trimAndUppercase(studentDetails.getProgramCadreFlag()));
         entity.setGradRequirementYear(StringMapper.trimAndUppercase(studentDetails.getGradRequirementYear()));
         entity.setSchoolCertificateCompletionDate(StringMapper.trimAndUppercase(studentDetails.getSscpCompletionDate()));
+        entity.setStudentStatus(StringMapper.trimAndUppercase(studentDetails.getStudentStatus()));
 
         return entity;
     }
