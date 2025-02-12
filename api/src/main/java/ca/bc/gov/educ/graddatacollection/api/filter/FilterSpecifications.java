@@ -100,7 +100,11 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             criteriaQuery.distinct(true);
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
-                return root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues());
+                if(splits.length == 2) {
+                    return root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues());
+                } else {
+                    return root.join(splits[0]).get(splits[1]).get(splits[2]).in(filterCriteria.getConvertedValues());
+                }
             }
             return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
         });
@@ -147,6 +151,19 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                 return criteriaBuilder.or(root.join(splits[0], JoinType.LEFT).get(splits[1]).in(filterCriteria.getConvertedValues()));
             }
             return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
+        });
+
+        map.put(FilterOperation.CUSTOM_CHILD_JOIN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            criteriaQuery.distinct(true);
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                if(splits.length == 2) {
+                    var incomingFilesetIDVal = root.get("incomingFileset").get("incomingFilesetID");
+                    root.join(splits[0], JoinType.LEFT).join(splits[1], JoinType.RIGHT);
+                    return criteriaBuilder.equal(root.get("incomingFileset").get("incomingFilesetID"), incomingFilesetIDVal);
+                }
+            }
+            throw new GradDataCollectionAPIRuntimeException("Invalid search criteria provided");
         });
     }
 }
