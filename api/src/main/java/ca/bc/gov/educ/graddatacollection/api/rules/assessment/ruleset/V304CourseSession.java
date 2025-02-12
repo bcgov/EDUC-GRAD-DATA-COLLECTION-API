@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
@@ -9,7 +9,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessmen
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -66,13 +65,13 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
 
         if (studAssessmentDetail == null || (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && studAssessmentDetail.isHasPriorRegistration())) {
             log.debug("V304: The assessment session is a duplicate of an existing assessment session for this student/assessment/level :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage()));
         }else if (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && Integer.parseInt(studAssessmentDetail.getNumberOfAttempts()) >= 2) {
             log.debug("V304: Student has already reached the maximum number of writes for this Assessment :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED.getMessage()));
         }else if (studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && studAssessmentDetail.isAlreadyWrittenAssessment()) {
             log.debug("V304: Assessment has been written by the student, withdrawal is not allowed :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN.getMessage()));
         }
         return errors;
     }

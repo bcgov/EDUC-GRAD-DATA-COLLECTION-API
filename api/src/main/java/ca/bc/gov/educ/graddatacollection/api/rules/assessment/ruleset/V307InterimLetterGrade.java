@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
@@ -47,7 +47,7 @@ public class V307InterimLetterGrade implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getInterimLetterGrade())) {
             log.debug("V307: Interim letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, AssessmentStudentValidationFieldCode.INTERIM_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.INTERIM_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage()));
         }
         return errors;
     }
