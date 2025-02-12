@@ -1,10 +1,12 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.CodeTableAPIEndpoint;
 
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValidationIssueFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValidationIssueTypeCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,10 +29,24 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
         return validationIssues;
     }
 
+    @Override
+    public List<ValidationIssueFieldCode> getValidationFieldCodes() {
+        List<ValidationIssueFieldCode> validationIssues = new ArrayList<>();
+        Arrays.stream(ValidationFieldCode.values()).forEach(field -> validationIssues.add(getValidationField(field.getCode(),field.getDescription())));
+        return validationIssues;
+    }
+
     private ValidationIssueTypeCode getValidationIssue(String validationIssueCode, String validationIssueDesc){
         ValidationIssueTypeCode issue = new ValidationIssueTypeCode();
         issue.setValidationIssueTypeCode(validationIssueCode);
         issue.setMessage(validationIssueDesc);
         return issue;
+    }
+
+    private ValidationIssueFieldCode getValidationField(String code, String description){
+        ValidationIssueFieldCode field = new ValidationIssueFieldCode();
+        field.setCode(code);
+        field.setDescription(description);
+        return field;
     }
 }
