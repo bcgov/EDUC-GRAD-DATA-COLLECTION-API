@@ -8,11 +8,15 @@ import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(uses = {UUIDMapper.class, LocalDateTimeMapper.class})
 @DecoratedWith(ErrorFilesetStudentDecorator.class)
 public interface ErrorFilesetStudentMapper {
     ErrorFilesetStudentMapper mapper = Mappers.getMapper(ErrorFilesetStudentMapper.class);
 
     ErrorFilesetStudent toStructure(final ErrorFilesetStudentEntity errorFilesetStudentEntity);
+
+    ErrorFilesetStudent toStructureWithFilter(final ErrorFilesetStudentEntity errorFilesetStudentEntity, List<String> validationFilter);
 
 }

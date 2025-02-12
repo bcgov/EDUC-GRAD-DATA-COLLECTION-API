@@ -75,7 +75,9 @@ public enum FilterOperation {
    */
   CONTAINS_IGNORE_CASE("like_ignore_case"),
   IN_LEFT_JOIN("in_left_join"),
-  IN_NOT_DISTINCT("in_not_distinct");
+  IN_NOT_DISTINCT("in_not_distinct"),
+
+  CUSTOM_CHILD_JOIN("custom_child_join");
 
   private final String value;
 
