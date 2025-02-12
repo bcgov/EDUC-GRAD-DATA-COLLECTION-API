@@ -1,8 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolReportingRequirementCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.rules.utils.RuleUtil;
@@ -67,7 +66,7 @@ public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
             !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
             log.debug("V320: Student XAM record will not be processed due to an issue with the student's demographics :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;
     }

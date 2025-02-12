@@ -114,6 +114,9 @@ public class DemographicStudentEntity {
   @Column(name = "school_certificate_completion_date")
   String schoolCertificateCompletionDate;
 
+  @Column(name = "STUDENT_STATUS")
+  String studentStatus;
+
   @NotNull(message = "create user cannot be null")
   @Column(name = "CREATE_USER", updatable = false)
   @Size(max = 100)
