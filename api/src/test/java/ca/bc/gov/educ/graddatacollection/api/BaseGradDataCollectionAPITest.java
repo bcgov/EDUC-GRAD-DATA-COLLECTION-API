@@ -172,7 +172,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .lastName("JACKSON")
             .courseType("E")
             .courseDescription("COMP")
-            .courseGraduationRequirement("5")
+            .courseGraduationRequirement(null)
             .finalGrade("A")
             .finalPercentage("92")
             .numberOfCredits("3")
