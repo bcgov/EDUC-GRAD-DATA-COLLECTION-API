@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseStatusCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
@@ -48,7 +48,7 @@ public class V312CourseStatus implements AssessmentValidationBaseRule {
 
         if (StringUtils.isBlank(student.getCourseStatus()) || (!student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.ACTIVE.getCode()) && !student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.WITHDRAWN.getCode()))) {
             log.debug("V312: Assessment registration must be A=active or W=withdraw :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, AssessmentStudentValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
         }
         return errors;
     }
