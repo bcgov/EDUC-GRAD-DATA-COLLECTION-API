@@ -284,7 +284,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setInterimSchoolPercent("123");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.INTERIM_SCHOOL_PERCENTAGE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.INTERIM_SCHOOL_PERCENT.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getCode());
     }
 
@@ -398,7 +398,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setFinalPercent("123");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_PERCENTAGE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_PERCENT.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getCode());
     }
 
@@ -588,7 +588,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setCourseType("123");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_TYPE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.CRSE_TYPE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getCode());
     }
 

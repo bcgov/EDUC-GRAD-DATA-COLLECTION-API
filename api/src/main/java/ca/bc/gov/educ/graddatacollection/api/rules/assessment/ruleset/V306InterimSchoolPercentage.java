@@ -47,7 +47,7 @@ public class V306InterimSchoolPercentage implements AssessmentValidationBaseRule
 
         if (StringUtils.isNotBlank(student.getInterimSchoolPercent())) {
             log.debug("V306: Interim school percentage value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.INTERIM_SCHOOL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.INTERIM_SCHOOL_PERCENT, AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;
     }
