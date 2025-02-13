@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
@@ -58,7 +58,7 @@ public class V220FinalLetterGrade implements CourseValidationBaseRule {
         List<LetterGrade> letterGradeList = restUtils.getLetterGrades();
         if (StringUtils.isNotBlank(student.getFinalGrade()) && letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getFinalGrade()))) {
             log.debug("V220: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
         }
         return errors;
     }

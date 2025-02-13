@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -55,11 +55,11 @@ public class V219FinalPercent implements CourseValidationBaseRule {
 
                 if (courseSession.isBefore(cutoffDate) && !student.getFinalPercentage().isBlank()) {
                     log.debug("V219: Error: For course session dates prior to 199409 the final percent must be blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
                 log.debug("V219: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENT, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
             }
         }
         return errors;

@@ -1,12 +1,11 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
-import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -56,11 +55,11 @@ public class V212CourseSession implements CourseValidationBaseRule {
 
             if (courseSession.isBefore(earliestValidDate) || courseSession.isAfter(nextSchoolYearEnd)) {
                 log.debug("V212: Error: Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
             }
         } catch (NumberFormatException | DateTimeException e) {
             log.debug("V212: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
         }
 
         return errors;

@@ -7,6 +7,7 @@ public enum ValidationFieldCode {
   PEN("PEN", "Pen"),
   COURSE_LEVEL("COURSE_LEVEL", "Course Level"),
   COURSE_CODE("COURSE_CODE", "Course Code"),
+  COURSE_TYPE("COURSE_TYPE", "Course Type"),
   INTERIM_SCHOOL_PERCENT("INTERIM_SCHOOL_PERCENT", "Interim School Percentage"),
   INTERIM_LETTER_GRADE("INTERIM_LETTER_GRADE", "Interim Letter Grade"),
   FINAL_SCHOOL_PERCENT("FINAL_SCHOOL_PERCENT", "Final School Percent"),

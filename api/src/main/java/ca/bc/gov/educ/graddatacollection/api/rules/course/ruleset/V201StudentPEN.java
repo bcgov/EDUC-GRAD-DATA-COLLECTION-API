@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
@@ -55,7 +55,7 @@ public class V201StudentPEN implements CourseValidationBaseRule {
 
         if (!isPresent) {
             log.debug("V201: This student is missing demographic data based on Student PEN, Surname and Local Id for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
         }
         return errors;
     }

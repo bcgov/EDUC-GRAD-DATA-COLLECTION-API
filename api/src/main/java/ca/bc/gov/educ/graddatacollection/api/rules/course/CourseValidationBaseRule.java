@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.Rule;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseValidationBaseRule extends Rule<StudentRuleData, CourseStudentValidationIssue> {
-  default CourseStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, CourseStudentValidationFieldCode fieldCode, CourseStudentValidationIssueTypeCode typeCode, String description){
+  default CourseStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, CourseStudentValidationIssueTypeCode typeCode, String description){
     CourseStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new CourseStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());

@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -25,7 +25,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(320)
-public class V232CourseGraduationRequirementNumberOfCredits implements CourseValidationBaseRule {
+public class V232CourseGraduationRequirement implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
@@ -52,7 +52,7 @@ public class V232CourseGraduationRequirementNumberOfCredits implements CourseVal
                 "B".equalsIgnoreCase(courseStudent.getCourseGraduationRequirement()) &&
                 !"4".equalsIgnoreCase(courseStudent.getNumberOfCredits())) {
             log.debug("V232: Error: Invalid entry. Number of credits must be 4 where B reported for a Board Authority Authorized or Locally Developed course for a student on the 1996 program. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage()));
         }
         return errors;
     }

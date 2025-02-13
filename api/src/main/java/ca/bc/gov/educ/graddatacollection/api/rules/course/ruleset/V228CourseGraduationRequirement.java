@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -48,7 +48,7 @@ public class V228CourseGraduationRequirement implements CourseValidationBaseRule
 
         if (demStudent != null && demStudent.getGradRequirementYear().equalsIgnoreCase(GradRequirementYearCodes.YEAR_1986.getCode()) && StringUtils.isNotBlank(courseStudent.getCourseGraduationRequirement())) {
             log.debug("V228: Error: Invalid entry. Values not applicable for students on the 1986 program. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID.getMessage()));
         }
         return errors;
     }

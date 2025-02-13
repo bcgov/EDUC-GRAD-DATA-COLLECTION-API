@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -56,7 +56,7 @@ public class V224FinalLetterGradePercent implements CourseValidationBaseRule {
 
                 if (courseSession.isBefore(currentDate) && (StringUtils.isBlank(student.getFinalGrade()) || (courseSession.isAfter(cutoffDate) && StringUtils.isBlank(student.getFinalPercentage())))) {
                     log.debug("V224: Error: Course session has passed with no final mark. Report final mark or change the course session date. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
                 log.debug("V224: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());

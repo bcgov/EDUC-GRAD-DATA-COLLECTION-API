@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -50,11 +50,11 @@ public class V218FinalPercent implements CourseValidationBaseRule {
 
                 if (finalePercentage < 0 || finalePercentage > 100) {
                     log.debug("V218: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
                 }
             } catch (NumberFormatException e) {
                 log.debug("V218: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_PCT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENT, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
             }
 
         }

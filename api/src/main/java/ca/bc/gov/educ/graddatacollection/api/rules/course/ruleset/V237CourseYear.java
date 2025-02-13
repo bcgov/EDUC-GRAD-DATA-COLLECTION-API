@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
@@ -46,7 +46,7 @@ public class V237CourseYear implements CourseValidationBaseRule {
 
         if (StringUtils.isBlank(student.getCourseYear()) || !student.getCourseYear().matches("\\d{4}")) {
             log.debug("V237: Error: Course year must be four characters. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID, CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID, CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getMessage()));
         }
         return errors;
     }

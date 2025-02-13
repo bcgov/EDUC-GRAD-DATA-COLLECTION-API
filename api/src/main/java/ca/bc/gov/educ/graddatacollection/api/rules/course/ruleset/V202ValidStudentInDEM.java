@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.rules.utils.RuleUtil;
@@ -66,7 +66,7 @@ public class V202ValidStudentInDEM implements CourseValidationBaseRule {
             !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
             log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;
     }

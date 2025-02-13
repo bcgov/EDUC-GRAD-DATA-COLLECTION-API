@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
@@ -56,17 +56,17 @@ public class V206CourseCode implements CourseValidationBaseRule {
 
         if (coursesRecord == null || coursesRecord.getCourseCode().isEmpty()) {
             log.debug("V206: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
         } else {
             boolean hasTRAX = coursesRecord.getCourseCode().stream().anyMatch(code -> "39".equals(code.getOriginatingSystem()));
             boolean hasMyEdBC = coursesRecord.getCourseCode().stream().anyMatch(code -> "38".equals(code.getOriginatingSystem()));
             if (!hasTRAX) {
                 if (hasMyEdBC) {
                     log.debug("V206: Error2: The submitted course code is a local course code, not a ministry code. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getMessage()));
                 } else {
                     log.debug("V206: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
                 }
             }
         }
