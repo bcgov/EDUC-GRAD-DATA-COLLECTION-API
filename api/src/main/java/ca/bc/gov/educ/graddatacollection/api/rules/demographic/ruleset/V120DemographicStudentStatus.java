@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
@@ -55,10 +55,10 @@ public class V120DemographicStudentStatus implements DemographicValidationBaseRu
 
         GradStudentRecord gradStudentRecord = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         if (gradStudentRecord == null &&
-            (student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.T.getCode())
-            || student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.D.getCode()))) {
+            (student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())
+            || student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.D.getCode()))) {
             log.debug("StudentStatus-V120:Student No GRAD student record found and dem record contains student status of T or D for demographicStudentID: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage(), student.getStudentStatusCode()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage(), student.getStudentStatusCode()));
         }
         return errors;
     }

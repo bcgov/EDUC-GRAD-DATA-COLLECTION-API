@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
@@ -51,20 +51,21 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
             log.debug("StudentAddress-v107: Student address must exist for students in grades 12 or AD. for demographicStudentAddress :: {}", student.getDemographicStudentID());
 
             if (StringUtils.isAllEmpty(student.getAddressLine1(), student.getAddressLine2())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.ADDRESS1, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.ADDRESS2, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getMessage()));
             }
             if (StringUtils.isEmpty(student.getCity())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.CITY, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getMessage()));
             }
             Pattern pattern = Pattern.compile("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$");
             if(!pattern.matcher(student.getPostalCode()).matches()) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.POSTAL_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getMessage()));
             }
             if (!StringUtils.equalsIgnoreCase("BC", student.getProvincialCode())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.PROVINCIAL_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID.getMessage()));
             }
             if (!StringUtils.equalsIgnoreCase("CA", student.getCountryCode())) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, DemographicStudentValidationFieldCode.STUDENT_ADDRESS, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COUNTRY_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID.getMessage()));
             }
         }
         return errors;

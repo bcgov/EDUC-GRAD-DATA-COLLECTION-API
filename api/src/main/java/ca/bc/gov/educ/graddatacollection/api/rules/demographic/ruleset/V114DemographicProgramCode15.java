@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.CareerProgramCode;
@@ -30,6 +30,8 @@ import java.util.*;
 public class V114DemographicProgramCode15 implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
+
+    private static final String DEBUG_MSG = "ProgramCode15-V114:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}";
 
     public V114DemographicProgramCode15(RestUtils restUtils) {
         this.restUtils = restUtils;
@@ -63,28 +65,61 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
         careerProgramCodes.forEach(c -> careerProgramCodeSet.add(c.getCode()));
         optionalProgramCodes.forEach(o -> optionalProgramCodeSet.add(o.getOptProgramCode()));
 
-        List<String> studentProgramCodes = new ArrayList<>();
-        Collections.addAll(studentProgramCodes,
-                student.getProgramCode1(),
-                student.getProgramCode2(),
-                student.getProgramCode3(),
-                student.getProgramCode4(),
-                student.getProgramCode5()
-        );
-
-        for (String programCode : studentProgramCodes) {
-            if (StringUtils.isNotEmpty(programCode) &&
-                    !careerProgramCodeSet.contains(programCode) && !optionalProgramCodeSet.contains(programCode)) {
-                log.debug("ProgramCode15-V114:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}", programCode, student.getDemographicStudentID());
-                errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.ERROR,
-                        DemographicStudentValidationFieldCode.STUDENT_PROGRAM_CODE,
-                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-                ));
-                break;
-            }
+        if (StringUtils.isNotEmpty(student.getProgramCode1()) &&
+                !careerProgramCodeSet.contains(student.getProgramCode1()) && !optionalProgramCodeSet.contains(student.getProgramCode1())) {
+            log.debug(DEBUG_MSG, student.getProgramCode1(), student.getDemographicStudentID());
+            errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.PROGRAM_CODE_1,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+            ));
         }
+
+        if (StringUtils.isNotEmpty(student.getProgramCode2()) &&
+                !careerProgramCodeSet.contains(student.getProgramCode2()) && !optionalProgramCodeSet.contains(student.getProgramCode2())) {
+            log.debug(DEBUG_MSG, student.getProgramCode2(), student.getDemographicStudentID());
+            errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.PROGRAM_CODE_2,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+            ));
+        }
+
+        if (StringUtils.isNotEmpty(student.getProgramCode3()) &&
+                !careerProgramCodeSet.contains(student.getProgramCode3()) && !optionalProgramCodeSet.contains(student.getProgramCode3())) {
+            log.debug(DEBUG_MSG, student.getProgramCode3(), student.getDemographicStudentID());
+            errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.PROGRAM_CODE_3,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+            ));
+        }
+
+        if (StringUtils.isNotEmpty(student.getProgramCode4()) &&
+                !careerProgramCodeSet.contains(student.getProgramCode4()) && !optionalProgramCodeSet.contains(student.getProgramCode4())) {
+            log.debug(DEBUG_MSG, student.getProgramCode4(), student.getDemographicStudentID());
+            errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.PROGRAM_CODE_4,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+            ));
+        }
+
+        if (StringUtils.isNotEmpty(student.getProgramCode5()) &&
+                !careerProgramCodeSet.contains(student.getProgramCode5()) && !optionalProgramCodeSet.contains(student.getProgramCode5())) {
+            log.debug(DEBUG_MSG, student.getProgramCode5(), student.getDemographicStudentID());
+            errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.PROGRAM_CODE_5,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+            ));
+        }
+
         return errors;
     }
 }

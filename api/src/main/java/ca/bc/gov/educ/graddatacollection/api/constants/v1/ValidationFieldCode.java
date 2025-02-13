@@ -56,6 +56,7 @@ public enum ValidationFieldCode {
   PROGRAM_CADRE_FLAG("PROGRAM_CADRE_FLAG", "Program Cadre Flag"),
   GRAD_REQUIREMENT_YEAR("GRAD_REQUIREMENT_YEAR", "Grad Requirement Year"),
   SCHOOL_CERTIFICATE_COMPLETION_DATE("SCHOOL_CERTIFICATE_COMPLETION_DATE", "School Certificate Completion Date"),
+  STUDENT_STATUS("STUDENT_STATUS", "Student Status")
 
   ;
   private final String code;

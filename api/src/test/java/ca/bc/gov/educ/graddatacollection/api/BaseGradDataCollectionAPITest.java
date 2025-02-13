@@ -153,6 +153,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .programCode3("AC")
             .programCode4("FR")
             .programCode5("DD")
+            .studentStatus("A")
             .build();
   }
 
