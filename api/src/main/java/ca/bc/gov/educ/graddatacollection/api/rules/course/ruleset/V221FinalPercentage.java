@@ -28,11 +28,11 @@ import java.util.Optional;
 @Component
 @Slf4j
 @Order(210)
-public class V221FinalLetterGradePercent implements CourseValidationBaseRule {
+public class V221FinalPercentage implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V221FinalLetterGradePercent(RestUtils restUtils) {
+    public V221FinalPercentage(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
@@ -70,7 +70,7 @@ public class V221FinalLetterGradePercent implements CourseValidationBaseRule {
                             finalPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
                             finalPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
                         log.debug("V221: Error: The final percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
                     }
                 }
 

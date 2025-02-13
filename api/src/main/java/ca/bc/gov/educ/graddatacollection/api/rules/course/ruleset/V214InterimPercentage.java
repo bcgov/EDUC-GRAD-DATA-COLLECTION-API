@@ -23,7 +23,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(140)
-public class V214InterimPercent implements CourseValidationBaseRule {
+public class V214InterimPercentage implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
@@ -50,11 +50,11 @@ public class V214InterimPercent implements CourseValidationBaseRule {
 
                 if (interimPercentage < 0 || interimPercentage > 100) {
                     log.debug("V214: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
                 }
             } catch (NumberFormatException e) {
                 log.debug("V214: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENT, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
             }
 
         }

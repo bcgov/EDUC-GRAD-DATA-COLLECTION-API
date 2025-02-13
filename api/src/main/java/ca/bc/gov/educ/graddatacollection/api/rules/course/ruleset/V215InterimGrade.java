@@ -25,12 +25,12 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(150)
-public class V215InterimLetterGrade implements CourseValidationBaseRule {
+public class V215InterimGrade implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
     private final CourseRulesService courseRulesService;
 
-    public V215InterimLetterGrade(RestUtils restUtils, CourseRulesService courseRulesService) {
+    public V215InterimGrade(RestUtils restUtils, CourseRulesService courseRulesService) {
         this.restUtils = restUtils;
         this.courseRulesService = courseRulesService;
     }
@@ -58,7 +58,7 @@ public class V215InterimLetterGrade implements CourseValidationBaseRule {
 
         if (letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getInterimGrade()))) {
             log.debug("V215: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_LETTER_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage()));
         }
         return errors;
     }

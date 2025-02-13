@@ -26,11 +26,11 @@ import java.util.Optional;
 @Component
 @Slf4j
 @Order(160)
-public class V216InterimLetterGradePercent implements CourseValidationBaseRule {
+public class V216InterimPercentage implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V216InterimLetterGradePercent(RestUtils restUtils) {
+    public V216InterimPercentage(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
@@ -55,7 +55,7 @@ public class V216InterimLetterGradePercent implements CourseValidationBaseRule {
 
         if (StringUtils.isBlank(student.getInterimPercentage())) {
             log.debug("V216: Interim percentage is missing while an interim letter grade is provided for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
             return errors;
         }
 
@@ -68,7 +68,7 @@ public class V216InterimLetterGradePercent implements CourseValidationBaseRule {
                 interimPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
                 interimPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
             log.debug("V216: Error: The interim percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
         }
         return errors;
     }

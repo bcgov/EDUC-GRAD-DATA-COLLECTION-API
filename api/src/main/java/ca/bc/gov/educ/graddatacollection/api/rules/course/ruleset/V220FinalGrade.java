@@ -26,12 +26,12 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(200)
-public class V220FinalLetterGrade implements CourseValidationBaseRule {
+public class V220FinalGrade implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
     private final CourseRulesService courseRulesService;
 
-    public V220FinalLetterGrade(RestUtils restUtils, CourseRulesService courseRulesService) {
+    public V220FinalGrade(RestUtils restUtils, CourseRulesService courseRulesService) {
         this.restUtils = restUtils;
         this.courseRulesService = courseRulesService;
     }
@@ -58,7 +58,7 @@ public class V220FinalLetterGrade implements CourseValidationBaseRule {
         List<LetterGrade> letterGradeList = restUtils.getLetterGrades();
         if (StringUtils.isNotBlank(student.getFinalGrade()) && letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getFinalGrade()))) {
             log.debug("V220: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
         }
         return errors;
     }

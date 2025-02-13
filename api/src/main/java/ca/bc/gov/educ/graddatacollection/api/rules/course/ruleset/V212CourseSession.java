@@ -55,11 +55,13 @@ public class V212CourseSession implements CourseValidationBaseRule {
 
             if (courseSession.isBefore(earliestValidDate) || courseSession.isAfter(nextSchoolYearEnd)) {
                 log.debug("V212: Error: Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
             }
         } catch (NumberFormatException | DateTimeException e) {
             log.debug("V212: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
         }
 
         return errors;
