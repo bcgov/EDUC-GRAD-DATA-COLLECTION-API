@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.CustomSearchType;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.ErrorFilesetStudentEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
@@ -60,7 +61,10 @@ public class ErrorFilesetStudentController implements ErrorFilesetStudentEndpoin
                                 || cri.getValue().equalsIgnoreCase(CustomSearchType.CRSERROR.getCode())
                                 || cri.getValue().equalsIgnoreCase(CustomSearchType.XAMERROR.getCode())
                                 || cri.getValue().equalsIgnoreCase(CustomSearchType.ERROR.getCode())
-                                || cri.getValue().equalsIgnoreCase(CustomSearchType.WARNING.getCode()))).toList();
+                                || cri.getValue().equalsIgnoreCase(CustomSearchType.WARNING.getCode())
+                                || ValidationFieldCode.findByCode(cri.getValue()).isPresent())
+
+                ).toList();
                 if (!customSearch.isEmpty()) {
                     mapFilter.addAll(customSearch.stream().map(Search::getSearchCriteriaList).flatMap(searchCriteria -> searchCriteria.stream().map(SearchCriteria::getValue).distinct()).toList());
                 }

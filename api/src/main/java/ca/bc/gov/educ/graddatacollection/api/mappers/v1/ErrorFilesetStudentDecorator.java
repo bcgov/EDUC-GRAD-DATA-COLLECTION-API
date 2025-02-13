@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.CustomSearchType;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ErrorFilesetValidationIssueType;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStudentMapper {
@@ -59,6 +61,8 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
     final ErrorFilesetStudent filesetStudent = this.delegate.toStructure(errorFilesetStudentEntity);
     filesetStudent.setErrorFilesetStudentValidationIssues(new ArrayList<>());
     boolean hasIssueTypeFilter = validationFilter.stream().anyMatch(type -> type.equalsIgnoreCase("DEM-ERROR") || type.equalsIgnoreCase("CRS-ERROR") || type.equalsIgnoreCase("XAM-ERROR"));
+    boolean hasFieldCodeFilter = validationFilter.stream().anyMatch(type -> ValidationFieldCode.findByCode(type).isPresent());
+    Optional<String> fieldCodeValueOpt = validationFilter.stream().filter(type -> ValidationFieldCode.findByCode(type).isPresent()).findFirst();
 
     if(hasIssueTypeFilter) {
       if(validationFilter.contains(CustomSearchType.DEMERROR.getCode())) {
@@ -84,6 +88,12 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
     if(validationFilter.contains(CustomSearchType.WARNING.getCode())) {
       var warnings = filesetStudent.getErrorFilesetStudentValidationIssues().stream().filter(stu -> stu.getValidationIssueSeverityCode().equalsIgnoreCase("WARNING")).toList();
       filesetStudent.setErrorFilesetStudentValidationIssues(warnings);
+    }
+
+    if(hasFieldCodeFilter && fieldCodeValueOpt.isPresent()) {
+      var fieldCodeValue = fieldCodeValueOpt.get();
+      var fieldCode = filesetStudent.getErrorFilesetStudentValidationIssues().stream().filter(stu -> stu.getValidationIssueFieldCode().equalsIgnoreCase(fieldCodeValue)).toList();
+      filesetStudent.setErrorFilesetStudentValidationIssues(fieldCode);
     }
 
     return filesetStudent;

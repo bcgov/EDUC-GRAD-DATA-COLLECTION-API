@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.AND;
+import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.OR;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -196,6 +197,68 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_ERROR_FILESET + URL.PAGINATED)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_FILESET_STUDENT_ERROR")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    void testReadErrorFilesetStudentsPaginated_withFieldCode_ShouldReturnStatusOk() throws Exception {
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        errorFileset2.setLastName("PETERS");
+        errorFileset2.setPen("422342342");
+        errorFilesetStudentRepository.save(errorFileset2);
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var mockDem = createMockDemographicStudent(incomingFileSet);
+        mockDem.setPen("422342342");
+        mockDem.setLastName("PETERS");
+
+        var demValidation1 = DemographicStudentValidationIssueEntity.builder()
+                .demographicStudent(mockDem)
+                .demographicStudentValidationIssueID(UUID.randomUUID())
+                .validationIssueCode("TEST")
+                .validationIssueDescription("TEST")
+                .validationIssueFieldCode("STUDENT_STATUS")
+                .validationIssueSeverityCode("ERROR")
+                .build();
+
+        var demValidation2 = DemographicStudentValidationIssueEntity.builder()
+                .demographicStudent(mockDem)
+                .demographicStudentValidationIssueID(UUID.randomUUID())
+                .validationIssueCode("TEST")
+                .validationIssueDescription("TEST")
+                .validationIssueFieldCode("TEST")
+                .validationIssueSeverityCode("ERROR")
+                .build();
+
+        mockDem.getDemographicStudentValidationIssueEntities().addAll(List.of(demValidation1, demValidation2));
+        demographicStudentRepository.save(mockDem);
+
+        var mockAssessment = createMockAssessmentStudent();
+        mockAssessment.setIncomingFileset(incomingFileSet);
+        mockAssessment.setPen("122342342");
+        mockAssessment.setLastName("PETERS");
+        assessmentStudentRepository.save(mockAssessment);
+        final SearchCriteria criteria1 = SearchCriteria.builder().condition(OR).key("demographicStudentEntities.demographicStudentValidationIssueEntities.validationIssueFieldCode")
+                .operation(FilterOperation.EQUAL).value("STUDENT_STATUS").valueType(ValueType.STRING).build();
+
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria1);
 
         final List<Search> searches = new LinkedList<>();
         searches.add(Search.builder().searchCriteriaList(criteriaList).build());
