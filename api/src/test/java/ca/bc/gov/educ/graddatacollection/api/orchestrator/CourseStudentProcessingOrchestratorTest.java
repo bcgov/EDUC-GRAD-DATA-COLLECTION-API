@@ -11,6 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
@@ -113,6 +114,12 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseAllowableCreditRecord.setEndDate(null);
         courseAllowableCredits.add(courseAllowableCreditRecord);
         coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
+        CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
+        courseCategory.setId("2932");
+        courseCategory.setType("CC");
+        courseCategory.setCode("BA");
+        courseCategory.setDescription("");
+        coursesRecord.setCourseCategory(courseCategory);
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 
