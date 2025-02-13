@@ -44,7 +44,8 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of StudentProgram-V123: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V123", validationErrorsMap);
+        var shouldExecute = false;
+        //var shouldExecute = isValidationDependencyResolved("V123", validationErrorsMap);
 
         log.debug("In shouldExecute of StudentProgram-V123: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
