@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.rules.utils.RuleUtil;
@@ -60,13 +60,21 @@ public class V202ValidStudentInDEM implements CourseValidationBaseRule {
         studentRuleData.setStudentApiStudent(studentApiStudent);
         studentRuleData.setDemographicStudentEntity(demographicStudentEntity);
 
-        if (!RuleUtil.validateStudentRecordExists(studentRuleData.getStudentApiStudent()) ||
-            !RuleUtil.validateStudentSurnameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
-            !RuleUtil.validateStudentGivenNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
-            !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
-            !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
-            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+        if (!RuleUtil.validateStudentRecordExists(studentRuleData.getStudentApiStudent())){
+            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics PEN :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+        } else if (!RuleUtil.validateStudentSurnameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics LAST NAME :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+        } else if (!RuleUtil.validateStudentGivenNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics MIDDLE NAME :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+        } else if (!RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics FIRST NAME :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+        } else if (!RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics DOB :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;
     }

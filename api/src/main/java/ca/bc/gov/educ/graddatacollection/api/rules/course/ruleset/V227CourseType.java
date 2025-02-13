@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
@@ -25,11 +25,11 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(270)
-public class V227EquivalencyChallenge implements CourseValidationBaseRule {
+public class V227CourseType implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V227EquivalencyChallenge(RestUtils restUtils) {
+    public V227CourseType(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
@@ -57,7 +57,7 @@ public class V227EquivalencyChallenge implements CourseValidationBaseRule {
         if (StringUtils.isNotBlank(student.getCourseType()) &&
                 equivalencyChallengeCodesList.stream().noneMatch(equivalencyChallengeCode -> student.getCourseType().equalsIgnoreCase(equivalencyChallengeCode.getEquivalentOrChallengeCode()))) {
             log.debug("V227: Error: Invalid entry, the reported value will be ignored. Report E or C or leave blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.EQUIVALENCY_CHALLENGE, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_TYPE, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID.getMessage()));
         }
         return errors;
     }

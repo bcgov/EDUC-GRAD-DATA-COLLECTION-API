@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
@@ -28,11 +28,11 @@ import java.util.Optional;
 @Component
 @Slf4j
 @Order(210)
-public class V221FinalLetterGradePercent implements CourseValidationBaseRule {
+public class V221FinalPercentage implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V221FinalLetterGradePercent(RestUtils restUtils) {
+    public V221FinalPercentage(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
@@ -70,7 +70,7 @@ public class V221FinalLetterGradePercent implements CourseValidationBaseRule {
                             finalPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
                             finalPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
                         log.debug("V221: Error: The final percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.FINAL_LETTER_GRADE_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
                     }
                 }
 

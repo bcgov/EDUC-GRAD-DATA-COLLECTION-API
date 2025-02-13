@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
@@ -52,7 +52,7 @@ public class V208CourseSession implements CourseValidationBaseRule {
 
         if (courseRulesService.checkIfStudentHasDuplicateInFileset(student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear(), student.getCourseLevel())) {
             log.debug("V208: Error: Duplicate course and session date reported for the same student. These courses will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, CourseStudentValidationFieldCode.COURSE_SESSION, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage()));
         }
 
         return errors;
