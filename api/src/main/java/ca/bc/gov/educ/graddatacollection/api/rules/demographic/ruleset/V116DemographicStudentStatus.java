@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
@@ -48,7 +48,7 @@ public class V116DemographicStudentStatus implements DemographicValidationBaseRu
 
         if (StudentStatusCodes.getStudentStatusCodeM().equalsIgnoreCase(student.getStatusCode())) {
             log.debug("StudentStatus-V116:Student PEN has been merged with a pre-existing PEN for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getMessage()));
         }
         return errors;
     }

@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
@@ -54,7 +54,7 @@ public class V103DemographicStudentPEN implements DemographicValidationBaseRule 
 
         if (student == null) {
             log.debug("StudentPEN-v103: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND.getMessage()));
         }
         return errors;
     }

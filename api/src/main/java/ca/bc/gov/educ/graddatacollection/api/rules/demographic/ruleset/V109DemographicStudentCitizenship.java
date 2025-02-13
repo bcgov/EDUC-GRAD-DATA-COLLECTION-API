@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
@@ -56,7 +56,7 @@ public class V109DemographicStudentCitizenship implements DemographicValidationB
 
         if (citizenshipCodes.stream().noneMatch(code -> Objects.equals(code.getCitizenshipCode(), student.getCitizenship()))) {
             log.debug("StudentCitizenship-v109: Invalid citizenship code - must be C, O or blank for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_CITIZENSHIP_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.CITIZENSHIP, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage()));
         }
         return errors;
     }

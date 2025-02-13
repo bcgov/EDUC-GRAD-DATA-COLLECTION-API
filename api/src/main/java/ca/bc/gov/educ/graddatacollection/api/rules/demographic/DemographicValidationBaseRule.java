@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.Rule;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DemographicValidationBaseRule extends Rule<StudentRuleData, DemographicStudentValidationIssue> {
-  default DemographicStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, DemographicStudentValidationFieldCode fieldCode, DemographicStudentValidationIssueTypeCode typeCode, String description, String... messageArgs){
+  default DemographicStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, DemographicStudentValidationIssueTypeCode typeCode, String description, String... messageArgs){
     DemographicStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new DemographicStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());

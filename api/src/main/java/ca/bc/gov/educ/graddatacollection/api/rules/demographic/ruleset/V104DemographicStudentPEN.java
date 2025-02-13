@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
@@ -54,7 +54,7 @@ public class V104DemographicStudentPEN implements DemographicValidationBaseRule 
 
         if (!isPresent) {
             log.debug("StudentPEN-v104: Student in DEM file but not in CRS file (i.e., course data has not been submitted for this student). for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH.getMessage()));
         }
         return errors;
     }

@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
@@ -50,7 +50,7 @@ public class V110DemographicStudentGrade implements DemographicValidationBaseRul
         if (StringUtils.isEmpty(student.getGrade())
             || SchoolGradeCodes.getAllSchoolGrades().stream().noneMatch(validGrade -> Objects.equals(validGrade, student.getGrade()))) {
             log.debug("StudentGrade-V110: Must be a valid grade (K-12, AD, AN, HS, SU, GA) for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage()));
         }
         return errors;
     }

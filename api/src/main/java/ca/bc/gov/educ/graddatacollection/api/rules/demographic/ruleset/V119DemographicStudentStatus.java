@@ -1,9 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
@@ -55,12 +54,12 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-        if (student.getStudentStatusCode().equalsIgnoreCase(StudentStatusCodes.T.getCode()) &&
+        if (student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode()) &&
             gradStudent.getStudentStatusCode().equalsIgnoreCase("CUR") &&
             !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())
             ) {
             log.debug("StudentStatus-V119:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()));
         }
 
         return errors;

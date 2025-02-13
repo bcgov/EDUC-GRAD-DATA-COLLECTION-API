@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.rules.utils.RuleUtil;
@@ -57,17 +57,17 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
         if (RuleUtil.validateStudentRecordExists(student)) {
             if (!RuleUtil.validateStudentSurnameMatches(demStudent, student)) {
                 log.debug("studentName-v105:Error: The submitted SURNAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH,
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH,
         "SURNAME mismatch. School submitted: " + demStudent.getLastName() + MINISTRY_PEN_PARTIAL + student.getLegalLastName() + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login."));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
                 log.debug("studentName-v105: Error: The submitted MIDDLE NAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH,
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH,
         "MIDDLE NAME mismatch. School submitted: " + demStudent.getMiddleName() + MINISTRY_PEN_PARTIAL + student.getLegalMiddleNames() + ". If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login."));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
                 log.debug("studentName-v105:Error: The submitted FIRST NAME does not match the ministry database. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, DemographicStudentValidationFieldCode.STUDENT_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH,
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH,
         "FIRST NAME mismatch. School submitted: " + demStudent.getFirstName() + MINISTRY_PEN_PARTIAL + student.getLegalFirstName() + ". If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login."));
             }
         }
