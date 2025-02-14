@@ -56,9 +56,10 @@ public class GradDemFileService implements GradFileBatchProcessor {
         if(districtID != null) {
           var schoolTombstone = gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
           incomingSchoolID = schoolTombstone.getSchoolId();
+          gradFileValidator.validateFileUploadIsNotInProgress(guid, incomingSchoolID);
           this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
-          gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
         } else {
+           gradFileValidator.validateFileUploadIsNotInProgress(guid, incomingSchoolID);
            this.populateSchoolBatchFile(guid, ds, batchFile, incomingSchoolID);
         }
         return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);

@@ -59,12 +59,13 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         val batchFile = new GradStudentCourseFile();
         String incomingSchoolID = schoolID;
         if(districtID == null) {
+            gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
             this.populateSchoolBatchFile(guid, ds, batchFile, schoolID);
         } else {
             var schoolTombstone =  ds.getRowCount() == 0 ? gradFileValidator.getSchoolFromFileName(guid, fileUpload.getFileName()) : gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
             incomingSchoolID = schoolTombstone.getSchoolId();
+            gradFileValidator.validateFileUploadIsNotInProgress(guid, incomingSchoolID);
             this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
-            gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
         }
         return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
     }
