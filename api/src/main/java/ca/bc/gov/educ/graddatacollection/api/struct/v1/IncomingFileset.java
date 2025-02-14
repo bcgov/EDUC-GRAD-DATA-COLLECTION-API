@@ -36,5 +36,6 @@ public class IncomingFileset extends BaseRequest implements Serializable {
     String crsFileStatusCode;
     @Size(max = 10)
     String filesetStatusCode;
+    String districtID;
 
 }
