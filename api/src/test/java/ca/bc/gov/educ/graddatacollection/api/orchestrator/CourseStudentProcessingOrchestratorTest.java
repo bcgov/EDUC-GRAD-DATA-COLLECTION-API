@@ -120,6 +120,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseCategory.setCode("BA");
         courseCategory.setDescription("");
         coursesRecord.setCourseCategory(courseCategory);
+        coursesRecord.setGenericCourseType("G");
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 

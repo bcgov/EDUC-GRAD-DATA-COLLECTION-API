@@ -40,6 +40,7 @@ public enum ValidationFieldCode {
   NUMBER_OF_CREDITS("NUMBER_OF_CREDITS", "Number of Credits"),
   RELATED_COURSE("RELATED_COURSE", "Related Course"),
   RELATED_LEVEL("RELATED_LEVEL", "Related Level"),
+  COURSE_DESCRIPTION("COURSE_DESCRIPTION", "Course Description"),
   COURSE_GRADUATION_REQUIREMENT("COURSE_GRADUATION_REQUIREMENT", "Course Graduation Requirement"),
   MIDDLE_NAME("MIDDLE_NAME", "Middle name"),
   FIRST_NAME("FIRST_NAME", "First Name"),
