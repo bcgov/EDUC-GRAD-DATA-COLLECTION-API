@@ -55,12 +55,13 @@ public class GradXamFileService implements GradFileBatchProcessor {
         val batchFile = new GradStudentXamFile();
         String incomingSchoolID = schoolID;
         if(districtID == null) {
+            gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
             this.populateSchoolBatchFile(guid, ds, batchFile, schoolID);
         } else {
             var schoolTombstone =  ds.getRowCount() == 0 ? gradFileValidator.getSchoolFromFileName(guid, fileUpload.getFileName()) : gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
             incomingSchoolID = schoolTombstone.getSchoolId();
-            this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
             gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
+            this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
         }
         return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
     }
