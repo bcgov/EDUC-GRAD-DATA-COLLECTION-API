@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum AssessmentStudentValidationIssueTypeCode {
 
-  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID."),
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the XAM file but is missing from the DEM file. The student's assessment registrations will not be updated."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level value is ignored and must be blank."),
   COURSE_CODE_INVALID("COURSE_CODE_INVALID", "The Assessment Code provided is not valid for the Assessment Session specified."),
   COURSE_SESSION_DUP("COURSE_SESSION_DUP", "The assessment session is a duplicate of an existing assessment session for this student/assessment/level."),
@@ -23,7 +23,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
   COURSE_TYPE_NOT_BLANK("COURSE_TYPE_NOT_BLANK", "Course type value is ignored and must be blank."),
   TO_WRITE_FLAG_NOT_BLANK("TO_WRITE_FLAG_NOT_BLANK", "To write flag value is ignored and must be blank."),
   EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid assessment center provided."),
-  DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "The assessment session is a duplicate of an existing assessment session for this student."),
+  DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "There are more than one CODE/SESSION DATE registrations in the file for the same student."),
   COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is in a Francophone school and cannot register for this assessment session for this student."),
   COURSE_ALREADY_WRITTEN("COURSE_ALREADY_WRITTEN", "Assessment has been written by the student, withdrawal is not allowed."),
   DEM_ISSUE("DEM_ISSUE", "Student XAM record will not be processed due to an issue with the student's demographics.");
