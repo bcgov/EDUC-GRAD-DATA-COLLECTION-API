@@ -120,7 +120,6 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseCategory.setCode("BA");
         courseCategory.setDescription("");
         coursesRecord.setCourseCategory(courseCategory);
-        coursesRecord.setProgramGuideTitle("INDEPENDENT DIRECTED STUDIES");
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
     }
 
