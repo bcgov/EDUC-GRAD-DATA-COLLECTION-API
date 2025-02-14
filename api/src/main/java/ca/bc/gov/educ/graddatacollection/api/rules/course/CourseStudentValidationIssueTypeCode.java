@@ -38,7 +38,9 @@ public enum CourseStudentValidationIssueTypeCode {
   INVALID_FINE_ARTS_APPLIED_SKILLS_CODE("INVALID_FINE_ARTS_APPLIED_SKILLS_CODE", "Invalid Fine Arts/Applied Skills code.  Must be one of A, F or B."),
   GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID("GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID", "Invalid entry. Number of credits must be 4 where B reported for a Board Authority Authorized or Locally Developed course for a student on the 1996 program. This course will not be updated."),
   COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES("COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES", "Invalid entry. A related course code and level can only be applied to an Independent Directed Studies course. This course will not be updated."),
-  RELATED_COURSE_RELATED_LEVEL_INVALID("RELATED_COURSE_RELATED_LEVEL_INVALID", "Invalid related course code used for the Independent Directed Studies course. Please check the Course Registry. This course will not be updated.")
+  RELATED_COURSE_RELATED_LEVEL_INVALID("RELATED_COURSE_RELATED_LEVEL_INVALID", "Invalid related course code used for the Independent Directed Studies course. Please check the Course Registry. This course will not be updated."),
+  RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY("RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY", "Related course code and level missing for Independent Directed Studies course. This course will not be updated."),
+  COURSE_DESCRIPTION_INVALID("COURSE_DESCRIPTION_INVALID", "The ministry course title must be used for this course. Please check the Course Registry: descriptive titles only allowed if Generic Course Type = G. This course will not be updated.")
   ;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();

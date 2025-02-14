@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(330)
+@Order(340)
 public class V234RelatedCourseRelatedLevel implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
