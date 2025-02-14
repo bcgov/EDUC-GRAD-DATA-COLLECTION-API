@@ -1394,8 +1394,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         stud1.setPen(demStudent.getPen());
         when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
 
-//        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
-//        assertThat(validationError1.size()).isZero();
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
