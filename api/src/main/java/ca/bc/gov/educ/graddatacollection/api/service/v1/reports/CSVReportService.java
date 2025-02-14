@@ -37,7 +37,7 @@ public class CSVReportService {
                 .toList();
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN.getCode(),LOCAL_ID.getCode(), LAST_NAME.getCode(), FIRST_NAME.getCode(), DATE_OF_BIRTH.getCode(), FILE_TYPE.getCode(), SEVERITY_CODE.getCode(), DESCRIPTION.getCode())
+                .setHeader(PEN.getCode(),LOCAL_ID.getCode(), LAST_NAME.getCode(), FIRST_NAME.getCode(), DATE_OF_BIRTH.getCode(), FILE_TYPE.getCode(), SEVERITY_CODE.getCode(), FIELD.getCode(), DESCRIPTION.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -70,9 +70,10 @@ public class CSVReportService {
                         result.getLocalID(),
                         result.getLastName(),
                         result.getFirstName(),
-                        "",
+                        result.getBirthdate(),
                         issue.getErrorFilesetValidationIssueTypeCode(),
                         issue.getValidationIssueSeverityCode(),
+                        issue.getValidationIssueFieldCode(),
                         issue.getValidationIssueDescription()
                 ))
                 .toList();

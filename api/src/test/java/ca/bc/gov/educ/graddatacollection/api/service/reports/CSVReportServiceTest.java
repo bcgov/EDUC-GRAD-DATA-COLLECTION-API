@@ -58,6 +58,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
         issue.setErrorFilesetValidationIssueTypeCode("COURSE");
         issue.setValidationIssueSeverityCode("ERROR");
+        issue.setValidationIssueFieldCode("PEN");
         issue.setValidationIssueDescription("This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated.");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
@@ -65,6 +66,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
+        student.setBirthdate("20000101");
         student.setErrorFilesetStudentValidationIssues(List.of(issue));
 
         List<List<String>> result = csvReportService.prepareErrorDataForCsv(student);
@@ -76,9 +78,10 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "8887555",
                         "Doe",
                         "John",
-                        "",
+                        "20000101",
                         "COURSE",
                         "ERROR",
+                        "PEN",
                         "This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated."
                 ),
                 result.get(0)
@@ -90,6 +93,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
         issue.setErrorFilesetValidationIssueTypeCode("ASSESSMENT");
         issue.setValidationIssueSeverityCode("ERROR");
+        issue.setValidationIssueFieldCode("PEN");
         issue.setValidationIssueDescription("This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID.");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
@@ -97,6 +101,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
+        student.setBirthdate("20000101");
         student.setErrorFilesetStudentValidationIssues(List.of(issue));
 
         List<List<String>> result = csvReportService.prepareErrorDataForCsv(student);
@@ -108,9 +113,10 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "8887555",
                         "Doe",
                         "John",
-                        "",
+                        "20000101",
                         "ASSESSMENT",
                         "ERROR",
+                        "PEN",
                         "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID."
                 ),
                 result.get(0)
@@ -122,6 +128,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
         issue.setErrorFilesetValidationIssueTypeCode("DEMOGRAPHICS");
         issue.setValidationIssueSeverityCode("ERROR");
+        issue.setValidationIssueFieldCode("PEN");
         issue.setValidationIssueDescription("PEN is blank so the student record cannot be updated. Ensure the correct PEN appears in system data file extracts.");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
@@ -129,6 +136,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         student.setLocalID("8887555");
         student.setLastName("Doe");
         student.setFirstName("John");
+        student.setBirthdate("20000101");
         student.setErrorFilesetStudentValidationIssues(List.of(issue));
 
         List<List<String>> result = csvReportService.prepareErrorDataForCsv(student);
@@ -140,9 +148,10 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "8887555",
                         "Doe",
                         "John",
-                        "",
+                        "20000101",
                         "DEMOGRAPHICS",
                         "ERROR",
+                        "PEN",
                         "PEN is blank so the student record cannot be updated. Ensure the correct PEN appears in system data file extracts."
                 ),
                 result.get(0)
