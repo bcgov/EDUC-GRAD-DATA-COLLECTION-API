@@ -63,18 +63,23 @@ public class V202ValidStudentInDEM implements CourseValidationBaseRule {
         if (!RuleUtil.validateStudentRecordExists(studentRuleData.getStudentApiStudent())){
             log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics PEN :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
-        } else if (!RuleUtil.validateStudentSurnameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
-            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics LAST NAME :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
-        } else if (!RuleUtil.validateStudentGivenNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
-            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics MIDDLE NAME :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
-        } else if (!RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
-            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics FIRST NAME :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
-        } else if (!RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
-            log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics DOB :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+        } else {
+            if (!RuleUtil.validateStudentSurnameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+                log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics LAST NAME :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+            }
+            if (!RuleUtil.validateStudentGivenNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+                log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics MIDDLE NAME :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+            }
+            if (!RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+                log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics FIRST NAME :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+            }
+            if (!RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())) {
+                log.debug("V202: Student CRS record will not be processed due to an issue with the student's demographics DOB :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, CourseStudentValidationIssueTypeCode.DEM_ISSUE, CourseStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
+            }
         }
         return errors;
     }
