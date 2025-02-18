@@ -55,7 +55,7 @@ public class V236CourseDescription implements CourseValidationBaseRule {
             String paddedCourseCode = String.format("%-5s", courseStudent.getCourseCode());
             var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
 
-            if (!"G".equalsIgnoreCase(coursesRecord.getGenericCourseType())) {
+            if (coursesRecord != null && !"G".equalsIgnoreCase(coursesRecord.getGenericCourseType())) {
                 log.debug("V236: Error: The ministry course title must be used for this course. Please check the Course Registry: descriptive titles only allowed if Generic Course Type = G. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_DESCRIPTION, CourseStudentValidationIssueTypeCode.COURSE_DESCRIPTION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_DESCRIPTION_INVALID.getMessage()));
             }
