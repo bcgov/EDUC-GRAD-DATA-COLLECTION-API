@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentXamFile;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -54,7 +55,12 @@ public class GradXamFileService implements GradFileBatchProcessor {
     public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         val batchFile = new GradStudentXamFile();
         String incomingSchoolID = schoolID;
+        String incomingDistrictID = districtID;
         if(districtID == null) {
+            var schoolTombstone =  gradFileValidator.getSchoolByID(guid, schoolID);
+            if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(schoolTombstone.getSchoolCategoryCode())) {
+                incomingDistrictID = schoolTombstone.getDistrictId();
+            }
             gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
             this.populateSchoolBatchFile(guid, ds, batchFile, schoolID);
         } else {
@@ -63,7 +69,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
             gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
             this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
         }
-        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, incomingDistrictID);
     }
 
     public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentXamFile batchFile, final String schoolID) throws FileUnProcessableException {
