@@ -4,9 +4,8 @@ import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
@@ -30,16 +29,11 @@ public class GradFileValidator {
     public static final String TOO_LONG = "TOO LONG";
     public static final String FILE_TYPE = "dem";
     public static final String MINCODE = "mincode";
-
-    private final DemographicStudentRepository demographicStudentRepository;
-    private final CourseStudentRepository courseStudentRepository;
-    private final AssessmentStudentRepository assessmentStudentRepository;
+    private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
 
-    public GradFileValidator(DemographicStudentRepository demographicStudentRepository, CourseStudentRepository courseStudentRepository, AssessmentStudentRepository assessmentStudentRepository, RestUtils restUtils) {
-        this.demographicStudentRepository = demographicStudentRepository;
-        this.courseStudentRepository = courseStudentRepository;
-        this.assessmentStudentRepository = assessmentStudentRepository;
+    public GradFileValidator(IncomingFilesetRepository incomingFilesetRepository, RestUtils restUtils) {
+        this.incomingFilesetRepository = incomingFilesetRepository;
         this.restUtils = restUtils;
     }
 
@@ -117,11 +111,9 @@ public class GradFileValidator {
     }
 
     public void validateFileUploadIsNotInProgress(@NonNull final String guid, final String schoolID) throws FileUnProcessableException {
-        long inFlightDemCount = demographicStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
-        long inFlightCrsCount = courseStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
-        long inFlightXamCount = assessmentStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
-
-        if (inFlightDemCount > 0 || inFlightCrsCount > 0 || inFlightXamCount > 0) {
+        Optional<IncomingFilesetEntity> inProgressFileset = incomingFilesetRepository
+                .findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
+        if (inProgressFileset.isPresent()) {
             String schoolMincode = getMincode(guid, schoolID);
             throw new FileUnProcessableException(FileError.CONFLICT_FILE_ALREADY_IN_FLIGHT, guid, GradCollectionStatus.LOAD_FAIL, schoolMincode);
         }
