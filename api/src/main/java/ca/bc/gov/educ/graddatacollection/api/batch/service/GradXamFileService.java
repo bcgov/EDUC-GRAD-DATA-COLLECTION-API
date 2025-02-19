@@ -29,7 +29,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MINCODE;
@@ -119,15 +120,11 @@ public class GradXamFileService implements GradFileBatchProcessor {
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
 
-            currentFileset.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getAssessmentStudentEntities().clear();
             currentFileset.getAssessmentStudentEntities().addAll(pairStudentList);
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
-            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
-            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
-            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             return incomingFilesetService.saveIncomingFilesetRecord(incomingFilesetEntity);
         }
