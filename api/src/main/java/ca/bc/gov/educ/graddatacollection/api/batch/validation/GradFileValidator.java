@@ -121,7 +121,7 @@ public class GradFileValidator {
         long inFlightCrsCount = courseStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
         long inFlightXamCount = assessmentStudentRepository.countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID.fromString(schoolID), SchoolStudentStatus.LOADED.getCode());
 
-        if (inFlightDemCount > 0 && inFlightCrsCount > 0 && inFlightXamCount > 0) {
+        if (inFlightDemCount > 0 || inFlightCrsCount > 0 || inFlightXamCount > 0) {
             String schoolMincode = getMincode(guid, schoolID);
             throw new FileUnProcessableException(FileError.CONFLICT_FILE_ALREADY_IN_FLIGHT, guid, GradCollectionStatus.LOAD_FAIL, schoolMincode);
         }
@@ -202,5 +202,10 @@ public class GradFileValidator {
             );
         }
 
+    }
+
+    public SchoolTombstone getSchoolByID(@NonNull final String guid,final String schoolID) throws FileUnProcessableException {
+        Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
+        return schoolOptional.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, schoolID));
     }
 }
