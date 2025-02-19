@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.graddatacollection.api.struct.external.coreg;
+package ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

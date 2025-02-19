@@ -10,10 +10,10 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseAllowableCreditRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCharacteristicsRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;

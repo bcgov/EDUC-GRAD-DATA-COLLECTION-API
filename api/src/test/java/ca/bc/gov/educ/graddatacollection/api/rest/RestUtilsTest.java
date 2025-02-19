@@ -3,15 +3,14 @@ package ca.bc.gov.educ.graddatacollection.api.rest;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseAllowableCreditRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCharacteristicsRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.IndependentAuthority;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,9 +22,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -207,6 +206,130 @@ class RestUtilsTest {
 
         assertEquals(expectedRecord, actualRecord);
     }
+
+    @Test
+    void testGetGradStudentCoursesByPEN_WhenValidPEN_ShouldReturnGradStudentCourseRecords() throws Exception {
+        UUID correlationID = UUID.randomUUID();
+        String pen = "131411258";
+
+        String jsonResponse = """
+        [
+            {"pen":"131411258","courseCode":"CLE","courseName":"CAREER-LIFE EDUCATION","originalCredits":4,"courseLevel":"","sessionDate":"2021/06","customizedCourseName":"","gradReqMet":null,"completedCoursePercentage":100.0,"completedCourseLetterGrade":"A","interimPercent":100.0,"interimLetterGrade":"","bestSchoolPercent":null,"bestExamPercent":null,"schoolPercent":null,"examPercent":null,"equivOrChallenge":"","fineArtsAppliedSkills":"","metLitNumRequirement":null,"credits":4,"creditsUsedForGrad":null,"relatedCourse":"","relatedCourseName":null,"relatedLevel":"","hasRelatedCourse":"N","genericCourseType":"","language":"","workExpFlag":" ","specialCase":null,"toWriteFlag":null,"provExamCourse":"N","courseDetails":{"courseCode":"CLE","courseLevel":"","courseName":"CAREER-LIFE EDUCATION","language":"","startDate":"2018-06-30","endDate":"1858-11-16","workExpFlag":" ","genericCourseType":"","courseID":"3201860","numCredits":4},"failed":false,"duplicate":false,"notCompleted":false},
+            {"pen":"131411258","courseCode":"CLC","courseName":"CAREER-LIFE CONNECTIONS","originalCredits":4,"courseLevel":"","sessionDate":"2023/06","customizedCourseName":"","gradReqMet":null,"completedCoursePercentage":95.0,"completedCourseLetterGrade":"A","interimPercent":95.0,"interimLetterGrade":"","bestSchoolPercent":null,"bestExamPercent":null,"schoolPercent":null,"examPercent":null,"equivOrChallenge":"","fineArtsAppliedSkills":"","metLitNumRequirement":null,"credits":4,"creditsUsedForGrad":null,"relatedCourse":"","relatedCourseName":null,"relatedLevel":"","hasRelatedCourse":"N","genericCourseType":"","language":"","workExpFlag":" ","specialCase":null,"toWriteFlag":null,"provExamCourse":"N","courseDetails":{"courseCode":"CLC","courseLevel":"","courseName":"CAREER-LIFE CONNECTIONS","language":"","startDate":"2018-06-30","endDate":"1858-11-16","workExpFlag":" ","genericCourseType":"","courseID":"3201862","numCredits":4},"failed":false,"duplicate":false,"notCompleted":false}
+        ]
+        """;
+
+        List<GradStudentCourseRecord> expectedRecords = new ArrayList<>(List.of(
+            new GradStudentCourseRecord(
+                "131411258",
+                "CLE",
+                "CAREER-LIFE EDUCATION",
+                4,
+                "",
+                "2021/06",
+                "",
+                null,
+                100.0,
+                "A",
+                100.0,
+                "",
+                null,
+                null,
+                null,
+                null,
+                "",
+                "",
+                null,
+                4,
+                null,
+                "",
+                null,
+                "",
+                "N",
+                "",
+                "",
+                " ",
+                null,
+                null,
+                "N",
+                false,
+                false,
+                false,
+                new GradCourseRecord(
+                    "CLE",
+                    "",
+                    "CAREER-LIFE EDUCATION",
+                    "",
+                   "2018-06-30",
+                   "1858-11-16",
+                    " ",
+                    "",
+                    "3201860",
+                    4
+                )
+            ),
+            new GradStudentCourseRecord(
+                "131411258",
+                "CLC",
+                "CAREER-LIFE CONNECTIONS",
+                4,
+                "",
+                "2023/06",
+                "",
+                null,
+                95.0,
+                "A",
+                95.0,
+                "",
+                null,
+                null,
+                null,
+                null,
+                "",
+                "",
+                null,
+                4,
+                null,
+                "",
+                null,
+                "",
+                "N",
+                "",
+                "",
+                " ",
+                null,
+                null,
+                "N",
+                false,
+                false,
+                false,
+                new GradCourseRecord(
+                    "CLC",
+                    "",
+                    "CAREER-LIFE CONNECTIONS",
+                    "",
+                    "2018-06-30",
+                    "1858-11-16",
+                    " ",
+                    "",
+                    "3201862",
+                    4
+                )
+            )
+        ));
+
+        byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
+
+        io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
+        when(mockMessage.getData()).thenReturn(mockResponseData);
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        List<GradStudentCourseRecord> actualRecords = restUtils.getGradStudentCoursesByPEN(correlationID, pen);
+
+        assertEquals(expectedRecords, actualRecords);
+    }
+
 
     @Test
     void testPopulateEquivalencyChallengeCodeMap() {

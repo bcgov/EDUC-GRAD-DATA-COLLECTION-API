@@ -3,8 +3,9 @@ package ca.bc.gov.educ.graddatacollection.api.struct.v1;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -13,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Map;
 
 @SuperBuilder
@@ -29,4 +31,5 @@ public class StudentRuleData {
   private Student studentApiStudent;
   private GradStudentRecord gradStudentRecord;
   private Map<String, CoregCoursesRecord> coregCoursesRecordMap;
+  private List<GradStudentCourseRecord> gradStudentCourseRecordList;
 }
