@@ -24,7 +24,8 @@ public enum AssessmentStudentValidationIssueTypeCode {
   TO_WRITE_FLAG_NOT_BLANK("TO_WRITE_FLAG_NOT_BLANK", "To write flag value is ignored and must be blank."),
   EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid assessment center provided."),
   DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "There are more than one CODE/SESSION DATE registrations in the file for the same student."),
-  COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is in a Francophone school and cannot register for this assessment session for this student."),
+  COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is enrolled in a Programme Francophone school and the registration is for a French Immersion assessment. This registration will not be updated."),
+  COURSE_CODE_NON_CSF("COURSE_CODE_NON_CSF", "Student is not enrolled in a Programme Francophone school and the registration is for LTP12."),
   COURSE_ALREADY_WRITTEN("COURSE_ALREADY_WRITTEN", "Assessment has been written by the student, withdrawal is not allowed."),
   DEM_ISSUE("DEM_ISSUE", "Student XAM record will not be processed due to an issue with the student's demographics.");
 
