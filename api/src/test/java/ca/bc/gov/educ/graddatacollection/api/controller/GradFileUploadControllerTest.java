@@ -174,10 +174,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileName()).isNull();
 
         final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedCRSStudents).hasSize(206);
@@ -209,10 +207,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getDemFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
 
         final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedCRSStudents).hasSize(93);
@@ -244,10 +241,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getCrsFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
 
         final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(5);
@@ -279,10 +275,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("empty-file.crs");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getDemFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
     }
 
     @Test
@@ -311,10 +306,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("empty-file.xam");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileName()).isNull();
     }
 
     @Test
@@ -368,10 +361,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileName()).isNull();
 
         final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedCRSStudents).hasSize(206);
@@ -406,10 +397,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getDemFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
 
         final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedCRSStudents).hasSize(93);
@@ -444,10 +434,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getCrsFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
 
         final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(5);
@@ -482,10 +471,9 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("empty-file.crs");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getDemFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
     }
 
     @Test
@@ -517,10 +505,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final var entity = result.get(0);
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("empty-file.xam");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileName()).isNull();
     }
 
     @Test

@@ -6,12 +6,10 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,9 +23,7 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IncomingFilesetEntity {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator", parameters = {
-            @Parameter(name = "uuid_gen_strategy_class", value = "org.hibernate.id.uuid.CustomVersionOneStrategy")})
+    @UuidGenerator
     @Column(name = "INCOMING_FILESET_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
     private UUID incomingFilesetID;
 
@@ -45,26 +41,17 @@ public class IncomingFilesetEntity {
     @Column(name = "DEM_FILE_DATE_UPLOADED")
     private LocalDateTime demFileUploadDate;
 
-    @Column(name = "DEM_FILE_STATUS_CODE")
-    private String demFileStatusCode;
-
     @Column(name = "XAM_FILE_NAME")
     private String xamFileName;
 
     @Column(name = "XAM_FILE_DATE_UPLOADED")
     private LocalDateTime xamFileUploadDate;
 
-    @Column(name = "XAM_FILE_STATUS_CODE")
-    private String xamFileStatusCode;
-
     @Column(name = "CRS_FILE_NAME")
     private String crsFileName;
 
     @Column(name = "CRS_FILE_DATE_UPLOADED")
     private LocalDateTime crsFileUploadDate;
-
-    @Column(name = "CRS_FILE_STATUS_CODE")
-    private String crsFileStatusCode;
 
     @Column(name = "FILESET_STATUS_CODE")
     private String filesetStatusCode;

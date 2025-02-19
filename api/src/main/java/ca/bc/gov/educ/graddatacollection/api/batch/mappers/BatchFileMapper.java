@@ -20,7 +20,6 @@ public interface BatchFileMapper {
 
     String GRAD_DATA_COLLECTION_API = "GRAD_DATA_COLLECTION_API";
 
-    @Mapping(target = "demFileStatusCode", ignore = true)
     @Mapping(target = "incomingFilesetID", ignore = true)
     @Mapping(target = "demFileUploadDate", expression = "java(java.time.LocalDateTime.now() )")
     @Mapping(target = "updateUser", source = "upload.updateUser")
@@ -37,7 +36,6 @@ public interface BatchFileMapper {
     @Mapping(target = "createDate",expression = "java(java.time.LocalDateTime.now() )")
     DemographicStudentEntity toDEMStudentEntity(GradStudentDemogDetails studentDetails, IncomingFilesetEntity incomingFilesetEntity);
 
-    @Mapping(target = "crsFileStatusCode", ignore = true)
     @Mapping(target = "incomingFilesetID", ignore = true)
     @Mapping(target = "crsFileUploadDate", expression = "java(java.time.LocalDateTime.now() )")
     @Mapping(target = "updateUser", source = "upload.updateUser")
@@ -54,7 +52,6 @@ public interface BatchFileMapper {
     @Mapping(target = "createDate",expression = "java(java.time.LocalDateTime.now() )")
     CourseStudentEntity toCRSStudentEntity(GradStudentCourseDetails courseDetails, IncomingFilesetEntity incomingFilesetEntity);
 
-    @Mapping(target = "xamFileStatusCode", ignore = true)
     @Mapping(target = "incomingFilesetID", ignore = true)
     @Mapping(target = "xamFileUploadDate", expression = "java(java.time.LocalDateTime.now() )")
     @Mapping(target = "updateUser", source = "upload.updateUser")
