@@ -250,7 +250,7 @@ class RestUtilsTest {
         ]
         """;
 
-        List<GradStudentCourseRecord> expectedRecords = new ArrayList<>(List.of(
+        List<GradStudentCourseRecord> expectedRecords = List.of(
             new GradStudentCourseRecord(
                 "131411258",
                 "CLE",
@@ -347,7 +347,7 @@ class RestUtilsTest {
                     4
                 )
             )
-        ));
+        );
 
         byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
 
