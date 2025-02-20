@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(310)
+@Order(285)
 public class V231CourseGraduationRequirement implements CourseValidationBaseRule {
 
     @Override

@@ -19,7 +19,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V230 | ERROR    | Can only enter Fine Arts/Applied Skills if the course is Board        |   V202       |
- *  |      |          | Authority Authorized  for the 2004/2018/2023 graduation program       |              |
+ *  |      |          | Authority Authorized  for the 2004/2018/2023 graduation program       |   V231       |
  *  |      |          |                                                                       |              |
  */
 @Component
@@ -56,8 +56,9 @@ public class V230CourseGraduationRequirement implements CourseValidationBaseRule
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
 
         if (coursesRecord != null) {
-            if (FineArtsAppliedSkillsCourseGradReqt.getCodes().contains(courseStudent.getCourseGraduationRequirement())
-                && ("2004".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2018".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2023".equalsIgnoreCase(demStudent.getGradRequirementYear()))
+            if (
+                ("2004".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2018".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2023".equalsIgnoreCase(demStudent.getGradRequirementYear()))
+                && coursesRecord.getCourseCategory() != null
                 && !("CC".equalsIgnoreCase(coursesRecord.getCourseCategory().getType()) && "BA".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode()))
             ) {
                 log.debug("V230: Error: Invalid entry. Values only applicable for Board Authority Authorized courses for students on 2004/2018/2023 programs. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
