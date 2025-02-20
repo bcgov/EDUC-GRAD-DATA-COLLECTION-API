@@ -19,7 +19,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V229 | ERROR    | Can only enter Fine Arts/Applied Skills if the course is Board        |   V202       |
- *  |      |          | Authority Authorized or Locally Developed for the 1996 graduation     |              |
+ *  |      |          | Authority Authorized or Locally Developed for the 1996 graduation     |   V231       |
  *  |      |          | program                                                               |              |
  */
 @Component
@@ -56,10 +56,9 @@ public class V229CourseGraduationRequirement implements CourseValidationBaseRule
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
 
         if (coursesRecord != null) {
-            if (FineArtsAppliedSkillsCourseGradReqt.getCodes().contains(courseStudent.getCourseGraduationRequirement())
-                    && "1996".equalsIgnoreCase(demStudent.getGradRequirementYear())
-                    && !("CC".equalsIgnoreCase(coursesRecord.getCourseCategory().getType())
-                        && ("BA".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode()) || "LD".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode())))) {
+            if ("1996".equalsIgnoreCase(demStudent.getGradRequirementYear())
+                && !("CC".equalsIgnoreCase(coursesRecord.getCourseCategory().getType())
+                    && ("BA".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode()) || "LD".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode())))) {
                 log.debug("V229: Error: Invalid entry. Values only applicable for Board Authority Authorized or Locally Developed courses for students on the 1996 program. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRAD_REQT_FINE_ARTS_APPLIED_SKILLS_1996_GRAD_PROG_INVALID, CourseStudentValidationIssueTypeCode.GRAD_REQT_FINE_ARTS_APPLIED_SKILLS_1996_GRAD_PROG_INVALID.getMessage()));
             }

@@ -1390,8 +1390,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         coursesRecord2.setCourseAllowableCredit(courseAllowableCredits2);
         CourseCharacteristicsRecord courseCategory2 = new CourseCharacteristicsRecord();
         courseCategory2.setId("2932");
-        courseCategory2.setType("ZZ");
-        courseCategory2.setCode("ZZ");
+        courseCategory2.setType("CC");
+        courseCategory2.setCode("BA");
         courseCategory2.setDescription("");
         coursesRecord2.setCourseCategory(courseCategory2);
         coursesRecord2.setGenericCourseType("G");
@@ -1569,8 +1569,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
         CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
         courseCategory.setId("2932");
-        courseCategory.setType("ZZ");
-        courseCategory.setCode("ZZ");
+        courseCategory.setType("CC");
+        courseCategory.setCode("BA");
         courseCategory.setDescription("");
         coursesRecord.setCourseCategory(courseCategory);
         coursesRecord.setGenericCourseType("G");
