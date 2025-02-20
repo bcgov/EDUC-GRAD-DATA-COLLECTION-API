@@ -208,6 +208,37 @@ class RestUtilsTest {
     }
 
     @Test
+    void testGetGradStudentCoursesByPEN_WhenRequestTimesOut_ShouldThrowGradDataCollectionAPIRuntimeException() {
+        UUID correlationID = UUID.randomUUID();
+        String pen = "131411258";
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        GradDataCollectionAPIRuntimeException exception = assertThrows(
+                GradDataCollectionAPIRuntimeException.class,
+                () -> restUtils.getGradStudentCoursesByPEN(correlationID, pen)
+        );
+
+        assertEquals(NATS_TIMEOUT + correlationID, exception.getMessage());
+    }
+
+    @Test
+    void testGetGradStudentCoursesByPEN_WhenExceptionOccurs_ShouldThrowGradDataCollectionAPIRuntimeException() {
+        UUID correlationID = UUID.randomUUID();
+        String pen = "131411258";
+        Exception mockException = new Exception("exception");
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.failedFuture(mockException));
+
+        assertThrows(
+                GradDataCollectionAPIRuntimeException.class,
+                () -> restUtils.getGradStudentCoursesByPEN(correlationID, pen)
+        );
+    }
+
+    @Test
     void testGetGradStudentCoursesByPEN_WhenValidPEN_ShouldReturnGradStudentCourseRecords() throws Exception {
         UUID correlationID = UUID.randomUUID();
         String pen = "131411258";
