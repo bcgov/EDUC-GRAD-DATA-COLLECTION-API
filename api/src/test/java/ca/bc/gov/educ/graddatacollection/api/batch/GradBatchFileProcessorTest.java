@@ -74,10 +74,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
         assertThat(entity.getCrsFileName()).isEqualTo("Test.crs");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
 
         final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(5);
@@ -108,10 +105,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
         assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileName()).isNull();
 
         final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(93);
@@ -143,10 +138,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
         assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("NOTLOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("LOADED");
 
         final var uploadedDEMStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(206);
@@ -171,41 +163,6 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
         var id = school.getSchoolId();
         assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(crsFile, id));
-    }
-
-    @Test
-    void testProcessCRSFile_givenFileWithCurrentSession_shouldSaveFileToDB() throws Exception {
-        var school = this.createMockSchool();
-        school.setMincode("07965039");
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(mockFileset);
-
-        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file.txt");
-        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-        GradFileUpload crsFile = GradFileUpload.builder()
-                .fileContents(fileContents)
-                .createUser("ABC")
-                .fileName("student-crs-file.crs")
-                .fileType("crs")
-                .build();
-
-        gradBatchFileProcessor.processSchoolBatchFile(crsFile, school.getSchoolId());
-
-        final var result =  incomingFilesetRepository.findAll();
-        assertThat(result).hasSize(1);
-
-        final var entity = result.get(0);
-        assertThat(entity.getIncomingFilesetID()).isNotNull();
-        assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
-        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
-
-        final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
-        assertThat(uploadedDEMStudents).hasSize(93);
     }
 
     @Test
@@ -234,10 +191,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
         assertThat(entity.getCrsFileName()).isEqualTo("crs-file-with-future-session.crs");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileName()).isNull();
 
         final var uploadedDEMStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedDEMStudents).hasSize(3);
@@ -274,7 +229,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setDistrictId(String.valueOf(districtID));
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var savedFileSet = incomingFilesetRepository.save(mockFileset);
 
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -330,10 +286,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
         assertThat(entity.getCrsFileName()).isEqualTo("school-empty-crs-file.crs");
-        assertThat(entity.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getCrsFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity.getXamFileName()).isNull();
 
         final FileInputStream fis2 = new FileInputStream("src/test/resources/empty-file.txt");
         final String fileContents2 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis2));
@@ -352,9 +306,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity2.getIncomingFilesetID()).isNotNull();
         assertThat(entity2.getDemFileName()).isEqualTo("Test.dem");
         assertThat(entity2.getCrsFileName()).isEqualTo("district-empty-crs-file.crs");
-        assertThat(entity2.getDemFileStatusCode()).isEqualTo("LOADED");
         assertThat(entity2.getFilesetStatusCode()).isEqualTo("LOADED");
-        assertThat(entity2.getCrsFileStatusCode()).isEqualTo("LOADED");
-        assertThat(entity2.getXamFileStatusCode()).isEqualTo("NOTLOADED");
+        assertThat(entity2.getXamFileName()).isNull();
     }
 }

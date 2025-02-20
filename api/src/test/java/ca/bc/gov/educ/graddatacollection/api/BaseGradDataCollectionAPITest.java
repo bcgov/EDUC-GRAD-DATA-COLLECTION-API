@@ -74,9 +74,6 @@ public abstract class BaseGradDataCollectionAPITest {
             .demFileName("Test.dem")
             .crsFileName(null)
             .xamFileName(null)
-            .demFileStatusCode("LOADED")
-            .crsFileStatusCode("NOTLOADED")
-            .xamFileStatusCode("NOTLOADED")
             .filesetStatusCode("LOADED")
             .build();
   }
@@ -90,9 +87,6 @@ public abstract class BaseGradDataCollectionAPITest {
             .demFileName(null)
             .crsFileName("Test.crs")
             .xamFileName(null)
-            .demFileStatusCode("NOTLOADED")
-            .crsFileStatusCode("LOADED")
-            .xamFileStatusCode("NOTLOADED")
             .filesetStatusCode("LOADED")
             .build();
   }
@@ -106,9 +100,6 @@ public abstract class BaseGradDataCollectionAPITest {
             .demFileName("Test.dem")
             .crsFileName("Test.crs")
             .xamFileName("Test.xam")
-            .demFileStatusCode("LOADED")
-            .crsFileStatusCode("LOADED")
-            .xamFileStatusCode("LOADED")
             .filesetStatusCode("LOADED")
             .build();
   }

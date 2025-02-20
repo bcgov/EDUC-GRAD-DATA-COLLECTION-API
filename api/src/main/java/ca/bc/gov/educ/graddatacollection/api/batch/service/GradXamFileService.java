@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentXamFile;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -28,7 +29,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MINCODE;
@@ -54,15 +56,21 @@ public class GradXamFileService implements GradFileBatchProcessor {
     public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         val batchFile = new GradStudentXamFile();
         String incomingSchoolID = schoolID;
+        String incomingDistrictID = districtID;
         if(districtID == null) {
+            var schoolTombstone =  gradFileValidator.getSchoolByID(guid, schoolID);
+            if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(schoolTombstone.getSchoolCategoryCode())) {
+                incomingDistrictID = schoolTombstone.getDistrictId();
+            }
+            gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
             this.populateSchoolBatchFile(guid, ds, batchFile, schoolID);
         } else {
             var schoolTombstone =  ds.getRowCount() == 0 ? gradFileValidator.getSchoolFromFileName(guid, fileUpload.getFileName()) : gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
             incomingSchoolID = schoolTombstone.getSchoolId();
-            this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
             gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
+            this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
         }
-        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, incomingDistrictID);
     }
 
     public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentXamFile batchFile, final String schoolID) throws FileUnProcessableException {
@@ -112,15 +120,11 @@ public class GradXamFileService implements GradFileBatchProcessor {
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
 
-            currentFileset.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getAssessmentStudentEntities().clear();
             currentFileset.getAssessmentStudentEntities().addAll(pairStudentList);
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
-            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
-            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
-            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             return incomingFilesetService.saveIncomingFilesetRecord(incomingFilesetEntity);
         }

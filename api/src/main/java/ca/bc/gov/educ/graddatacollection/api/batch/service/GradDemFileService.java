@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradStudentDemogFile;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -28,7 +29,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
@@ -53,15 +55,21 @@ public class GradDemFileService implements GradFileBatchProcessor {
     public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, final DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         val batchFile = new GradStudentDemogFile();
         String incomingSchoolID = schoolID;
+        String incomingDistrictID = districtID;
         if(districtID != null) {
           var schoolTombstone = gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
           incomingSchoolID = schoolTombstone.getSchoolId();
+          gradFileValidator.validateFileUploadIsNotInProgress(guid, incomingSchoolID);
           this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
-          gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolTombstone.getSchoolId());
         } else {
+           var schoolTombstone =  gradFileValidator.getSchoolByID(guid, schoolID);
+            if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(schoolTombstone.getSchoolCategoryCode())) {
+                incomingDistrictID = schoolTombstone.getDistrictId();
+            }
+           gradFileValidator.validateFileUploadIsNotInProgress(guid, incomingSchoolID);
            this.populateSchoolBatchFile(guid, ds, batchFile, incomingSchoolID);
         }
-        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, districtID);
+        return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, incomingDistrictID);
     }
 
     public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentDemogFile batchFile, final String schoolID) throws FileUnProcessableException {
@@ -108,15 +116,11 @@ public class GradDemFileService implements GradFileBatchProcessor {
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
 
-            currentFileset.setDemFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getDemographicStudentEntities().clear();
             currentFileset.getDemographicStudentEntities().addAll(pairStudentList );
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
-            incomingFilesetEntity.setDemFileStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
-            incomingFilesetEntity.setXamFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
-            incomingFilesetEntity.setCrsFileStatusCode(String.valueOf(FilesetStatus.NOT_LOADED.getCode()));
             incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             return incomingFilesetService.saveIncomingFilesetRecord(incomingFilesetEntity);
         }

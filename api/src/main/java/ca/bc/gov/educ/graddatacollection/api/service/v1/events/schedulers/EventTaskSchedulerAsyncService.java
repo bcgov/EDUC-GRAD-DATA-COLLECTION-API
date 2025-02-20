@@ -5,7 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
@@ -23,8 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -88,12 +89,7 @@ public class EventTaskSchedulerAsyncService {
     }
 
     var completedFilesets = this.incomingFilesetRepository.findCompletedCollectionsForStatusUpdate();
-    completedFilesets.forEach(completedFileset -> {
-      completedFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
-      completedFileset.setDemFileStatusCode(FilesetStatus.COMPLETED.getCode());
-      completedFileset.setCrsFileStatusCode(FilesetStatus.COMPLETED.getCode());
-      completedFileset.setXamFileStatusCode(FilesetStatus.COMPLETED.getCode());
-    });
+    completedFilesets.forEach(completedFileset -> completedFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode()));
     incomingFilesetRepository.saveAll(completedFilesets);
 
     final var demographicStudentEntities = this.incomingFilesetRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);

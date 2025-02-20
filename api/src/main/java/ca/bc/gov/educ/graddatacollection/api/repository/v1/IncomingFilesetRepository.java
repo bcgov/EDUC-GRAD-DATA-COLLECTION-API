@@ -19,15 +19,16 @@ import java.util.UUID;
 @Repository
 public interface IncomingFilesetRepository extends JpaRepository<IncomingFilesetEntity, UUID>, JpaSpecificationExecutor<IncomingFilesetEntity> {
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCode(UUID schoolID, String statusCode);
-    Optional<IncomingFilesetEntity> findBySchoolID(UUID schoolID);
+
+    Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
     @Query(value="""
     SELECT inFileset
     FROM IncomingFilesetEntity inFileset
     WHERE inFileset.filesetStatusCode != 'COMPLETED'
-    AND inFileset.demFileStatusCode = 'LOADED'
-    AND inFileset.crsFileStatusCode = 'LOADED'
-    AND inFileset.xamFileStatusCode = 'LOADED'
+    AND inFileset.demFileName is not null
+    AND inFileset.crsFileName is not null 
+    AND inFileset.xamFileName is not null
     AND (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
     AND (select count(cs2) from CourseStudentEntity cs2 where cs2.studentStatusCode = 'LOADED' and cs2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
     AND (select count(as2) from AssessmentStudentEntity as2 where as2.studentStatusCode = 'LOADED' and as2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
@@ -38,9 +39,9 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     SELECT dse FROM DemographicStudentEntity dse WHERE dse.demographicStudentID
     NOT IN (SELECT saga.demographicStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.demographicStudentID IS NOT NULL)
-    AND dse.incomingFileset.crsFileStatusCode = 'LOADED'
-    AND dse.incomingFileset.demFileStatusCode = 'LOADED'
-    AND dse.incomingFileset.xamFileStatusCode = 'LOADED'
+    AND dse.incomingFileset.demFileName is not null
+    AND dse.incomingFileset.crsFileName is not null 
+    AND dse.incomingFileset.xamFileName is not null
     AND dse.studentStatusCode = 'LOADED'
     order by dse.createDate
     LIMIT :numberOfStudentsToProcess""")
@@ -50,9 +51,9 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     SELECT cse FROM CourseStudentEntity cse WHERE cse.courseStudentID
     NOT IN (SELECT saga.courseStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.courseStudentID IS NOT NULL)
-    AND cse.incomingFileset.crsFileStatusCode = 'LOADED'
-    AND cse.incomingFileset.demFileStatusCode = 'LOADED'
-    AND cse.incomingFileset.xamFileStatusCode = 'LOADED'
+    AND cse.incomingFileset.demFileName is not null
+    AND cse.incomingFileset.crsFileName is not null 
+    AND cse.incomingFileset.xamFileName is not null
     AND cse.studentStatusCode = 'LOADED'
     order by cse.createDate
     LIMIT :numberOfStudentsToProcess""")
@@ -62,9 +63,9 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     SELECT ase FROM AssessmentStudentEntity ase WHERE ase.assessmentStudentID
     NOT IN (SELECT saga.assessmentStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.assessmentStudentID IS NOT NULL)
-    AND ase.incomingFileset.crsFileStatusCode = 'LOADED'
-    AND ase.incomingFileset.demFileStatusCode = 'LOADED'
-    AND ase.incomingFileset.xamFileStatusCode = 'LOADED'
+    AND ase.incomingFileset.demFileName is not null
+    AND ase.incomingFileset.crsFileName is not null 
+    AND ase.incomingFileset.xamFileName is not null
     AND ase.studentStatusCode = 'LOADED'
     order by ase.createDate
     LIMIT :numberOfStudentsToProcess""")
@@ -72,6 +73,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM IncomingFilesetEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileStatusCode='NOTLOADED' OR crsFileStatusCode='NOTLOADED' OR xamFileStatusCode='NOTLOADED')")
+    @Query("DELETE FROM IncomingFilesetEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileName is null OR crsFileName is null OR xamFileName is null)")
     void deleteStaleWithUpdateDateBefore(LocalDateTime oldestIncomingFilesetTimestamp);
 }
