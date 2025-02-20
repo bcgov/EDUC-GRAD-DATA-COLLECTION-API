@@ -10,6 +10,7 @@ public enum CourseStudentValidationIssueTypeCode {
   DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated."),
   DEM_ISSUE("DEM_ISSUE", "Student CRS record will not be processed due to an issue with the student's demographics."),
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Course status must be A=active or W=withdraw."),
+  COURSE_RECORD_EXISTS("COURSE_RECORD_EXISTS", "A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted."),
   COURSE_CODE_COREG_TRAX_INVALID("COURSE_CODE_COREG_TRAX_INVALID", "The submitted course code does not exist in the ministry course registry. This course cannot be updated."),
   COURSE_CODE_COREG_MYEDBC_INVALID("COURSE_CODE_COREG_MYEDBC_INVALID", "The submitted course code is a local course code, not a ministry code. This course cannot be updated."),
   COURSE_SESSION_DUPLICATE("COURSE_SESSION_DUPLICATE", "Duplicate course and session date reported for the same student. These courses will not be updated."),
