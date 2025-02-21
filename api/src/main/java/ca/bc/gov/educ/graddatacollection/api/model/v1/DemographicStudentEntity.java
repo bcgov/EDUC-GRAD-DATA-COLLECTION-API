@@ -42,6 +42,9 @@ public class DemographicStudentEntity {
   @Column(name = "TRANSACTION_ID")
   String transactionID;
 
+  @Column(name = "VENDOR_ID")
+  String vendorID;
+
   @Column(name = "LOCAL_ID")
   String localID;
 

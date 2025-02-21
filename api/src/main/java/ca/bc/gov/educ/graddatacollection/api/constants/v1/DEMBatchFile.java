@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum DEMBatchFile {
     TRANSACTION_CODE("transactionCode"),
-    VENDOR_ID("vendorId"),
+    VENDOR_ID("vendorID"),
     VERIFICATION_FLAG("verificationFlag"),
     MINCODE("mincode"),
     LOCAL_STUDENT_ID("localId"),

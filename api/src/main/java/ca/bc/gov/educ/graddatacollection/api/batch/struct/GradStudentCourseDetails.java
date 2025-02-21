@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GradStudentCourseDetails {
     private String transactionCode;//    TX_ID CHARACTER 3 0
-    private String vendorId;//    VENDOR_ID CHARACTER 1 3
+    private String vendorID;//    VENDOR_ID CHARACTER 1 3
     private String verificationFlag;//    VERI_FLAG CHARACTER 1 4
     private String filler1;//    FILLER1 CHARACTER 5 5
     private String mincode;//    MINCODE CHARACTER 8 10

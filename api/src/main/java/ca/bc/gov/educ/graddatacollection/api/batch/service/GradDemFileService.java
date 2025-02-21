@@ -140,7 +140,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
         return GradStudentDemogDetails.builder()
                 .transactionCode(transactionCode)
-                .vendorId(ds.getString(VENDOR_ID.getName()))
+                .vendorID(ds.getString(VENDOR_ID.getName()))
                 .verificationFlag(ds.getString(VERIFICATION_FLAG.getName()))
                 .mincode(ds.getString(MINCODE.getName()))
                 .localId(StringMapper.trimAndUppercase(ds.getString(LOCAL_STUDENT_ID.getName())))
