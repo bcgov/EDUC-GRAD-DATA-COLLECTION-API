@@ -55,7 +55,7 @@ public class V230CourseGraduationRequirement implements CourseValidationBaseRule
         String paddedCourseCode = String.format("%-5s", courseStudent.getCourseCode());
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
 
-        if (coursesRecord != null) {
+        if (coursesRecord != null && demStudent != null) {
             if (
                 ("2004".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2018".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2023".equalsIgnoreCase(demStudent.getGradRequirementYear()))
                 && coursesRecord.getCourseCategory() != null

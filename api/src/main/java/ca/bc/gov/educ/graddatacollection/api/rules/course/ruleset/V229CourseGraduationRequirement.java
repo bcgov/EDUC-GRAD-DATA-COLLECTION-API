@@ -55,7 +55,7 @@ public class V229CourseGraduationRequirement implements CourseValidationBaseRule
         String paddedCourseCode = String.format("%-5s", courseStudent.getCourseCode());
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
 
-        if (coursesRecord != null) {
+        if (coursesRecord != null && demStudent != null) {
             if ("1996".equalsIgnoreCase(demStudent.getGradRequirementYear())
                 && !("CC".equalsIgnoreCase(coursesRecord.getCourseCategory().getType())
                     && ("BA".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode()) || "LD".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode())))) {
