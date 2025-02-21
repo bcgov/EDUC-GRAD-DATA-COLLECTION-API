@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @Getter
 public enum ValidationFieldCode {
-  PEN("PEN", "Pen"),
+  PEN("PEN", "PEN"),
   COURSE_LEVEL("COURSE_LEVEL", "Course Level"),
   COURSE_CODE("COURSE_CODE", "Course Code"),
   COURSE_TYPE("COURSE_TYPE", "Course Type"),

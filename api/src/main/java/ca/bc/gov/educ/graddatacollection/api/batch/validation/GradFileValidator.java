@@ -139,7 +139,7 @@ public class GradFileValidator {
     public SchoolTombstone getSchoolFromFileName(final String guid, String fileName) throws FileUnProcessableException {
         String mincode = fileName.split("\\.")[0];
         var school = getSchoolUsingMincode(mincode);
-        return school.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, mincode));
+        return school.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_FILENAME, guid, GradCollectionStatus.LOAD_FAIL));
     }
 
     public String getSchoolMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
