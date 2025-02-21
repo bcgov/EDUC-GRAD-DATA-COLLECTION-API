@@ -44,6 +44,9 @@ public class CourseStudentEntity {
   @Column(name = "LOCAL_ID")
   String localID;
 
+  @Column(name = "VENDOR_ID")
+  String vendorID;
+
   @Column(name = "PEN")
   String pen;
 

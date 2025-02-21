@@ -2,7 +2,7 @@
 <!DOCTYPE PZMAP SYSTEM	"flatpack.dtd" >
 <PZMAP>
     <COLUMN name="transactionCode" length="3" />
-    <COLUMN name="vendorId" length="1" />
+    <COLUMN name="vendorID" length="1" />
     <COLUMN name="verificationFlag" length="1" />
     <COLUMN name="filler1" length="5" />
     <COLUMN name="mincode" length="8" />

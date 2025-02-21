@@ -28,6 +28,8 @@ public class CourseStudent extends BaseRequest implements Serializable {
 
     private String  transactionID;
 
+    private String vendorID;
+
     private String  localID;
 
     private String  pen;

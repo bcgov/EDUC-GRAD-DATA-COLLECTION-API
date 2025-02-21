@@ -31,6 +31,8 @@ public class AssessmentStudent extends BaseRequest implements Serializable {
 
     private String localID;
 
+    private String vendorID;
+
     private String pen;
 
     private String courseCode;

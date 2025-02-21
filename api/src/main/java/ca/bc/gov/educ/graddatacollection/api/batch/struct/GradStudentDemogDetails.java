@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class GradStudentDemogDetails {
 
     private String transactionCode; //TX_ID 3 0
-    private String vendorId; //VENDOR_ID 1 3
+    private String vendorID; //VENDOR_ID 1 3
     private String verificationFlag;//VERI_FLAG 1 4
     private String filler1;//FILLER1 5 5
     private String mincode;//MINCODE 8 10
