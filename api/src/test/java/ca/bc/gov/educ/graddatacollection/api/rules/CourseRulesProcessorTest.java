@@ -10,11 +10,13 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CoregCoursesRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseAllowableCreditRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCharacteristicsRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.CourseCodeRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseAllowableCreditRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCharacteristicsRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.EquivalencyChallengeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradCourseRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -77,6 +79,22 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 List.of(
                         new EquivalencyChallengeCode("E", "Equivalency", "Indicates that the course credit was earned through an equivalency review.", "1", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new EquivalencyChallengeCode("C", "Challenge", "Indicates that the course credit was earned through the challenge process.", "2", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+                )
+        );
+        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "", "2021/06", "", null, 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
+                                )
+                        )
                 )
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
@@ -210,6 +228,58 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode());
+    }
+
+    @Test
+    void testV204CourseStatusRule() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setCourseStatus("W");
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+            List.of(
+                new GradStudentCourseRecord(
+                    "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", null, 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                    new GradCourseRecord(
+                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
+                    )
+                ),
+                new GradStudentCourseRecord(
+                    "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                    new GradCourseRecord(
+                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
+                    )
+                )
+            )
+        );
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getCode());
     }
 
     @Test
