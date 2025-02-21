@@ -32,7 +32,7 @@ public enum FileError {
    */
   INVALID_SCHOOL("Unable to find a school record for mincode $?"),
 
-  INVALID_FILENAME("File not processed due to invalid filename"),
+  INVALID_FILENAME("File not processed due to invalid filename. Must be the school mincode"),
 
   /**
    * The mincode on the uploaded document does not match the collection record.
