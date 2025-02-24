@@ -398,7 +398,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setFinalPercent("123");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_PERCENT.getCode());
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_PERCENTAGE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getCode());
     }
 
