@@ -17,29 +17,29 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | V204 | ERROR    |  If course status = "W" course cannot be associated with a student    | 202, 203, 209 |
- *                       course exam if the record exists for the same course code/level/session     237
+ *  | V207 | ERROR    | Schools cannot report Q code courses unless the q-code course already | 202           |
+ *                      exists for the student for the same Course Code/LeveL/Session in Student Course
  *
  */
 @Component
 @Slf4j
-@Order(40)
-public class V204CourseStatus implements CourseValidationBaseRule {
+@Order(70)
+public class V207CourseCode implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public V204CourseStatus(CourseRulesService courseRulesService) {
+    public V207CourseCode(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V204: for course {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
+        log.debug("In shouldExecute of V207: for course {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V204", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V207", validationErrorsMap);
 
-        log.debug("In shouldExecute of V204: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V207: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -49,20 +49,21 @@ public class V204CourseStatus implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V204 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V207 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
 
-        if ("W".equalsIgnoreCase(student.getCourseStatus())
-            && studentCourseRecord != null
-            && studentCourseRecord.stream().anyMatch(record ->
-                    record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                    && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                    && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
-                    )) {
-            log.debug("V204: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
+        if (student.getCourseCode() != null
+                && "Q".equalsIgnoreCase(student.getCourseCode().substring(0,1))
+                && studentCourseRecord != null
+                && studentCourseRecord.stream().noneMatch(record ->
+                record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                        && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
+                        && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
+        )) {
+            log.debug("V207: Error: Invalid. New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form. for course student id :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.Q_CODE_INVALID, CourseStudentValidationIssueTypeCode.Q_CODE_INVALID.getMessage()));
         }
         return errors;
     }

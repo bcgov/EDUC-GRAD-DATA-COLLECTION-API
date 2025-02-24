@@ -14,6 +14,7 @@ public enum CourseStudentValidationIssueTypeCode {
   COURSE_USED_FOR_GRADUATION("COURSE_USED_FOR_GRADUATION", "A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted."),
   COURSE_CODE_COREG_TRAX_INVALID("COURSE_CODE_COREG_TRAX_INVALID", "The submitted course code does not exist in the ministry course registry. This course cannot be updated."),
   COURSE_CODE_COREG_MYEDBC_INVALID("COURSE_CODE_COREG_MYEDBC_INVALID", "The submitted course code is a local course code, not a ministry code. This course cannot be updated."),
+  Q_CODE_INVALID("Q_CODE_INVALID", "Invalid. New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form."),
   COURSE_SESSION_DUPLICATE("COURSE_SESSION_DUPLICATE", "Duplicate course and session date reported for the same student. These courses will not be updated."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated."),
   COURSE_MONTH_INVALID("COURSE_MONTH_INVALID", "Course month must be between 01 and 12 (January to December). This course will not be updated."),
