@@ -17,6 +17,7 @@ public enum CourseStudentValidationIssueTypeCode {
   Q_CODE_INVALID("Q_CODE_INVALID", "Invalid. New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form."),
   COURSE_SESSION_DUPLICATE("COURSE_SESSION_DUPLICATE", "Duplicate course and session date reported for the same student. These courses will not be updated."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated."),
+  EXAMINABLE_COURSES_DISCONTINUED("EXAMINABLE_COURSES_DISCONTINUED", "Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form."),
   COURSE_MONTH_INVALID("COURSE_MONTH_INVALID", "Course month must be between 01 and 12 (January to December). This course will not be updated."),
   COURSE_YEAR_INVALID("COURSE_YEAR_INVALID", "Course year must be four digits. This course will not be updated."),
   COURSE_SESSION_START_DATE_INVALID("COURSE_SESSION_START_DATE_INVALID", "The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date)."),

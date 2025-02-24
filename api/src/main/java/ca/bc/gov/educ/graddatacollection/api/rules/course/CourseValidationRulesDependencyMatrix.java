@@ -17,6 +17,7 @@ public enum CourseValidationRulesDependencyMatrix {
     ENTRY210("V210", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getCode(), CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getCode()}),
     ENTRY211("V211", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getCode(), CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getCode()}),
     ENTRY212("V212", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getCode(), CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getCode()}),
+    ENTRY213("V213", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()}),
     ENTRY214("V214", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()}),
     ENTRY215("V215", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()}),
     ENTRY216("V216", new String[]{CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode(), CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getCode(), CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getCode()}),
