@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +53,7 @@ public class V103DemographicStudentPEN implements DemographicValidationBaseRule 
 
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
-        if (student == null) {
+        if (student == null || StringUtils.isBlank(student.getPen())) {
             log.debug("StudentPEN-v103: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND.getMessage()));
         }

@@ -190,7 +190,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
-        when(restUtils.getStudentByPEN(any(), any())).thenReturn(null);
+        Student studentApiStudent2 = new Student();
+        studentApiStudent2.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent2.setPen(null);
+        studentApiStudent2.setLocalID("8887555");
+        studentApiStudent2.setLegalLastName("JACKSON");
+        studentApiStudent2.setLegalFirstName("JIM");
+        studentApiStudent2.setDob("19900101");
+        studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
         StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
