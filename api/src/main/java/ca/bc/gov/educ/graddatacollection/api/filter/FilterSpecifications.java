@@ -33,15 +33,30 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
 
-                Join<Object, Object> join = root.join(splits[0], JoinType.LEFT);
                 if(splits.length == 2) {
+                    return criteriaBuilder.equal(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+                } else {
+                    return criteriaBuilder.equal(root.join(splits[0]).get(splits[1]).get(splits[2]), filterCriteria.getConvertedSingleValue());
+                }
+
+            } else if(filterCriteria.getConvertedSingleValue() == null) {
+                return criteriaBuilder.isNull(root.get(filterCriteria.getFieldName()));
+            }
+            return criteriaBuilder.equal(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
+        });
+
+        map.put(FilterOperation.EQUAL_WITH_LEFT_JOIN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+
+                Join<Object, Object> join = root.join(splits[0], JoinType.LEFT);
+                if (splits.length == 2) {
                     return criteriaBuilder.equal(join.get(splits[1]), filterCriteria.getConvertedSingleValue());
                 } else {
                     Join<Object, Object> join2 = join.join(splits[1], JoinType.LEFT);
                     return criteriaBuilder.equal(join2.get(splits[2]), filterCriteria.getConvertedSingleValue());
                 }
-
-            } else if(filterCriteria.getConvertedSingleValue() == null) {
+            } else if (filterCriteria.getConvertedSingleValue() == null) {
                 return criteriaBuilder.isNull(root.get(filterCriteria.getFieldName()));
             }
             return criteriaBuilder.equal(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
