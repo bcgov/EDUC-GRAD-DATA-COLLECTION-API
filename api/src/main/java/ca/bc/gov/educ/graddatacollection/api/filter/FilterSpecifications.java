@@ -45,6 +45,7 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             return criteriaBuilder.equal(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
         });
 
+        // Equal using left join
         map.put(FilterOperation.EQUAL_WITH_LEFT_JOIN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
