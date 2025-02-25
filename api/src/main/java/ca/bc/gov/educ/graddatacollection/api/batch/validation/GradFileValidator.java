@@ -90,9 +90,9 @@ public class GradFileValidator {
      */
     public String getDetailRowLengthIncorrectMessage(final DataError error, String errorDescription) {
         if (errorDescription.contains(TOO_LONG)) {
-            return "Detail record " + (error.getLineNo()) + " has extraneous characters.";
+            return "Line " + (error.getLineNo()) + " has too many characters.";
         }
-        return "Detail record " + (error.getLineNo()) + " is missing characters.";
+        return "Line " + (error.getLineNo()) + " is missing characters.";
     }
 
     public void validateFileHasCorrectExtension(@NonNull final String guid, final GradFileUpload fileUpload, String allowedExtension) throws FileUnProcessableException {

@@ -72,7 +72,7 @@ public class GradBatchFileProcessor {
         } catch (final FileUnProcessableException fileUnProcessableException) {
             log.error("File could not be processed exception :: {}", fileUnProcessableException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, districtID != null ? districtID : schoolID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+            var validationError = ValidationUtil.createFieldError(GRAD_FILE_UPLOAD, districtID != null ? districtID : schoolID, fileUnProcessableException.getReason());
             List<FieldError> fieldErrorList = new ArrayList<>();
             fieldErrorList.add(validationError);
             error.addValidationErrors(fieldErrorList);
