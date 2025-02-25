@@ -79,7 +79,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("FILE_NOT_ALLOWED :: File type not allowed"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("File type not allowed"));
     }
 
     @Test
@@ -101,7 +101,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 1 has extraneous characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Line 1 has too many characters."));
     }
 
     @Test
@@ -123,7 +123,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 1 has extraneous characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Line 1 has too many characters."));
     }
 
     @Test
@@ -145,7 +145,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("INVALID_ROW_LENGTH :: Detail record 1 is missing characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Line 1 is missing characters."));
     }
 
     @Test
