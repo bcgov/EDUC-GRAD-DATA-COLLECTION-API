@@ -77,7 +77,9 @@ public enum FilterOperation {
   IN_LEFT_JOIN("in_left_join"),
   IN_NOT_DISTINCT("in_not_distinct"),
 
-  CUSTOM_CHILD_JOIN("custom_child_join");
+  // Filter operations for GDC
+  CUSTOM_CHILD_JOIN("custom_child_join"),
+  EQUAL_WITH_LEFT_JOIN("eq_lj");
 
   private final String value;
 

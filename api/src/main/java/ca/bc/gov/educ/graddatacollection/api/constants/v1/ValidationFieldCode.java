@@ -34,7 +34,6 @@ public enum ValidationFieldCode {
   INTERIM_PERCENT("INTERIM_PERCENT", "Interim Percent"),
   INTERIM_PERCENTAGE("INTERIM_PERCENTAGE", "Interim Percentage"),
   INTERIM_GRADE("INTERIM_GRADE", "Interim Grade"),
-  FINAL_PERCENT("FINAL_PERCENT", "Final Percentage"),
   FINAL_PERCENTAGE("FINAL_PERCENTAGE", "Final Percentage"),
   FINAL_GRADE("FINAL_GRADE", "Final Grade"),
   NUMBER_OF_CREDITS("NUMBER_OF_CREDITS", "Number of Credits"),
