@@ -58,7 +58,9 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.CITY, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getMessage()));
             }
             Pattern pattern = Pattern.compile("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$");
-            if(!pattern.matcher(student.getPostalCode()).matches()) {
+            String postalCode = student.getPostalCode();
+
+            if(StringUtils.isEmpty(postalCode) || !pattern.matcher(student.getPostalCode()).matches()) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.POSTAL_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getMessage()));
             }
             if (!StringUtils.equalsIgnoreCase("BC", student.getProvincialCode())) {
