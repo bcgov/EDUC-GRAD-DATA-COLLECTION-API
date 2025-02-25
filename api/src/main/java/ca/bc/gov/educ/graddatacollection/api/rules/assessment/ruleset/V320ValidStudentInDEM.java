@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V320 | ERROR    |  Student XAM record will not be processed due to an issue with the    |--------------|
+ *  | V320 | ERROR    |  Student XAM record will not be processed due to an issue with the    | V301         |
  *                       student's demographics
  *
  */

@@ -177,11 +177,26 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        assessmentStudent.setCourseCode("123");
+        assessmentStudent.setCourseMonth("12");
+        assessmentStudent.setCourseCode("LTE10");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID.getCode());
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_MONTH.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode());
+
+        assessmentStudent.setCourseMonth("01");
+        assessmentStudent.setCourseCode("123");
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
+
+        assessmentStudent.setCourseMonth("12");
+        assessmentStudent.setCourseCode("123");
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError4.size()).isNotZero();
+        assertThat(validationError4.stream().anyMatch(ve -> ve.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) && ve.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()))).isTrue();
+        assertThat(validationError4.stream().anyMatch(ve -> ve.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) && ve.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()))).isTrue();
     }
 
     @Test
@@ -843,5 +858,55 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+    }
+
+    @Test
+    void testV321CourseCodeNonCSFRule() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(demStudent.getPen());
+        assessmentStudent.setLocalID(demStudent.getLocalID());
+        assessmentStudent.setLastName(demStudent.getLastName());
+        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        assessmentStudent.setCourseCode("LTP12");
+
+        Student stud = new Student();
+        stud.setStudentID(UUID.randomUUID().toString());
+        stud.setDob(demStudent.getBirthdate());
+        stud.setLegalLastName(demStudent.getLastName());
+        stud.setLegalFirstName(demStudent.getFirstName());
+        stud.setLegalMiddleNames(demStudent.getMiddleName());
+        stud.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
+
+        Session session = new Session();
+        Assessment assessment = new Assessment();
+        assessment.setAssessmentID(UUID.randomUUID().toString());
+        session.setAssessments(Arrays.asList(assessment));
+        assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
+
+        var school = createMockSchool();
+        school.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.CSF.getCode());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, school));
+        assertThat(validationError1.size()).isZero();
+
+        Session session2 = new Session();
+        Assessment assessment2 = new Assessment();
+        assessment2.setAssessmentID(UUID.randomUUID().toString());
+        session2.setAssessments(Arrays.asList(assessment2));
+        assessment2.setAssessmentTypeCode(assessmentStudent.getCourseCode());
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session2));
+
+        school.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.REGULAR.getCode());
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, school));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_NON_CSF.getCode());
     }
 }

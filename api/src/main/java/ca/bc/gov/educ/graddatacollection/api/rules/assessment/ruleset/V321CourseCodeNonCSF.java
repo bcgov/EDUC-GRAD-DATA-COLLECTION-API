@@ -17,23 +17,23 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V319 | ERROR    |  Student is in a Francophone school and cannot register for           | V303         |
+ *  | V321 | ERROR    |  Student is in a Non-Francophone school and cannot register for       |--------------|
  *                       this assessment session for this student
  *
  */
 @Component
 @Slf4j
-@Order(260)
-public class V319CourseCodeCSF implements AssessmentValidationBaseRule {
+@Order(270)
+public class V321CourseCodeNonCSF implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V319: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V321: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V319", validationErrorsMap);
+        var shouldExecute = true;
 
-        log.debug("In shouldExecute of V319: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V321: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -43,12 +43,12 @@ public class V319CourseCodeCSF implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V319 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V321 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) && student.getCourseCode().equalsIgnoreCase("LTF12")){
-            log.debug("V319: Student is in a Francophone school and cannot register for this assessment session for this student :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getMessage()));
+        if (!studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) && student.getCourseCode().equalsIgnoreCase("LTP12")){
+            log.debug("V321: Student is in a Non-Francophone school and cannot register for this assessment session for this student :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_NON_CSF, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_NON_CSF.getMessage()));
         }
         return errors;
     }
