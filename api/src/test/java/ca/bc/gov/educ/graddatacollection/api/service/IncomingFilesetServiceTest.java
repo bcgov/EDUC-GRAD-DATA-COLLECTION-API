@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
     @MockBean

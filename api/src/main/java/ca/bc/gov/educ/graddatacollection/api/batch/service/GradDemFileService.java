@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.sf.flatpack.DataSet;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -43,7 +44,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
     @Getter(PRIVATE)
     private final GradFileValidator gradFileValidator;
-    public static final String TRANSACTION_CODE_STUDENT_DEMOG_RECORD = "E02";
+    private static final Set<String> TRANSACTION_CODE_STUDENT_DEMOG_RECORDS = new HashSet<>(Arrays.asList("D02", "E02"));
     private static final BatchFileMapper mapper = BatchFileMapper.mapper;
     @Getter(PRIVATE)
     private final IncomingFilesetRepository incomingFilesetRepository;
@@ -91,15 +92,47 @@ public class GradDemFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentDemogFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) {
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentDemogFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         log.debug("Going to persist DEM data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingDEMBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
         if(districtID != null) {
             entity.setDistrictID(UUID.fromString(districtID));
         }
-        for (final var student : batchFile.getDemogData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
+
+        var blankLineSet = new HashSet<>();
+        for (final var student : batchFile.getDemogData()) {
+            if(StringUtils.isBlank(student.getPen())){
+                blankLineSet.add(student.getLineNumber());
+            }
+        }
+
+        if(!blankLineSet.isEmpty()){
+            String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
+            throw new FileUnProcessableException(BLANK_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines);
+        }
+
+        var listOfPENs = new HashSet<>();
+        String foundDupePEN = null;
+        for (final var student : batchFile.getDemogData()) {
+            if(!listOfPENs.contains(student.getPen())) {
+                listOfPENs.add(student.getPen());
+            }else{
+                foundDupePEN = student.getPen();
+                break;
+            }
             final var demStudentEntity = mapper.toDEMStudentEntity(student, entity);
             entity.getDemographicStudentEntities().add(demStudentEntity);
+        }
+
+        if(StringUtils.isNotBlank(foundDupePEN)){
+            var dupePENLines = new HashSet<>();
+            for (final var student : batchFile.getDemogData()) {
+                if(student.getPen().equals(foundDupePEN)){
+                    dupePENLines.add(student.getLineNumber());
+                }
+            }
+            String lines = dupePENLines.stream().map(Object::toString).collect(Collectors.joining(","));
+            throw new FileUnProcessableException(DUPLICATE_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, foundDupePEN, lines);
         }
 
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
@@ -134,8 +167,8 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
     private GradStudentDemogDetails getStudentDemogDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
-        if (!TRANSACTION_CODE_STUDENT_DEMOG_RECORD.equals(transactionCode)) {
-            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+        if (!TRANSACTION_CODE_STUDENT_DEMOG_RECORDS.contains(transactionCode)) {
+            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_DEM, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
         }
 
         return GradStudentDemogDetails.builder()
@@ -167,6 +200,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
                 .studentStatus(StringMapper.trimAndUppercase(ds.getString(STUDENT_STATUS.getName())))
                 .gradRequirementYear(StringMapper.trimAndUppercase(ds.getString(GRAD_YEAR.getName())))
                 .sscpCompletionDate(StringMapper.trimAndUppercase(ds.getString(SSCP_COMPLETION_DATE.getName())))
+                .lineNumber(Long.toString(index + 1))
                 .build();
     }
 }

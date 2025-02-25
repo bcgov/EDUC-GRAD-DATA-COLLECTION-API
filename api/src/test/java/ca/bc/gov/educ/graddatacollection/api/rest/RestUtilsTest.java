@@ -22,9 +22,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -150,7 +149,7 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetCoursesByExternalID_WhenValidExternalID_ShouldReturnCoregCoursesRecord() throws Exception {
+    void testGetCoursesByExternalID_WhenValidExternalID_ShouldReturnCoregCoursesRecord() {
         UUID correlationID = UUID.randomUUID();
         String externalID = "YPR  0B";
 
@@ -239,7 +238,7 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetGradStudentCoursesByPEN_WhenValidPEN_ShouldReturnGradStudentCourseRecords() throws Exception {
+    void testGetGradStudentCoursesByPEN_WhenValidPEN_ShouldReturnGradStudentCourseRecords() {
         UUID correlationID = UUID.randomUUID();
         String pen = "131411258";
 

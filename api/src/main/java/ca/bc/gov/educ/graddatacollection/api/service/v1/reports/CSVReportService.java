@@ -11,13 +11,17 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ErrorReportHeaders.*;
-import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportTypeCodes.*;
+import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportTypeCodes.STUDENT_ERROR_REPORT;
 
 @Service
 @Slf4j

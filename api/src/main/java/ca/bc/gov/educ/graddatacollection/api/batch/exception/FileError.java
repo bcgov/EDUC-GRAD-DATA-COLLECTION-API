@@ -11,12 +11,16 @@ public enum FileError {
   /**
    * Upload file did not contain any content.
    */
-  EMPTY_FILE("The uploaded file is empty."),
+  EMPTY_FILE("File Format Error: The DEM data file contains no records."),
 
   /**
    * The Invalid transaction code student details.
    */
-  INVALID_TRANSACTION_CODE_STUDENT_DETAILS("Invalid transaction code on Detail record $? for student with Local ID $?"),
+  INVALID_TRANSACTION_CODE_STUDENT_DETAILS_DEM("Invalid transaction code on Detail record $? for student with Local ID $?. Must be one of \"D02\" or \"E02\"."),
+
+  INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS("Invalid transaction code on Detail record $? for student with Local ID $?. Must be one of \"D08\" or \"E08\"."),
+
+  INVALID_TRANSACTION_CODE_STUDENT_DETAILS_XAM("Invalid transaction code on Detail record $? for student with Local ID $?. Must be one of \"E06\" or \"D06\"."),
 
   /**
    * The filetype ended in the wrong extension and may be the wrong filetype.
@@ -25,7 +29,7 @@ public enum FileError {
 
   NO_FILE_EXTENSION("No file extension provided. Files must be of type \".dem\" or \".crs\" or \".xam\"."),
 
-  CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. Mincode is: $?"),
+  CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. School ministry code is: $?"),
 
   /**
    * No record for the provided school ID was found.
@@ -44,6 +48,10 @@ public enum FileError {
    * This will be thrown when any row in the given file is longer or shorter than expected.
    */
   INVALID_ROW_LENGTH("$?"),
+
+  DUPLICATE_PEN_IN_DEM_FILE("File Format Error: The same PEN $? is appearing more than once in the DEM file on lines $?"),
+
+  BLANK_PEN_IN_DEM_FILE("File Format Error: The PEN field is blank for one or more records in the DEM file on lines $?"),
 
   FILE_NOT_ALLOWED("File type not allowed"),
   COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
