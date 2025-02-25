@@ -2,7 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.filter;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 

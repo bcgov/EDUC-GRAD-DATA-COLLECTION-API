@@ -29,10 +29,9 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_XAM;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MINCODE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
@@ -41,7 +40,7 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor
 @Slf4j
 public class GradXamFileService implements GradFileBatchProcessor {
-    public static final String TRANSACTION_CODE_STUDENT_XAM_RECORD = "E06";
+    private static final Set<String> TRANSACTION_CODE_STUDENT_XAM_RECORDS = new HashSet<>(Arrays.asList("D06", "E06"));
     private static final BatchFileMapper mapper = BatchFileMapper.mapper;
     @Getter(PRIVATE)
     private final IncomingFilesetRepository incomingFilesetRepository;
@@ -138,8 +137,8 @@ public class GradXamFileService implements GradFileBatchProcessor {
 
     private GradStudentAssessmentDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
-        if (!TRANSACTION_CODE_STUDENT_XAM_RECORD.equals(transactionCode)) {
-            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+        if (!TRANSACTION_CODE_STUDENT_XAM_RECORDS.contains(transactionCode)) {
+            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_XAM, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
         }
 
         return GradStudentAssessmentDetails.builder()
