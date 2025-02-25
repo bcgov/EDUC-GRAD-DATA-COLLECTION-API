@@ -53,9 +53,9 @@ public class V101DemographicStudentLocalID implements DemographicValidationBaseR
 
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
-        if (student != null &&
-            StringUtils.isNotBlank(student.getLocalID()) &&
-            !student.getLocalID().equalsIgnoreCase(demStudent.getLocalID())) {
+        if (student == null ||
+            (StringUtils.isNotBlank(student.getLocalID()) &&
+            !student.getLocalID().equalsIgnoreCase(demStudent.getLocalID()))) {
             log.debug("studentLocalD-v101: Warning: The submitted STUDENT LOCAL ID does not match the ministry database. If the submitted STUDENT LOCAL ID is correct, submit PEN update request through Secure Messaging Inbox in EDX. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.LOCAL_ID, DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH.getMessage()));
         }
