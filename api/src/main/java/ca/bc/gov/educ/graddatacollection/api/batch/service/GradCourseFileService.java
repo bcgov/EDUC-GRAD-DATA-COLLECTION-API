@@ -32,11 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -44,7 +43,7 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor
 @Slf4j
 public class GradCourseFileService implements GradFileBatchProcessor {
-    public static final String TRANSACTION_CODE_STUDENT_COURSE_RECORD = "E08";
+    private static final Set<String> TRANSACTION_CODE_STUDENT_COURSE_RECORDS = new HashSet<>(Arrays.asList("D08", "E08"));
     private static final BatchFileMapper mapper = BatchFileMapper.mapper;
     @Getter(PRIVATE)
     private final IncomingFilesetRepository incomingFilesetRepository;
@@ -166,8 +165,8 @@ public class GradCourseFileService implements GradFileBatchProcessor {
 
     private GradStudentCourseDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
-        if (!TRANSACTION_CODE_STUDENT_COURSE_RECORD.equals(transactionCode)) {
-            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+        if (!TRANSACTION_CODE_STUDENT_COURSE_RECORDS.contains(transactionCode)) {
+            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
         }
 
         return GradStudentCourseDetails.builder()

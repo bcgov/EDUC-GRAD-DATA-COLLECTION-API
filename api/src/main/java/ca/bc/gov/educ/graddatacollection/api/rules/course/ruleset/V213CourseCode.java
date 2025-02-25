@@ -17,29 +17,31 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | V204 | ERROR    |  If course status = "W" course cannot be associated with a student    | 202, 203, 209 |
- *                       course exam if the record exists for the same course code/level/session     237
- *
+ *  | V213 | ERROR    | Courses that were examinable at the time of the course session date   | 202, 212      |
+ *                      cannot be submitted through the CRS file unless the record exists for
+ *                      the same Course Code/Level/Session in Student Course and the Student
+ *                      Course record has no associated Student Exam record and the Student
+ *                      Course record has a Final Letter Grade
  */
 @Component
 @Slf4j
-@Order(40)
-public class V204CourseStatus implements CourseValidationBaseRule {
+@Order(130)
+public class V213CourseCode implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public V204CourseStatus(CourseRulesService courseRulesService) {
+    public V213CourseCode(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V204: for course {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
+        log.debug("In shouldExecute of V213: for course {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V204", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V213", validationErrorsMap);
 
-        log.debug("In shouldExecute of V204: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V213: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -49,20 +51,23 @@ public class V204CourseStatus implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V204 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V213 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
 
-        if ("W".equalsIgnoreCase(student.getCourseStatus())
-            && studentCourseRecord != null
+        if (studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
-                    record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
                     && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
                     && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
-                    )) {
-            log.debug("V204: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
+                    && record.getCompletedCourseLetterGrade() != null
+                    && record.getExamPercent() != null) // this might also change there are a few exam values that could be checked
+            // TODO If the course does not already exist, check to see if the course was examinable for the course session provided.  Check the  New GRAD table: Examinable_Courses
+            // pending response - where/when is this new table expected
+        ) {
+            log.debug("V213: Error: Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form. for course student id :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getMessage()));
         }
         return errors;
     }

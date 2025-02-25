@@ -17,29 +17,29 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | V204 | ERROR    |  If course status = "W" course cannot be associated with a student    | 202, 203, 209 |
- *                       course exam if the record exists for the same course code/level/session     237
+ *  | V205 | ERROR    |  If course status = "W" and student has graduated and the course has  | 202, 203, 209 |
+ *                       been used for graduation                                               237
  *
  */
 @Component
 @Slf4j
-@Order(40)
-public class V204CourseStatus implements CourseValidationBaseRule {
+@Order(50)
+public class V205CourseStatus implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public V204CourseStatus(CourseRulesService courseRulesService) {
+    public V205CourseStatus(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V204: for course {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
+        log.debug("In shouldExecute of V205: for course {} and courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID() ,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V204", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V205", validationErrorsMap);
 
-        log.debug("In shouldExecute of V204: Condition returned - {} for courseStudentID :: {}" ,
+        log.debug("In shouldExecute of V205: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
@@ -49,20 +49,21 @@ public class V204CourseStatus implements CourseValidationBaseRule {
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of V204 for courseStudentID :: {}", student.getCourseStudentID());
+        log.debug("In executeValidation of V205 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
+        var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
         if ("W".equalsIgnoreCase(student.getCourseStatus())
-            && studentCourseRecord != null
-            && studentCourseRecord.stream().anyMatch(record ->
+                && gradStudent != null
+                && gradStudent.getGraduated().equalsIgnoreCase("true")
+                && studentCourseRecord != null
+                && studentCourseRecord.stream().anyMatch(record ->
                     record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                    && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                    && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
-                    )) {
-            log.debug("V204: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
+        )) {
+            log.debug("V205: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));
         }
         return errors;
     }

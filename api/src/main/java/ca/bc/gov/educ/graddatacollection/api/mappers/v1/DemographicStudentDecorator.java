@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 
 @Slf4j

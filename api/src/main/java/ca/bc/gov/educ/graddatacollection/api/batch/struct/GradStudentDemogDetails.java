@@ -42,4 +42,6 @@ public class GradStudentDemogDetails {
     private String studentStatus;//STUD_STATUS 1 284
     private String gradRequirementYear;//GRAD_REQT_YEAR 4 285
     private String sscpCompletionDate; //SCCP_COMPLETION_DATE 8 289
+
+    private String lineNumber;
 }

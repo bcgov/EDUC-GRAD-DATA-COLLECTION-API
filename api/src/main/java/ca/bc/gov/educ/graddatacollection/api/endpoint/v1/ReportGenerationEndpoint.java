@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.endpoint.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -8,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 
 import java.util.UUID;
 

@@ -81,6 +81,46 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testProcessDEMFile_givenMissingPEN_ShouldThrowError() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file-missing-pen.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload demFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
+                .build();
+
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(demFile, school.getSchoolId()));
+    }
+
+    @Test
+    void testProcessDEMFile_givenDupePEN_ShouldThrowError() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file-dupe-pen.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload demFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
+                .build();
+
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(demFile, school.getSchoolId()));
+    }
+
+    @Test
     void testProcessCRSFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
         var school = this.createMockSchool();
         school.setMincode("07965039");
@@ -220,6 +260,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var id = districtID.toString();
         assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processDistrictBatchFile(demFile, id));
     }
+
+
 
     @Test
     void testProcessDistrictBatchFile_givenFileLoadInProgress_ShouldThrowException() throws Exception {

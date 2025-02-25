@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.AssessmentSessionMonths;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -35,6 +36,10 @@ public class AssessmentRulesService extends BaseRulesService {
             return results.get(0);
         }
         return null;
+    }
+
+    public boolean sessionMonthIsValid(String month) {
+        return AssessmentSessionMonths.findByValue(month).isPresent();
     }
 
     public boolean courseIsValidForSession(String year, String month, String courseCode){

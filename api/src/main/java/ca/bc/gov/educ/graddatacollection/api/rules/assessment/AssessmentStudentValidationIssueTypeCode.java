@@ -7,11 +7,12 @@ import java.util.Map;
 
 public enum AssessmentStudentValidationIssueTypeCode {
 
-  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID."),
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the XAM file but is missing from the DEM file. The student's assessment registrations will not be updated."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level value is ignored and must be blank."),
-  COURSE_CODE_INVALID("COURSE_CODE_INVALID", "The Assessment Code provided is not valid for the Assessment Session specified."),
-  COURSE_SESSION_DUP("COURSE_SESSION_DUP", "The assessment session is a duplicate of an existing assessment session for this student/assessment/level."),
-  COURSE_SESSION_EXCEED("COURSE_SESSION_EXCEED", "Student has already reached the maximum number of writes for this Assessment."),
+  COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "The session code is not a valid ministry assessment session code. The student registration will not be updated."),
+  COURSE_SESSION_INVALID_MONTH("COURSE_SESSION_INVALID_MONTH", "The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated."),
+  COURSE_SESSION_DUP("COURSE_SESSION_DUP", "The student has already received a Proficiency Score / Special Case for this assessment session."),
+  COURSE_SESSION_EXCEED("COURSE_SESSION_EXCEED", "The student has reached the maximum number of writes for %s. The registration will not be updated."),
   INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK("INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK", "Interim school percentage value is ignored and must be blank."),
   INTERIM_LETTER_GRADE_NOT_BLANK("INTERIM_LETTER_GRADE_NOT_BLANK", "Interim letter grade value is ignored and must be blank."),
   FINAL_SCHOOL_PERCENTAGE_NOT_BLANK("FINAL_SCHOOL_PERCENTAGE_NOT_BLANK", "Final school percentage value is ignored and must be blank."),
@@ -23,8 +24,9 @@ public enum AssessmentStudentValidationIssueTypeCode {
   COURSE_TYPE_NOT_BLANK("COURSE_TYPE_NOT_BLANK", "Course type value is ignored and must be blank."),
   TO_WRITE_FLAG_NOT_BLANK("TO_WRITE_FLAG_NOT_BLANK", "To write flag value is ignored and must be blank."),
   EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid assessment center provided."),
-  DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "The assessment session is a duplicate of an existing assessment session for this student."),
-  COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is in a Francophone school and cannot register for this assessment session for this student."),
+  DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "There are more than one CODE/SESSION DATE registrations in the file for the same student."),
+  COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is enrolled in a Programme Francophone school and the registration is for a French Immersion assessment. This registration will not be updated."),
+  COURSE_CODE_NON_CSF("COURSE_CODE_NON_CSF", "The student has written, attempted to write or has a special case code for %s. The assessment session will not be withdrawn."),
   COURSE_ALREADY_WRITTEN("COURSE_ALREADY_WRITTEN", "Assessment has been written by the student, withdrawal is not allowed."),
   DEM_ISSUE("DEM_ISSUE", "Student XAM record will not be processed due to an issue with the student's demographics.");
 

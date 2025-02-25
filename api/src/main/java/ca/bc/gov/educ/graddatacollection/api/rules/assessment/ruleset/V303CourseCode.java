@@ -51,10 +51,15 @@ public class V303CourseCode implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V303 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (!assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode())) {
-            log.debug("V303: The Assessment Code provided is not valid for the Assessment Session specified for assessmentStudentID :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_INVALID.getMessage()));
+        if (!assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())) {
+            log.debug("V303: The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage()));
         }
+        if (!assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode())) {
+            log.debug("V303: The session code is not a valid ministry assessment session code. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+        }
+
         return errors;
     }
 

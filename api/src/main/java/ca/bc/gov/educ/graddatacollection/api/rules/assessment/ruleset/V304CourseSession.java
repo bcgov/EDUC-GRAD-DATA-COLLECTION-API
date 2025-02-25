@@ -64,14 +64,14 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
         }
 
         if (studAssessmentDetail == null || (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && studAssessmentDetail.isHasPriorRegistration())) {
-            log.debug("V304: The assessment session is a duplicate of an existing assessment session for this student/assessment/level :: {}", student.getAssessmentStudentID());
+            log.debug("V304: The student has already received a Proficiency Score / Special Case for this assessment session :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage()));
         }else if (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && Integer.parseInt(studAssessmentDetail.getNumberOfAttempts()) >= 2) {
-            log.debug("V304: Student has already reached the maximum number of writes for this Assessment :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED.getMessage()));
+            log.debug("V304: The student has reached the maximum number of writes for {}. The registration will not be updated. :: {}", student.getCourseCode(), student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED, String.format(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED.getMessage(), student.getCourseCode())));
         }else if (studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W") && studAssessmentDetail.isAlreadyWrittenAssessment()) {
-            log.debug("V304: Assessment has been written by the student, withdrawal is not allowed :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN.getMessage()));
+            log.debug("V304: The student has written, attempted to write or has a special case code for {}. The assessment session will not be withdrawn. :: {}", student.getCourseCode(), student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN, String.format(AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN.getMessage(), student.getCourseStatus())));
         }
         return errors;
     }
