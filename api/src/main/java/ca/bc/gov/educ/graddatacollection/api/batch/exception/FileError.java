@@ -66,7 +66,7 @@ public enum FileError {
   SCHOOL_IS_OPENING("Invalid school provided - school is not yet open."),
   INVALID_SCHOOL_DATES("Invalid school dates - this was not expected."),
   SCHOOL_OUTSIDE_OF_DISTRICT("The school referenced in the uploaded file does not belong to district."),
-  MISSING_MINCODE("No mincode found in file."),
+  MISSING_MINCODE("No school ministry code found in file."),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**
