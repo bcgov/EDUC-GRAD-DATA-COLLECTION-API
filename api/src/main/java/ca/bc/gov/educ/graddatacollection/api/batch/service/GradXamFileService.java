@@ -17,6 +17,7 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_XAM;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
+import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LOCAL_STUDENT_ID;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.MINCODE;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.XamBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
@@ -91,12 +94,25 @@ public class GradXamFileService implements GradFileBatchProcessor {
         }
     }
 
-    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentXamFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) {
+    public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentXamFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
         log.debug("Going to persist XAM data for batch :: {}", guid);
         final IncomingFilesetEntity entity = mapper.toIncomingXAMBatchEntity(fileUpload, schoolID); // batch file can be processed further and persisted.
         if(districtID != null) {
             entity.setDistrictID(UUID.fromString(districtID));
         }
+
+        var blankLineSet = new HashSet<>();
+        for (final var student : batchFile.getAssessmentData()) {
+            if(StringUtils.isBlank(student.getPen())){
+                blankLineSet.add(student.getLineNumber());
+            }
+        }
+
+        if(!blankLineSet.isEmpty()){
+            String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
+            throw new FileUnProcessableException(BLANK_PEN_IN_XAM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines);
+        }
+
         for (final var student : batchFile.getAssessmentData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var assessmentStudentEntity = mapper.toXAMStudentEntity(student, entity);
             if(StringUtils.isNotBlank(student.getExamMincode())) {
@@ -138,7 +154,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
     private GradStudentAssessmentDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
         if (!TRANSACTION_CODE_STUDENT_XAM_RECORDS.contains(transactionCode)) {
-            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_XAM, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_XAM, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index + 1), ValidationUtil.getValueOrBlank(ds.getString(LOCAL_STUDENT_ID.getName())));
         }
 
         return GradStudentAssessmentDetails.builder()
@@ -166,6 +182,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
                 .numCredits(StringMapper.trimAndUppercase(ds.getString(NUM_CREDITS.getName())))
                 .courseType(StringMapper.trimAndUppercase(ds.getString(COURSE_TYPE.getName())))
                 .writeFlag(StringMapper.trimAndUppercase(ds.getString(WRITE_FLAG.getName())))
+                .lineNumber(Long.toString(index + 1))
                 .build();
     }
 }

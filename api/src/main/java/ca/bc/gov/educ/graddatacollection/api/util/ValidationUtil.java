@@ -42,4 +42,11 @@ public class ValidationUtil {
     Pattern pattern = Pattern.compile("^[a-z\\-.'\\s]+$", Pattern.CASE_INSENSITIVE);
     return StringUtils.isNotEmpty(name) && (!pattern.matcher(name).matches() || name.replaceAll("[" + INVALID_CHARS + "]","").isEmpty());
   }
+
+  public static String getValueOrBlank(String value) {
+    if(StringUtils.isNotEmpty(value)) {
+      return value;
+    }
+    return "blank";
+  }
 }
