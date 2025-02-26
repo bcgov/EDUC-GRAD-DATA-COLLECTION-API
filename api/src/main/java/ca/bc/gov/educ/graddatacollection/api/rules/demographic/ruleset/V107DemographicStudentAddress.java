@@ -57,7 +57,7 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
             if (StringUtils.isEmpty(student.getCity())) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.CITY, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getMessage()));
             }
-            Pattern pattern = Pattern.compile("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$");
+            Pattern pattern = Pattern.compile("^(?:[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d|\\d{5}|\\d{7})$");
             String postalCode = student.getPostalCode();
 
             if(StringUtils.isEmpty(postalCode) || !pattern.matcher(student.getPostalCode()).matches()) {
