@@ -37,4 +37,6 @@ public class GradStudentAssessmentDetails {
     private String courseType;//    CRSE_TYPE 1 120
     private String writeFlag;//    TO_WRITE_FLAG 1 121
     private String examMincode;//    TO_WRITE_FLAG 8 130
+
+    private String lineNumber;
 }

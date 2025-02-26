@@ -16,6 +16,7 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
+import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LOCAL_STUDENT_ID;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -168,7 +170,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
     private GradStudentDemogDetails getStudentDemogDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
         if (!TRANSACTION_CODE_STUDENT_DEMOG_RECORDS.contains(transactionCode)) {
-            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_DEM, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_DEM, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index + 1), ValidationUtil.getValueOrBlank(ds.getString(LOCAL_STUDENT_ID.getName())));
         }
 
         return GradStudentDemogDetails.builder()

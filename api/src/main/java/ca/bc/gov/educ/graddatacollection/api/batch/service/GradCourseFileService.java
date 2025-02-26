@@ -17,6 +17,7 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -99,6 +100,19 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         if(districtID != null) {
             entity.setDistrictID(UUID.fromString(districtID));
         }
+
+        var blankLineSet = new HashSet<>();
+        for (final var student : batchFile.getCourseData()) {
+            if(StringUtils.isBlank(student.getPen())){
+                blankLineSet.add(student.getLineNumber());
+            }
+        }
+
+        if(!blankLineSet.isEmpty()){
+            String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
+            throw new FileUnProcessableException(BLANK_PEN_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines);
+        }
+
         for (final var student : batchFile.getCourseData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var crsStudentEntity = mapper.toCRSStudentEntity(student, entity);
             entity.getCourseStudentEntities().add(crsStudentEntity);
@@ -166,7 +180,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     private GradStudentCourseDetails getStudentCourseDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
         final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
         if (!TRANSACTION_CODE_STUDENT_COURSE_RECORDS.contains(transactionCode)) {
-            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+            throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index + 1), ValidationUtil.getValueOrBlank(ds.getString(LOCAL_STUDENT_ID.getName())));
         }
 
         return GradStudentCourseDetails.builder()
@@ -192,6 +206,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 .courseDesc(StringMapper.trimAndUppercase(ds.getString(COURSE_DESC.getName())))
                 .courseType(StringMapper.trimAndUppercase(ds.getString(COURSE_TYPE.getName())))
                 .courseGradReqt(StringMapper.trimAndUppercase(ds.getString(COURSE_GRAD_REQT.getName())))
+                .lineNumber(Long.toString(index + 1))
                 .build();
     }
 }
