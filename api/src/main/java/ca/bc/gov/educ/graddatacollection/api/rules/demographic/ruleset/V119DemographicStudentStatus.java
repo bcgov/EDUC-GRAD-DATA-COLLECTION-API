@@ -54,7 +54,7 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-        if (student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode()) &&
+        if (gradStudent != null && student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode()) &&
             gradStudent.getStudentStatusCode().equalsIgnoreCase("CUR") &&
             !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())
             ) {
