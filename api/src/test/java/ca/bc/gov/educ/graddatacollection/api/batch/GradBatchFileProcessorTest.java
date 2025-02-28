@@ -261,7 +261,29 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processDistrictBatchFile(demFile, id));
     }
 
+    @Test
+    void testProcessDistrictBatchFile_givenSchoolTranscriptInEligible_ShouldThrowException() throws Exception {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        school.setCanIssueTranscripts(false);
+        var districtID = UUID.randomUUID();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFileset);
 
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload demFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-dem-file.dem")
+                .fileType("dem")
+                .build();
+
+        var id = districtID.toString();
+        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processDistrictBatchFile(demFile, id));
+    }
 
     @Test
     void testProcessDistrictBatchFile_givenFileLoadInProgress_ShouldThrowException() throws Exception {

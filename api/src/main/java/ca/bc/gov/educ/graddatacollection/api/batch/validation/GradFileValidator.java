@@ -162,8 +162,13 @@ public class GradFileValidator {
 
     public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
         var currentDate = LocalDateTime.now();
-        LocalDateTime openDate = null;
-        LocalDateTime closeDate = null;
+        LocalDateTime openDate;
+        LocalDateTime closeDate;
+
+        if(Boolean.FALSE.equals(school.getCanIssueTranscripts())) {
+            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_FOR_UPLOAD, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+        }
+
         try {
             openDate = LocalDateTime.parse(school.getOpenedDate());
 
