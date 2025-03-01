@@ -46,7 +46,7 @@ public class V302CourseLevel implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getCourseLevel())) {
-            log.debug("V302: Invalid Course Level entry, value will be ignored. Value should be blank for assessmentStudentID :: {}", student.getAssessmentStudentID());
+            log.debug("V302: Course level value is ignored and must be blank for assessmentStudentID :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COURSE_LEVEL, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getMessage()));
         }
         return errors;

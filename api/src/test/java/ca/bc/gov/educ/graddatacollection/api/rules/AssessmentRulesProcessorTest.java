@@ -230,39 +230,52 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
 
+        assessmentStudent.setCourseStatus("A");
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
+        assessmentStudent.setCourseStatus("W");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError2.size()).isZero();
+
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
         response.setHasPriorRegistration(true);
-        response.setNumberOfAttempts("1");
-        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
-
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getCode());
-
-        response.setHasPriorRegistration(false);
-        response.setNumberOfAttempts("3");
+        response.setAlreadyWrittenAssessment(true);
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_EXCEED.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getCode());
 
         response.setHasPriorRegistration(false);
-        response.setNumberOfAttempts("1");
         response.setAlreadyWrittenAssessment(true);
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
-        assessmentStudent.setCourseStatus("W");
-
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
-        assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_ALREADY_WRITTEN.getCode());
+        assertThat(validationError4.size()).isZero();
+
+        response.setHasPriorRegistration(true);
+        response.setAlreadyWrittenAssessment(false);
+        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
+
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError5.size()).isZero();
+
+        response.setHasPriorRegistration(false);
+        response.setAlreadyWrittenAssessment(false);
+        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
+
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError6.size()).isZero();
+
+        assessmentStudent.setCourseStatus("A");
+        response.setHasPriorRegistration(true);
+        response.setAlreadyWrittenAssessment(true);
+        when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
+
+        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError7.size()).isZero();
     }
 
     @Test
