@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -61,6 +62,7 @@ public class V205CourseStatus implements CourseValidationBaseRule {
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().anyMatch(record ->
                     record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                        && StringUtils.isNotBlank(record.getGradReqMet())
         )) {
             log.debug("V205: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));

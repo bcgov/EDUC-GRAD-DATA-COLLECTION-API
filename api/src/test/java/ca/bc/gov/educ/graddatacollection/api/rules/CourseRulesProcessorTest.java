@@ -316,7 +316,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", null, 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "MET", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
                                 new GradCourseRecord(
                                         "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
                                 )
@@ -334,6 +334,10 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getCode());
+
+        courseStudent.setCourseCode("CLC");
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError3.size()).isZero();
     }
 
     @Test
