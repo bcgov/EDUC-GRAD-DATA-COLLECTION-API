@@ -10,6 +10,8 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.graddatacollection.api.exception.ConfirmationRequiredException;
+import ca.bc.gov.educ.graddatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -36,9 +38,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.BLANK_PEN_IN_CRS_FILE;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.HttpStatus.PRECONDITION_REQUIRED;
 
 @Service("crs")
 @RequiredArgsConstructor
@@ -121,7 +125,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         if(!entity.getCourseStudentEntities().isEmpty() && !fileUpload.isCourseSessionOverride()) {
             var hasCurrentOrFutureSession = entity.getCourseStudentEntities().stream().filter(this::validateCourseYearAndMonth).findFirst();
             if(hasCurrentOrFutureSession.isEmpty()) {
-                throw new FileUnProcessableException(COURSE_FILE_SESSION_ERROR, guid, GradCollectionStatus.LOAD_FAIL);
+                throw new ConfirmationRequiredException(new ApiError(PRECONDITION_REQUIRED));
             }
         }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);

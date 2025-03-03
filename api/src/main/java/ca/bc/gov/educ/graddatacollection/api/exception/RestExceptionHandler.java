@@ -17,8 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.LocalDateTime;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 /**
  * The type Rest exception handler.
@@ -69,6 +68,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
       EntityNotFoundException ex) {
     ApiError apiError = new ApiError(NOT_FOUND);
     apiError.setMessage(ex.getMessage());
+    log.info("{} ", apiError.getMessage(), ex);
+    return buildResponseEntity(apiError);
+  }
+
+  /**
+   * Handles EntityNotFoundException. Created to encapsulate errors with more detail than jakarta.persistence.EntityNotFoundException.
+   *
+   * @param ex the EntityNotFoundException
+   * @return the ApiError object
+   */
+  @ExceptionHandler(ConfirmationRequiredException.class)
+  protected ResponseEntity<Object> handleEntityNotFound(
+          ConfirmationRequiredException ex) {
+    ApiError apiError = new ApiError(PRECONDITION_REQUIRED);
+    apiError.setMessage("Confirmation Required");
     log.info("{} ", apiError.getMessage(), ex);
     return buildResponseEntity(apiError);
   }
