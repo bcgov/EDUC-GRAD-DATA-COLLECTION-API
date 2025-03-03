@@ -118,7 +118,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             entity.getCourseStudentEntities().add(crsStudentEntity);
         }
 
-        if(!entity.getCourseStudentEntities().isEmpty()) {
+        if(!entity.getCourseStudentEntities().isEmpty() && !fileUpload.isCourseSessionOverride()) {
             var hasCurrentOrFutureSession = entity.getCourseStudentEntities().stream().filter(this::validateCourseYearAndMonth).findFirst();
             if(hasCurrentOrFutureSession.isEmpty()) {
                 throw new FileUnProcessableException(COURSE_FILE_SESSION_ERROR, guid, GradCollectionStatus.LOAD_FAIL);

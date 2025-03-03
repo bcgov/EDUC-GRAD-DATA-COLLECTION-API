@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.URL.BASE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -191,6 +192,64 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-crs-file.crs")
+                .fileType("crs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(93);
+    }
+
+    @Test
+    void testProcessGradFile_givenFiletypeCRS_BadDates_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file-bad-dates.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-crs-file.crs")
+                .fileType("crs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value(COURSE_FILE_SESSION_ERROR.getMessage()));
+    }
+
+    @Test
+    void testProcessGradFile_givenFiletypeCRS_OldDatesWithOverride_ShouldReturnOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .courseSessionOverride(true)
                 .createUser("ABC")
                 .fileName("student-crs-file.crs")
                 .fileType("crs")
