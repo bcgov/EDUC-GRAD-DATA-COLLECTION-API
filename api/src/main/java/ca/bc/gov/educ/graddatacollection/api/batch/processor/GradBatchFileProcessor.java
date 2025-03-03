@@ -6,6 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableEx
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileBatchProcessor;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.exception.ConfirmationRequiredException;
 import ca.bc.gov.educ.graddatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.graddatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.PRECONDITION_REQUIRED;
 
 @Component
 @Slf4j
@@ -77,6 +79,9 @@ public class GradBatchFileProcessor {
             fieldErrorList.add(validationError);
             error.addValidationErrors(fieldErrorList);
             throw new InvalidPayloadException(error);
+        } catch (final ConfirmationRequiredException e) {
+            log.warn("Confirmation required while processing the file with guid :: {}", guid);
+            throw new ConfirmationRequiredException(new ApiError(PRECONDITION_REQUIRED));
         } catch (final Exception e) {
             log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();

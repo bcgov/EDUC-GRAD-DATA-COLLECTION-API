@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.COURSE_FILE_SESSION_ERROR;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.URL.BASE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -235,8 +234,22 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
-                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value(COURSE_FILE_SESSION_ERROR.getMessage()));
+                .contentType(APPLICATION_JSON)).andExpect(status().isPreconditionRequired());
+
+
+        GradFileUpload verFile2 = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-crs-file.crs")
+                .fileType("crs")
+                .courseSessionOverride(true)
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile2))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
