@@ -23,4 +23,5 @@ public class GradFileUpload extends BaseRequest implements Serializable {
     String fileContents;
     @NotNull(message = "fileType cannot be null")
     String fileType; //dem,xam,crs
+    boolean courseSessionOverride;
 }
