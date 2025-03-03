@@ -47,7 +47,7 @@ public class V321CourseCodeNonCSF implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (!studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) && student.getCourseCode().equalsIgnoreCase("LTP12")){
-            log.debug("V321: Student is in a Non-Francophone school and cannot register for this assessment session for this student :: {}", student.getAssessmentStudentID());
+            log.debug("V321: LTP12 is a Programme Francophone assessment. Please use LTF12 if student is in French Immersion program. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_NON_CSF, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_NON_CSF.getMessage()));
         }
         return errors;

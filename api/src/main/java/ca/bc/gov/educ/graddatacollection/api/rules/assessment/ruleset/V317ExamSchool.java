@@ -55,7 +55,7 @@ public class V317ExamSchool implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (student.getExamSchoolID() != null && !isSchoolValid(student.getExamSchoolID())){
-            log.debug("V317: Invalid exam school provided :: {}", student.getAssessmentStudentID());
+            log.debug("V317: Invalid assessment center provided. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.EXAM_SCHOOL, AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID, AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID.getMessage()));
         }
         return errors;
