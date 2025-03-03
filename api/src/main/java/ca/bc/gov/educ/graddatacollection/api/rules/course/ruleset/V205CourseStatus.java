@@ -61,6 +61,7 @@ public class V205CourseStatus implements CourseValidationBaseRule {
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().anyMatch(record ->
                     record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                    && record.getGradReqMet() != null
         )) {
             log.debug("V205: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));
