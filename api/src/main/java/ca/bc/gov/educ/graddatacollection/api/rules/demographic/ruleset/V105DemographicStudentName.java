@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
@@ -28,9 +29,11 @@ import java.util.List;
 public class V105DemographicStudentName implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
+    private final ApplicationProperties props;
 
-    public V105DemographicStudentName(DemographicRulesService demographicRulesService) {
+    public V105DemographicStudentName(DemographicRulesService demographicRulesService, ApplicationProperties props) {
         this.demographicRulesService = demographicRulesService;
+        this.props = props;
     }
 
     @Override
@@ -51,6 +54,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
         var demStudent = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of studentName-v105 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
+        var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
 
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
@@ -59,8 +63,8 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                 String schoolSurname = demStudent.getLastName();
                 String ministrySurname = student.getLegalLastName();
                 String message = StringUtils.isBlank(schoolSurname)
-                        ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login."
-                        : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                        ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>"
+                        : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 log.debug("studentSurName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH, message));
             }
@@ -70,13 +74,13 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                 String message;
                 if (StringUtils.isBlank(schoolMiddleName)) {
                     message = "MIDDLE NAME mismatch. School submitted a blank MIDDLE NAME and the Ministry PEN system has: " + ministryMiddleNames
-                            + ". If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                            + ". If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else if (StringUtils.isBlank(ministryMiddleNames)) {
                     message = "MIDDLE NAME mismatch. School submitted: " + schoolMiddleName + " but the Ministry PEN system is blank. "
-                            + "If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                            + "If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else {
                     message = "MIDDLE NAME mismatch. School submitted: " + schoolMiddleName + " and the Ministry PEN system has: " + ministryMiddleNames
-                            + ". If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                            + ". If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 }
                 log.debug("studentMiddleNames-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH, message));
@@ -87,13 +91,13 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                 String message;
                 if (StringUtils.isBlank(schoolGiven)) {
                     message = "FIRST NAME mismatch. School submitted a blank FIRST NAME and the Ministry PEN system has: " + ministryGiven
-                            + ". If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                            + ". If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else if (StringUtils.isBlank(ministryGiven)) {
                     message = "FIRST NAME mismatch. School submitted: " + schoolGiven + " but the Ministry PEN system is blank. "
-                            + "If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                            + "If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else {
                     message = "FIRST NAME mismatch. School submitted: " + schoolGiven + " and the Ministry PEN system has: " + ministryGiven
-                            + ". If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
+                            + ". If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 }
                 log.debug("studentGivenName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH, message));

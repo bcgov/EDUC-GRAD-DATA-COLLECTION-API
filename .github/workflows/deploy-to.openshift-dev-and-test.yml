@@ -24,6 +24,7 @@ env:
   CHES_CLIENT_SECRET: ${{ secrets.CHES_CLIENT_SECRET }}
   CHES_TOKEN_URL: ${{ secrets.CHES_TOKEN_URL }}
   CHES_ENDPOINT_URL: ${{ secrets.CHES_ENDPOINT_URL }}
+  EDX_URL: ${{ secrets.EDX_URL }}
 
   # 🖊️ EDIT to specify custom tags for the container image, or default tags will be generated below.
   IMAGE_TAGS: ""
@@ -184,7 +185,7 @@ jobs:
           | oc apply -f -
         
         # Update ConfigMap
-        curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin dev ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.DB_JDBC_CONNECT_STRING }} ${{ env.DB_PWD }} ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }} ${{ env.GRAD_NAMESPACE }}
+        curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin dev ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.DB_JDBC_CONNECT_STRING }} ${{ env.DB_PWD }} ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }} ${{ env.GRAD_NAMESPACE }} ${{ env.EDX_URL }}
         
         # Restart the deployment to recreate pods
         oc rollout restart deployment/${{ env.SPRING_BOOT_IMAGE_NAME }}
