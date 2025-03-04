@@ -61,7 +61,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                 String message = StringUtils.isBlank(schoolSurname)
                         ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login."
                         : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
-                log.debug("studentName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+                log.debug("studentSurName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
@@ -78,7 +78,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                     message = "MIDDLE NAME mismatch. School submitted: " + schoolMiddleName + " and the Ministry PEN system has: " + ministryMiddleNames
                             + ". If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
                 }
-                log.debug("studentName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+                log.debug("studentMiddleNames-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
@@ -95,7 +95,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                     message = "FIRST NAME mismatch. School submitted: " + schoolGiven + " and the Ministry PEN system has: " + ministryGiven
                             + ". If the submitted FIRST NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.";
                 }
-                log.debug("studentName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+                log.debug("studentGivenName-v105: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH, message));
             }
         }
