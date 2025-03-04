@@ -47,7 +47,7 @@ public enum ValidationFieldCode {
   ADDRESS2("ADDRESS2", "Address 2"),
   CITY("CITY", "City"),
   PROVINCIAL_CODE("PROVINCIAL_CODE", "Provincial Code"),
-  COUNTRY_CODE("COUNTRY_CODE", "Course Code"),
+  COUNTRY_CODE("COUNTRY_CODE", "Country Code"),
   POSTAL_CODE("POSTAL_CODE", "Postal Code"),
   BIRTHDATE("BIRTHDATE", "Birthdate"),
   GENDER("GENDER", "Gender"),
