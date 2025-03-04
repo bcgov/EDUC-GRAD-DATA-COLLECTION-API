@@ -257,6 +257,24 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(
     "SURNAME mismatch. School submitted: A and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.");
 
+        demStudent2.setLastName("");
+        StudentRuleData studentRuleData5 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        val validationError5 = rulesProcessor.processRules(studentRuleData5);
+        assertThat(validationError5.size()).isNotZero();
+        assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
+        assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
+        assertThat(validationError5.getFirst().getValidationIssueDescription()).isEqualTo(
+                "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.");
+
+        demStudent2.setLastName(null);
+        StudentRuleData studentRuleDat6 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        val validationError6 = rulesProcessor.processRules(studentRuleDat6);
+        assertThat(validationError6.size()).isNotZero();
+        assertThat(validationError6.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
+        assertThat(validationError6.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
+        assertThat(validationError6.getFirst().getValidationIssueDescription()).isEqualTo(
+                "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.");
+
         var demStudent3 = createMockDemographicStudent(savedFileSet);
         demStudent3.setMiddleName("A");
         StudentRuleData studentRuleData3 = createMockStudentRuleData(demStudent3, courseStudent, createMockAssessmentStudent(), createMockSchool());
@@ -265,7 +283,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.MIDDLE_NAME.getCode());
         assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH.getCode());
         assertThat(validationError3.getFirst().getValidationIssueDescription()).isEqualTo(
-    "MIDDLE NAME mismatch. School submitted: A and the Ministry PEN system has: null. If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.");
+                "MIDDLE NAME mismatch. School submitted: A but the Ministry PEN system is blank. If the submitted MIDDLE NAME is correct, request a PEN update through EDX Secure Messaging https://educationdataexchange.gov.bc.ca/login.");
 
         var demStudent4 = createMockDemographicStudent(savedFileSet);
         demStudent4.setFirstName("A");
