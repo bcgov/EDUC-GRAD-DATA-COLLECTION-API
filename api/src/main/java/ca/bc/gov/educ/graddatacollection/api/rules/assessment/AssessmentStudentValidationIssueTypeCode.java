@@ -27,6 +27,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
   DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "There are more than one CODE/SESSION DATE registrations in the file for the same student."),
   COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is enrolled in a Programme Francophone school and the registration is for a French Immersion assessment. This registration will not be updated."),
   COURSE_CODE_NON_CSF("COURSE_CODE_NON_CSF", "LTP12 is a Programme Francophone assessment. Please use LTF12 if student is in French Immersion program."),
+  COURSE_CODE_ATTEMPTS("COURSE_CODE_ATTEMPTS", "The student has reached the maximum number of writes for <Assmt CODE>. The registration will not be updated."),
   COURSE_ALREADY_WRITTEN("COURSE_ALREADY_WRITTEN", "Assessment has been written by the student, withdrawal is not allowed."),
   DEM_ISSUE("DEM_ISSUE", "Student XAM record will not be processed due to an issue with the student's demographics.");
 

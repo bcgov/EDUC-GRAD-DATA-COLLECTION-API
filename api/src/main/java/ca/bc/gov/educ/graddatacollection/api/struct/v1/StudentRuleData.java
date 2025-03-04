@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -30,6 +31,7 @@ public class StudentRuleData {
   private SchoolTombstone school;
   private Student studentApiStudent;
   private GradStudentRecord gradStudentRecord;
+  private AssessmentStudentDetailResponse assessmentStudentDetail;
   private Map<String, CoregCoursesRecord> coregCoursesRecordMap;
   private List<GradStudentCourseRecord> gradStudentCourseRecordList;
 }

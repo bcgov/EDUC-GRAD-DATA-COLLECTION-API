@@ -63,6 +63,7 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
 
         if (studentApiStudent != null) {
             studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
+            studentRuleData.setAssessmentStudentDetail(studAssessmentDetail);
         }
 
         if (studAssessmentDetail == null || (studAssessmentDetail.isHasPriorRegistration() && studAssessmentDetail.isAlreadyWrittenAssessment())) {
