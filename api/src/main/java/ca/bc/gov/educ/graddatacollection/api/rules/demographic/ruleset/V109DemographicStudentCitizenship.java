@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.Cit
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | v109 | ERROR    | Must be a valid citizenship code                              	      | -            |
+ *  | v109 | ERROR    | Must be a valid citizenship code - must be C, O or blank              | -            |
  *
  */
 @Component
@@ -54,7 +55,7 @@ public class V109DemographicStudentCitizenship implements DemographicValidationB
 
         List<CitizenshipCode> citizenshipCodes = restUtils.getScholarshipsCitizenshipCodes();
 
-        if (citizenshipCodes.stream().noneMatch(code -> Objects.equals(code.getCitizenshipCode(), student.getCitizenship()))) {
+        if (StringUtils.isNotBlank(student.getCitizenship()) && citizenshipCodes.stream().noneMatch(code -> Objects.equals(code.getCitizenshipCode(), student.getCitizenship()))) {
             log.debug("StudentCitizenship-v109: Invalid citizenship code - must be C, O or blank for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.CITIZENSHIP, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage()));
         }
