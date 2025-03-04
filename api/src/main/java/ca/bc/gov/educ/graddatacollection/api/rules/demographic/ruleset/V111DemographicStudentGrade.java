@@ -53,7 +53,7 @@ public class V111DemographicStudentGrade implements DemographicValidationBaseRul
         log.debug("In executeValidation of StudentGrade-V111 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        List<GradGrade> gradGrades = restUtils.getGradGrades();
+        List<GradGrade> gradGrades = restUtils.getGradGradeList();
 
         if (gradGrades.stream().noneMatch(grade -> Objects.equals(grade.getStudentGradeCode(), student.getGrade()))) {
             log.debug("StudentGrade-V111: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());

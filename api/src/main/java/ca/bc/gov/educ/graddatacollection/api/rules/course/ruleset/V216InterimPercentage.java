@@ -59,7 +59,7 @@ public class V216InterimPercentage implements CourseValidationBaseRule {
             return errors;
         }
 
-        List<LetterGrade> letterGradeList = restUtils.getLetterGrades();
+        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList();
 
         int interimPercentage = Integer.parseInt(student.getInterimPercentage());
         Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimGrade())).findFirst();

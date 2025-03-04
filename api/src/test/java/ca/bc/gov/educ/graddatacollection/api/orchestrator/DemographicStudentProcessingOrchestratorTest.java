@@ -74,14 +74,14 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
-        when(restUtils.getScholarshipsCitizenshipCodes()).thenReturn(
+        when(restUtils.getScholarshipsCitizenshipCodeList()).thenReturn(
                 List.of(
                         new CitizenshipCode("C", "Canadian", "Valid Citizenship Code", 1, "2020-01-01", "2099-12-31"),
                         new CitizenshipCode("O", "Other", "Valid Citizenship Code", 2, "2020-01-01", "2099-12-31"),
                         new CitizenshipCode("", "Blank", "Valid for Blank Citizenship", 3, "2020-01-01", "2099-12-31")
                 )
         );
-        when(restUtils.getGradGrades()).thenReturn(
+        when(restUtils.getGradGradeList()).thenReturn(
                 List.of(
                         new GradGrade("08", "Grade 8", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "8", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new GradGrade("09", "Grade 9", "", 2, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "9", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
@@ -95,21 +95,21 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
                         new GradGrade("GA", "Graduated Adult", "", 10, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "GA", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
-        when(restUtils.getCareerPrograms()).thenReturn(
+        when(restUtils.getCareerProgramCodeList()).thenReturn(
                 List.of(
                         new CareerProgramCode("AA", "Art Careers", "", 1, "20200101", "20990101"),
                         new CareerProgramCode("AB", "Autobody", "", 2, "20200101", "20990101"),
                         new CareerProgramCode("AC", "Agribusiness", "", 3, "20200101", "20990101")
                 )
         );
-        when(restUtils.getOptionalPrograms()).thenReturn(
+        when(restUtils.getOptionalProgramCodeList()).thenReturn(
                 List.of(
                         new OptionalProgramCode(UUID.randomUUID(), "FR", "SCCP French Certificate", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "", "", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new OptionalProgramCode(UUID.randomUUID(), "AD", "Advanced Placement", "", 2, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "", "", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new OptionalProgramCode(UUID.randomUUID(), "DD", "Dual Dogwood", "", 3, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "", "", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
-        when(restUtils.getProgramRequirementCodes()).thenReturn(
+        when(restUtils.getProgramRequirementCodeList()).thenReturn(
                 List.of(
                         new ProgramRequirementCode("1950", "Adult Graduation Program", "Description for 1950", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "1", "A", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new ProgramRequirementCode("2023", "B.C. Graduation Program", "Description for 2023", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "2", "B", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
@@ -120,7 +120,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
                         new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
-        when(restUtils.getGraduationProgramCodes()).thenReturn(
+        when(restUtils.getGraduationProgramCodeList()).thenReturn(
                 List.of(
                         new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
                         new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),

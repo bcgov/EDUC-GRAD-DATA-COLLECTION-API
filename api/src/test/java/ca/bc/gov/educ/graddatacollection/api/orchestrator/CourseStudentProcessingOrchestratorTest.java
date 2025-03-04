@@ -76,7 +76,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
-        when(restUtils.getLetterGrades()).thenReturn(
+        when(restUtils.getLetterGradeList()).thenReturn(
                 List.of(
                         new LetterGrade("A", "4", "Y", "The student demonstrates excellent or outstanding performance in relation to expected learning outcomes for the course or subject and grade.", "A", 100, 86, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("B", "3", "Y", "", "B", 85, 73, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
@@ -86,7 +86,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
                         new LetterGrade("RM", "0", "Y", "", "Requirement Met", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
-        when(restUtils.getEquivalencyChallengeCodes()).thenReturn(
+        when(restUtils.getEquivalencyChallengeCodeList()).thenReturn(
                 List.of(
                         new EquivalencyChallengeCode("E", "Equivalency", "Indicates that the course credit was earned through an equivalency review.", "1", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new EquivalencyChallengeCode("C", "Challenge", "Indicates that the course credit was earned through the challenge process.", "2", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
