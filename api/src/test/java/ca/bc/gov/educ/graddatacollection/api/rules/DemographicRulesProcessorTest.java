@@ -333,6 +333,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudent.setGrade("12");
         demographicStudent.setAddressLine1("");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
@@ -340,12 +341,14 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getCode());
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
+        demographicStudent2.setGrade("12");
         demographicStudent2.setAddressLine1(null);
         demographicStudent2.setAddressLine2("not null");
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isZero();
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
+        demographicStudent3.setGrade("12");
         demographicStudent3.setCity("");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
@@ -353,6 +356,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getCode());
 
         var demographicStudent4 = createMockDemographicStudent(savedFileSet);
+        demographicStudent4.setGrade("12");
         demographicStudent4.setPostalCode("123456");
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
@@ -360,6 +364,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getCode());
 
         var demographicStudent5 = createMockDemographicStudent(savedFileSet);
+        demographicStudent5.setGrade("12");
         demographicStudent5.setProvincialCode("AB");
         val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError6.size()).isNotZero();
@@ -367,11 +372,22 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError6.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROVINCE_CODE_INVALID.getCode());
 
         var demographicStudent6 = createMockDemographicStudent(savedFileSet);
+        demographicStudent6.setGrade("12");
         demographicStudent6.setCountryCode("US");
         val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError7.size()).isNotZero();
         assertThat(validationError7.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COUNTRY_CODE.getCode());
         assertThat(validationError7.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_COUNTRY_CODE_INVALID.getCode());
+
+        var demographicStudent8 = createMockDemographicStudent(savedFileSet);
+        demographicStudent8.setCountryCode("US");
+        demographicStudent8.setProvincialCode("AB");
+        demographicStudent8.setPostalCode("12AA56");
+        demographicStudent8.setCity("");
+        demographicStudent8.setAddressLine1(null);
+        demographicStudent8.setAddressLine2("not null");
+        val validationError8 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent8, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError8.size()).isZero();
     }
 
     @Test
