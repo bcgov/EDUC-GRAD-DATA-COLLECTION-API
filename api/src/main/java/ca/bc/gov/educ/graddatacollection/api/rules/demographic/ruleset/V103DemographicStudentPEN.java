@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
@@ -27,9 +28,11 @@ import java.util.List;
 public class V103DemographicStudentPEN implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
+    private final ApplicationProperties props;
 
-    public V103DemographicStudentPEN(DemographicRulesService demographicRulesService) {
+    public V103DemographicStudentPEN(DemographicRulesService demographicRulesService, ApplicationProperties props) {
         this.demographicRulesService = demographicRulesService;
+        this.props = props;
     }
 
     @Override
@@ -50,12 +53,13 @@ public class V103DemographicStudentPEN implements DemographicValidationBaseRule 
         var demStudent = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of StudentPEN-v103 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-
+        var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (student == null || StringUtils.isBlank(student.getPen())) {
             log.debug("StudentPEN-v103: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND.getMessage()));
+            String message = "Student PEN is not valid so the student record cannot be updated. Correct the PEN in your system or request an update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, message));
         }
         return errors;
     }

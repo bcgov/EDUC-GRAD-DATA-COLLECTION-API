@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
@@ -29,9 +30,11 @@ import java.util.List;
 public class V106DemographicStudentBirthdate implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
+    private final ApplicationProperties props;
 
-    public V106DemographicStudentBirthdate(DemographicRulesService demographicRulesService) {
+    public V106DemographicStudentBirthdate(DemographicRulesService demographicRulesService, ApplicationProperties props) {
         this.demographicRulesService = demographicRulesService;
+        this.props = props;
     }
 
     @Override
@@ -53,11 +56,12 @@ public class V106DemographicStudentBirthdate implements DemographicValidationBas
         log.debug("In executeValidation of StudentBirthdate-V106 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var studentApiStudent = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
-
+        var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         if (RuleUtil.validateStudentRecordExists(studentApiStudent) &&
             !RuleUtil.validateStudentDOBMatches(demStudent, studentApiStudent)) {
             log.debug("StudentBirthdate-V106: Student birthdate must match what is in PEN for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH.getMessage()));
+            var message = "The submitted BIRTHDATE does not match the ministry database. If the submitted BIRTHDATE is correct, submit PEN update request through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH, message));
         }
         return errors;
     }
