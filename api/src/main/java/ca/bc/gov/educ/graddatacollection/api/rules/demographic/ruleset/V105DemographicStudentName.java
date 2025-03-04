@@ -28,7 +28,6 @@ import java.util.List;
 public class V105DemographicStudentName implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
-    private static final String MINISTRY_PEN_PARTIAL = " and the Ministry PEN system has: ";
 
     public V105DemographicStudentName(DemographicRulesService demographicRulesService) {
         this.demographicRulesService = demographicRulesService;
