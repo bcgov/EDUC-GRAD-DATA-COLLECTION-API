@@ -81,7 +81,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
                         new CitizenshipCode("", "Blank", "Valid for Blank Citizenship", 3, "2020-01-01", "2099-12-31")
                 )
         );
-        when(restUtils.getGradGradeList(false)).thenReturn(
+        when(restUtils.getGradGradeList(true)).thenReturn(
                 List.of(
                         new GradGrade("08", "Grade 8", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "8", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new GradGrade("09", "Grade 9", "", 2, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "9", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
