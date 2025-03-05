@@ -83,4 +83,6 @@ public class ApplicationProperties {
   private String studentApiURL;
   @Value("${incoming.fileset.stale.in.hours}")
   private Integer incomingFilesetStaleInHours;
+  @Value("${edx.base.url}")
+  private String edxBaseUrl;
 }

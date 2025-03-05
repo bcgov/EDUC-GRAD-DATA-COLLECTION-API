@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -103,6 +105,10 @@ public class BaseRulesService {
             log.warn("No gradStudentCourses found for externalID: {}", pen);
             return null;
         }
+    }
+
+    public List<GradGrade> getActiveGradGrades() {
+        return restUtils.getGradGrades().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
     }
 }
 

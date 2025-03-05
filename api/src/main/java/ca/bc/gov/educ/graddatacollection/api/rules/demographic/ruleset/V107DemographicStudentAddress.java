@@ -47,7 +47,7 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
         log.debug("In executeValidation of StudentAddress-v107 for demographicStudentAddress :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (SchoolGradeCodes.getGrades12AndAD().stream().noneMatch(grade -> Objects.equals(grade, student.getGrade()))) {
+        if (SchoolGradeCodes.getGrades12AndAD().stream().anyMatch(grade -> Objects.equals(grade, student.getGrade()))) {
             log.debug("StudentAddress-v107: Student address must exist for students in grades 12 or AD. for demographicStudentAddress :: {}", student.getDemographicStudentID());
 
             if (StringUtils.isAllEmpty(student.getAddressLine1(), student.getAddressLine2())) {
