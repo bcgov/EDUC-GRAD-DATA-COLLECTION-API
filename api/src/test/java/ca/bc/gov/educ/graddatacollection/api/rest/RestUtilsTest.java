@@ -415,13 +415,13 @@ class RestUtilsTest {
                 new GradGrade("12", "Grade 12", "", 5, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "12", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
         );
 
-        doReturn(mockGradGrades).when(restUtils).getGradGradeList();
+        doReturn(mockGradGrades).when(restUtils).getGradGradeList(false);
 
         restUtils.populateGradGradesMap();
 
-        assertEquals(2, restUtils.getGradGradeList().size());
-        assertEquals("Grade 8", restUtils.getGradGradeList().getFirst().getLabel());
-        assertEquals("Grade 12", restUtils.getGradGradeList().getLast().getLabel());
+        assertEquals(2, restUtils.getGradGradeList(false).size());
+        assertEquals("Grade 8", restUtils.getGradGradeList(false).getFirst().getLabel());
+        assertEquals("Grade 12", restUtils.getGradGradeList(false).getLast().getLabel());
     }
 
     @Test

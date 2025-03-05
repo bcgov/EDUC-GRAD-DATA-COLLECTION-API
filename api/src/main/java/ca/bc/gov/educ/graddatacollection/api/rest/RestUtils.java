@@ -38,6 +38,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,7 @@ public class RestUtils {
   public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   private static final String CONTENT_TYPE = "Content-Type";
   private static final String EXCEPTION = "exception";
+  public static final String NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID = "No response received within timeout for correlation ID ";
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
@@ -433,10 +435,13 @@ public class RestUtils {
             .block();
   }
 
-  public List<GradGrade> getGradGradeList() {
+  public List<GradGrade> getGradGradeList(boolean activeOnly) {
     if (this.gradGradeMap.isEmpty()) {
       log.info("Grad Grade map is empty reloading them");
       this.populateGradGradesMap();
+    }
+    if(activeOnly){
+      return this.gradGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
     }
     return this.gradGradeMap.values().stream().toList();
   }
@@ -518,16 +523,6 @@ public class RestUtils {
             .bodyToFlux(FacilityTypeCode.class)
             .collectList()
             .block();
-  }
-
-  private School getSchoolDetails(UUID schoolID) {
-    log.debug("Retrieving school by ID: {}", schoolID);
-    return this.webClient.get()
-            .uri(this.props.getInstituteApiURL() + "/school/" + schoolID)
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(School.class)
-            .blockFirst();
   }
 
   public void populateDistrictMap() {
@@ -705,7 +700,7 @@ public class RestUtils {
         log.info("Success fetching GradStudentRecord for Student ID {}", studentID);
         return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
-        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
     } catch (EntityNotFoundException ex) {
@@ -736,7 +731,7 @@ public class RestUtils {
               .get();
 
       if (responseMessage == null) {
-        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
       byte[] responseData = responseMessage.getData();
@@ -776,7 +771,7 @@ public class RestUtils {
               .get();
 
       if (responseMessage == null) {
-        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
       byte[] responseData = responseMessage.getData();

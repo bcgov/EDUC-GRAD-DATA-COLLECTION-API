@@ -106,9 +106,5 @@ public class BaseRulesService {
             return null;
         }
     }
-
-    public List<GradGrade> getActiveGradGrades() {
-        return restUtils.getGradGrades().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
-    }
 }
 

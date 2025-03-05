@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
@@ -28,10 +29,10 @@ import java.util.Objects;
 @Order(1100)
 public class V111DemographicStudentGrade implements DemographicValidationBaseRule {
 
-    private final BaseRulesService baseRulesService;
+    private final RestUtils restUtils;
 
-    public V111DemographicStudentGrade(BaseRulesService baseRulesService) {
-        this.baseRulesService = baseRulesService;
+    public V111DemographicStudentGrade(RestUtils restUtils) {
+        this.restUtils = restUtils;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class V111DemographicStudentGrade implements DemographicValidationBaseRul
         log.debug("In executeValidation of StudentGrade-V111 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var activeGradGrades = baseRulesService.getActiveGradGrades();
+        var activeGradGrades = restUtils.getGradGradeList(true);
         var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
 
         if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N") ) {

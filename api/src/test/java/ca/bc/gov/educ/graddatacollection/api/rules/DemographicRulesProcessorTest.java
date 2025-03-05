@@ -62,7 +62,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new CitizenshipCode("", "Blank", "Valid for Blank Citizenship", 3, "2020-01-01", "2099-12-31")
                 )
         );
-        when(restUtils.getGradGradeList()).thenReturn(
+        when(restUtils.getGradGradeList(false)).thenReturn(
                 List.of(
                         new GradGrade("KH", "KH", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "N", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new GradGrade("01", "01", "", 1, "2020-01-01T00:00:00", null, "Y", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
