@@ -61,7 +61,7 @@ public class V221FinalPercentage implements CourseValidationBaseRule {
                 YearMonth cutoffDate = YearMonth.of(1994, 9);
 
                 if (courseSession.isAfter(cutoffDate)) {
-                    List<LetterGrade> letterGradeList = restUtils.getLetterGrades();
+                    List<LetterGrade> letterGradeList = restUtils.getLetterGradeList();
 
                     int finalPercentage = Integer.parseInt(student.getFinalPercentage());
                     Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getFinalGrade())).findFirst();

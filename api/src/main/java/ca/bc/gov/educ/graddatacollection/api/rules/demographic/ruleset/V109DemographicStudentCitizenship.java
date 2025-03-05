@@ -53,7 +53,7 @@ public class V109DemographicStudentCitizenship implements DemographicValidationB
         log.debug("In executeValidation of StudentCitizenship-v109 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        List<CitizenshipCode> citizenshipCodes = restUtils.getScholarshipsCitizenshipCodes();
+        List<CitizenshipCode> citizenshipCodes = restUtils.getScholarshipsCitizenshipCodeList();
 
         if (StringUtils.isNotBlank(student.getCitizenship()) && citizenshipCodes.stream().noneMatch(code -> Objects.equals(code.getCitizenshipCode(), student.getCitizenship()))) {
             log.debug("StudentCitizenship-v109: Invalid citizenship code - must be C, O or blank for demographicStudentID :: {}", student.getDemographicStudentID());

@@ -59,8 +59,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
         log.debug("In executeValidation of ProgramCode15-V114 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        List<CareerProgramCode> careerProgramCodes = restUtils.getCareerPrograms();
-        List<OptionalProgramCode> optionalProgramCodes = restUtils.getOptionalPrograms();
+        List<CareerProgramCode> careerProgramCodes = restUtils.getCareerProgramCodeList();
+        List<OptionalProgramCode> optionalProgramCodes = restUtils.getOptionalProgramCodeList();
 
         Set<String> careerProgramCodeSet = new HashSet<>();
         Set<String> optionalProgramCodeSet = new HashSet<>();

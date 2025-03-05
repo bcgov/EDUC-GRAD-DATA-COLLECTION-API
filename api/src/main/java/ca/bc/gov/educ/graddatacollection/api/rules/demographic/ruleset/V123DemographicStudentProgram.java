@@ -60,7 +60,7 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodes();
+        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList();
         String studentProgram = student.getGradRequirementYear();
 
         if (gradStudent != null && StringUtils.isNotEmpty(studentProgram)) {

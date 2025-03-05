@@ -38,6 +38,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +56,7 @@ public class RestUtils {
   public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   private static final String CONTENT_TYPE = "Content-Type";
   private static final String EXCEPTION = "exception";
-  private final Map<String, IndependentAuthority> authorityMap = new ConcurrentHashMap<>();
+  public static final String NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID = "No response received within timeout for correlation ID ";
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
@@ -76,7 +77,6 @@ public class RestUtils {
   private final ReadWriteLock facilityTypesLock = new ReentrantReadWriteLock();
   private final ReadWriteLock scholarshipsCitizenshipLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolCategoriesLock = new ReentrantReadWriteLock();
-  private final ReadWriteLock authorityLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock assessmentSessionLock = new ReentrantReadWriteLock();
@@ -117,7 +117,6 @@ public class RestUtils {
     this.populateSchoolMap();
     this.populateSchoolMincodeMap();
     this.populateDistrictMap();
-    this.populateAuthorityMap();
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
     this.populateGradGradesMap();
@@ -147,21 +146,6 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} citizenship codes to memory", this.scholarshipsCitizenshipCodesMap.values().size());
-  }
-
-  public void populateAuthorityMap() {
-    val writeLock = this.authorityLock.writeLock();
-    try {
-      writeLock.lock();
-      for (val authority : this.getAuthorities()) {
-        this.authorityMap.put(authority.getIndependentAuthorityId(), authority);
-      }
-    } catch (Exception ex) {
-      log.error("Unable to load map cache authorities {}", ex);
-    } finally {
-      writeLock.unlock();
-    }
-    log.info("Loaded  {} authorities to memory", this.authorityMap.values().size());
   }
 
   public void populateSchoolCategoryCodesMap() {
@@ -337,7 +321,15 @@ public class RestUtils {
     log.info("Loaded  {} equivalent or challenge codes to memory", this.equivalencyChallengeCodeMap.values().size());
   }
 
-  public List<EquivalencyChallengeCode> getEquivalencyChallengeCodes() {
+  public List<EquivalencyChallengeCode> getEquivalencyChallengeCodeList() {
+    if (this.equivalencyChallengeCodeMap.isEmpty()) {
+      log.info("Equivalency Challenge map is empty reloading them");
+      this.populateEquivalencyChallengeCodeMap();
+    }
+    return this.equivalencyChallengeCodeMap.values().stream().toList();
+  }
+
+  private List<EquivalencyChallengeCode> getEquivalencyChallengeCodes() {
     log.info("Calling Grad course api to load equivalent or challenge codes to memory");
     return this.webClient.get()
             .uri(this.props.getGradCourseApiURL() + "/equivalentOrChallengeCodes")
@@ -348,7 +340,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<ProgramRequirementCode> getProgramRequirementCodes() {
+  public List<ProgramRequirementCode> getProgramRequirementCodeList() {
+    if (this.programRequirementCodeMap.isEmpty()) {
+      log.info("Program Requirement Code map is empty reloading them");
+      this.populateProgramRequirementCodesMap();
+    }
+    return this.programRequirementCodeMap.values().stream().toList();
+  }
+
+  private List<ProgramRequirementCode> getProgramRequirementCodes() {
     log.info("Calling Grad api to load program requirement codes to memory");
     return this.webClient.get()
             .uri(this.props.getGradProgramApiURL() + "/programrequirementcode")
@@ -359,7 +359,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<GraduationProgramCode> getGraduationProgramCodes() {
+  public List<GraduationProgramCode> getGraduationProgramCodeList() {
+    if (this.gradProgramCodeMap.isEmpty()) {
+      log.info("Graduation Program Code map is empty reloading them");
+      this.populateGradProgramCodesMap();
+    }
+    return this.gradProgramCodeMap.values().stream().toList();
+  }
+
+  private List<GraduationProgramCode> getGraduationProgramCodes() {
     log.info("Calling Grad api to load graduation program codes to memory");
     return this.webClient.get()
             .uri(this.props.getGradProgramApiURL() + "/programs")
@@ -370,7 +378,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<CitizenshipCode> getScholarshipsCitizenshipCodes() {
+  public List<CitizenshipCode> getScholarshipsCitizenshipCodeList() {
+    if (this.scholarshipsCitizenshipCodesMap.isEmpty()) {
+      log.info("Citizenship Code map is empty reloading them");
+      this.populateCitizenshipCodesMap();
+    }
+    return this.scholarshipsCitizenshipCodesMap.values().stream().toList();
+  }
+
+  private List<CitizenshipCode> getScholarshipsCitizenshipCodes() {
     log.info("Calling Scholarships api to load citizenship codes to memory");
     return this.webClient.get()
             .uri(this.props.getScholarshipsApiURL() + "/citizenship-codes")
@@ -381,7 +397,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<CareerProgramCode> getCareerPrograms() {
+  public List<CareerProgramCode> getCareerProgramCodeList() {
+    if (this.careerProgramCodesMap.isEmpty()) {
+      log.info("Career Program Code map is empty reloading them");
+      this.populateCareerProgramsMap();
+    }
+    return this.careerProgramCodesMap.values().stream().toList();
+  }
+
+  private List<CareerProgramCode> getCareerPrograms() {
     log.info("Calling Grad api to load career programs to memory");
     return this.webClient.get()
             .uri(this.props.getGradProgramApiURL() + "/careerprogram")
@@ -392,7 +416,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<OptionalProgramCode> getOptionalPrograms() {
+  public List<OptionalProgramCode> getOptionalProgramCodeList() {
+    if (this.optionalProgramCodesMap.isEmpty()) {
+      log.info("Optional Program Code map is empty reloading them");
+      this.populateOptionalProgramsMap();
+    }
+    return this.optionalProgramCodesMap.values().stream().toList();
+  }
+
+  private List<OptionalProgramCode> getOptionalPrograms() {
     log.info("Calling Grad api to load optional programs to memory");
     return this.webClient.get()
             .uri(this.props.getGradProgramApiURL() + "/optionalprograms")
@@ -403,7 +435,18 @@ public class RestUtils {
             .block();
   }
 
-  public List<GradGrade> getGradGrades() {
+  public List<GradGrade> getGradGradeList(boolean activeOnly) {
+    if (this.gradGradeMap.isEmpty()) {
+      log.info("Grad Grade map is empty reloading them");
+      this.populateGradGradesMap();
+    }
+    if(activeOnly){
+      return this.gradGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
+    }
+    return this.gradGradeMap.values().stream().toList();
+  }
+
+  private List<GradGrade> getGradGrades() {
     log.info("Calling Grad api to load grades to memory");
     return this.webClient.get()
             .uri(this.props.getGradStudentApiURL() + "/grade-codes")
@@ -414,7 +457,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<LetterGrade> getLetterGrades() {
+  public List<LetterGrade> getLetterGradeList() {
+    if (this.letterGradeMap.isEmpty()) {
+      log.info("Letter Grade map is empty reloading them");
+      this.populateLetterGradeMap();
+    }
+    return this.letterGradeMap.values().stream().toList();
+  }
+
+  private List<LetterGrade> getLetterGrades() {
     log.info("Calling Grad student graduation api to load grades to memory");
     return this.webClient.get()
             .uri(this.props.getGradStudentGraduationApiURL() + "/lettergrade")
@@ -425,7 +476,7 @@ public class RestUtils {
             .block();
   }
 
-  public List<SchoolTombstone> getSchools() {
+  private List<SchoolTombstone> getSchools() {
     log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/school")
@@ -436,18 +487,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<IndependentAuthority> getAuthorities() {
-    log.info("Calling Institute api to load authority to memory");
-    return this.webClient.get()
-            .uri(this.props.getInstituteApiURL() + "/authority")
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(IndependentAuthority.class)
-            .collectList()
-            .block();
+  public List<SchoolCategoryCode> getSchoolCategoryCodeList() {
+    if (this.schoolCategoryCodesMap.isEmpty()) {
+      log.info("School Category Code map is empty reloading them");
+      this.populateSchoolCategoryCodesMap();
+    }
+    return this.schoolCategoryCodesMap.values().stream().toList();
   }
 
-  public List<SchoolCategoryCode> getSchoolCategoryCodes() {
+  private List<SchoolCategoryCode> getSchoolCategoryCodes() {
     log.info("Calling Institute api to load school categories to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/category-codes")
@@ -458,7 +506,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<FacilityTypeCode> getFacilityTypeCodes() {
+  public List<FacilityTypeCode> getFacilityTypeCodeList() {
+    if (this.facilityTypeCodesMap.isEmpty()) {
+      log.info("Facility Type Code map is empty reloading them");
+      this.populateFacilityTypeCodesMap();
+    }
+    return this.facilityTypeCodesMap.values().stream().toList();
+  }
+
+  private List<FacilityTypeCode> getFacilityTypeCodes() {
     log.info("Calling Institute api to load facility type codes to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/facility-codes")
@@ -467,16 +523,6 @@ public class RestUtils {
             .bodyToFlux(FacilityTypeCode.class)
             .collectList()
             .block();
-  }
-
-  public School getSchoolDetails(UUID schoolID) {
-    log.debug("Retrieving school by ID: {}", schoolID);
-    return this.webClient.get()
-            .uri(this.props.getInstituteApiURL() + "/school/" + schoolID)
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(School.class)
-            .blockFirst();
   }
 
   public void populateDistrictMap() {
@@ -494,7 +540,7 @@ public class RestUtils {
     log.info("Loaded  {} districts to memory", this.districtMap.values().size());
   }
 
-  public List<District> getDistricts() {
+  private List<District> getDistricts() {
     log.info("Calling Institute api to load districts to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/district")
@@ -527,14 +573,6 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.schoolMap.get(schoolID));
-  }
-
-  public Optional<IndependentAuthority> getAuthorityByAuthorityID(final String authorityID) {
-    if (this.authorityMap.isEmpty()) {
-      log.info("Authority map is empty reloading authorities");
-      this.populateAuthorityMap();
-    }
-    return Optional.ofNullable(this.authorityMap.get(authorityID));
   }
 
   public Optional<SchoolTombstone> getSchoolByMincode(final String mincode) {
@@ -662,7 +700,7 @@ public class RestUtils {
         log.info("Success fetching GradStudentRecord for Student ID {}", studentID);
         return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
-        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
     } catch (EntityNotFoundException ex) {
@@ -693,7 +731,7 @@ public class RestUtils {
               .get();
 
       if (responseMessage == null) {
-        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
       byte[] responseData = responseMessage.getData();
@@ -733,7 +771,7 @@ public class RestUtils {
               .get();
 
       if (responseMessage == null) {
-        throw new GradDataCollectionAPIRuntimeException("No response received within timeout for correlation ID " + correlationID);
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
       byte[] responseData = responseMessage.getData();
