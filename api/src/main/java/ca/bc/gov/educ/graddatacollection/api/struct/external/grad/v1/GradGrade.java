@@ -37,7 +37,6 @@ public class GradGrade implements Serializable {
     @NotNull(message = "effectiveDate cannot be null.")
     private String effectiveDate;
 
-    @NotNull(message = "expiryDate cannot be null.")
     private String expiryDate;
 
     private String expected;

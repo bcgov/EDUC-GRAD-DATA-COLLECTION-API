@@ -64,6 +64,9 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
         when(restUtils.getGradGrades()).thenReturn(
                 List.of(
+                        new GradGrade("KH", "KH", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "N", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("01", "01", "", 1, "2020-01-01T00:00:00", null, "Y", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new GradGrade("02", "02", "", 1, "2020-01-01T00:00:00", "2019-12-31T23:59:59", "N", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new GradGrade("08", "Grade 8", "", 1, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "8", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new GradGrade("09", "Grade 9", "", 2, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "9", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new GradGrade("10", "Grade 10", "", 3, "2020-01-01T00:00:00", "2099-12-31T23:59:59", "10", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
@@ -480,6 +483,18 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRADE.getCode());
         assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode());
+
+        var demographicStudent3 = createMockDemographicStudent(savedFileSet);
+        demographicStudent3.setGrade("01");
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError4.size()).isZero();
+
+        var demographicStudent4 = createMockDemographicStudent(savedFileSet);
+        demographicStudent4.setGrade("02");
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError5.size()).isNotZero();
+        assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRADE.getCode());
+        assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode());
     }
 
     @Test
@@ -496,7 +511,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudent.setGrade("07");
+        demographicStudent.setGrade("KH");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRADE.getCode());
