@@ -24,13 +24,14 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StudentRuleData {
-  private static final long serialVersionUID = -2329245910142215178L;
   private AssessmentStudentEntity assessmentStudentEntity;
   private CourseStudentEntity courseStudentEntity;
   private DemographicStudentEntity demographicStudentEntity;
   private SchoolTombstone school;
   private Student studentApiStudent;
+  private Boolean studentApiStudentFetched = false;
   private GradStudentRecord gradStudentRecord;
+  private Boolean gradStudentRecordFetched = false;
   private AssessmentStudentDetailResponse assessmentStudentDetail;
   private Map<String, CoregCoursesRecord> coregCoursesRecordMap;
   private List<GradStudentCourseRecord> gradStudentCourseRecordList;

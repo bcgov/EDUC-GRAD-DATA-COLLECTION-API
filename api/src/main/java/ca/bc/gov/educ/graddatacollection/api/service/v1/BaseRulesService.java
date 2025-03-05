@@ -3,7 +3,6 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +23,7 @@ public class BaseRulesService {
     protected final RestUtils restUtils;
 
     public Student getStudentApiStudent(StudentRuleData studentRuleData, String pen) {
-        if (studentRuleData.getStudentApiStudent() != null) {
+        if (Boolean.TRUE.equals(studentRuleData.getStudentApiStudentFetched())) {
             return studentRuleData.getStudentApiStudent();
         }
 
@@ -33,16 +31,16 @@ public class BaseRulesService {
         try {
             Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), pen);
             studentRuleData.setStudentApiStudent(studentApiStudent);
-            return studentApiStudent;
         } catch (EntityNotFoundException e) {
             log.warn("No StudentApiStudent found for PEN: {}", pen);
             studentRuleData.setStudentApiStudent(null);
-            return null;
         }
+        studentRuleData.setStudentApiStudentFetched(true);
+        return studentRuleData.getStudentApiStudent();
     }
 
     public GradStudentRecord getGradStudentRecord(StudentRuleData studentRuleData, String pen){
-        if (studentRuleData.getGradStudentRecord() != null) {
+        if (Boolean.TRUE.equals(studentRuleData.getGradStudentRecordFetched())) {
             return studentRuleData.getGradStudentRecord();
         }
 
@@ -53,6 +51,7 @@ public class BaseRulesService {
         if (studentRuleData.getStudentApiStudent() == null) {
             log.warn("No GradStudentRecord found for null studentApiStudent Record");
             studentRuleData.setGradStudentRecord(null);
+            studentRuleData.setGradStudentRecordFetched(true);
             return null;
         }
 
@@ -62,12 +61,12 @@ public class BaseRulesService {
         try {
             GradStudentRecord gradStudent = restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), studentUUID);
             studentRuleData.setGradStudentRecord(gradStudent);
-            return gradStudent;
         } catch (EntityNotFoundException e) {
             log.warn("No GradStudentRecord found for student ID: {}", studentUUID);
             studentRuleData.setGradStudentRecord(null);
-            return null;
         }
+        studentRuleData.setGradStudentRecordFetched(true);
+        return studentRuleData.getGradStudentRecord();
     }
 
     public CoregCoursesRecord getCoregCoursesRecord(StudentRuleData studentRuleData, String externalID) {
