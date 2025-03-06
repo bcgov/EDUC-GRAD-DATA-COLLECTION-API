@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
@@ -27,9 +28,11 @@ import java.util.List;
 public class V101DemographicStudentLocalID implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
+    private final ApplicationProperties props;
 
-    public V101DemographicStudentLocalID(DemographicRulesService demographicRulesService) {
+    public V101DemographicStudentLocalID(DemographicRulesService demographicRulesService, ApplicationProperties props) {
         this.demographicRulesService = demographicRulesService;
+        this.props = props;
     }
 
     @Override
@@ -50,14 +53,15 @@ public class V101DemographicStudentLocalID implements DemographicValidationBaseR
         var demStudent = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of studentLocalD-v101 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-
+        var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (student == null ||
             (StringUtils.isNotBlank(student.getLocalID()) &&
             !student.getLocalID().equalsIgnoreCase(demStudent.getLocalID()))) {
             log.debug("studentLocalD-v101: Warning: The submitted STUDENT LOCAL ID does not match the ministry database. If the submitted STUDENT LOCAL ID is correct, submit PEN update request through Secure Messaging Inbox in EDX. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.LOCAL_ID, DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH.getMessage()));
+            String message = "The submitted STUDENT LOCAL ID does not match the Ministry PEN system. If the submitted data is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.LOCAL_ID, DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH, message));
         }
         return errors;
     }
