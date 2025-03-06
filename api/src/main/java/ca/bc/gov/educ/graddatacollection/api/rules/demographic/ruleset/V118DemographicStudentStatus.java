@@ -56,15 +56,15 @@ public class V118DemographicStudentStatus implements DemographicValidationBaseRu
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
-        var demStudentStatus = demStudent.getStudentStatus();
-        var ministryStudentStatus = student.getStatusCode();
         if (student != null &&
-            !(
-                    demStudentStatus.equalsIgnoreCase(ministryStudentStatus) ||
-                ("A".equalsIgnoreCase(ministryStudentStatus) && "T".equalsIgnoreCase(demStudentStatus))
+                !(
+                        demStudent.getStudentStatus().equalsIgnoreCase(student.getStatusCode()) ||
+                                ("A".equalsIgnoreCase(student.getStatusCode()) && "T".equalsIgnoreCase(demStudent.getStudentStatus()))
             )
         ) {
             log.debug("StudentStatus-V118: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
+            var demStudentStatus = demStudent.getStudentStatus();
+            var ministryStudentStatus = student.getStatusCode();
             String message = "STUDENT STATUS mismatch. School submitted: " + StringEscapeUtils.escapeHtml4(demStudentStatus) + " and the Ministry PEN system has: " + ministryStudentStatus + ". If the submitted STUDENT STATUS is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
         }
