@@ -11,6 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -60,7 +61,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
 
         if (RuleUtil.validateStudentRecordExists(student)) {
             if (!RuleUtil.validateStudentSurnameMatches(demStudent, student)) {
-                String schoolSurname = demStudent.getLastName();
+                String schoolSurname =  StringEscapeUtils.escapeHtml4(demStudent.getLastName());
                 String ministrySurname = student.getLegalLastName();
                 String message = StringUtils.isBlank(schoolSurname)
                         ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>"
@@ -69,7 +70,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
-                String schoolMiddleName = demStudent.getMiddleName();
+                String schoolMiddleName = StringEscapeUtils.escapeHtml4(demStudent.getMiddleName());
                 String ministryMiddleNames = student.getLegalMiddleNames();
                 String message;
                 if (StringUtils.isBlank(schoolMiddleName)) {
@@ -86,7 +87,7 @@ public class V105DemographicStudentName implements DemographicValidationBaseRule
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
-                String schoolGiven = demStudent.getFirstName();
+                String schoolGiven = StringEscapeUtils.escapeHtml4(demStudent.getFirstName());
                 String ministryGiven = student.getLegalFirstName();
                 String message;
                 if (StringUtils.isBlank(schoolGiven)) {
