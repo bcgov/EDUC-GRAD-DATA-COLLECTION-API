@@ -62,14 +62,15 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
 
-        when(restUtils.getLetterGradeList()).thenReturn(
+        when(restUtils.getLetterGradeList(true)).thenReturn(
                 List.of(
                         new LetterGrade("A", "4", "Y", "The student demonstrates excellent or outstanding performance in relation to expected learning outcomes for the course or subject and grade.", "A", 100, 86, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("B", "3", "Y", "", "B", 85, 73, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("C+", "2.5", "Y", "", "C+", 72, 67, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("F", "0", "N", "", "F", 49, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("IE", "0", "N", "", "Insufficient Evidence", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
-                        new LetterGrade("RM", "0", "Y", "", "Requirement Met", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+                        new LetterGrade("RM", "0", "Y", "", "Requirement Met", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("W", "0", "N", "", "Withdraw", 0, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
         when(restUtils.getEquivalencyChallengeCodeList()).thenReturn(
@@ -713,7 +714,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         // Case 6: Boundary case - last month of next school year
         courseStudent.setCourseYear(String.valueOf(nextSchoolYearEnd.getYear()));
         courseStudent.setCourseMonth("09");
-        courseStudent.setFinalGrade("");
+        courseStudent.setFinalLetterGrade("");
         val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError6.size()).isZero();
 
@@ -905,12 +906,12 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseYear(String.valueOf(validFutureCourseSession.getYear()));
         courseStudent.setCourseMonth(String.format("%02d", validFutureCourseSession.getMonthValue()));
 
-        courseStudent.setFinalGrade("");
+        courseStudent.setFinalLetterGrade("");
         courseStudent.setFinalPercentage("");
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        courseStudent.setFinalGrade("A");
+        courseStudent.setFinalLetterGrade("A");
         courseStudent.setFinalPercentage("90");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
@@ -1022,10 +1023,10 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        courseStudent.setFinalGrade("ABCD");
+        courseStudent.setFinalLetterGrade("ABCD");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_GRADE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getCode());
     }
 
@@ -1079,7 +1080,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         stud1.setPen(demStudent.getPen());
         when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
-        courseStudent.setFinalGrade("RM");
+        courseStudent.setFinalLetterGrade("RM");
         courseStudent.setCourseCode("GT");
         courseStudent.setFinalPercentage("0");
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
@@ -1088,7 +1089,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseCode("ABC");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_GRADE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM.getCode());
     }
 
@@ -1112,17 +1113,17 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         stud1.setPen(demStudent.getPen());
         when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
-        courseStudent.setFinalGrade("RM");
+        courseStudent.setFinalLetterGrade("RM");
         courseStudent.setCourseCode("GT");
         courseStudent.setFinalPercentage("0");
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        courseStudent.setFinalGrade("A");
+        courseStudent.setFinalLetterGrade("A");
         courseStudent.setFinalPercentage("90");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_GRADE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_RM.getCode());
     }
 
@@ -1149,7 +1150,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        courseStudent.setFinalGrade("");
+        courseStudent.setFinalLetterGrade("");
         courseStudent.setFinalPercentage("");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
@@ -1181,11 +1182,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        courseStudent.setFinalGrade("IE");
+        courseStudent.setFinalLetterGrade("IE");
         courseStudent.setFinalPercentage("0");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_GRADE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE.getCode());
     }
 
@@ -1931,5 +1932,168 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_YEAR.getCode());
         assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getCode());
+    }
+
+    @Test
+    void testV238FinalLetterGrade() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "15", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
+                                )
+                        )
+                )
+        );
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecordId(UUID.randomUUID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setGraduated("true");
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+
+        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setFinalLetterGrade("W");
+        courseStudent.setFinalPercentage("0");
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION.getCode());
+    }
+
+    @Test
+    void testV239CourseStatusSession() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "15", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
+                                )
+                        )
+                )
+        );
+
+        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseYear("2022");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseStatus("W");
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_WRONG_SESSION.getCode());
+    }
+
+    @Test
+    void testV240FinalLetterSession() {
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob(demStudent.getBirthdate());
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError1.size()).isZero();
+
+        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "15", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                new GradCourseRecord(
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
+                                )
+                        )
+                )
+        );
+
+        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseYear("2022");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setFinalLetterGrade("W");
+        courseStudent.setFinalPercentage("0");
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_WRONG_SESSION.getCode());
     }
 }

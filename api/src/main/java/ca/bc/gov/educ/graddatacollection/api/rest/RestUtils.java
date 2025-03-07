@@ -457,10 +457,13 @@ public class RestUtils {
             .block();
   }
 
-  public List<LetterGrade> getLetterGradeList() {
+  public List<LetterGrade> getLetterGradeList(boolean activeOnly) {
     if (this.letterGradeMap.isEmpty()) {
       log.info("Letter Grade map is empty reloading them");
       this.populateLetterGradeMap();
+    }
+    if(activeOnly){
+      return this.letterGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
     }
     return this.letterGradeMap.values().stream().toList();
   }

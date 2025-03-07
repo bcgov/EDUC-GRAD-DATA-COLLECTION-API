@@ -165,7 +165,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .courseType("E")
             .courseDescription("COMP")
             .courseGraduationRequirement(null)
-            .finalGrade("A")
+            .finalLetterGrade("A")
             .finalPercentage("92")
             .numberOfCredits("3")
             .interimPercentage("70")
