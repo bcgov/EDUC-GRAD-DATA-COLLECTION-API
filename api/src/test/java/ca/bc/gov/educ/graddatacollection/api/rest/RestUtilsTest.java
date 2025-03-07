@@ -383,13 +383,13 @@ class RestUtilsTest {
                 new LetterGrade("B", "3", "Y", "", "B", 85, 73, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
         );
 
-        doReturn(mockLetterGrades).when(restUtils).getLetterGradeList();
+        doReturn(mockLetterGrades).when(restUtils).getLetterGradeList(true);
 
         restUtils.populateLetterGradeMap();
 
-        assertEquals(2, restUtils.getLetterGradeList().size());
-        assertEquals("4", restUtils.getLetterGradeList().getFirst().getGpaMarkValue());
-        assertEquals("3", restUtils.getLetterGradeList().getLast().getGpaMarkValue());
+        assertEquals(2, restUtils.getLetterGradeList(true).size());
+        assertEquals("4", restUtils.getLetterGradeList(true).getFirst().getGpaMarkValue());
+        assertEquals("3", restUtils.getLetterGradeList(true).getLast().getGpaMarkValue());
     }
 
     @Test

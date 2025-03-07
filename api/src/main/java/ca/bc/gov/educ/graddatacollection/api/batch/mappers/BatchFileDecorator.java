@@ -97,7 +97,7 @@ public abstract class BatchFileDecorator implements BatchFileMapper {
         entity.setInterimPercentage(StringMapper.trimAndUppercase(courseDetails.getInterimPercentage()));
         entity.setFinalPercentage(StringMapper.trimAndUppercase(courseDetails.getFinalPercentage()));
 
-        entity.setFinalGrade(StringMapper.trimAndUppercase(courseDetails.getFinalLetterGrade()));
+        entity.setFinalLetterGrade(StringMapper.trimAndUppercase(courseDetails.getFinalLetterGrade()));
         entity.setCourseStatus(StringMapper.trimAndUppercase(courseDetails.getCourseStatus()));
         entity.setLastName(StringMapper.trimAndUppercase(courseDetails.getLegalSurname()));
         entity.setRelatedCourse(StringMapper.trimAndUppercase(courseDetails.getRelatedCourse()));

@@ -54,7 +54,7 @@ public class V215InterimGrade implements CourseValidationBaseRule {
         log.debug("In executeValidation of V215 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList();
+        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(true);
 
         if (letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getInterimGrade()))) {
             log.debug("V215: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());

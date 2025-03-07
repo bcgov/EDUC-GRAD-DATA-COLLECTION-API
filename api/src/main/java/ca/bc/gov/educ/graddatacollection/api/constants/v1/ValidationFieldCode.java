@@ -24,14 +24,8 @@ public enum ValidationFieldCode {
   COURSE_SESSION("COURSE_SESSION", "Course Session"),
   COURSE_MONTH("COURSE_MONTH", "Course Month"),
   COURSE_YEAR("COURSE_YEAR", "Course Year"),
-  INTERIM_LETTER_GRADE_PERCENTAGE("INTERIM_LETTER_GRADE_PERCENTAGE", "Interim Letter Grade Percentage"),
-  FINAL_LETTER_GRADE_PERCENTAGE("FINAL_LETTER_GRADE_PERCENTAGE", "Final Letter Grade Percentage"),
-  EQUIVALENCY_CHALLENGE("EQUIVALENCY_CHALLENGE", "Equivalency Challenge"),
-  GRADUATION_REQUIREMENT("GRADUATION_REQUIREMENT", "Graduation Requirement"),
   LOCAL_ID("LOCAL_ID", "Local ID"),
-  IS_ELECTRONIC_EXAM("IS_ELECTRONIC_EXAM", "Electronic Exam"),
   LAST_NAME("LAST_NAME", "Last Name"),
-  INTERIM_PERCENT("INTERIM_PERCENT", "Interim Percent"),
   INTERIM_PERCENTAGE("INTERIM_PERCENTAGE", "Interim Percentage"),
   INTERIM_GRADE("INTERIM_GRADE", "Interim Grade"),
   FINAL_PERCENTAGE("FINAL_PERCENTAGE", "Final Percentage"),
@@ -50,7 +44,6 @@ public enum ValidationFieldCode {
   COUNTRY_CODE("COUNTRY_CODE", "Country Code"),
   POSTAL_CODE("POSTAL_CODE", "Postal Code"),
   BIRTHDATE("BIRTHDATE", "Birthdate"),
-  GENDER("GENDER", "Gender"),
   CITIZENSHIP("CITIZENSHIP", "Citizenship"),
   GRADE("GRADE", "Grade"),
   PROGRAM_CODE_1("PROGRAM_CODE_1", "ProgramCode1"),
@@ -58,12 +51,9 @@ public enum ValidationFieldCode {
   PROGRAM_CODE_3("PROGRAM_CODE_3", "ProgramCode3"),
   PROGRAM_CODE_4("PROGRAM_CODE_4", "ProgramCode4"),
   PROGRAM_CODE_5("PROGRAM_CODE_5", "ProgramCode5"),
-  PROGRAM_CADRE_FLAG("PROGRAM_CADRE_FLAG", "Program Cadre Flag"),
   GRAD_REQUIREMENT_YEAR("GRAD_REQUIREMENT_YEAR", "Grad Requirement Year"),
   SCHOOL_CERTIFICATE_COMPLETION_DATE("SCHOOL_CERTIFICATE_COMPLETION_DATE", "School Certificate Completion Date"),
-  STUDENT_STATUS("STUDENT_STATUS", "Student Status")
-
-  ;
+  STUDENT_STATUS("STUDENT_STATUS", "Student Status");
   private final String code;
   private final String description;
 

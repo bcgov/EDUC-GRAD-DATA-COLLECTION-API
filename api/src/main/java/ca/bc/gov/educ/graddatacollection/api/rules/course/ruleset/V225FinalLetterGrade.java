@@ -26,7 +26,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(250)
-public class V225FinalGrade implements CourseValidationBaseRule {
+public class V225FinalLetterGrade implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
@@ -53,9 +53,9 @@ public class V225FinalGrade implements CourseValidationBaseRule {
                 YearMonth currentDate = YearMonth.now();
                 YearMonth cutoffDate = YearMonth.of(currentDate.getYear() - 1, currentDate.getMonth());
 
-                if (StringUtils.equalsIgnoreCase("IE", student.getFinalGrade()) && courseSession.isBefore(cutoffDate)) {
+                if (StringUtils.equalsIgnoreCase("IE", student.getFinalLetterGrade()) && courseSession.isBefore(cutoffDate)) {
                     log.debug("V225:Warning: Course session date is more than 12 months old. Report final mark other than IE or update course session date if the course is still in progress. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.FINAL_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE.getMessage()));
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_IE.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
                 log.debug("V225: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());

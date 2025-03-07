@@ -54,7 +54,7 @@ public class V224FinalPercentage implements CourseValidationBaseRule {
                 // refer to v218 - final percentage before 199409 must be blank
                 YearMonth cutoffDate = YearMonth.of(1994, 9);
 
-                if (courseSession.isBefore(currentDate) && (StringUtils.isBlank(student.getFinalGrade()) || (courseSession.isAfter(cutoffDate) && StringUtils.isBlank(student.getFinalPercentage())))) {
+                if (courseSession.isBefore(currentDate) && (StringUtils.isBlank(student.getFinalLetterGrade()) || (courseSession.isAfter(cutoffDate) && StringUtils.isBlank(student.getFinalPercentage())))) {
                     log.debug("V224: Error: Course session has passed with no final mark. Report final mark or change the course session date. This course will not be updated / added. for courseStudentID :: {}", student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()));
                 }

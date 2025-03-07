@@ -72,7 +72,7 @@ public class CourseStudentEntity {
   String finalPercentage;
 
   @Column(name = "FINAL_GRADE")
-  String finalGrade;
+  String finalLetterGrade;
 
   @Column(name = "COURSE_STATUS")
   String courseStatus;
@@ -129,7 +129,7 @@ public class CourseStudentEntity {
   }
 
   public int getUniqueObjectHash() {
-    return Objects.hash(incomingFileset.getSchoolID(), localID, pen, lastName, courseCode, courseLevel, courseYear, courseMonth, interimPercentage, finalPercentage, finalGrade, courseStatus, lastName, numberOfCredits,
+    return Objects.hash(incomingFileset.getSchoolID(), localID, pen, lastName, courseCode, courseLevel, courseYear, courseMonth, interimPercentage, finalPercentage, finalLetterGrade, courseStatus, lastName, numberOfCredits,
             relatedCourse, relatedLevel, courseDescription, courseType, courseGraduationRequirement);
   }
 

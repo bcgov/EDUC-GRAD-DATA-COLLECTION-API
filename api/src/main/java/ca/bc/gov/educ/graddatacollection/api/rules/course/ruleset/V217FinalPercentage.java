@@ -52,7 +52,7 @@ public class V217FinalPercentage implements CourseValidationBaseRule {
                 YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
                 YearMonth currentDate = YearMonth.now();
 
-                if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalGrade()) || StringUtils.isNotBlank(student.getFinalPercentage()))) {
+                if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalLetterGrade()) || StringUtils.isNotBlank(student.getFinalPercentage()))) {
                     log.debug("V217: Error: Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage()));
                 }
