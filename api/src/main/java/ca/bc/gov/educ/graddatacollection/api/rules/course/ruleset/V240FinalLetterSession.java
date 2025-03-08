@@ -54,11 +54,11 @@ public class V240FinalLetterSession implements CourseValidationBaseRule {
 
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
 
-        if (studentCourseRecord.stream().anyMatch(record ->
+        if (studentCourseRecord.stream().noneMatch(record ->
                         record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
                                 && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                                && !record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth())
-                && StringUtils.isNotBlank(student.getFinalLetterGrade()) && student.getFinalLetterGrade().equalsIgnoreCase("W"))) {
+                                && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()))
+                && StringUtils.isNotBlank(student.getFinalLetterGrade()) && student.getFinalLetterGrade().equalsIgnoreCase("W")) {
             log.debug("V240: Error: Final Letter Grad = W and course code and session date does not exist in GRAD for the student. :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_WRONG_SESSION, CourseStudentValidationIssueTypeCode.FINAL_LETTER_WRONG_SESSION.getMessage()));
         }
