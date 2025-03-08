@@ -39,6 +39,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -463,7 +464,7 @@ public class RestUtils {
       this.populateLetterGradeMap();
     }
     if(activeOnly){
-      return this.letterGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
+      return this.letterGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(LocalDateTime.now())).toList();
     }
     return this.letterGradeMap.values().stream().toList();
   }
