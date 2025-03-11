@@ -41,7 +41,7 @@ public enum FileError {
   /**
    * The mincode on the uploaded document does not match the collection record.
    */
-  MINCODE_MISMATCH("The uploaded file is for another school. Please upload a file for $?"),
+  MINCODE_MISMATCH("The school codes in your file do not match your school's code. Please ensure that all school codes in the file correspond to your school code."),
 
   /**
    * Invalid row length file error.
