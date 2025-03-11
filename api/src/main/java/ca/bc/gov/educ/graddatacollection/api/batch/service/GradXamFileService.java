@@ -101,7 +101,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
             entity.setDistrictID(UUID.fromString(districtID));
         }
 
-        var blankLineSet = new HashSet<>();
+        var blankLineSet = new TreeSet<>();
         for (final var student : batchFile.getAssessmentData()) {
             if(StringUtils.isBlank(student.getPen())){
                 blankLineSet.add(student.getLineNumber());
@@ -110,7 +110,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
 
         if(!blankLineSet.isEmpty()){
             String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
-            throw new FileUnProcessableException(BLANK_PEN_IN_XAM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines);
+            throw new FileUnProcessableException(BLANK_PEN_IN_XAM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines.length() == 1 ? "line" : "lines", lines);
         }
 
         for (final var student : batchFile.getAssessmentData()) { // set the object so that PK/FK relationship will be auto established by hibernate.

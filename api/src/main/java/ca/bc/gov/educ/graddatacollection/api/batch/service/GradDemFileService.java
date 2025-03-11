@@ -101,7 +101,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
             entity.setDistrictID(UUID.fromString(districtID));
         }
 
-        var blankLineSet = new HashSet<>();
+        var blankLineSet = new TreeSet<>();
         for (final var student : batchFile.getDemogData()) {
             if(StringUtils.isBlank(student.getPen())){
                 blankLineSet.add(student.getLineNumber());
@@ -110,7 +110,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
 
         if(!blankLineSet.isEmpty()){
             String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
-            throw new FileUnProcessableException(BLANK_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines);
+            throw new FileUnProcessableException(BLANK_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines.length() == 1 ? "line" : "lines", lines);
         }
 
         var listOfPENs = new HashSet<>();
@@ -127,14 +127,14 @@ public class GradDemFileService implements GradFileBatchProcessor {
         }
 
         if(StringUtils.isNotBlank(foundDupePEN)){
-            var dupePENLines = new HashSet<>();
+            var dupePENLines = new TreeSet<>();
             for (final var student : batchFile.getDemogData()) {
                 if(student.getPen().equals(foundDupePEN)){
                     dupePENLines.add(student.getLineNumber());
                 }
             }
             String lines = dupePENLines.stream().map(Object::toString).collect(Collectors.joining(","));
-            throw new FileUnProcessableException(DUPLICATE_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, foundDupePEN, lines);
+            throw new FileUnProcessableException(DUPLICATE_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, foundDupePEN, lines.length() == 1 ? "line" : "lines", lines);
         }
 
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
