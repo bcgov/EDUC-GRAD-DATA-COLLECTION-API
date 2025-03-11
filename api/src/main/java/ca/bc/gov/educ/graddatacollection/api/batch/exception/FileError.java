@@ -49,13 +49,13 @@ public enum FileError {
    */
   INVALID_ROW_LENGTH("$?"),
 
-  DUPLICATE_PEN_IN_DEM_FILE("The same PEN $? is appearing more than once in the DEM file on lines $?"),
+  DUPLICATE_PEN_IN_DEM_FILE("The same PEN $? is appearing more than once in the DEM file on $? $?"),
 
-  BLANK_PEN_IN_DEM_FILE("The PEN field is blank for one or more records in the DEM file on lines $?"),
+  BLANK_PEN_IN_DEM_FILE("The PEN field is blank for one or more records in the DEM file on $? $?"),
 
-  BLANK_PEN_IN_XAM_FILE("The PEN field is blank for one or more records in the XAM file on lines $?"),
+  BLANK_PEN_IN_XAM_FILE("The PEN field is blank for one or more records in the XAM file on $? $?"),
 
-  BLANK_PEN_IN_CRS_FILE("The PEN field is blank for one or more records in the CRS file on lines $?"),
+  BLANK_PEN_IN_CRS_FILE("The PEN field is blank for one or more records in the CRS file on $? $?"),
 
   FILE_NOT_ALLOWED("File type not allowed"),
   COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
