@@ -104,7 +104,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
         var blankLineSet = new TreeSet<>();
         for (final var student : batchFile.getAssessmentData()) {
             if(StringUtils.isBlank(student.getPen())){
-                blankLineSet.add(student.getLineNumber());
+                blankLineSet.add(Integer.parseInt(student.getLineNumber()));
             }
         }
 

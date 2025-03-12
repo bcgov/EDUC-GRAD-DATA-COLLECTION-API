@@ -108,7 +108,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         var blankLineSet = new TreeSet<>();
         for (final var student : batchFile.getCourseData()) {
             if(StringUtils.isBlank(student.getPen())){
-                blankLineSet.add(student.getLineNumber());
+                blankLineSet.add(Integer.parseInt(student.getLineNumber()));
             }
         }
 

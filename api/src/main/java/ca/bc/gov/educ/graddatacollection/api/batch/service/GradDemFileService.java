@@ -104,7 +104,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
         var blankLineSet = new TreeSet<>();
         for (final var student : batchFile.getDemogData()) {
             if(StringUtils.isBlank(student.getPen())){
-                blankLineSet.add(student.getLineNumber());
+                blankLineSet.add(Integer.parseInt(student.getLineNumber()));
             }
         }
 
@@ -130,7 +130,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
             var dupePENLines = new TreeSet<>();
             for (final var student : batchFile.getDemogData()) {
                 if(student.getPen().equals(foundDupePEN)){
-                    dupePENLines.add(student.getLineNumber());
+                    dupePENLines.add(Integer.parseInt(student.getLineNumber()));
                 }
             }
             String lines = dupePENLines.stream().map(Object::toString).collect(Collectors.joining(","));
