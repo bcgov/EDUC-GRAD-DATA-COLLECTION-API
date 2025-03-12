@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRunt
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.ErrorFilesetStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ErrorFilesetStudentSearchService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ErrorFilesetStudentService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -30,10 +32,13 @@ public class ErrorFilesetStudentController implements ErrorFilesetStudentEndpoin
 
     private final ErrorFilesetStudentSearchService errorFilesetStudentSearchService;
 
+    private final ErrorFilesetStudentService errorFilesetStudentService;
+
     private static final ErrorFilesetStudentMapper mapper = ErrorFilesetStudentMapper.mapper;
 
-    public ErrorFilesetStudentController(ErrorFilesetStudentSearchService errorFilesetStudentSearchService) {
+    public ErrorFilesetStudentController(ErrorFilesetStudentSearchService errorFilesetStudentSearchService,  ErrorFilesetStudentService errorFilesetStudentService) {
         this.errorFilesetStudentSearchService = errorFilesetStudentSearchService;
+        this.errorFilesetStudentService = errorFilesetStudentService;
     }
 
     @Override
@@ -73,5 +78,10 @@ public class ErrorFilesetStudentController implements ErrorFilesetStudentEndpoin
         } catch (JsonProcessingException e) {
             throw new GradDataCollectionAPIRuntimeException(e.getMessage());
         }
+    }
+
+    @Override
+    public ErrorFilesetStudent getErrorFilesetStudent(String pen, UUID incomingFilesetID) {
+        return mapper.toStructure(this.errorFilesetStudentService.getErrorFilesetStudent(pen, incomingFilesetID));
     }
 }

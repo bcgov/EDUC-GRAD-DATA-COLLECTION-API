@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PSQLException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,5 +50,19 @@ public class ErrorFilesetStudentService {
             }
             errorFilesetStudentRepository.save(newErrorFilesetStudent);
         }
+    }
+
+    public ErrorFilesetStudentEntity getErrorFilesetStudent(String pen, UUID incomingFilesetId) {
+        Optional<ErrorFilesetStudentEntity> optionalErrorFilesetStudentEntity;
+        String incomingFilesetIdString;
+        if (incomingFilesetId != null) {
+            incomingFilesetIdString = incomingFilesetId.toString();
+            optionalErrorFilesetStudentEntity = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetId, pen);
+        } else {
+            incomingFilesetIdString = "null";
+            optionalErrorFilesetStudentEntity = errorFilesetStudentRepository.findFirstByPenOrderByIncomingFileset_CreateDateDesc(pen);
+        }
+
+        return optionalErrorFilesetStudentEntity.orElseThrow(() -> new EntityNotFoundException(ErrorFilesetStudent.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString));
     }
 }
