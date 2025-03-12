@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RequestMapping(URL.BASE_URL_ERROR_FILESET)
@@ -26,9 +25,4 @@ public interface ErrorFilesetStudentEndpoint {
                                                                 @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                                 @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
-    @GetMapping(URL.GET_STUDENT)
-    @PreAuthorize("hasAuthority('SCOPE_READ_FILESET_STUDENT_ERROR')")
-    @Transactional(readOnly = true)
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-    ErrorFilesetStudent getErrorFilesetStudent(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetId", required = false) UUID incomingFilesetID);
 }

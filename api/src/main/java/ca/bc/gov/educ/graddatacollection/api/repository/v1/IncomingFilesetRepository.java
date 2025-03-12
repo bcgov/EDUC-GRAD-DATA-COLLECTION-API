@@ -22,12 +22,27 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
+    Optional<IncomingFilesetEntity> findFirstByFilesetStatusCodeAndDemographicStudentEntities_PenOrFilesetStatusCodeAndCourseStudentEntities_PenOrFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
+            String status1, String pen1, String status2, String pen2, String status3, String pen3);
+
+    @Query(value = """
+    SELECT DISTINCT i
+    FROM IncomingFilesetEntity i
+    LEFT JOIN FETCH i.demographicStudentEntities d
+    LEFT JOIN FETCH i.courseStudentEntities c
+    LEFT JOIN FETCH i.assessmentStudentEntities a
+    WHERE i.incomingFilesetID = :incomingFilesetId
+      AND i.filesetStatusCode = 'COMPLETED'
+      AND (d.pen = :pen OR c.pen = :pen OR a.pen = :pen)
+    """)
+    Optional<IncomingFilesetEntity> findByIncomingFilesetIDAndPen(UUID incomingFilesetId, String pen);
+
     @Query(value="""
     SELECT inFileset
     FROM IncomingFilesetEntity inFileset
     WHERE inFileset.filesetStatusCode != 'COMPLETED'
     AND inFileset.demFileName is not null
-    AND inFileset.crsFileName is not null 
+    AND inFileset.crsFileName is not null
     AND inFileset.xamFileName is not null
     AND (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
     AND (select count(cs2) from CourseStudentEntity cs2 where cs2.studentStatusCode = 'LOADED' and cs2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
@@ -40,7 +55,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     NOT IN (SELECT saga.demographicStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.demographicStudentID IS NOT NULL)
     AND dse.incomingFileset.demFileName is not null
-    AND dse.incomingFileset.crsFileName is not null 
+    AND dse.incomingFileset.crsFileName is not null
     AND dse.incomingFileset.xamFileName is not null
     AND dse.studentStatusCode = 'LOADED'
     order by dse.createDate
@@ -52,7 +67,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     NOT IN (SELECT saga.courseStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.courseStudentID IS NOT NULL)
     AND cse.incomingFileset.demFileName is not null
-    AND cse.incomingFileset.crsFileName is not null 
+    AND cse.incomingFileset.crsFileName is not null
     AND cse.incomingFileset.xamFileName is not null
     AND cse.studentStatusCode = 'LOADED'
     order by cse.createDate
@@ -64,7 +79,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     NOT IN (SELECT saga.assessmentStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.assessmentStudentID IS NOT NULL)
     AND ase.incomingFileset.demFileName is not null
-    AND ase.incomingFileset.crsFileName is not null 
+    AND ase.incomingFileset.crsFileName is not null
     AND ase.incomingFileset.xamFileName is not null
     AND ase.studentStatusCode = 'LOADED'
     order by ase.createDate

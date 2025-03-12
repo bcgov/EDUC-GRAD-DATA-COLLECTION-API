@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -10,6 +11,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -29,6 +32,21 @@ public class IncomingFilesetService {
         log.debug("Purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
         this.incomingFilesetRepository.deleteStaleWithUpdateDateBefore(oldestIncomingFilesetTimestamp);
         log.debug("Finished purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
+    }
+
+    public IncomingFilesetEntity getErrorFilesetStudent(String pen, UUID incomingFilesetId) {
+        Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity;
+        String incomingFilesetIdString;
+        if (incomingFilesetId != null) {
+            incomingFilesetIdString = incomingFilesetId.toString();
+            optionalIncomingFilesetEntity = incomingFilesetRepository.findByIncomingFilesetIDAndPen(incomingFilesetId, pen);
+        } else {
+            incomingFilesetIdString = "null";
+            optionalIncomingFilesetEntity = incomingFilesetRepository.findFirstByFilesetStatusCodeAndDemographicStudentEntities_PenOrFilesetStatusCodeAndCourseStudentEntities_PenOrFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
+                    "COMPLETED", pen, "COMPLETED", pen, "COMPLETED", pen);
+        }
+
+        return optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString));
     }
 
 }
