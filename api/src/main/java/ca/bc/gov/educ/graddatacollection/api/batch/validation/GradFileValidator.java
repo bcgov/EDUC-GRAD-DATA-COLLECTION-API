@@ -149,7 +149,7 @@ public class GradFileValidator {
         Optional<Record> firstRow = ds.getRecord();
         String mincode = firstRow.map(row -> row.getString(MINCODE)).orElse(null);
 
-        if(mincode == null){
+        if(StringUtils.isBlank(mincode)){
             throw new FileUnProcessableException(FileError.MISSING_MINCODE, guid, GradCollectionStatus.LOAD_FAIL);
         }
         ds.goTop();
