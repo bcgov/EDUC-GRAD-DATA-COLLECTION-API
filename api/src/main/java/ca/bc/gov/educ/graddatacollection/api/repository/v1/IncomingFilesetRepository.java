@@ -34,7 +34,9 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             UUID districtID3, String status3, String pen3
     );
 
-    Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndFilesetStatusCode(UUID incomingFilesetID, String filesetStatusCode);
+    Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndSchoolIDAndFilesetStatusCode(UUID incomingFilesetID, UUID schoolID, String filesetStatusCode);
+
+    Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndDistrictIDAndFilesetStatusCode(UUID incomingFilesetID, UUID districtID, String filesetStatusCode);
 
     @Query(value="""
     SELECT inFileset

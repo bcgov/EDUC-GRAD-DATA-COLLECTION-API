@@ -36,10 +36,14 @@ public class IncomingFilesetService {
     }
 
     public IncomingFilesetEntity getErrorFilesetStudent(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
-        Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity;
+        Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity = Optional.empty();
 
         if (incomingFilesetId != null) {
-            optionalIncomingFilesetEntity = incomingFilesetRepository.findIncomingFilesetEntityByIncomingFilesetIDAndFilesetStatusCode(incomingFilesetId, FilesetStatus.COMPLETED.getCode());
+            if (schoolID != null) {
+                optionalIncomingFilesetEntity = incomingFilesetRepository.findIncomingFilesetEntityByIncomingFilesetIDAndSchoolIDAndFilesetStatusCode(incomingFilesetId, schoolID, FilesetStatus.COMPLETED.getCode());
+            } else if (districtID != null) {
+                optionalIncomingFilesetEntity = incomingFilesetRepository.findIncomingFilesetEntityByIncomingFilesetIDAndDistrictIDAndFilesetStatusCode(incomingFilesetId, districtID, FilesetStatus.COMPLETED.getCode());
+            }
         } else {
             if (schoolID != null) {
                 optionalIncomingFilesetEntity = incomingFilesetRepository
@@ -53,7 +57,9 @@ public class IncomingFilesetService {
         }
 
         String incomingFilesetIdString = (incomingFilesetId != null) ? incomingFilesetId.toString() : "null";
-        return optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString)
+        String incomingSchoolIdString = (schoolID != null) ? schoolID.toString() : "null";
+        String incomingDistrictIdString = (districtID != null) ? districtID.toString() : "null";
+        return optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString, "incomingSchoolId: ", incomingSchoolIdString,  "incomingDistrictId: ", incomingDistrictIdString)
         );
     }
 }
