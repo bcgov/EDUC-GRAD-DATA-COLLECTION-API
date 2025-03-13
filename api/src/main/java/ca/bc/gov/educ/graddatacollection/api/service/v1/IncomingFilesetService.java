@@ -34,19 +34,25 @@ public class IncomingFilesetService {
         log.debug("Finished purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
     }
 
-    public IncomingFilesetEntity getErrorFilesetStudent(String pen, UUID incomingFilesetId) {
+    public IncomingFilesetEntity getErrorFilesetStudent(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
         Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity;
-        String incomingFilesetIdString;
+
         if (incomingFilesetId != null) {
-            incomingFilesetIdString = incomingFilesetId.toString();
             optionalIncomingFilesetEntity = incomingFilesetRepository.findByIncomingFilesetIDAndPen(incomingFilesetId, pen);
         } else {
-            incomingFilesetIdString = "null";
-            optionalIncomingFilesetEntity = incomingFilesetRepository.findFirstByFilesetStatusCodeAndDemographicStudentEntities_PenOrFilesetStatusCodeAndCourseStudentEntities_PenOrFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
-                    "COMPLETED", pen, "COMPLETED", pen, "COMPLETED", pen);
+            if (schoolID != null) {
+                optionalIncomingFilesetEntity = incomingFilesetRepository
+                        .findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(schoolID, "COMPLETED", pen, schoolID,"COMPLETED", pen, schoolID,"COMPLETED", pen);
+            } else if (districtID != null) {
+                optionalIncomingFilesetEntity = incomingFilesetRepository
+                        .findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(districtID, "COMPLETED", pen, districtID, "COMPLETED", pen, districtID, "COMPLETED", pen);
+            } else {
+                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+            }
         }
 
-        return optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString));
+        String incomingFilesetIdString = (incomingFilesetId != null) ? incomingFilesetId.toString() : "null";
+        return optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString)
+        );
     }
-
 }

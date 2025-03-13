@@ -49,9 +49,9 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     }
 
     @Override
-    public IncomingFileset getIncomingFileset(String pen, UUID incomingFilesetID) {
-        IncomingFilesetEntity incomingFilesetEntity = this.incomingFilesetService.getErrorFilesetStudent(pen, incomingFilesetID);
-        log.info("getIncomingFileset: ={}", incomingFilesetEntity);
+    public IncomingFileset getIncomingFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
+        IncomingFilesetEntity incomingFilesetEntity = this.incomingFilesetService.getErrorFilesetStudent(pen, incomingFilesetID, schoolID, districtID);
+        log.debug("getIncomingFileset: ={}", incomingFilesetEntity);
         return mapper.toStructure(incomingFilesetEntity);
     }
 }

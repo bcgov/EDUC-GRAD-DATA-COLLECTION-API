@@ -22,19 +22,29 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
-    Optional<IncomingFilesetEntity> findFirstByFilesetStatusCodeAndDemographicStudentEntities_PenOrFilesetStatusCodeAndCourseStudentEntities_PenOrFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
-            String status1, String pen1, String status2, String pen2, String status3, String pen3);
+    Optional<IncomingFilesetEntity> findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
+            UUID schoolID1, String status1, String pen1,
+            UUID schoolID2, String status2, String pen2,
+            UUID schoolID3, String status3, String pen3
+    );
 
-    @Query(value = """
-    SELECT DISTINCT i
-    FROM IncomingFilesetEntity i
-    LEFT JOIN FETCH i.demographicStudentEntities d
-    LEFT JOIN FETCH i.courseStudentEntities c
-    LEFT JOIN FETCH i.assessmentStudentEntities a
-    WHERE i.incomingFilesetID = :incomingFilesetId
-      AND i.filesetStatusCode = 'COMPLETED'
-      AND (d.pen = :pen OR c.pen = :pen OR a.pen = :pen)
-    """)
+    Optional<IncomingFilesetEntity> findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
+            UUID districtID1, String status1, String pen1,
+            UUID districtID2, String status2, String pen2,
+            UUID districtID3, String status3, String pen3
+    );
+
+    @Query(value="""
+            SELECT i
+            FROM IncomingFilesetEntity i
+            WHERE i.incomingFilesetID = :incomingFilesetId
+              AND i.filesetStatusCode = 'COMPLETED'
+              AND (
+                 EXISTS (SELECT d FROM i.demographicStudentEntities d WHERE d.pen = :pen)
+                 OR EXISTS (SELECT c FROM i.courseStudentEntities c WHERE c.pen = :pen)
+                 OR EXISTS (SELECT a FROM i.assessmentStudentEntities a WHERE a.pen = :pen)
+              )
+            """)
     Optional<IncomingFilesetEntity> findByIncomingFilesetIDAndPen(UUID incomingFilesetId, String pen);
 
     @Query(value="""
