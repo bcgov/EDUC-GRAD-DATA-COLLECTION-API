@@ -22,13 +22,13 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
-    Optional<IncomingFilesetEntity> findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
+    Optional<IncomingFilesetEntity> findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenAndSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenAndSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
             UUID schoolID1, String status1, String pen1,
             UUID schoolID2, String status2, String pen2,
             UUID schoolID3, String status3, String pen3
     );
 
-    Optional<IncomingFilesetEntity> findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
+    Optional<IncomingFilesetEntity> findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenAndDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenAndDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
             UUID districtID1, String status1, String pen1,
             UUID districtID2, String status2, String pen2,
             UUID districtID3, String status3, String pen3

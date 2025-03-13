@@ -47,10 +47,10 @@ public class IncomingFilesetService {
         } else {
             if (schoolID != null) {
                 optionalIncomingFilesetEntity = incomingFilesetRepository
-                        .findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(schoolID, FilesetStatus.COMPLETED.getCode(), pen, schoolID, FilesetStatus.COMPLETED.getCode(), pen, schoolID, FilesetStatus.COMPLETED.getCode(), pen);
+                        .findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenAndSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenAndSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(schoolID, FilesetStatus.COMPLETED.getCode(), pen, schoolID, FilesetStatus.COMPLETED.getCode(), pen, schoolID, FilesetStatus.COMPLETED.getCode(), pen);
             } else if (districtID != null) {
                 optionalIncomingFilesetEntity = incomingFilesetRepository
-                        .findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(districtID, FilesetStatus.COMPLETED.getCode(), pen, districtID, FilesetStatus.COMPLETED.getCode(), pen, districtID, FilesetStatus.COMPLETED.getCode(), pen);
+                        .findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenAndDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenAndDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(districtID, FilesetStatus.COMPLETED.getCode(), pen, districtID, FilesetStatus.COMPLETED.getCode(), pen, districtID, FilesetStatus.COMPLETED.getCode(), pen);
             } else {
                 throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
             }
