@@ -25,8 +25,6 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.DISTRICT_MINCODE_MISMATCH;
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.MINCODE_MISMATCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
