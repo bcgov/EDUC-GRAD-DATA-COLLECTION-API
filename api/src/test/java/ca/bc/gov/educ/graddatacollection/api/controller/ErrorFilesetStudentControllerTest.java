@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -19,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.*;
 
@@ -272,6 +274,58 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
                         .contentType(APPLICATION_JSON))
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    void testReadErrorFilesetStudentsPaginated_withErrors_ShouldReturnStatusOkAndReturnErrorContext() throws Exception {
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        errorFileset2.setLastName("PETERS");
+        errorFileset2.setPen("422342342");
+        errorFilesetStudentRepository.save(errorFileset2);
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var mockDem = createMockDemographicStudent(incomingFileSet);
+        mockDem.setPen("422342342");
+        mockDem.setLastName("PETERS");
+        demographicStudentRepository.save(mockDem);
+
+        var mockAssessment = createMockAssessmentStudent();
+        mockAssessment.setIncomingFileset(incomingFileSet);
+        mockAssessment.setPen("422342342");
+        mockAssessment.setLastName("PETERS");
+        var assessmentValidation = AssessmentStudentValidationIssueEntity.builder()
+                .assessmentStudent(mockAssessment)
+                .assessmentStudentValidationIssueID(UUID.randomUUID())
+                .validationIssueCode("TEST")
+                .validationIssueDescription("TEST")
+                .validationIssueFieldCode("TEST")
+                .validationIssueSeverityCode("ERROR")
+                .build();
+        mockAssessment.getAssessmentStudentValidationIssueEntities().add(assessmentValidation);
+        assessmentStudentRepository.save(mockAssessment);
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("incomingFileset.incomingFilesetID")
+                .operation(FilterOperation.EQUAL).value(String.valueOf(incomingFileSet.getIncomingFilesetID())).valueType(ValueType.UUID).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_ERROR_FILESET + URL.PAGINATED)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_FILESET_STUDENT_ERROR")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].errorFilesetStudentValidationIssues", hasSize(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].errorFilesetStudentValidationIssues[0].errorContext").value("LTE10 - 2024/01"));
     }
 
 }
