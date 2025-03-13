@@ -60,6 +60,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         issue.setValidationIssueSeverityCode("ERROR");
         issue.setValidationIssueFieldCode("PEN");
         issue.setValidationIssueDescription("This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated.");
+        issue.setErrorContext("Test Context");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
@@ -81,6 +82,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "20000101",
                         "COURSE",
                         "ERROR",
+                        "Test Context",
                         "PEN",
                         "This student appears in the CRS file but is missing from the DEM file. No course records for this student will be updated."
                 ),
@@ -95,6 +97,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         issue.setValidationIssueSeverityCode("ERROR");
         issue.setValidationIssueFieldCode("PEN");
         issue.setValidationIssueDescription("This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID.");
+        issue.setErrorContext("Test Context");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
@@ -116,6 +119,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "20000101",
                         "ASSESSMENT",
                         "ERROR",
+                        "Test Context",
                         "PEN",
                         "This student is missing demographic data based on Student PEN, Surname, Mincode and Local ID."
                 ),
@@ -130,6 +134,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
         issue.setValidationIssueSeverityCode("ERROR");
         issue.setValidationIssueFieldCode("PEN");
         issue.setValidationIssueDescription("PEN is blank so the student record cannot be updated. Ensure the correct PEN appears in system data file extracts.");
+        issue.setErrorContext("");
 
         ErrorFilesetStudent student = new ErrorFilesetStudent();
         student.setPen("123456789");
@@ -151,6 +156,7 @@ class CSVReportServiceTest extends BaseGradDataCollectionAPITest {
                         "20000101",
                         "DEMOGRAPHICS",
                         "ERROR",
+                        "",
                         "PEN",
                         "PEN is blank so the student record cannot be updated. Ensure the correct PEN appears in system data file extracts."
                 ),

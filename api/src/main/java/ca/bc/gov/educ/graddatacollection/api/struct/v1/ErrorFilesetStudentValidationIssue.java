@@ -17,5 +17,6 @@ public class ErrorFilesetStudentValidationIssue extends BaseStudentValidationIss
   private static final long serialVersionUID = 1L;
 
   private String errorFilesetValidationIssueTypeCode;
+  private String errorContext;
 
 }

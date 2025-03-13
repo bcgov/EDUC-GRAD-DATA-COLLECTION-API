@@ -3,10 +3,13 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.CustomSearchType;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ErrorFilesetValidationIssueType;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +36,8 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
                                     demographicIssueEntity.getValidationIssueDescription(),
                                     demographicIssueEntity.getValidationIssueCode(),
                                     demographicIssueEntity.getValidationIssueFieldCode(),
-                                    demographicIssueEntity.getValidationIssueSeverityCode()))));
+                                    demographicIssueEntity.getValidationIssueSeverityCode(),
+                                    null))));
 
     errorFilesetStudentEntity.getCourseStudentEntities().stream().forEach(courseStudent ->
             courseStudent.getCourseStudentValidationIssueEntities().forEach(courseIssueEntity ->
@@ -42,7 +46,8 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
                                     courseIssueEntity.getValidationIssueDescription(),
                                     courseIssueEntity.getValidationIssueCode(),
                                     courseIssueEntity.getValidationIssueFieldCode(),
-                                    courseIssueEntity.getValidationIssueSeverityCode()))));
+                                    courseIssueEntity.getValidationIssueSeverityCode(),
+                                    setCourseErrorContext(courseStudent)))));
 
     errorFilesetStudentEntity.getAssessmentStudentEntities().stream().forEach(assessmentStudent ->
             assessmentStudent.getAssessmentStudentValidationIssueEntities().forEach(assessmentIssueEntity ->
@@ -51,7 +56,8 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
                                     assessmentIssueEntity.getValidationIssueDescription(),
                                     assessmentIssueEntity.getValidationIssueCode(),
                                     assessmentIssueEntity.getValidationIssueFieldCode(),
-                                    assessmentIssueEntity.getValidationIssueSeverityCode()))));
+                                    assessmentIssueEntity.getValidationIssueSeverityCode(),
+                                    setAssessmentErrorContext(assessmentStudent)))));
 
     return filesetStudent;
   }
@@ -99,13 +105,14 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
     return filesetStudent;
   }
 
-  private ErrorFilesetStudentValidationIssue getValidationIssue(ErrorFilesetValidationIssueType errorFilesetValidationIssueType, String validationIssueDescription, String validationIssueCode, String validationIssueFieldCode, String validationIssueSeverityCode){
+  private ErrorFilesetStudentValidationIssue getValidationIssue(ErrorFilesetValidationIssueType errorFilesetValidationIssueType, String validationIssueDescription, String validationIssueCode, String validationIssueFieldCode, String validationIssueSeverityCode, String errorContext){
     ErrorFilesetStudentValidationIssue issue = new ErrorFilesetStudentValidationIssue();
     issue.setErrorFilesetValidationIssueTypeCode(errorFilesetValidationIssueType.getCode());
     issue.setValidationIssueDescription(validationIssueDescription);
     issue.setValidationIssueCode(validationIssueCode);
     issue.setValidationIssueFieldCode(validationIssueFieldCode);
     issue.setValidationIssueSeverityCode(validationIssueSeverityCode);
+    issue.setErrorContext(errorContext);
     return issue;
   }
 
@@ -117,7 +124,8 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
                                       demographicIssueEntity.getValidationIssueDescription(),
                                       demographicIssueEntity.getValidationIssueCode(),
                                       demographicIssueEntity.getValidationIssueFieldCode(),
-                                      demographicIssueEntity.getValidationIssueSeverityCode()))));
+                                      demographicIssueEntity.getValidationIssueSeverityCode(),
+                                      null))));
   }
 
   private void setCourseIssueType(ErrorFilesetStudentEntity errorFilesetStudentEntity, ErrorFilesetStudent filesetStudent) {
@@ -128,7 +136,8 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
                                       courseIssueEntity.getValidationIssueDescription(),
                                       courseIssueEntity.getValidationIssueCode(),
                                       courseIssueEntity.getValidationIssueFieldCode(),
-                                      courseIssueEntity.getValidationIssueSeverityCode()))));
+                                      courseIssueEntity.getValidationIssueSeverityCode(),
+                                      setCourseErrorContext(courseStudent)))));
   }
 
   private void setXamIssueType(ErrorFilesetStudentEntity errorFilesetStudentEntity, ErrorFilesetStudent filesetStudent) {
@@ -139,6 +148,19 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
                                       assessmentIssueEntity.getValidationIssueDescription(),
                                       assessmentIssueEntity.getValidationIssueCode(),
                                       assessmentIssueEntity.getValidationIssueFieldCode(),
-                                      assessmentIssueEntity.getValidationIssueSeverityCode()))));
+                                      assessmentIssueEntity.getValidationIssueSeverityCode(),
+                                      setAssessmentErrorContext(assessmentStudent)))));
+  }
+
+  private String setCourseErrorContext(CourseStudentEntity courseStudent) {
+    if(StringUtils.isBlank(courseStudent.getCourseLevel())) {
+      return courseStudent.getCourseCode() + " - " + courseStudent.getCourseYear() + "/" + courseStudent.getCourseMonth();
+    } else {
+      return courseStudent.getCourseCode() + courseStudent.getCourseLevel() + " - " + courseStudent.getCourseYear() + "/" + courseStudent.getCourseMonth();
+    }
+  }
+
+  private String setAssessmentErrorContext(AssessmentStudentEntity assessmentStudent) {
+    return assessmentStudent.getCourseCode() + " - " + assessmentStudent.getCourseYear() + "/" + assessmentStudent.getCourseMonth();
   }
 }
