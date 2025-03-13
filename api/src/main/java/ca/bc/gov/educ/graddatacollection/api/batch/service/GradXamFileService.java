@@ -102,9 +102,14 @@ public class GradXamFileService implements GradFileBatchProcessor {
         }
 
         var blankLineSet = new TreeSet<>();
+        var mincode = batchFile.getAssessmentData().isEmpty() ? null : batchFile.getAssessmentData().get(0).getMincode();
         for (final var student : batchFile.getAssessmentData()) {
             if(StringUtils.isBlank(student.getPen())){
                 blankLineSet.add(Integer.parseInt(student.getLineNumber()));
+            }
+
+            if(mincode != null){
+                gradFileValidator.checkForMincodeMismatch(guid, mincode, student.getMincode(), schoolID, districtID);
             }
         }
 

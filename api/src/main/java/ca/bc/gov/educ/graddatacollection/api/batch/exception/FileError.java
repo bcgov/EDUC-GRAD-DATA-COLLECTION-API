@@ -43,6 +43,7 @@ public enum FileError {
    */
   MINCODE_MISMATCH("The school codes in your file do not match your school's code. Please ensure that all school codes in the file correspond to your school code."),
 
+  DISTRICT_MINCODE_MISMATCH("The school codes in the file must match. Please verify the school codes supplied. "),
   /**
    * Invalid row length file error.
    * This will be thrown when any row in the given file is longer or shorter than expected.
@@ -66,8 +67,8 @@ public enum FileError {
    */
   SCHOOL_IS_OPENING("Invalid school provided - school is not yet open."),
   INVALID_SCHOOL_DATES("Invalid school dates - this was not expected."),
-  SCHOOL_OUTSIDE_OF_DISTRICT("The school referenced in the uploaded file does not belong to district."),
-  MISSING_MINCODE("The school codes in the file must match and correspond to schools within your district that are transcript eligible. Please verify the school codes supplied."),
+  SCHOOL_OUTSIDE_OF_DISTRICT("The school is not in your district and cannot be uploaded."),
+  MISSING_MINCODE("The school has been closed for more than 3 months or is not Transcript Eligible. The data cannot be uploaded."),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**
