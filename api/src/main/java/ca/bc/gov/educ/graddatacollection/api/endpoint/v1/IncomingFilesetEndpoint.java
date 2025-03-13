@@ -27,8 +27,7 @@ public interface IncomingFilesetEndpoint {
                                                      @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
     @GetMapping(URL.GET_STUDENT_FILESETS)
-    // TODO
-    //@PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
+    @PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
     IncomingFileset getIncomingFileset(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetId", required = false) UUID incomingFilesetID,

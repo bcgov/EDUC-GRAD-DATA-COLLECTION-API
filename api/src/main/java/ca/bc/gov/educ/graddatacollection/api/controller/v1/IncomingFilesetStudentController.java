@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.IncomingFilesetEndpoint;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetExtendedMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetSearchService;
@@ -28,6 +29,8 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     private static final IncomingFilesetMapper mapper = IncomingFilesetMapper.mapper;
 
+    private static final IncomingFilesetExtendedMapper extendedMapper  = IncomingFilesetExtendedMapper.mapper;
+
     public IncomingFilesetStudentController(IncomingFilesetSearchService incomingFilesetSearchService, IncomingFilesetService incomingFilesetService) {
         this.incomingFilesetSearchService = incomingFilesetSearchService;
         this.incomingFilesetService = incomingFilesetService;
@@ -52,6 +55,6 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     public IncomingFileset getIncomingFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
         IncomingFilesetEntity incomingFilesetEntity = this.incomingFilesetService.getErrorFilesetStudent(pen, incomingFilesetID, schoolID, districtID);
         log.debug("getIncomingFileset: ={}", incomingFilesetEntity);
-        return mapper.toStructure(incomingFilesetEntity);
+        return extendedMapper.toStructureWithPen(incomingFilesetEntity, pen);
     }
 }

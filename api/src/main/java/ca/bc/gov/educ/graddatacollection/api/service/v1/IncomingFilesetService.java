@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -38,14 +39,14 @@ public class IncomingFilesetService {
         Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity;
 
         if (incomingFilesetId != null) {
-            optionalIncomingFilesetEntity = incomingFilesetRepository.findByIncomingFilesetIDAndPen(incomingFilesetId, pen);
+            optionalIncomingFilesetEntity = incomingFilesetRepository.findIncomingFilesetEntityByIncomingFilesetIDAndFilesetStatusCode(incomingFilesetId, FilesetStatus.COMPLETED.getCode());
         } else {
             if (schoolID != null) {
                 optionalIncomingFilesetEntity = incomingFilesetRepository
-                        .findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(schoolID, "COMPLETED", pen, schoolID,"COMPLETED", pen, schoolID,"COMPLETED", pen);
+                        .findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(schoolID, FilesetStatus.COMPLETED.getCode(), pen, schoolID, FilesetStatus.COMPLETED.getCode(), pen, schoolID, FilesetStatus.COMPLETED.getCode(), pen);
             } else if (districtID != null) {
                 optionalIncomingFilesetEntity = incomingFilesetRepository
-                        .findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(districtID, "COMPLETED", pen, districtID, "COMPLETED", pen, districtID, "COMPLETED", pen);
+                        .findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenOrDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(districtID, FilesetStatus.COMPLETED.getCode(), pen, districtID, FilesetStatus.COMPLETED.getCode(), pen, districtID, FilesetStatus.COMPLETED.getCode(), pen);
             } else {
                 throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
             }

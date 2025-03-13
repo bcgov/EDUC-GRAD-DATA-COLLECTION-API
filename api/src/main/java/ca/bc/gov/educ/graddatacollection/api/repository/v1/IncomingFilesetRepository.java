@@ -34,18 +34,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             UUID districtID3, String status3, String pen3
     );
 
-    @Query(value="""
-            SELECT i
-            FROM IncomingFilesetEntity i
-            WHERE i.incomingFilesetID = :incomingFilesetId
-              AND i.filesetStatusCode = 'COMPLETED'
-              AND (
-                 EXISTS (SELECT d FROM i.demographicStudentEntities d WHERE d.pen = :pen)
-                 OR EXISTS (SELECT c FROM i.courseStudentEntities c WHERE c.pen = :pen)
-                 OR EXISTS (SELECT a FROM i.assessmentStudentEntities a WHERE a.pen = :pen)
-              )
-            """)
-    Optional<IncomingFilesetEntity> findByIncomingFilesetIDAndPen(UUID incomingFilesetId, String pen);
+    Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndFilesetStatusCode(UUID incomingFilesetID, String filesetStatusCode);
 
     @Query(value="""
     SELECT inFileset
