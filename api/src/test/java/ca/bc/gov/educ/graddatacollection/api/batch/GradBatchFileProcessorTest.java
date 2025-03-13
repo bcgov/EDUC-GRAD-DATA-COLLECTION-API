@@ -1,13 +1,16 @@
 package ca.bc.gov.educ.graddatacollection.api.batch;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.batch.processor.GradBatchFileProcessor;
+import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,10 +19,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileInputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.DISTRICT_MINCODE_MISMATCH;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.MINCODE_MISMATCH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,6 +42,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     CourseStudentRepository courseStudentRepository;
     @Autowired
     GradBatchFileProcessor gradBatchFileProcessor;
+    @Autowired
+    GradFileValidator gradFileValidator;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
     @Autowired
@@ -373,4 +382,125 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(entity2.getFilesetStatusCode()).isEqualTo("LOADED");
         assertThat(entity2.getXamFileName()).isNull();
     }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_AllConditionsMet() throws FileUnProcessableException {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setClosedDate(null);
+
+        gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId());
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_TranscriptIneligible() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(false);
+        school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class,
+                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolOpeningInFuture() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class,
+                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInFuture() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setClosedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class,
+                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInPast() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(LocalDateTime.now().minusMonths(3).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setClosedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class,
+                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_InvalidOpenDateFormat() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate("Invalid Date");
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class,
+                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_InvalidCloseDateFormat() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(LocalDateTime.now().minusMonths(3).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setClosedDate("Invalid Date");
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class,
+                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testCheckForMincodeMismatch_MatchingMincodes_NoExceptionThrown() throws FileUnProcessableException {
+        String guid = UUID.randomUUID().toString();
+        String fileMincode = "12345678";
+        String studentMincode = "12345678";
+        String schoolID = UUID.randomUUID().toString();
+
+        gradFileValidator.checkForMincodeMismatch(guid, fileMincode, studentMincode, schoolID, null);
+    }
+
+    @Test
+    void testCheckForMincodeMismatch_MismatchedMincodes_SchoolIDProvided_ThrowsException() {
+        String guid = UUID.randomUUID().toString();
+        String fileMincode = "12345678";
+        String studentMincode = "87654321";
+        String schoolID = UUID.randomUUID().toString();
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class, () -> gradFileValidator.checkForMincodeMismatch(guid, fileMincode, studentMincode, schoolID, null));
+        assertThat(exception.getFileError()).isEqualTo(MINCODE_MISMATCH);
+    }
+
+    @Test
+    void testCheckForMincodeMismatch_MismatchedMincodes_DistrictIDProvided_ThrowsException() {
+        String guid = UUID.randomUUID().toString();
+        String fileMincode = "12345678";
+        String studentMincode = "87654321";
+        String districtID = UUID.randomUUID().toString();
+
+        FileUnProcessableException exception = assertThrows(FileUnProcessableException.class, () -> gradFileValidator.checkForMincodeMismatch(guid, fileMincode, studentMincode, null, districtID));
+        assertThat(exception.getFileError()).isEqualTo(DISTRICT_MINCODE_MISMATCH);
+    }
+
+    @Test
+    void testCheckForMincodeMismatch_NullMincodes_NoExceptionThrown() throws FileUnProcessableException {
+        String guid = UUID.randomUUID().toString();
+        String schoolID = UUID.randomUUID().toString();
+
+        gradFileValidator.checkForMincodeMismatch(guid, null, null, schoolID, null);
+    }
+
 }
