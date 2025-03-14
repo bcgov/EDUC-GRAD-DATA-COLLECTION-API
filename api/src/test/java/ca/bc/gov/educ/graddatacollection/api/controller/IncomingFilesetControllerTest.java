@@ -92,27 +92,46 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testGetIncomingFileset_withValidParameters_shouldReturnFileset() throws Exception {
+    void testGetIncomingFileset_withValidParameters_shouldReturnFilesetx() throws Exception {
         var incomingFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded();
-        incomingFilesetEntity.setIncomingFilesetID(UUID.randomUUID());
-        incomingFilesetEntity.setSchoolID(UUID.randomUUID());
-        incomingFilesetEntity.setDistrictID(UUID.randomUUID());
+        UUID filesetId = UUID.randomUUID();
+        UUID schoolId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        incomingFilesetEntity.setIncomingFilesetID(filesetId);
+        incomingFilesetEntity.setSchoolID(schoolId);
+        incomingFilesetEntity.setDistrictID(districtId);
+
+        var demStudent = createMockDemographicStudent(incomingFilesetEntity);
+        demStudent.setPen("123456789");
+        incomingFilesetEntity.setDemographicStudentEntities(Set.of(demStudent));
+
+        var courseStudent = createMockCourseStudent(incomingFilesetEntity);
+        courseStudent.setPen("123456789");
+        incomingFilesetEntity.setCourseStudentEntities(Set.of(courseStudent));
+
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen("123456789");
+        assessmentStudent.setIncomingFileset(incomingFilesetEntity);
+        incomingFilesetEntity.setAssessmentStudentEntities(Set.of(assessmentStudent));
+
+        when(incomingFilesetService.getErrorFilesetStudent(eq("123456789"), eq(filesetId), eq(schoolId), eq(districtId)))
+                .thenReturn(incomingFilesetEntity);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var district = this.createMockDistrict();
+        when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
+
         String pen = "123456789";
-        var incomingFilesetID = incomingFilesetEntity.getIncomingFilesetID();
-        var schoolID = incomingFilesetEntity.getSchoolID();
-        var districtID = incomingFilesetEntity.getDistrictID();
-
-        when(incomingFilesetService.getErrorFilesetStudent(eq(pen), eq(incomingFilesetID), eq(schoolID), eq(districtID))).thenReturn(incomingFilesetEntity);
-
         this.mockMvc.perform(get(URL.BASE_URL_FILESET + URL.GET_STUDENT_FILESETS)
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .param("pen", pen)
-                        .param("incomingFilesetID", incomingFilesetID.toString())
-                        .param("schoolID", schoolID.toString())
-                        .param("districtID", districtID.toString())
+                        .param("incomingFilesetID", filesetId.toString())
+                        .param("schoolID", schoolId.toString())
+                        .param("districtID", districtId.toString())
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.incomingFilesetID").value(incomingFilesetID.toString()));
+                .andExpect(jsonPath("$.incomingFilesetID").value(filesetId.toString()));
     }
 }
