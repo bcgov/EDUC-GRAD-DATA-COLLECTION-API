@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValueType;
@@ -13,17 +14,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.AND;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -41,6 +41,9 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     private MockMvc mockMvc;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
+
+    @MockBean
+    private IncomingFilesetService incomingFilesetService;
 
     @BeforeEach
     public void setUp() {
@@ -88,4 +91,28 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
+    @Test
+    void testGetIncomingFileset_withValidParameters_shouldReturnFileset() throws Exception {
+        var incomingFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        incomingFilesetEntity.setIncomingFilesetID(UUID.randomUUID());
+        incomingFilesetEntity.setSchoolID(UUID.randomUUID());
+        incomingFilesetEntity.setDistrictID(UUID.randomUUID());
+        String pen = "123456789";
+        var incomingFilesetID = incomingFilesetEntity.getIncomingFilesetID();
+        var schoolID = incomingFilesetEntity.getSchoolID();
+        var districtID = incomingFilesetEntity.getDistrictID();
+
+        when(incomingFilesetService.getErrorFilesetStudent(eq(pen), eq(incomingFilesetID), eq(schoolID), eq(districtID))).thenReturn(incomingFilesetEntity);
+
+        this.mockMvc.perform(get(URL.BASE_URL_FILESET + URL.GET_STUDENT_FILESETS)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
+                        .param("pen", pen)
+                        .param("incomingFilesetID", incomingFilesetID.toString())
+                        .param("schoolID", schoolID.toString())
+                        .param("districtID", districtID.toString())
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.incomingFilesetID").value(incomingFilesetID.toString()));
+    }
 }
