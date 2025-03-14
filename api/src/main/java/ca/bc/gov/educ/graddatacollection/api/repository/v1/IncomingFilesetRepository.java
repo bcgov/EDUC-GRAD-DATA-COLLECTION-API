@@ -22,17 +22,25 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
-    Optional<IncomingFilesetEntity> findFirstBySchoolIDAndFilesetStatusCodeAndDemographicStudentEntities_PenAndSchoolIDAndFilesetStatusCodeAndCourseStudentEntities_PenAndSchoolIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
-            UUID schoolID1, String status1, String pen1,
-            UUID schoolID2, String status2, String pen2,
-            UUID schoolID3, String status3, String pen3
-    );
+    @Query("SELECT i FROM IncomingFilesetEntity i " +
+            "JOIN i.demographicStudentEntities d " +
+            "JOIN i.courseStudentEntities c " +
+            "JOIN i.assessmentStudentEntities a " +
+            "WHERE i.schoolID = :schoolID " +
+            "AND i.filesetStatusCode = :status " +
+            "AND (d.pen = :pen OR c.pen = :pen OR a.pen = :pen) " +
+            "ORDER BY i.createDate DESC")
+    Optional<IncomingFilesetEntity> findFirstBySchoolIDAndPen(UUID schoolID, String status, String pen);
 
-    Optional<IncomingFilesetEntity> findFirstByDistrictIDAndFilesetStatusCodeAndDemographicStudentEntities_PenAndDistrictIDAndFilesetStatusCodeAndCourseStudentEntities_PenAndDistrictIDAndFilesetStatusCodeAndAssessmentStudentEntities_PenOrderByCreateDateDesc(
-            UUID districtID1, String status1, String pen1,
-            UUID districtID2, String status2, String pen2,
-            UUID districtID3, String status3, String pen3
-    );
+    @Query("SELECT i FROM IncomingFilesetEntity i " +
+            "JOIN i.demographicStudentEntities d " +
+            "JOIN i.courseStudentEntities c " +
+            "JOIN i.assessmentStudentEntities a " +
+            "WHERE i.districtID = :districtID " +
+            "AND i.filesetStatusCode = :status " +
+            "AND (d.pen = :pen OR c.pen = :pen OR a.pen = :pen) " +
+            "ORDER BY i.createDate DESC")
+    Optional<IncomingFilesetEntity> findFirstByDistrictIDAndPen(UUID districtID, String status, String pen);
 
     Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndSchoolIDAndFilesetStatusCode(UUID incomingFilesetID, UUID schoolID, String filesetStatusCode);
 
