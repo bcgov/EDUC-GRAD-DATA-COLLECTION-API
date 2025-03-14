@@ -442,12 +442,7 @@ public class RestUtils {
       this.populateGradGradesMap();
     }
     if(activeOnly){
-      var codes = this.gradGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
-      codes.forEach(code -> {
-        log.info("Active Grade Code " + code);
-      });
-
-      return codes;
+      return this.gradGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
     }
     return this.gradGradeMap.values().stream().toList();
   }
