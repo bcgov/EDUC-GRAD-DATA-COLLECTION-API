@@ -38,8 +38,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.BLANK_PEN_IN_CRS_FILE;
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.PRECONDITION_REQUIRED;
@@ -69,7 +68,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 incomingDistrictID = schoolTombstone.getDistrictId();
             }
             gradFileValidator.validateFileUploadIsNotInProgress(guid, schoolID);
-            this.populateSchoolBatchFile(guid, ds, batchFile, schoolID);
+            this.populateSchoolBatchFile(guid, ds, batchFile, schoolTombstone, schoolID);
         } else {
             var schoolTombstone =  ds.getRowCount() == 0 ? gradFileValidator.getSchoolFromFileName(guid, fileUpload.getFileName()) : gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
             incomingSchoolID = schoolTombstone.getSchoolId();
@@ -79,9 +78,10 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, incomingSchoolID, incomingDistrictID);
     }
 
-    public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, final String schoolID) throws FileUnProcessableException {
+    public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
+            gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
             final var mincode = ds.getString(DEMBatchFile.MINCODE.getName());
             gradFileValidator.validateMincode(guid, schoolID, mincode);
             batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
@@ -106,9 +106,14 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
 
         var blankLineSet = new TreeSet<>();
+        var mincode = batchFile.getCourseData().isEmpty() ? null : batchFile.getCourseData().get(0).getMincode();
+
         for (final var student : batchFile.getCourseData()) {
             if(StringUtils.isBlank(student.getPen())){
                 blankLineSet.add(Integer.parseInt(student.getLineNumber()));
+            }
+            if (mincode != null){
+                gradFileValidator.checkForMincodeMismatch(guid, mincode, student.getMincode(), schoolID, districtID);
             }
         }
 

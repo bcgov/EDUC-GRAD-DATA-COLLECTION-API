@@ -102,9 +102,14 @@ public class GradDemFileService implements GradFileBatchProcessor {
         }
 
         var blankLineSet = new TreeSet<>();
+        var mincode = batchFile.getDemogData().isEmpty() ? null : batchFile.getDemogData().get(0).getMincode();
         for (final var student : batchFile.getDemogData()) {
             if(StringUtils.isBlank(student.getPen())){
                 blankLineSet.add(Integer.parseInt(student.getLineNumber()));
+            }
+
+            if(mincode != null){
+                gradFileValidator.checkForMincodeMismatch(guid, mincode, student.getMincode(), schoolID, districtID);
             }
         }
 

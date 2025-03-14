@@ -12,6 +12,7 @@ public enum ErrorReportHeaders {
     DATE_OF_BIRTH("Date of Birth"),
     FILE_TYPE("File Type"),
     SEVERITY_CODE("Severity Code"),
+    ERROR_CONTEXT("Error Context"),
     FIELD("Field"),
     DESCRIPTION("Description");
 

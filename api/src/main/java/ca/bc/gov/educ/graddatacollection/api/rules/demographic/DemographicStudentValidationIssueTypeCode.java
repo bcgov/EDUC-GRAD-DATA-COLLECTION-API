@@ -19,7 +19,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_PROVINCE_CODE_INVALID("STUDENTPROVINCECODEINVALID", "Invalid Province code."),
   STUDENT_COUNTRY_CODE_INVALID("STUDENTCOUNTRYCODEINVALID", "Invalid Country code."),
   STUDENT_CITIZENSHIP_CODE_INVALID("STUDENTCITIZENSHIPCODEINVALID", "Invalid citizenship code - must be C, O or blank."),
-  GRADE_INVALID("GRADEINVALID", "Invalid student grade level. The student's DEM file will not be processed."),
+  GRADE_INVALID("GRADEINVALID", "Invalid student grade level. No information in student's DEM file will be processed."),
   GRADE_NOT_EXPECTED("GRADENOTEXPECTED", "An unexpected grade level has been submitted for the student."),
   GRADE_AG_INVALID("GRADEAGINVALID", "Grade and program mismatch. Student cannot be reported on the Adult Graduation program (1950) unless grade level is AD or AN. No information in student's DEM file will be processed."),
   GRADE_OG_INVALID("GRADEOGINVALID", "Program and grade mismatch. Student cannot be reported in grade level AD or AN unless they are on the Adult Graduation program (1950). No information in student's DEM file will be processed."),

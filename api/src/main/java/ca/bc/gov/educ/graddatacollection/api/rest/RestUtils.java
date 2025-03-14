@@ -442,7 +442,7 @@ public class RestUtils {
       this.populateGradGradesMap();
     }
     if(activeOnly){
-      return this.gradGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
+      return this.gradGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
     }
     return this.gradGradeMap.values().stream().toList();
   }
@@ -464,7 +464,7 @@ public class RestUtils {
       this.populateLetterGradeMap();
     }
     if(activeOnly){
-      return this.letterGradeMap.values().stream().filter(code -> code.getExpiryDate() == null || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(LocalDateTime.now())).toList();
+      return this.letterGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(LocalDateTime.now())).toList();
     }
     return this.letterGradeMap.values().stream().toList();
   }

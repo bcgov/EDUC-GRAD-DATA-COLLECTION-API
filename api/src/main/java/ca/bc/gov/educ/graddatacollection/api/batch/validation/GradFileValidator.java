@@ -20,8 +20,12 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.DISTRICT_MINCODE_MISMATCH;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.MINCODE_MISMATCH;
 
 @Component
 @Slf4j
@@ -160,34 +164,43 @@ public class GradFileValidator {
         return restUtils.getSchoolByMincode(mincode);
     }
 
-    public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
-        var currentDate = LocalDateTime.now();
-        LocalDateTime openDate;
-        LocalDateTime closeDate;
+    public void checkForMincodeMismatch(@NonNull final String guid, String fileMincode, String studentMincode, String schoolID, String districtID) throws FileUnProcessableException {
+        if (!Objects.equals(fileMincode, studentMincode)) {
+            if (districtID != null) {
+                throw new FileUnProcessableException(DISTRICT_MINCODE_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+            } else {
+                throw new FileUnProcessableException(MINCODE_MISMATCH, guid, GradCollectionStatus.LOAD_FAIL, schoolID);
+            }
+        }
+    }
 
+    public void validateSchoolIsTranscriptEligibleAndOpen(@NonNull final String guid, @NonNull final SchoolTombstone school, final String instituteID) throws FileUnProcessableException {
         if(Boolean.FALSE.equals(school.getCanIssueTranscripts())) {
-            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_FOR_UPLOAD, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_FOR_UPLOAD, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
         }
 
         try {
-            openDate = LocalDateTime.parse(school.getOpenedDate());
+            var currentDate = LocalDateTime.now();
+            var maxCloseDate = currentDate.plusMonths(3);
+            LocalDateTime openDate = LocalDateTime.parse(school.getOpenedDate());
+            LocalDateTime closeDate = school.getClosedDate() != null ? LocalDateTime.parse(school.getClosedDate()): null;
 
             if (openDate.isAfter(currentDate)){
-                throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+                throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
             }
 
-            if(school.getClosedDate() != null) {
-                closeDate = LocalDateTime.parse(school.getClosedDate());
-            }else{
-                closeDate = LocalDateTime.now().plusDays(5);
+            if (!openDate.isBefore(currentDate) || (closeDate != null && closeDate.isBefore(maxCloseDate))) {
+                throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
             }
         } catch (DateTimeParseException e) {
-            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_DATES, guid, GradCollectionStatus.LOAD_FAIL, districtID);
+            throw new FileUnProcessableException(FileError.INVALID_SCHOOL_DATES, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
         }
 
-        if (!(openDate.isBefore(currentDate) && closeDate.isAfter(currentDate))) {
-            throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, GradCollectionStatus.LOAD_FAIL, districtID);
-        }
+    }
+
+    public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
+
+        validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId());
 
         String schoolDistrictID = school.getDistrictId();
 
