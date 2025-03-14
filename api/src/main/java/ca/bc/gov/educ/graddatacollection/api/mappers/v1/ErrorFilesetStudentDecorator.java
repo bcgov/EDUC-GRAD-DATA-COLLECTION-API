@@ -21,6 +21,9 @@ import java.util.Optional;
 public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStudentMapper {
 
   private final ErrorFilesetStudentMapper delegate;
+  private static final String MISSING_COURSE_CODE = "missing course code";
+  private static final String MISSING_COURSE_YEAR = "missing course year";
+  private static final String MISSING_COURSE_MONTH = "missing course month";
 
   protected ErrorFilesetStudentDecorator(ErrorFilesetStudentMapper delegate) {
     this.delegate = delegate;
@@ -134,7 +137,13 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
   }
 
   private String setCourseErrorContext(CourseStudentEntity courseStudent) {
-    if(StringUtils.isBlank(courseStudent.getCourseLevel())) {
+    if(StringUtils.isEmpty(courseStudent.getCourseCode())) {
+      return MISSING_COURSE_CODE;
+    } else if(StringUtils.isEmpty(courseStudent.getCourseYear())) {
+      return MISSING_COURSE_YEAR;
+    } else if(StringUtils.isEmpty(courseStudent.getCourseMonth())) {
+      return MISSING_COURSE_MONTH;
+    } else if(StringUtils.isEmpty(courseStudent.getCourseLevel())) {
       return courseStudent.getCourseCode() + " - " + courseStudent.getCourseYear() + "/" + courseStudent.getCourseMonth();
     } else {
       return courseStudent.getCourseCode() + courseStudent.getCourseLevel() + " - " + courseStudent.getCourseYear() + "/" + courseStudent.getCourseMonth();
@@ -142,7 +151,15 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
   }
 
   private String setAssessmentErrorContext(AssessmentStudentEntity assessmentStudent) {
-    return assessmentStudent.getCourseCode() + " - " + assessmentStudent.getCourseYear() + "/" + assessmentStudent.getCourseMonth();
+    if(StringUtils.isEmpty(assessmentStudent.getCourseCode())) {
+      return MISSING_COURSE_CODE;
+    } else if(StringUtils.isEmpty(assessmentStudent.getCourseYear())) {
+      return MISSING_COURSE_YEAR;
+    } else if(StringUtils.isEmpty(assessmentStudent.getCourseMonth())) {
+      return MISSING_COURSE_MONTH;
+    } else {
+      return assessmentStudent.getCourseCode() + " - " + assessmentStudent.getCourseYear() + "/" + assessmentStudent.getCourseMonth();
+    }
   }
 
 }
