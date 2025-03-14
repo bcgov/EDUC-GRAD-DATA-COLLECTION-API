@@ -80,6 +80,15 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         entity.setIncomingFilesetID(UUID.randomUUID());
         entity.setSchoolID(schoolId);
         entity.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
+
+        DemographicStudentEntity demStudent = new DemographicStudentEntity();
+        demStudent.setPen(pen);
+        demStudent.setIncomingFileset(entity);
+        demStudent.setStudentStatusCode("ERROR");
+        demStudent.setCreateUser("TEST");
+        demStudent.setUpdateUser("TEST");
+        entity.getDemographicStudentEntities().add(demStudent);
+
         IncomingFilesetEntity saved = incomingFilesetRepository.save(entity);
 
         IncomingFilesetEntity result = incomingFilesetService.getErrorFilesetStudent(pen, saved.getIncomingFilesetID(), schoolId, null);
@@ -104,6 +113,15 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         entity.setIncomingFilesetID(UUID.randomUUID());
         entity.setDistrictID(districtId);
         entity.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
+
+        DemographicStudentEntity demStudent = new DemographicStudentEntity();
+        demStudent.setPen(pen);
+        demStudent.setIncomingFileset(entity);
+        demStudent.setStudentStatusCode("ERROR");
+        demStudent.setCreateUser("TEST");
+        demStudent.setUpdateUser("TEST");
+        entity.getDemographicStudentEntities().add(demStudent);
+
         IncomingFilesetEntity saved = incomingFilesetRepository.save(entity);
 
         IncomingFilesetEntity result = incomingFilesetService.getErrorFilesetStudent(pen, saved.getIncomingFilesetID(), null, districtId);

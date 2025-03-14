@@ -185,19 +185,5 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             }
             throw new GradDataCollectionAPIRuntimeException("Invalid search criteria provided");
         });
-
-        map.put(FilterOperation.CUSTOM_PEN_JOIN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
-            criteriaQuery.distinct(true);
-            Join<Object, Object> demoJoin = root.join("demographicStudentEntities", JoinType.LEFT);
-            Join<Object, Object> courseJoin = root.join("courseStudentEntities", JoinType.LEFT);
-            Join<Object, Object> assessJoin = root.join("assessmentStudentEntities", JoinType.LEFT);
-
-            return criteriaBuilder.or(
-                    criteriaBuilder.equal(demoJoin.get("pen"), filterCriteria.getConvertedSingleValue()),
-                    criteriaBuilder.equal(courseJoin.get("pen"), filterCriteria.getConvertedSingleValue()),
-                    criteriaBuilder.equal(assessJoin.get("pen"), filterCriteria.getConvertedSingleValue())
-            );
-        });
-
     }
 }

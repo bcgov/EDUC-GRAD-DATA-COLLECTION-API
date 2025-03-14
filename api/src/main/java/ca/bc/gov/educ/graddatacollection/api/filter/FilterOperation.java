@@ -79,8 +79,7 @@ public enum FilterOperation {
 
   // Filter operations for GDC
   CUSTOM_CHILD_JOIN("custom_child_join"),
-  EQUAL_WITH_LEFT_JOIN("eq_lj"),
-  CUSTOM_PEN_JOIN("custom_pen_join");
+  EQUAL_WITH_LEFT_JOIN("eq_lj");
 
   private final String value;
 
