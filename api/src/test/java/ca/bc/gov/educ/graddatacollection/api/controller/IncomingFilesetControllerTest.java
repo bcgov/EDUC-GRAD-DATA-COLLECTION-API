@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValueType;
@@ -13,17 +14,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.AND;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -41,6 +41,9 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     private MockMvc mockMvc;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
+
+    @MockBean
+    private IncomingFilesetService incomingFilesetService;
 
     @BeforeEach
     public void setUp() {
@@ -88,4 +91,47 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
+    @Test
+    void testGetIncomingFileset_withValidParameters_shouldReturnFilesetx() throws Exception {
+        var incomingFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        UUID filesetId = UUID.randomUUID();
+        UUID schoolId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        incomingFilesetEntity.setIncomingFilesetID(filesetId);
+        incomingFilesetEntity.setSchoolID(schoolId);
+        incomingFilesetEntity.setDistrictID(districtId);
+
+        var demStudent = createMockDemographicStudent(incomingFilesetEntity);
+        demStudent.setPen("123456789");
+        incomingFilesetEntity.setDemographicStudentEntities(Set.of(demStudent));
+
+        var courseStudent = createMockCourseStudent(incomingFilesetEntity);
+        courseStudent.setPen("123456789");
+        incomingFilesetEntity.setCourseStudentEntities(Set.of(courseStudent));
+
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen("123456789");
+        assessmentStudent.setIncomingFileset(incomingFilesetEntity);
+        incomingFilesetEntity.setAssessmentStudentEntities(Set.of(assessmentStudent));
+
+        when(incomingFilesetService.getErrorFilesetStudent(eq("123456789"), eq(filesetId), eq(schoolId), eq(districtId)))
+                .thenReturn(incomingFilesetEntity);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var district = this.createMockDistrict();
+        when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
+
+        String pen = "123456789";
+        this.mockMvc.perform(get(URL.BASE_URL_FILESET + URL.GET_STUDENT_FILESETS)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
+                        .param("pen", pen)
+                        .param("incomingFilesetID", filesetId.toString())
+                        .param("schoolID", schoolId.toString())
+                        .param("districtID", districtId.toString())
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.incomingFilesetID").value(filesetId.toString()));
+    }
 }
