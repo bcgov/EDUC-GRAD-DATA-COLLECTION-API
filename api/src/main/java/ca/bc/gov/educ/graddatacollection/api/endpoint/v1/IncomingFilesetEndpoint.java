@@ -31,6 +31,6 @@ public interface IncomingFilesetEndpoint {
     @PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-    IncomingFilesetExtended getIncomingFileset(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetID", required = false) UUID incomingFilesetID,
-                                       @RequestParam(name = "schoolID", required = false) UUID schoolID, @RequestParam(name = "districtID", required = false) UUID districtID);
+    IncomingFilesetExtended getStudentFileset(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetID", required = false) UUID incomingFilesetID,
+                                              @RequestParam(name = "schoolID", required = false) UUID schoolID, @RequestParam(name = "districtID", required = false) UUID districtID);
 }

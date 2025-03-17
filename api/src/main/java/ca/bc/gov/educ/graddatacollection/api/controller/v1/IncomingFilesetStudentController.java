@@ -61,7 +61,7 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     }
 
     @Override
-    public IncomingFilesetExtended getIncomingFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
+    public IncomingFilesetExtended getStudentFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
         DemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID, districtID);
 
         UUID resolvedFilesetID = incomingFilesetID != null ? incomingFilesetID : demStud.getIncomingFileset().getIncomingFilesetID();
