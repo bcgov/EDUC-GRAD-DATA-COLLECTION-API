@@ -31,7 +31,7 @@ public class V321CourseCodeNonCSF implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V321: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V321", validationErrorsMap);
 
         log.debug("In shouldExecute of V321: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
