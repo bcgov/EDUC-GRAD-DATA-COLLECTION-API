@@ -29,7 +29,6 @@ import java.util.*;
 import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.AND;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -48,9 +47,9 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @MockBean
-    DemographicStudentService  demographicStudentService;
+    DemographicStudentService demographicStudentService;
     @MockBean
-    CourseStudentService  courseStudentService;
+    CourseStudentService courseStudentService;
     @MockBean
     AssessmentStudentService assessmentStudentService;
 
@@ -114,11 +113,11 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         List<AssessmentStudentEntity> xamStuds = List.copyOf(incomingFilesetEntity.getAssessmentStudentEntities());
         List<CourseStudentEntity> crsStuds = List.copyOf(incomingFilesetEntity.getCourseStudentEntities());
 
-        when(demographicStudentService.getDemStudent(eq(pen), eq(filesetId), eq(schoolId), eq(districtId)))
+        when(demographicStudentService.getDemStudent(pen, filesetId, schoolId, districtId))
                 .thenReturn(demStudent);
-        when(assessmentStudentService.getXamStudents(eq(pen), eq(filesetId), eq(schoolId), eq(districtId)))
+        when(assessmentStudentService.getXamStudents(pen, filesetId, schoolId, districtId))
                 .thenReturn(xamStuds);
-        when(courseStudentService.getCrsStudents(eq(pen), eq(filesetId), eq(schoolId), eq(districtId)))
+        when(courseStudentService.getCrsStudents(pen, filesetId, schoolId, districtId))
                 .thenReturn(crsStuds);
 
         when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchool()));
