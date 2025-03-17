@@ -18,26 +18,6 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
     @Query(value = "SELECT a.* " +
             "FROM ASSESSMENT_STUDENT a " +
             "JOIN INCOMING_FILESET i ON a.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.SCHOOL_ID = :schoolID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND a.PEN = :pen " +
-            "  AND a.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
-    List<AssessmentStudentEntity> findBySchoolIDAndPen(UUID schoolID, String filesetStatusCode, String pen);
-
-    @Query(value = "SELECT a.* " +
-            "FROM ASSESSMENT_STUDENT a " +
-            "JOIN INCOMING_FILESET i ON a.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND a.PEN = :pen " +
-            "  AND a.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
-    List<AssessmentStudentEntity> findByDistrictIDAndPen(UUID districtID, String filesetStatusCode, String pen);
-
-    @Query(value = "SELECT a.* " +
-            "FROM ASSESSMENT_STUDENT a " +
-            "JOIN INCOMING_FILESET i ON a.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
             "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
             "  AND i.SCHOOL_ID = :schoolID " +
             "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +

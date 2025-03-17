@@ -52,22 +52,12 @@ public class AssessmentStudentService {
     public List<AssessmentStudentEntity> getXamStudents(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
         List<AssessmentStudentEntity> assessmentStudentList;
 
-        if (incomingFilesetId != null) {
-            if (schoolID != null) {
-                assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
-            } else if (districtID != null) {
-                assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtID, FilesetStatus.COMPLETED.getCode());
-            } else {
-                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
-            }
+        if (schoolID != null) {
+            assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+        } else if (districtID != null) {
+            assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtID, FilesetStatus.COMPLETED.getCode());
         } else {
-            if (schoolID != null) {
-                assessmentStudentList = assessmentStudentRepository.findBySchoolIDAndPen(schoolID, FilesetStatus.COMPLETED.getCode(), pen);
-            } else if (districtID != null) {
-                assessmentStudentList = assessmentStudentRepository.findByDistrictIDAndPen(districtID, FilesetStatus.COMPLETED.getCode(), pen);
-            } else {
-                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
-            }
+            throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
         }
 
         log.info("getXamStudents: {}", assessmentStudentList);
