@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GraduationProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValidationIssueFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValidationIssueTypeCode;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,5 +33,13 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "Validation Field Codes", description = "Endpoints to get validation codes.")
     @Schema(name = "ValidationIssueFieldCode", implementation = ValidationIssueFieldCode.class)
     List<ValidationIssueFieldCode> getValidationFieldCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_GRAD_COLLECTION_CODES')")
+    @GetMapping(URL.GRADUATION_PROGRAM_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "Graduation Program Codes", description = "Endpoints to get graduation program codes.")
+    @Schema(name = "GraduationProgramCode", implementation = GraduationProgramCode.class)
+    List<GraduationProgramCode> getGraduationProgramCodes();
 
 }
