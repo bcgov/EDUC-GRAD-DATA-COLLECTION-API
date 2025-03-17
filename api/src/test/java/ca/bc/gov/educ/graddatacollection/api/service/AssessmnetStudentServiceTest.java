@@ -12,7 +12,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class AssessmentStudentServiceTest {
@@ -43,8 +42,8 @@ class AssessmentStudentServiceTest {
         List<AssessmentStudentEntity> expectedList = List.of(new AssessmentStudentEntity(), new AssessmentStudentEntity());
 
         when(assessmentStudentRepository.findByIncomingFilesetIDAndSchoolID(
-                eq(incomingFilesetId), eq(pen), eq(schoolId), eq(FilesetStatus.COMPLETED.getCode())
-        )).thenReturn(expectedList);
+                incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
+                .thenReturn(expectedList);
 
         List<AssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId, districtId);
         assertThat(result).isEqualTo(expectedList);
@@ -62,8 +61,8 @@ class AssessmentStudentServiceTest {
         List<AssessmentStudentEntity> expectedList = List.of(new AssessmentStudentEntity());
 
         when(assessmentStudentRepository.findByIncomingFilesetIDAndDistrictID(
-                eq(incomingFilesetId), eq(pen), eq(districtId), eq(FilesetStatus.COMPLETED.getCode())
-        )).thenReturn(expectedList);
+                incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode()))
+                .thenReturn(expectedList);
 
         List<AssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId, districtId);
         assertThat(result).isEqualTo(expectedList);

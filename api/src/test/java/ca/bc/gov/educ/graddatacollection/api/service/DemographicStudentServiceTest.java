@@ -13,7 +13,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class DemographicStudentServiceTest {
@@ -45,8 +44,8 @@ class DemographicStudentServiceTest {
         expected.setPen(pen);
 
         when(demographicStudentRepository.findByIncomingFilesetIDAndSchoolID(
-                eq(incomingFilesetId), eq(pen), eq(schoolId), eq(FilesetStatus.COMPLETED.getCode())
-        )).thenReturn(Optional.of(expected));
+                incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
+                .thenReturn(Optional.of(expected));
 
         DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
         assertThat(result).isEqualTo(expected);
@@ -65,8 +64,8 @@ class DemographicStudentServiceTest {
         expected.setPen(pen);
 
         when(demographicStudentRepository.findByIncomingFilesetIDAndDistrictID(
-                eq(incomingFilesetId), eq(pen), eq(districtId), eq(FilesetStatus.COMPLETED.getCode())
-        )).thenReturn(Optional.of(expected));
+                incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode()))
+                .thenReturn(Optional.of(expected));
 
         DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
         assertThat(result).isEqualTo(expected);
@@ -85,8 +84,8 @@ class DemographicStudentServiceTest {
         expected.setPen(pen);
 
         when(demographicStudentRepository.findFirstBySchoolIDAndPen(
-                eq(schoolId), eq(FilesetStatus.COMPLETED.getCode()), eq(pen)
-        )).thenReturn(Optional.of(expected));
+                schoolId, FilesetStatus.COMPLETED.getCode(), pen))
+                .thenReturn(Optional.of(expected));
 
         DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
         assertThat(result).isEqualTo(expected);
@@ -105,8 +104,8 @@ class DemographicStudentServiceTest {
         expected.setPen(pen);
 
         when(demographicStudentRepository.findFirstByDistrictIDAndPen(
-                eq(districtId), eq(FilesetStatus.COMPLETED.getCode()), eq(pen)
-        )).thenReturn(Optional.of(expected));
+                districtId, FilesetStatus.COMPLETED.getCode(), pen))
+                .thenReturn(Optional.of(expected));
 
         DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
         assertThat(result).isEqualTo(expected);
@@ -135,8 +134,8 @@ class DemographicStudentServiceTest {
         UUID districtId = null;
 
         when(demographicStudentRepository.findByIncomingFilesetIDAndSchoolID(
-                eq(incomingFilesetId), eq(pen), eq(schoolId), eq(FilesetStatus.COMPLETED.getCode())
-        )).thenReturn(Optional.empty());
+                incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
+                .thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
                 demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId))
