@@ -11,6 +11,7 @@ public final class URL {
   public static final String PAGINATED = "/paginated";
   public static final String GET_STUDENT_FILESETS = "/get-student";
   public static final String VALIDATION_ISSUE_TYPE_CODES = "/validation-issue-type-codes";
+  public static final String GRADUATION_PROGRAM_CODES = "/graduation-program-codes";
   public static final String VALIDATION_FIELD_CODES = "/validation-field-codes";
   public static final String BASE_URL_REPORT_GENERATION = BASE_URL + "/reportGeneration";
 
