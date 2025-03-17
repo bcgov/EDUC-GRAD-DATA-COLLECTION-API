@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
@@ -47,6 +48,31 @@ public class CourseStudentService {
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String COURSE_STUDENT_ID = "courseStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
+
+    public List<CourseStudentEntity> getCrsStudents(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
+        List<CourseStudentEntity> courseStudentList;
+
+        if (incomingFilesetId != null) {
+            if (schoolID != null) {
+                courseStudentList = courseStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+            } else if (districtID != null) {
+                courseStudentList = courseStudentRepository.findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtID, FilesetStatus.COMPLETED.getCode());
+            } else {
+                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+            }
+        } else {
+            if (schoolID != null) {
+                courseStudentList = courseStudentRepository.findBySchoolIDAndPen(schoolID, FilesetStatus.COMPLETED.getCode(), pen);
+            } else if (districtID != null) {
+                courseStudentList = courseStudentRepository.findByDistrictIDAndPen(districtID, FilesetStatus.COMPLETED.getCode(), pen);
+            } else {
+                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+            }
+        }
+
+        log.info("getCrsStudents: {}", courseStudentList);
+        return courseStudentList;
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<CourseStudentValidationIssue> validateStudent(final UUID courseStudentID, SchoolTombstone schoolTombstone) {

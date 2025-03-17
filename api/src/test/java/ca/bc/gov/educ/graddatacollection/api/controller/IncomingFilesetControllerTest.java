@@ -3,9 +3,15 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ValueType;
@@ -41,9 +47,12 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     private MockMvc mockMvc;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
-
     @MockBean
-    private IncomingFilesetService incomingFilesetService;
+    DemographicStudentService  demographicStudentService;
+    @MockBean
+    CourseStudentService  courseStudentService;
+    @MockBean
+    AssessmentStudentService assessmentStudentService;
 
     @BeforeEach
     public void setUp() {
@@ -93,37 +102,30 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testGetIncomingFileset_withValidParameters_shouldReturnFilesetx() throws Exception {
-        var incomingFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        // Arrange
+        final String pen = "123456789";
         UUID filesetId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
         UUID districtId = UUID.randomUUID();
-        incomingFilesetEntity.setIncomingFilesetID(filesetId);
-        incomingFilesetEntity.setSchoolID(schoolId);
-        incomingFilesetEntity.setDistrictID(districtId);
 
-        var demStudent = createMockDemographicStudent(incomingFilesetEntity);
-        demStudent.setPen("123456789");
-        incomingFilesetEntity.setDemographicStudentEntities(Set.of(demStudent));
+        IncomingFilesetEntity incomingFilesetEntity = buildIncomingFilesetEntity(pen, filesetId, schoolId, districtId);
 
-        var courseStudent = createMockCourseStudent(incomingFilesetEntity);
-        courseStudent.setPen("123456789");
-        incomingFilesetEntity.setCourseStudentEntities(Set.of(courseStudent));
+        DemographicStudentEntity demStudent = incomingFilesetEntity.getDemographicStudentEntities().iterator().next();
+        List<AssessmentStudentEntity> xamStuds = List.copyOf(incomingFilesetEntity.getAssessmentStudentEntities());
+        List<CourseStudentEntity> crsStuds = List.copyOf(incomingFilesetEntity.getCourseStudentEntities());
 
-        var assessmentStudent = createMockAssessmentStudent();
-        assessmentStudent.setPen("123456789");
-        assessmentStudent.setIncomingFileset(incomingFilesetEntity);
-        incomingFilesetEntity.setAssessmentStudentEntities(Set.of(assessmentStudent));
+        when(demographicStudentService.getDemStudent(eq(pen), eq(filesetId), eq(schoolId), eq(districtId)))
+                .thenReturn(demStudent);
+        when(assessmentStudentService.getXamStudents(eq(pen), eq(filesetId), eq(schoolId), eq(districtId)))
+                .thenReturn(xamStuds);
+        when(courseStudentService.getCrsStudents(eq(pen), eq(filesetId), eq(schoolId), eq(districtId)))
+                .thenReturn(crsStuds);
 
-        when(incomingFilesetService.getErrorFilesetStudent(eq("123456789"), eq(filesetId), eq(schoolId), eq(districtId)))
-                .thenReturn(incomingFilesetEntity);
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchool()));
+        when(restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(createMockDistrict()));
 
-        var school = this.createMockSchool();
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var district = this.createMockDistrict();
-        when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
-
-        String pen = "123456789";
-        this.mockMvc.perform(get(URL.BASE_URL_FILESET + URL.GET_STUDENT_FILESETS)
+        // Act & Assert
+        mockMvc.perform(get(URL.BASE_URL_FILESET + URL.GET_STUDENT_FILESETS)
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .param("pen", pen)
                         .param("incomingFilesetID", filesetId.toString())
@@ -133,5 +135,30 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incomingFilesetID").value(filesetId.toString()));
+    }
+
+    /**
+     * Helper method to create and populate an IncomingFilesetEntity.
+     */
+    private IncomingFilesetEntity buildIncomingFilesetEntity(String pen, UUID filesetId, UUID schoolId, UUID districtId) {
+        IncomingFilesetEntity entity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        entity.setIncomingFilesetID(filesetId);
+        entity.setSchoolID(schoolId);
+        entity.setDistrictID(districtId);
+
+        var demStudent = createMockDemographicStudent(entity);
+        demStudent.setPen(pen);
+        entity.setDemographicStudentEntities(Set.of(demStudent));
+
+        var courseStudent = createMockCourseStudent(entity);
+        courseStudent.setPen(pen);
+        entity.setCourseStudentEntities(Set.of(courseStudent));
+
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(pen);
+        assessmentStudent.setIncomingFileset(entity);
+        entity.setAssessmentStudentEntities(Set.of(assessmentStudent));
+
+        return entity;
     }
 }

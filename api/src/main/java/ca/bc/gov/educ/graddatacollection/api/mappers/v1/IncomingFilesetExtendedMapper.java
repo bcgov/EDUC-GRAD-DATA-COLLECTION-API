@@ -5,7 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
@@ -16,7 +15,6 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(uses = {
@@ -29,23 +27,27 @@ import java.util.stream.Collectors;
 public interface IncomingFilesetExtendedMapper {
     IncomingFilesetExtendedMapper mapper = Mappers.getMapper(IncomingFilesetExtendedMapper.class);
 
-    @Mapping(target = "demographicStudents", source = "demographicStudentEntities", qualifiedByName = "toDemographicStudentList")
-    @Mapping(target = "courseStudents", source = "courseStudentEntities", qualifiedByName = "toCourseStudentList")
-    @Mapping(target = "assessmentStudents", source = "assessmentStudentEntities", qualifiedByName = "toAssessmentStudentList")
-    IncomingFilesetExtended toStructure(IncomingFilesetEntity incomingFilesetEntity);
+    @Mapping(target = "incomingFilesetID", source = "incomingFilesetID")
+    @Mapping(target = "pen", source = "pen")
+    @Mapping(target = "demographicStudent", source = "demographicStudentEntity", qualifiedByName = "toDemographicStudent")
+    @Mapping(target = "courseStudents", source = "courseStudentEntities", qualifiedByName = "toCourseStudentListFromList")
+    @Mapping(target = "assessmentStudents", source = "assessmentStudentEntities", qualifiedByName = "toAssessmentStudentListFromList")
+    IncomingFilesetExtended toStructure(String pen,
+                                        java.util.UUID incomingFilesetID,
+                                        DemographicStudentEntity demographicStudentEntity,
+                                        List<CourseStudentEntity> courseStudentEntities,
+                                        List<AssessmentStudentEntity> assessmentStudentEntities);
 
-    @Named("toDemographicStudentList")
-    default List<DemographicStudent> toDemographicStudentList(Set<DemographicStudentEntity> entities) {
-        if (entities == null) {
+    @Named("toDemographicStudent")
+    default DemographicStudent toDemographicStudent(DemographicStudentEntity entity) {
+        if (entity == null) {
             return null;
         }
-        return entities.stream()
-                .map(DemographicStudentMapper.mapper::toDemographicStudent)
-                .collect(Collectors.toList());
+        return DemographicStudentMapper.mapper.toDemographicStudent(entity);
     }
 
-    @Named("toCourseStudentList")
-    default List<CourseStudent> toCourseStudentList(Set<CourseStudentEntity> entities) {
+    @Named("toCourseStudentListFromList")
+    default List<CourseStudent> toCourseStudentListFromList(List<CourseStudentEntity> entities) {
         if (entities == null) {
             return null;
         }
@@ -54,39 +56,13 @@ public interface IncomingFilesetExtendedMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("toAssessmentStudentList")
-    default List<AssessmentStudent> toAssessmentStudentList(Set<AssessmentStudentEntity> entities) {
+    @Named("toAssessmentStudentListFromList")
+    default List<AssessmentStudent> toAssessmentStudentListFromList(List<AssessmentStudentEntity> entities) {
         if (entities == null) {
             return null;
         }
         return entities.stream()
                 .map(AssessmentStudentMapper.mapper::toAssessmentStudent)
                 .collect(Collectors.toList());
-    }
-
-    default IncomingFilesetExtended toStructureWithPen(IncomingFilesetEntity incomingFilesetEntity, String pen) {
-        IncomingFilesetExtended extended = toStructure(incomingFilesetEntity);
-        if (extended.getDemographicStudents() != null) {
-            extended.setDemographicStudents(
-                    extended.getDemographicStudents().stream()
-                            .filter(ds -> pen.equals(ds.getPen()))
-                            .collect(Collectors.toList())
-            );
-        }
-        if (extended.getCourseStudents() != null) {
-            extended.setCourseStudents(
-                    extended.getCourseStudents().stream()
-                            .filter(cs -> pen.equals(cs.getPen()))
-                            .collect(Collectors.toList())
-            );
-        }
-        if (extended.getAssessmentStudents() != null) {
-            extended.setAssessmentStudents(
-                    extended.getAssessmentStudents().stream()
-                            .filter(as -> pen.equals(as.getPen()))
-                            .collect(Collectors.toList())
-            );
-        }
-        return extended;
     }
 }

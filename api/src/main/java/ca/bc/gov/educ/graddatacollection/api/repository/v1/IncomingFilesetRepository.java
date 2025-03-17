@@ -22,62 +22,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
-    @Query(value = "SELECT DISTINCT i.* FROM INCOMING_FILESET i " +
-            "JOIN DEMOGRAPHIC_STUDENT d ON i.INCOMING_FILESET_ID = d.INCOMING_FILESET_ID " +
-            "LEFT JOIN COURSE_STUDENT c ON i.INCOMING_FILESET_ID = c.INCOMING_FILESET_ID " +
-            "LEFT JOIN ASSESSMENT_STUDENT a ON i.INCOMING_FILESET_ID = a.INCOMING_FILESET_ID " +
-            "WHERE i.SCHOOL_ID = :schoolID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.PEN = :pen " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "  AND (c.STUDENT_STATUS_CODE IS NULL OR c.STUDENT_STATUS_CODE <> 'LOADED') " +
-            "  AND (a.STUDENT_STATUS_CODE IS NULL OR a.STUDENT_STATUS_CODE <> 'LOADED') " +
-            "ORDER BY i.CREATE_DATE DESC " +
-            "LIMIT 1", nativeQuery = true)
-    Optional<IncomingFilesetEntity> findFirstBySchoolIDAndPen(UUID schoolID, String filesetStatusCode, String pen);
-
-    @Query(value = "SELECT DISTINCT i.* " +
-            "FROM INCOMING_FILESET i " +
-            "JOIN DEMOGRAPHIC_STUDENT d ON i.INCOMING_FILESET_ID = d.INCOMING_FILESET_ID " +
-            "LEFT JOIN COURSE_STUDENT c ON i.INCOMING_FILESET_ID = c.INCOMING_FILESET_ID " +
-            "LEFT JOIN ASSESSMENT_STUDENT a ON i.INCOMING_FILESET_ID = a.INCOMING_FILESET_ID " +
-            "WHERE i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.PEN = :pen " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "  AND (c.STUDENT_STATUS_CODE IS NULL OR c.STUDENT_STATUS_CODE <> 'LOADED') " +
-            "  AND (a.STUDENT_STATUS_CODE IS NULL OR a.STUDENT_STATUS_CODE <> 'LOADED') " +
-            "ORDER BY i.CREATE_DATE DESC " +
-            "LIMIT 1", nativeQuery = true)
-    Optional<IncomingFilesetEntity> findFirstByDistrictIDAndPen(UUID districtID, String filesetStatusCode, String pen);
-
-    @Query(value = "SELECT DISTINCT i.* " +
-            "FROM INCOMING_FILESET i " +
-            "JOIN DEMOGRAPHIC_STUDENT d ON i.INCOMING_FILESET_ID = d.INCOMING_FILESET_ID " +
-            "LEFT JOIN COURSE_STUDENT c ON i.INCOMING_FILESET_ID = c.INCOMING_FILESET_ID " +
-            "LEFT JOIN ASSESSMENT_STUDENT a ON i.INCOMING_FILESET_ID = a.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.SCHOOL_ID = :schoolID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "  AND (c.STUDENT_STATUS_CODE IS NULL OR c.STUDENT_STATUS_CODE <> 'LOADED') " +
-            "  AND (a.STUDENT_STATUS_CODE IS NULL OR a.STUDENT_STATUS_CODE <> 'LOADED')", nativeQuery = true)
-    Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndSchoolIDAndFilesetStatusCode(UUID incomingFilesetID, UUID schoolID, String filesetStatusCode);
-
-
-    @Query(value = "SELECT DISTINCT i.* " +
-            "FROM INCOMING_FILESET i " +
-            "JOIN DEMOGRAPHIC_STUDENT d ON i.INCOMING_FILESET_ID = d.INCOMING_FILESET_ID " +
-            "LEFT JOIN COURSE_STUDENT c ON i.INCOMING_FILESET_ID = c.INCOMING_FILESET_ID " +
-            "LEFT JOIN ASSESSMENT_STUDENT a ON i.INCOMING_FILESET_ID = a.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "  AND (c.STUDENT_STATUS_CODE IS NULL OR c.STUDENT_STATUS_CODE <> 'LOADED') " +
-            "  AND (a.STUDENT_STATUS_CODE IS NULL OR a.STUDENT_STATUS_CODE <> 'LOADED')", nativeQuery = true)
-    Optional<IncomingFilesetEntity> findIncomingFilesetEntityByIncomingFilesetIDAndDistrictIDAndFilesetStatusCode(UUID incomingFilesetID, UUID districtID, String filesetStatusCode);
-
     @Query(value="""
     SELECT inFileset
     FROM IncomingFilesetEntity inFileset

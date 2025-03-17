@@ -6,18 +6,20 @@ import lombok.experimental.SuperBuilder;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class IncomingFilesetExtended extends IncomingFileset implements Serializable {
+@ToString
+public class IncomingFilesetExtended implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private List<DemographicStudent> demographicStudents;
+    private UUID incomingFilesetID;
+    private String pen;
+    private DemographicStudent demographicStudent;
     private List<CourseStudent> courseStudents;
     private List<AssessmentStudent> assessmentStudents;
 }
