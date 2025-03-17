@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RequestMapping(URL.BASE_URL_FILESET)
@@ -25,4 +26,10 @@ public interface IncomingFilesetEndpoint {
                                                      @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                      @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
+    @GetMapping(URL.GET_STUDENT_FILESETS)
+    @PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
+    @Transactional(readOnly = true)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+    IncomingFileset getIncomingFileset(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetID", required = false) UUID incomingFilesetID,
+                                       @RequestParam(name = "schoolID", required = false) UUID schoolID, @RequestParam(name = "districtID", required = false) UUID districtID);
 }

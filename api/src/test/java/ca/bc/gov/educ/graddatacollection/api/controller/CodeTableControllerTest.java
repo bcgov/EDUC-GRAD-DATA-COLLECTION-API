@@ -28,7 +28,7 @@ class CodeTableControllerTest extends BaseGradDataCollectionAPITest {
 
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     MockitoAnnotations.openMocks(this);
   }
 
@@ -52,5 +52,13 @@ class CodeTableControllerTest extends BaseGradDataCollectionAPITest {
     this.mockMvc.perform(get(URL.BASE_URL + URL.VALIDATION_FIELD_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].code").value("PEN"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
+  }
+
+  @Test
+  void testGetAllGraduationProgramCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_GRAD_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.GRADUATION_PROGRAM_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk());
   }
 }

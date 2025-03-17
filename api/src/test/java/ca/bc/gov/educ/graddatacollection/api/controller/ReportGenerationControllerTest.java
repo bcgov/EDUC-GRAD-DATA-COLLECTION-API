@@ -38,6 +38,8 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        this.incomingFilesetRepository.deleteAll();
+        this.errorFilesetStudentRepository.deleteAll();
     }
 
     @Test
