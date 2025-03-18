@@ -44,7 +44,7 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
 
     @Override
     public List<GraduationProgramCode> getGraduationProgramCodes() {
-        return restUtils.getGraduationProgramCodeList();
+        return restUtils.getGraduationProgramCodeList(false);
     }
 
     private ValidationIssueTypeCode getValidationIssue(String validationIssueCode, String validationIssueDesc){

@@ -15,7 +15,10 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessmen
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.District;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
@@ -296,6 +299,8 @@ public class RestUtils {
     try {
       writeLock.lock();
       for (val program : this.getGraduationProgramCodes()) {
+        program.setEffectiveDate(!StringUtils.isBlank(program.getEffectiveDate()) ? LocalDateTime.parse(program.getEffectiveDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString() : null);
+        program.setExpiryDate(!StringUtils.isBlank(program.getExpiryDate()) ? LocalDateTime.parse(program.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString() : null);
         this.gradProgramCodeMap.put(program.getProgramCode(), program);
       }
     } catch (Exception ex) {
@@ -360,11 +365,15 @@ public class RestUtils {
             .block();
   }
 
-  public List<GraduationProgramCode> getGraduationProgramCodeList() {
+  public List<GraduationProgramCode> getGraduationProgramCodeList(boolean activeOnly) {
     if (this.gradProgramCodeMap.isEmpty()) {
       log.info("Graduation Program Code map is empty reloading them");
       this.populateGradProgramCodesMap();
     }
+    if(activeOnly){
+      return this.gradProgramCodeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
+    }
+
     return this.gradProgramCodeMap.values().stream().toList();
   }
 
@@ -442,7 +451,7 @@ public class RestUtils {
       this.populateGradGradesMap();
     }
     if(activeOnly){
-      return this.gradGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate()).isAfter(LocalDateTime.now())).toList();
+      return this.gradGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(LocalDateTime.now())).toList();
     }
     return this.gradGradeMap.values().stream().toList();
   }

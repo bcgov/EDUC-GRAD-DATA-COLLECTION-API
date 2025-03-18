@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -21,7 +20,7 @@ public class GraduationProgramCode implements Serializable {
     private String programName;
     private String description;
     private int displayOrder;
-    private Date effectiveDate;
-    private Date expiryDate;
+    private String effectiveDate;
+    private String expiryDate;
     private String associatedCredential;
 }

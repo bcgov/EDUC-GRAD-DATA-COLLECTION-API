@@ -16,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,21 +60,17 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList();
+        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList(true);
         String studentProgram = student.getGradRequirementYear();
 
         if (gradStudent != null && StringUtils.isNotEmpty(studentProgram)) {
             String completionDateStr = gradStudent.getProgramCompletionDate();
 
             if (StringUtils.isEmpty(completionDateStr)) {
-                Date now = new Date();
                 boolean programClosed = graduationProgramCodes.stream().anyMatch(code -> {
                     String gradCode = code.getProgramCode();
                     String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
-                    if (code.getExpiryDate() != null && baseGradCode.equalsIgnoreCase(studentProgram)) {
-                        return code.getExpiryDate().before(now);
-                    }
-                    return false;
+                    return baseGradCode.equalsIgnoreCase(studentProgram);
                 });
 
                 if (programClosed) {

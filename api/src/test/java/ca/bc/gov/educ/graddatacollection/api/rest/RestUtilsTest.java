@@ -475,17 +475,17 @@ class RestUtilsTest {
     @Test
     void testPopulateGradProgramCodesMap() {
         List<GraduationProgramCode> mockGradPrograms = List.of(
-                new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred")
+                new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred")
         );
 
-        doReturn(mockGradPrograms).when(restUtils).getGraduationProgramCodeList();
+        doReturn(mockGradPrograms).when(restUtils).getGraduationProgramCodeList(false);
 
         restUtils.populateGradProgramCodesMap();
 
-        assertEquals(2, restUtils.getGraduationProgramCodeList().size());
-        assertEquals("Adult Graduation Program", restUtils.getGraduationProgramCodeList().getFirst().getProgramName());
-        assertEquals("B.C. Graduation Program", restUtils.getGraduationProgramCodeList().getLast().getProgramName());
+        assertEquals(2, restUtils.getGraduationProgramCodeList(false).size());
+        assertEquals("Adult Graduation Program", restUtils.getGraduationProgramCodeList(false).getFirst().getProgramName());
+        assertEquals("B.C. Graduation Program", restUtils.getGraduationProgramCodeList(false).getLast().getProgramName());
     }
 
     @Test

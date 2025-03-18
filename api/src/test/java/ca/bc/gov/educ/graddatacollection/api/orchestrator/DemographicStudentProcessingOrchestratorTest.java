@@ -28,7 +28,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,7 +63,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     ArgumentCaptor<byte[]> eventCaptor;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         Mockito.reset(messagePublisher);
         Mockito.reset(restUtils);
         sagaEventRepository.deleteAll();
@@ -120,16 +119,16 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
                         new ProgramRequirementCode("SCCP", "School Completion Certificate Program", "Description for SCCP", RequirementTypeCode.builder().reqTypeCode("REQ_TYPE").build(), "4", "Not met description", "12", "English", "Y", "CATEGORY", "7", "G", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
-        when(restUtils.getGraduationProgramCodeList()).thenReturn(
+        when(restUtils.getGraduationProgramCodeList(true)).thenReturn(
                 List.of(
-                        new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("2018-EN", "B.C. Graduation Program 2018", "Description for 2018", 4,Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("2004-PF", "B.C. Graduation Program 2004", "Description for 2004", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("1996-EN", "B.C. Graduation Program 1996", "Description for 1996", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("1986-PF", "B.C. Graduation Program 1986", "Description for 1986", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("SCCP", "School Completion Certificate Program", "Description for SCCP", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred"),
-                        new GraduationProgramCode("NONPROG", "Expired Program", "Description for Expired", 4, Date.valueOf(LocalDate.now()), Date.valueOf("2222-01-01"), "associatedCred")
+                        new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("2018-EN", "B.C. Graduation Program 2018", "Description for 2018", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("2004-PF", "B.C. Graduation Program 2004", "Description for 2004", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("1996-EN", "B.C. Graduation Program 1996", "Description for 1996", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("1986-PF", "B.C. Graduation Program 1986", "Description for 1986", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("SCCP", "School Completion Certificate Program", "Description for SCCP", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred"),
+                        new GraduationProgramCode("NONPROG", "Expired Program", "Description for Expired", 4, LocalDate.now().toString(), LocalDate.now().minusYears(2).toString(), "associatedCred")
                 )
         );
         Student studentApiStudent = new Student();
