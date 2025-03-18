@@ -80,7 +80,7 @@ class DemographicStudentServiceTest {
         assertThatThrownBy(() ->
                 demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Either schoolID or districtID must be provided.");
+                .hasMessageContaining("schoolID must be provided.");
     }
 
     @Test
