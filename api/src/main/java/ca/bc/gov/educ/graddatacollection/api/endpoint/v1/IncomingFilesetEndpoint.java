@@ -2,7 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetExtended;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetStudent;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.data.domain.Page;
@@ -31,6 +31,6 @@ public interface IncomingFilesetEndpoint {
     @PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-    IncomingFilesetExtended getStudentFileset(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetID", required = false) UUID incomingFilesetID,
-                                              @RequestParam(name = "schoolID", required = false) UUID schoolID, @RequestParam(name = "districtID", required = false) UUID districtID);
+    IncomingFilesetStudent getStudentFileset(@RequestParam(name = "pen") String pen, @RequestParam(name = "incomingFilesetID", required = false) UUID incomingFilesetID,
+                                             @RequestParam(name = "schoolID", required = false) UUID schoolID, @RequestParam(name = "districtID", required = false) UUID districtID);
 }

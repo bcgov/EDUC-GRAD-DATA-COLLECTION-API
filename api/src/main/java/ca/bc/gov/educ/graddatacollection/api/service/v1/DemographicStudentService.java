@@ -70,9 +70,9 @@ public class DemographicStudentService {
             }
         }
 
-        String incomingFilesetIdString = (incomingFilesetId != null) ? incomingFilesetId.toString() : "null";
-        String incomingSchoolIdString = (schoolID != null) ? schoolID.toString() : "null";
-        String incomingDistrictIdString = (districtID != null) ? districtID.toString() : "null";
+        String incomingFilesetIdString = Objects.toString(incomingFilesetId, null);
+        String incomingSchoolIdString = Objects.toString(schoolID, null);
+        String incomingDistrictIdString = Objects.toString(districtID, null);
         return optionalDemographicStudentEntity.orElseThrow(() -> new EntityNotFoundException(DemographicStudentEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString, "incomingSchoolId: ", incomingSchoolIdString,  "incomingDistrictId: ", incomingDistrictIdString)
         );
     }

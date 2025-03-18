@@ -8,7 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetExtended;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetStudent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -24,19 +24,19 @@ import java.util.stream.Collectors;
         CourseStudentMapper.class,
         AssessmentStudentMapper.class
 })
-public interface IncomingFilesetExtendedMapper {
-    IncomingFilesetExtendedMapper mapper = Mappers.getMapper(IncomingFilesetExtendedMapper.class);
+public interface IncomingFilesetStudentMapper {
+    IncomingFilesetStudentMapper mapper = Mappers.getMapper(IncomingFilesetStudentMapper.class);
 
     @Mapping(target = "incomingFilesetID", source = "incomingFilesetID")
     @Mapping(target = "pen", source = "pen")
     @Mapping(target = "demographicStudent", source = "demographicStudentEntity", qualifiedByName = "toDemographicStudent")
     @Mapping(target = "courseStudents", source = "courseStudentEntities", qualifiedByName = "toCourseStudentListFromList")
     @Mapping(target = "assessmentStudents", source = "assessmentStudentEntities", qualifiedByName = "toAssessmentStudentListFromList")
-    IncomingFilesetExtended toStructure(String pen,
-                                        java.util.UUID incomingFilesetID,
-                                        DemographicStudentEntity demographicStudentEntity,
-                                        List<CourseStudentEntity> courseStudentEntities,
-                                        List<AssessmentStudentEntity> assessmentStudentEntities);
+    IncomingFilesetStudent toStructure(String pen,
+                                       java.util.UUID incomingFilesetID,
+                                       DemographicStudentEntity demographicStudentEntity,
+                                       List<CourseStudentEntity> courseStudentEntities,
+                                       List<AssessmentStudentEntity> assessmentStudentEntities);
 
     @Named("toDemographicStudent")
     default DemographicStudent toDemographicStudent(DemographicStudentEntity entity) {

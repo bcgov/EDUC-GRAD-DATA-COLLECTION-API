@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class IncomingFilesetExtended implements Serializable {
+public class IncomingFilesetStudent implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

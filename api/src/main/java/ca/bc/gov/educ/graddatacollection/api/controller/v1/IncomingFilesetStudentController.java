@@ -1,15 +1,15 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.IncomingFilesetEndpoint;
-import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetExtendedMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetExtended;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,7 +36,7 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     private static final IncomingFilesetMapper mapper = IncomingFilesetMapper.mapper;
 
-    private static final IncomingFilesetExtendedMapper extendedMapper  = IncomingFilesetExtendedMapper.mapper;
+    private static final IncomingFilesetStudentMapper extendedMapper  = IncomingFilesetStudentMapper.mapper;
 
     public IncomingFilesetStudentController(IncomingFilesetSearchService incomingFilesetSearchService, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
         this.incomingFilesetSearchService = incomingFilesetSearchService;
@@ -61,7 +61,7 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     }
 
     @Override
-    public IncomingFilesetExtended getStudentFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
+    public IncomingFilesetStudent getStudentFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
         DemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID, districtID);
 
         UUID resolvedFilesetID = incomingFilesetID != null ? incomingFilesetID : demStud.getIncomingFileset().getIncomingFilesetID();
