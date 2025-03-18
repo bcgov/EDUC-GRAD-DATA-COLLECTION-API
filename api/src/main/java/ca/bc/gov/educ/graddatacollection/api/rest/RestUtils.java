@@ -444,14 +444,19 @@ public class RestUtils {
             .collectList()
             .block();
   }
-
+  
   public List<GradGrade> getGradGradeList(boolean activeOnly) {
     if (this.gradGradeMap.isEmpty()) {
-      log.info("Grad Grade map is empty reloading them");
+      log.info("Grad Grade map is empty, reloading them");
       this.populateGradGradesMap();
     }
-    if(activeOnly){
-      return this.gradGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(LocalDateTime.now())).toList();
+    if (activeOnly) {
+      return this.gradGradeMap.values().stream()
+              .filter(code ->
+                      StringUtils.isBlank(code.getExpiryDate()) ||
+                              LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                                      .isAfter(LocalDateTime.now())
+              ).toList();
     }
     return this.gradGradeMap.values().stream().toList();
   }
