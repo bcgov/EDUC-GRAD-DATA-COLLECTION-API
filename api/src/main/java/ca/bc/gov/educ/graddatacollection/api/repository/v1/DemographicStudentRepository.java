@@ -30,31 +30,10 @@ public interface DemographicStudentRepository extends JpaRepository<DemographicS
     @Query(value = "SELECT d.* " +
             "FROM DEMOGRAPHIC_STUDENT d " +
             "JOIN INCOMING_FILESET i ON d.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.PEN = :pen " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC " +
-            "LIMIT 1", nativeQuery = true)
-    Optional<DemographicStudentEntity> findFirstByDistrictIDAndPen(UUID districtID, String filesetStatusCode, String pen);
-
-    @Query(value = "SELECT d.* " +
-            "FROM DEMOGRAPHIC_STUDENT d " +
-            "JOIN INCOMING_FILESET i ON d.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
             "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
             "  AND i.SCHOOL_ID = :schoolID " +
             "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
             "  AND d.PEN = :pen " +
             "  AND d.STUDENT_STATUS_CODE <> 'LOADED'", nativeQuery = true)
     Optional<DemographicStudentEntity> findByIncomingFilesetIDAndSchoolID(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode);
-
-    @Query(value = "SELECT d.* " +
-            "FROM DEMOGRAPHIC_STUDENT d " +
-            "JOIN INCOMING_FILESET i ON d.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.PEN = :pen " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED'", nativeQuery = true)
-    Optional<DemographicStudentEntity> findByIncomingFilesetIDAndDistrictID(UUID incomingFilesetID, String pen, UUID districtID, String filesetStatusCode);
 }

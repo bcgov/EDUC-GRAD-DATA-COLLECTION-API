@@ -38,7 +38,6 @@ class DemographicStudentServiceTest {
         String pen = "123456789";
         UUID incomingFilesetId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = UUID.randomUUID();
 
         DemographicStudentEntity expected = new DemographicStudentEntity();
         expected.setPen(pen);
@@ -47,30 +46,10 @@ class DemographicStudentServiceTest {
                 incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
                 .thenReturn(Optional.of(expected));
 
-        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
+        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId);
         assertThat(result).isEqualTo(expected);
         verify(demographicStudentRepository, times(1))
                 .findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode());
-    }
-
-    @Test
-    void getDemStudent_withIncomingFilesetIdAndDistrictId_shouldReturnEntity() {
-        String pen = "123456789";
-        UUID incomingFilesetId = UUID.randomUUID();
-        UUID schoolId = null;
-        UUID districtId = UUID.randomUUID();
-
-        DemographicStudentEntity expected = new DemographicStudentEntity();
-        expected.setPen(pen);
-
-        when(demographicStudentRepository.findByIncomingFilesetIDAndDistrictID(
-                incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode()))
-                .thenReturn(Optional.of(expected));
-
-        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
-        assertThat(result).isEqualTo(expected);
-        verify(demographicStudentRepository, times(1))
-                .findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode());
     }
 
     @Test
@@ -78,7 +57,6 @@ class DemographicStudentServiceTest {
         String pen = "123456789";
         UUID incomingFilesetId = null;
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = null;
 
         DemographicStudentEntity expected = new DemographicStudentEntity();
         expected.setPen(pen);
@@ -87,30 +65,10 @@ class DemographicStudentServiceTest {
                 schoolId, FilesetStatus.COMPLETED.getCode(), pen))
                 .thenReturn(Optional.of(expected));
 
-        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
+        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId);
         assertThat(result).isEqualTo(expected);
         verify(demographicStudentRepository, times(1))
                 .findFirstBySchoolIDAndPen(schoolId, FilesetStatus.COMPLETED.getCode(), pen);
-    }
-
-    @Test
-    void getDemStudent_withoutIncomingFilesetId_butWithDistrictId_shouldReturnEntity() {
-        String pen = "123456789";
-        UUID incomingFilesetId = null;
-        UUID schoolId = null;
-        UUID districtId = UUID.randomUUID();
-
-        DemographicStudentEntity expected = new DemographicStudentEntity();
-        expected.setPen(pen);
-
-        when(demographicStudentRepository.findFirstByDistrictIDAndPen(
-                districtId, FilesetStatus.COMPLETED.getCode(), pen))
-                .thenReturn(Optional.of(expected));
-
-        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId);
-        assertThat(result).isEqualTo(expected);
-        verify(demographicStudentRepository, times(1))
-                .findFirstByDistrictIDAndPen(districtId, FilesetStatus.COMPLETED.getCode(), pen);
     }
 
     @Test
@@ -118,10 +76,9 @@ class DemographicStudentServiceTest {
         String pen = "123456789";
         UUID incomingFilesetId = null;
         UUID schoolId = null;
-        UUID districtId = null;
 
         assertThatThrownBy(() ->
-                demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId))
+                demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Either schoolID or districtID must be provided.");
     }
@@ -131,14 +88,13 @@ class DemographicStudentServiceTest {
         String pen = "123456789";
         UUID incomingFilesetId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = null;
 
         when(demographicStudentRepository.findByIncomingFilesetIDAndSchoolID(
                 incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
-                demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId, districtId))
+                demographicStudentService.getDemStudent(pen, incomingFilesetId, schoolId))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

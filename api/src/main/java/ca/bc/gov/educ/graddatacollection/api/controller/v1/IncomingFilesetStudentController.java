@@ -61,13 +61,13 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     }
 
     @Override
-    public IncomingFilesetStudent getStudentFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
-        DemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID, districtID);
+    public IncomingFilesetStudent getFilesetStudent(String pen, UUID incomingFilesetID, UUID schoolID) {
+        DemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID);
 
         UUID resolvedFilesetID = incomingFilesetID != null ? incomingFilesetID : demStud.getIncomingFileset().getIncomingFilesetID();
 
-        List<AssessmentStudentEntity> xamStuds = this.assessmentStudentService.getXamStudents(pen, resolvedFilesetID, schoolID, districtID);
-        List<CourseStudentEntity> crsStuds = this.courseStudentService.getCrsStudents(pen, resolvedFilesetID, schoolID, districtID);
+        List<AssessmentStudentEntity> xamStuds = this.assessmentStudentService.getXamStudents(pen, resolvedFilesetID, schoolID);
+        List<CourseStudentEntity> crsStuds = this.courseStudentService.getCrsStudents(pen, resolvedFilesetID, schoolID);
 
         return extendedMapper.toStructure(pen, resolvedFilesetID, demStud, crsStuds, xamStuds);
     }

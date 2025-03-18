@@ -105,19 +105,18 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         final String pen = "123456789";
         UUID filesetId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = UUID.randomUUID();
 
-        IncomingFilesetEntity incomingFilesetEntity = buildIncomingFilesetEntity(pen, filesetId, schoolId, districtId);
+        IncomingFilesetEntity incomingFilesetEntity = buildIncomingFilesetEntity(pen, filesetId, schoolId);
 
         DemographicStudentEntity demStudent = incomingFilesetEntity.getDemographicStudentEntities().iterator().next();
         List<AssessmentStudentEntity> xamStuds = List.copyOf(incomingFilesetEntity.getAssessmentStudentEntities());
         List<CourseStudentEntity> crsStuds = List.copyOf(incomingFilesetEntity.getCourseStudentEntities());
 
-        when(demographicStudentService.getDemStudent(pen, filesetId, schoolId, districtId))
+        when(demographicStudentService.getDemStudent(pen, filesetId, schoolId))
                 .thenReturn(demStudent);
-        when(assessmentStudentService.getXamStudents(pen, filesetId, schoolId, districtId))
+        when(assessmentStudentService.getXamStudents(pen, filesetId, schoolId))
                 .thenReturn(xamStuds);
-        when(courseStudentService.getCrsStudents(pen, filesetId, schoolId, districtId))
+        when(courseStudentService.getCrsStudents(pen, filesetId, schoolId))
                 .thenReturn(crsStuds);
 
         when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchool()));
@@ -129,7 +128,6 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
                         .param("pen", pen)
                         .param("incomingFilesetID", filesetId.toString())
                         .param("schoolID", schoolId.toString())
-                        .param("districtID", districtId.toString())
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -139,11 +137,10 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     /**
      * Helper method to create and populate an IncomingFilesetEntity.
      */
-    private IncomingFilesetEntity buildIncomingFilesetEntity(String pen, UUID filesetId, UUID schoolId, UUID districtId) {
+    private IncomingFilesetEntity buildIncomingFilesetEntity(String pen, UUID filesetId, UUID schoolId) {
         IncomingFilesetEntity entity = createMockIncomingFilesetEntityWithAllFilesLoaded();
         entity.setIncomingFilesetID(filesetId);
         entity.setSchoolID(schoolId);
-        entity.setDistrictID(districtId);
 
         var demStudent = createMockDemographicStudent(entity);
         demStudent.setPen(pen);

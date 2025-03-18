@@ -49,15 +49,13 @@ public class AssessmentStudentService {
     private static final String ASSESSMENT_STUDENT_ID = "assessmentStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
-    public List<AssessmentStudentEntity> getXamStudents(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
+    public List<AssessmentStudentEntity> getXamStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
         List<AssessmentStudentEntity> assessmentStudentList;
 
         if (schoolID != null) {
             assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
-        } else if (districtID != null) {
-            assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtID, FilesetStatus.COMPLETED.getCode());
         } else {
-            throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+            throw new IllegalArgumentException("schoolID must be provided.");
         }
 
         log.info("getXamStudents: {}", assessmentStudentList);

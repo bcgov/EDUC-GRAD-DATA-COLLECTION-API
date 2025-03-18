@@ -26,16 +26,4 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudentEnti
             "  AND c.STUDENT_STATUS_CODE <> 'LOADED' " +
             "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
     List<CourseStudentEntity> findByIncomingFilesetIDAndSchoolID(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode);
-
-    @Query(value = "SELECT c.* " +
-            "FROM COURSE_STUDENT c " +
-            "JOIN INCOMING_FILESET i ON c.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND c.PEN = :pen " +
-            "  AND c.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
-    List<CourseStudentEntity> findByIncomingFilesetIDAndDistrictID(UUID incomingFilesetID, String pen, UUID districtID, String filesetStatusCode);
-
 }

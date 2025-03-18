@@ -37,7 +37,6 @@ class AssessmentStudentServiceTest {
         String pen = "123456789";
         UUID incomingFilesetId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = null;
 
         List<AssessmentStudentEntity> expectedList = List.of(new AssessmentStudentEntity(), new AssessmentStudentEntity());
 
@@ -45,29 +44,10 @@ class AssessmentStudentServiceTest {
                 incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
                 .thenReturn(expectedList);
 
-        List<AssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId, districtId);
+        List<AssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId);
         assertThat(result).isEqualTo(expectedList);
         verify(assessmentStudentRepository, times(1))
                 .findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode());
-    }
-
-    @Test
-    void getXamStudents_withDistrictId_shouldReturnList() {
-        String pen = "123456789";
-        UUID incomingFilesetId = UUID.randomUUID();
-        UUID schoolId = null;
-        UUID districtId = UUID.randomUUID();
-
-        List<AssessmentStudentEntity> expectedList = List.of(new AssessmentStudentEntity());
-
-        when(assessmentStudentRepository.findByIncomingFilesetIDAndDistrictID(
-                incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode()))
-                .thenReturn(expectedList);
-
-        List<AssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId, districtId);
-        assertThat(result).isEqualTo(expectedList);
-        verify(assessmentStudentRepository, times(1))
-                .findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode());
     }
 
     @Test
@@ -75,11 +55,10 @@ class AssessmentStudentServiceTest {
         String pen = "123456789";
         UUID incomingFilesetId = UUID.randomUUID();
         UUID schoolId = null;
-        UUID districtId = null;
 
         assertThatThrownBy(() ->
-                assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId, districtId))
+                assessmentStudentService.getXamStudents(pen, incomingFilesetId, schoolId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Either schoolID or districtID must be provided.");
+                .hasMessageContaining("schoolID must be provided.");
     }
 }

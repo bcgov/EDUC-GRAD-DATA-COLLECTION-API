@@ -45,29 +45,10 @@ class CourseStudentServiceTest {
                 incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode()))
                 .thenReturn(expectedList);
 
-        List<CourseStudentEntity> result = courseStudentService.getCrsStudents(pen, incomingFilesetId, schoolId, districtId);
+        List<CourseStudentEntity> result = courseStudentService.getCrsStudents(pen, incomingFilesetId, schoolId);
         assertThat(result).isEqualTo(expectedList);
         verify(courseStudentRepository, times(1))
                 .findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolId, FilesetStatus.COMPLETED.getCode());
-    }
-
-    @Test
-    void getCrsStudents_withDistrictId_shouldReturnList() {
-        String pen = "123456789";
-        UUID incomingFilesetId = UUID.randomUUID();
-        UUID schoolId = null;
-        UUID districtId = UUID.randomUUID();
-
-        List<CourseStudentEntity> expectedList = List.of(new CourseStudentEntity());
-
-        when(courseStudentRepository.findByIncomingFilesetIDAndDistrictID(
-                incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode()))
-                .thenReturn(expectedList);
-
-        List<CourseStudentEntity> result = courseStudentService.getCrsStudents(pen, incomingFilesetId, schoolId, districtId);
-        assertThat(result).isEqualTo(expectedList);
-        verify(courseStudentRepository, times(1))
-                .findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtId, FilesetStatus.COMPLETED.getCode());
     }
 
     @Test
@@ -78,8 +59,8 @@ class CourseStudentServiceTest {
         UUID districtId = null;
 
         assertThatThrownBy(() ->
-                courseStudentService.getCrsStudents(pen, incomingFilesetId, schoolId, districtId))
+                courseStudentService.getCrsStudents(pen, incomingFilesetId, schoolId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Either schoolID or districtID must be provided.");
+                .hasMessageContaining("schoolID must be provided.");
     }
 }

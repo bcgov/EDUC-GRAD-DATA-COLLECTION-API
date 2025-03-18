@@ -49,31 +49,26 @@ public class DemographicStudentService {
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
-    public DemographicStudentEntity getDemStudent(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
+    public DemographicStudentEntity getDemStudent(String pen, UUID incomingFilesetId, UUID schoolID) {
         Optional<DemographicStudentEntity> optionalDemographicStudentEntity;
 
         if (incomingFilesetId != null) {
             if (schoolID != null) {
                 optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
-            } else if (districtID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtID, FilesetStatus.COMPLETED.getCode());
             } else {
-                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+                throw new IllegalArgumentException("schoolID must be provided.");
             }
         } else {
             if (schoolID != null) {
                 optionalDemographicStudentEntity = demographicStudentRepository.findFirstBySchoolIDAndPen(schoolID, FilesetStatus.COMPLETED.getCode(), pen);
-            } else if (districtID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findFirstByDistrictIDAndPen(districtID, FilesetStatus.COMPLETED.getCode(), pen);
             } else {
-                throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+                throw new IllegalArgumentException("schoolID must be provided.");
             }
         }
 
         String incomingFilesetIdString = Objects.toString(incomingFilesetId, null);
         String incomingSchoolIdString = Objects.toString(schoolID, null);
-        String incomingDistrictIdString = Objects.toString(districtID, null);
-        return optionalDemographicStudentEntity.orElseThrow(() -> new EntityNotFoundException(DemographicStudentEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString, "incomingSchoolId: ", incomingSchoolIdString,  "incomingDistrictId: ", incomingDistrictIdString)
+        return optionalDemographicStudentEntity.orElseThrow(() -> new EntityNotFoundException(DemographicStudentEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString, "incomingSchoolId: ", incomingSchoolIdString)
         );
     }
 

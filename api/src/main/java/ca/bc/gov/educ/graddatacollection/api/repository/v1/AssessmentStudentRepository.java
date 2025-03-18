@@ -25,15 +25,4 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
             "  AND a.STUDENT_STATUS_CODE <> 'LOADED' " +
             "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
     List<AssessmentStudentEntity> findByIncomingFilesetIDAndSchoolID(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode);
-
-    @Query(value = "SELECT a.* " +
-            "FROM ASSESSMENT_STUDENT a " +
-            "JOIN INCOMING_FILESET i ON a.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.DISTRICT_ID = :districtID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND a.PEN = :pen " +
-            "  AND a.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
-    List<AssessmentStudentEntity> findByIncomingFilesetIDAndDistrictID(UUID incomingFilesetID, String pen, UUID districtID, String filesetStatusCode);
 }

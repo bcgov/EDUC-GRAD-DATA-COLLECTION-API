@@ -49,15 +49,13 @@ public class CourseStudentService {
     private static final String COURSE_STUDENT_ID = "courseStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
-    public List<CourseStudentEntity> getCrsStudents(String pen, UUID incomingFilesetId, UUID schoolID, UUID districtID) {
+    public List<CourseStudentEntity> getCrsStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
         List<CourseStudentEntity> courseStudentList;
 
         if (schoolID != null) {
             courseStudentList = courseStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
-        } else if (districtID != null) {
-            courseStudentList = courseStudentRepository.findByIncomingFilesetIDAndDistrictID(incomingFilesetId, pen, districtID, FilesetStatus.COMPLETED.getCode());
         } else {
-            throw new IllegalArgumentException("Either schoolID or districtID must be provided.");
+            throw new IllegalArgumentException("schoolID must be provided.");
         }
 
         log.info("getCrsStudents: {}", courseStudentList);
