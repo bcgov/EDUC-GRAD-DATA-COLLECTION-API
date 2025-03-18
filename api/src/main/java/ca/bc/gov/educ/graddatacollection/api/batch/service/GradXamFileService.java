@@ -80,6 +80,8 @@ public class GradXamFileService implements GradFileBatchProcessor {
         while (ds.next()) {
             final var mincode = ds.getString(MINCODE.getName());
             gradFileValidator.validateMincode(guid, schoolID, mincode);
+            var schoolTombstone =  gradFileValidator.getSchoolByID(guid, schoolID);
+            gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
             batchFile.getAssessmentData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
             index++;
         }

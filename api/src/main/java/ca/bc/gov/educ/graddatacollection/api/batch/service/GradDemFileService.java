@@ -80,6 +80,8 @@ public class GradDemFileService implements GradFileBatchProcessor {
         while (ds.next()) {
             final var mincode = ds.getString(MINCODE.getName());
             gradFileValidator.validateMincode(guid, schoolID, mincode);
+            var schoolTombstone =  gradFileValidator.getSchoolByID(guid, schoolID);
+            gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
             batchFile.getDemogData().add(this.getStudentDemogDetailRecordFromFile(ds, guid, index));
             index++;
         }
