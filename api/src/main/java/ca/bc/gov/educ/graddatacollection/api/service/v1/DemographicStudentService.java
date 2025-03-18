@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
@@ -47,6 +48,29 @@ public class DemographicStudentService {
     private final DemographicStudentRulesProcessor demographicStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
+
+    public DemographicStudentEntity getDemStudent(String pen, UUID incomingFilesetId, UUID schoolID) {
+        Optional<DemographicStudentEntity> optionalDemographicStudentEntity;
+
+        if (incomingFilesetId != null) {
+            if (schoolID != null) {
+                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+            } else {
+                throw new IllegalArgumentException("schoolID must be provided.");
+            }
+        } else {
+            if (schoolID != null) {
+                optionalDemographicStudentEntity = demographicStudentRepository.findFirstBySchoolIDAndPen(schoolID, FilesetStatus.COMPLETED.getCode(), pen);
+            } else {
+                throw new IllegalArgumentException("schoolID must be provided.");
+            }
+        }
+
+        String incomingFilesetIdString = Objects.toString(incomingFilesetId, null);
+        String incomingSchoolIdString = Objects.toString(schoolID, null);
+        return optionalDemographicStudentEntity.orElseThrow(() -> new EntityNotFoundException(DemographicStudentEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString, "incomingSchoolId: ", incomingSchoolIdString)
+        );
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<DemographicStudentValidationIssue> validateStudent(final UUID demographicStudentID, SchoolTombstone schoolTombstone) {

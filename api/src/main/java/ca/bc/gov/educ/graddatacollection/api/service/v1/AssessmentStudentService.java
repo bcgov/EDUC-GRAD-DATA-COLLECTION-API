@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
@@ -47,6 +48,19 @@ public class AssessmentStudentService {
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String ASSESSMENT_STUDENT_ID = "assessmentStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
+
+    public List<AssessmentStudentEntity> getXamStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
+        List<AssessmentStudentEntity> assessmentStudentList;
+
+        if (schoolID != null) {
+            assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+        } else {
+            throw new IllegalArgumentException("schoolID must be provided.");
+        }
+
+        log.info("getXamStudents: {}", assessmentStudentList);
+        return assessmentStudentList;
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<AssessmentStudentValidationIssue> validateStudent(final UUID assessmentStudentID, SchoolTombstone schoolTombstone) {

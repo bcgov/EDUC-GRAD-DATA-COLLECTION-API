@@ -1,12 +1,15 @@
 package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.IncomingFilesetEndpoint;
-import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetExtendedMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetStudentMapper;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetSearchService;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,15 +28,21 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     private final IncomingFilesetSearchService incomingFilesetSearchService;
 
-    private final IncomingFilesetService incomingFilesetService;
+    private final DemographicStudentService demographicStudentService;
+
+    private final AssessmentStudentService assessmentStudentService;
+
+    private final CourseStudentService courseStudentService;
 
     private static final IncomingFilesetMapper mapper = IncomingFilesetMapper.mapper;
 
-    private static final IncomingFilesetExtendedMapper extendedMapper  = IncomingFilesetExtendedMapper.mapper;
+    private static final IncomingFilesetStudentMapper extendedMapper  = IncomingFilesetStudentMapper.mapper;
 
-    public IncomingFilesetStudentController(IncomingFilesetSearchService incomingFilesetSearchService, IncomingFilesetService incomingFilesetService) {
+    public IncomingFilesetStudentController(IncomingFilesetSearchService incomingFilesetSearchService, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
         this.incomingFilesetSearchService = incomingFilesetSearchService;
-        this.incomingFilesetService = incomingFilesetService;
+        this.demographicStudentService = demographicStudentService;
+        this.assessmentStudentService = assessmentStudentService;
+        this.courseStudentService = courseStudentService;
     }
 
     @Override
@@ -52,9 +61,14 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     }
 
     @Override
-    public IncomingFileset getIncomingFileset(String pen, UUID incomingFilesetID, UUID schoolID, UUID districtID) {
-        IncomingFilesetEntity incomingFilesetEntity = this.incomingFilesetService.getErrorFilesetStudent(pen, incomingFilesetID, schoolID, districtID);
-        log.debug("getIncomingFileset: ={}", incomingFilesetEntity);
-        return extendedMapper.toStructureWithPen(incomingFilesetEntity, pen);
+    public IncomingFilesetStudent getFilesetStudent(String pen, UUID incomingFilesetID, UUID schoolID) {
+        DemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID);
+
+        UUID resolvedFilesetID = incomingFilesetID != null ? incomingFilesetID : demStud.getIncomingFileset().getIncomingFilesetID();
+
+        List<AssessmentStudentEntity> xamStuds = this.assessmentStudentService.getXamStudents(pen, resolvedFilesetID, schoolID);
+        List<CourseStudentEntity> crsStuds = this.courseStudentService.getCrsStudents(pen, resolvedFilesetID, schoolID);
+
+        return extendedMapper.toStructure(pen, resolvedFilesetID, demStud, crsStuds, xamStuds);
     }
 }
