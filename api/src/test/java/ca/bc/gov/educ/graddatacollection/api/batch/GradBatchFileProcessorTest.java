@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -382,14 +383,14 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testValidateSchoolIsTranscriptEligibleAndOpen_AllConditionsMet() throws FileUnProcessableException {
+    void testValidateSchoolIsTranscriptEligibleAndOpen_AllConditionsMet() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
         school.setCanIssueTranscripts(true);
         school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(null);
 
-        gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId());
+        assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
 
     @Test
@@ -415,6 +416,17 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolOpenedToday() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        LocalDateTime today = LocalDateTime.now();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(today.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInFuture() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
@@ -422,8 +434,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setOpenedDate(LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
-        assertThrows(FileUnProcessableException.class,
-                () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+        assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
 
     @Test
@@ -431,11 +442,23 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
         school.setCanIssueTranscripts(true);
-        school.setOpenedDate(LocalDateTime.now().minusMonths(3).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        school.setClosedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setOpenedDate(LocalDateTime.now().minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setClosedDate(LocalDateTime.now().minusMonths(4).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         assertThrows(FileUnProcessableException.class,
                 () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
+    }
+
+    @Test
+    void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedToday() {
+        String guid = UUID.randomUUID().toString();
+        SchoolTombstone school = createMockSchool();
+        LocalDateTime today = LocalDateTime.now();
+        school.setCanIssueTranscripts(true);
+        school.setOpenedDate(today.minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        school.setClosedDate(today.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
 
     @Test

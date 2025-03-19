@@ -180,16 +180,14 @@ public class GradFileValidator {
         }
 
         try {
-            var currentDate = LocalDateTime.now();
-            var maxCloseDate = currentDate.plusMonths(3);
+            LocalDateTime currentDate = LocalDateTime.now();
             LocalDateTime openDate = LocalDateTime.parse(school.getOpenedDate());
-            LocalDateTime closeDate = school.getClosedDate() != null ? LocalDateTime.parse(school.getClosedDate()): null;
+            LocalDateTime endOfCloseDateGraceWindow = school.getClosedDate() != null ? LocalDateTime.parse(school.getClosedDate()).plusMonths(3) : null;
 
-            if (openDate.isAfter(currentDate)){
+            if (currentDate.isBefore(openDate)){
                 throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
             }
-
-            if (!openDate.isBefore(currentDate) || (closeDate != null && closeDate.isBefore(maxCloseDate))) {
+            if ((endOfCloseDateGraceWindow != null) && currentDate.isAfter(endOfCloseDateGraceWindow)) {
                 throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
             }
         } catch (DateTimeParseException e) {
