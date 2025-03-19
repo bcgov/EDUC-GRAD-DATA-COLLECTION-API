@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.batch.validation;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -197,19 +198,15 @@ public class GradFileValidator {
     }
 
     public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
-
         validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId());
-
         String schoolDistrictID = school.getDistrictId();
-
-        if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
+        if(SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode()) || StringUtils.compare(schoolDistrictID, districtID) != 0) {
             throw new FileUnProcessableException(
                     FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
                     guid,
                     GradCollectionStatus.LOAD_FAIL
             );
         }
-
     }
 
     public SchoolTombstone getSchoolByID(@NonNull final String guid,final String schoolID) throws FileUnProcessableException {
