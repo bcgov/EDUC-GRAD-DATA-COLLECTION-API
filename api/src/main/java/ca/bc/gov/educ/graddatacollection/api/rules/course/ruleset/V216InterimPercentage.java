@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V216 | ERROR    | Interim percent must match interim letter grade if interim letter 	  |  V202        |
+ *  | V216 | ERROR    | Interim percent must match interim letter grade if interim letter 	  |  V202 , V206 |
  *  |      |          | grade provided                                                        |  V214, V215  |
  */
 @Component

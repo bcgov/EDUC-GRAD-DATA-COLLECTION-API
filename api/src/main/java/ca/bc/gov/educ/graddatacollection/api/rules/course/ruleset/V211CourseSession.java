@@ -21,7 +21,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V211 | WARN     | Course session date plus day of 01 should not be after the course     |   V202, V209 |
- *  |      |          | completion date                                                       |   V237       |
+ *  |      |          | completion date                                                       |   V237, V206 |
  */
 @Component
 @Slf4j

@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V228 | ERROR    | Must be blank for 1986 graduation program	                          |  V202        |
+ *  | V228 | ERROR    | Must be blank for 1986 graduation program	                          |  V202, V206  |
  *
  */
 @Component

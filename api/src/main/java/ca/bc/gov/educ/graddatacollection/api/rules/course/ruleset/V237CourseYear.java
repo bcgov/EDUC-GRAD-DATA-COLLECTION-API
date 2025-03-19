@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V237 | ERROR    | Course year cannot be null - must be four characters                  |   V202       |
+ *  | V237 | ERROR    | Course year cannot be null - must be four characters                  |   V202, V206 |
  */
 
 @Component

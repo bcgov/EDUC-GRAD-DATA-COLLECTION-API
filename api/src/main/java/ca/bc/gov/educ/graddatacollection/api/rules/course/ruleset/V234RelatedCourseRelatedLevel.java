@@ -19,7 +19,7 @@ import java.util.List;
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V234 | ERROR    | Related Course Code and Related Course Level must be a valid          |   V202       |
  *  |      |          | course/level                                                          |   V233       |
- *  |      |          |                                                                       |              |
+ *  |      |          |                                                                       |   V206       |
  */
 @Component
 @Slf4j

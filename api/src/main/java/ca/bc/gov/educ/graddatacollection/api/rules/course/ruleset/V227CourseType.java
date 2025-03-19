@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V227 | ERROR    | Must be a valid code	                                    	      |  V202        |
+ *  | V227 | ERROR    | Must be a valid code	                                    	      |  V202, V206  |
  *
  */
 @Component

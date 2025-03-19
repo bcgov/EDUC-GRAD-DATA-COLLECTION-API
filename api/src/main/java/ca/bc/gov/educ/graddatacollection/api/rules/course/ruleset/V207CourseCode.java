@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | V207 | ERROR    | Schools cannot report Q code courses unless the q-code course already | 202           |
+ *  | V207 | ERROR    | Schools cannot report Q code courses unless the q-code course already | V202, V206   |
  *                      exists for the student for the same Course Code/LeveL/Session in Student Course
  *
  */

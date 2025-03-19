@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V223 | ERROR    | Course Code of GT/GTF can only have a letter grade of RM              | V202, V219   |
+ *  | V223 | ERROR    | Course Code of GT/GTF can only have a letter grade of RM              | V202, V219, V206  |
  *
  */
 @Component

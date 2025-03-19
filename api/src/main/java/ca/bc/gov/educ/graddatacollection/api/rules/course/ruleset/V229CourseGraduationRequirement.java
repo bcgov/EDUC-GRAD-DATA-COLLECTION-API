@@ -19,7 +19,7 @@ import java.util.List;
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V229 | ERROR    | Can only enter Fine Arts/Applied Skills if the course is Board        |   V202       |
  *  |      |          | Authority Authorized or Locally Developed for the 1996 graduation     |   V231       |
- *  |      |          | program                                                               |              |
+ *  |      |          | program                                                               |   V206   |
  */
 @Component
 @Slf4j

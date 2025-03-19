@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V240 | ERROR    | 	Error if Final Letter Grad = "W" and course code and session date | V202         |
+ *  | V240 | ERROR    | 	Error if Final Letter Grad = "W" and course code and session date | V202, V206   |
  *                          does not exist in GRAD for the student.
  *
  */

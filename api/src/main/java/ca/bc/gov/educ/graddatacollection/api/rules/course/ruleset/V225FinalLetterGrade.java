@@ -20,7 +20,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V225 | WARN     | If the Final Letter Grade is IE, the course cannot be past 12 months  | V202, V217,  |
- *  |      |          | old.                                                                  | V219         |
+ *  |      |          | old.                                                                  | V219, V206   |
  *  |      |          | Course Session > today's date plus 12 months.                         |              |
  */
 @Component

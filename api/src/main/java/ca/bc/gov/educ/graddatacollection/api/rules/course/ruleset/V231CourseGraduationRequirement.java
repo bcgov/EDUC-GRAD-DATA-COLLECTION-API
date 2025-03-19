@@ -18,7 +18,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V231 | ERROR    | Must be a valid Fine Arts/Applied Skills code: A, F, B                |   V202       |
- *  |      |          |                                                                       |              |
+ *  |      |          |                                                                       |  V206       |
  */
 @Component
 @Slf4j

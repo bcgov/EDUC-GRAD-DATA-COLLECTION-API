@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V302 | WARNING  | Invalid Course Level entry, value will be ignored.                    | -            |
+ *  | V302 | WARNING  | Invalid Course Level entry, value will be ignored.                    | V320         |
  *                      Value should be blank.
  */
 @Component
@@ -30,7 +30,7 @@ public class V302CourseLevel implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V302: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V302", validationErrorsMap);
 
         log.debug("In shouldExecute of V302: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

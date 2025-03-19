@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V306 | WARNING  | Interim school percentage value is ignored and must be blank.         |--------------|
+ *  | V306 | WARNING  | Interim school percentage value is ignored and must be blank.         |V320, V303|
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V306InterimSchoolPercentage implements AssessmentValidationBaseRule
         log.debug("In shouldExecute of V306: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V306", validationErrorsMap);
 
         log.debug("In shouldExecute of V306: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

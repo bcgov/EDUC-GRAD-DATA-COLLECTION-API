@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V238 | ERROR    | 	Error if Final LG = "W" and student has graduated and the course  | V217         |
+ *  | V238 | ERROR    | 	Error if Final LG = "W" and student has graduated and the course  | V217, V206   |
  *                          has been used for graduation.
  *
  */
