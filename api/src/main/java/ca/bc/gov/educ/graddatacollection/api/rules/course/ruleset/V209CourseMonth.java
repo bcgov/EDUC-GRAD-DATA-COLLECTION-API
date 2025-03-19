@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V209 | ERROR    | Course month must be between 01 and 12                                |   V202       |
+ *  | V209 | ERROR    | Course month must be between 01 and 12                                |   V202,V206  |
  */
 @Component
 @Slf4j

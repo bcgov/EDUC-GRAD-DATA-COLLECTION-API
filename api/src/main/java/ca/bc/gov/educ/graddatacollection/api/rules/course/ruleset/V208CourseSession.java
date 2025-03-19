@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V208 | ERROR    | Course session cannot be a duplicate course/level/session within the  |   V202       |
+ *  | V208 | ERROR    | Course session cannot be a duplicate course/level/session within the  |   V202, V206  |
  *  |      |          | same .CRS file                                                        |              |
  */
 @Component

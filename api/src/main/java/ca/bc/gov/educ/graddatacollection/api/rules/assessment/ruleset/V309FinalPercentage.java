@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V309 | ERROR    | Final percentage result cannot be submitted by the school.            |--------------|
+ *  | V309 | ERROR    | Final percentage result cannot be submitted by the school.            |V320, V303|
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V309FinalPercentage implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V309: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V309", validationErrorsMap);
 
         log.debug("In shouldExecute of V309: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V303 | WARNING  | The Assessment Code provided is not valid for the Assessment Session  |--------------|
+ *  | V303 | WARNING  | The Assessment Code provided is not valid for the Assessment Session  |     V320     |
  *                      specified.
  */
 @Component
@@ -36,7 +36,7 @@ public class V303CourseCode implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V303: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V303", validationErrorsMap);
 
         log.debug("In shouldExecute of V303: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

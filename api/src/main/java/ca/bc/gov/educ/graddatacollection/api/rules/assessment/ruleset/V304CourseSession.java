@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  *  | ID          | Severity | Rule                                                                                              | Dependent On |
  *  |-------------|----------|---------------------------------------------------------------------------------------------------|--------------|
- *  | V304        | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V303         |
+ *  | V304        | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V320, V303   |
  */
 @Component
 @Slf4j

@@ -20,7 +20,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V212 | ERROR    | Course session must be no greater than next school year or no less    | V202, V209,  |
- *                      than 198401                                                             V237
+ *                      than 198401                                                             V237, V206
  */
 @Component
 @Slf4j

@@ -18,12 +18,12 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V312 | ERROR    |  Assessment registration must be A=active or W=withdraw               |--------------|
+ *  | V312 | ERROR    |  Assessment registration must be A=active or W=withdraw               |V320, V303|
  *
  */
 @Component
 @Slf4j
-@Order(111)
+@Order(200)
 public class V312CourseStatus implements AssessmentValidationBaseRule {
 
     @Override
@@ -31,7 +31,7 @@ public class V312CourseStatus implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V312: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V312", validationErrorsMap);
 
         log.debug("In shouldExecute of V312: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

@@ -19,7 +19,7 @@ import java.util.List;
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V232 | ERROR    | For the 1996 graduation program, check number of credits for Fine     |    V202      |
  *  |      |          | Arts/Applied Skills.                                                  |    V231      |
- *  |      |          | If B - credits for course must be 4-credits	                          |              |
+ *  |      |          | If B - credits for course must be 4-credits	                          |    V206      |
  *
  */
 @Component

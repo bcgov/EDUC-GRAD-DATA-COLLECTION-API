@@ -18,7 +18,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V233 | ERROR    | These fields can only be accepted if the students' course is an       |   V202       |
- *  |      |          | Independent Directed Studies course                                   |              |
+ *  |      |          | Independent Directed Studies course                                   |   V206       |
  *  |      |          |                                                                       |              |
  */
 @Component

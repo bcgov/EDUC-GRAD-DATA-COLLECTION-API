@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V215 | ERROR    | Must be a valid letter grade for the course session provided	      | V202, V212   |
+ *  | V215 | ERROR    | Must be a valid letter grade for the course session provided	      | V202, V212, V206|
  *
  */
 @Component

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V316 | WARNING  |  To write flag value is ignored and must be blank                     |--------------|
+ *  | V316 | WARNING  |  To write flag value is ignored and must be blank                     |V320, V303|
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V316ToWriteFlag implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V316: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V316", validationErrorsMap);
 
         log.debug("In shouldExecute of V316: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

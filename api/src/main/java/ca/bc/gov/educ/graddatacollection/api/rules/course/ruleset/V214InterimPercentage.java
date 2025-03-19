@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V214 | ERROR    | Interim percent cannot be negative or greater than 100                | V202 V212    |
+ *  | V214 | ERROR    | Interim percent cannot be negative or greater than 100                | V202 V212, V206|
  *
  */
 @Component

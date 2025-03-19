@@ -19,7 +19,7 @@ import java.util.List;
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V235 | ERROR    | If the course is an independent directed studies, there should be     |   V202       |
  *  |      |          | a related course code and related course level.                       |   V234       |
- *  |      |          |                                                                       |              |
+ *  |      |          |                                                                       |   V206       |
  */
 @Component
 @Slf4j

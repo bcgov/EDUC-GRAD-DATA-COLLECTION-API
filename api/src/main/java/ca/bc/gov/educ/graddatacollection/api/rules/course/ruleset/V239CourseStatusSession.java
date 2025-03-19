@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V239 | ERROR    | 	Course Status = "W" and the course code and session date does not | V217         |
+ *  | V239 | ERROR    | 	Course Status = "W" and the course code and session date does not | V217, V206   |
  *                          exist in GRAD for the student.
  *
  */

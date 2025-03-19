@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V218 | ERROR    | Final percent cannot be negative or greater than 100                  | V217         |
+ *  | V218 | ERROR    | Final percent cannot be negative or greater than 100                  | V217, V206|
  *
  */
 @Component
