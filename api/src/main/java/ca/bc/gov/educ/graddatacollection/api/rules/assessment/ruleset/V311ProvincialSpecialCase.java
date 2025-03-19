@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V311 | ERROR    | Provincial special case cannot be submitted by the school.            |--------------|
+ *  | V311 | ERROR    | Provincial special case cannot be submitted by the school.            |V320, V303|
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V311ProvincialSpecialCase implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V311: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V311", validationErrorsMap);
 
         log.debug("In shouldExecute of V311: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

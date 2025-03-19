@@ -20,7 +20,7 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V317 | ERROR    |  Invalid exam school provided.                                        |--------------|
+ *  | V317 | ERROR    |  Invalid exam school provided.                                        |V320, V303|
  *
  */
 @Component
@@ -39,7 +39,7 @@ public class V317ExamSchool implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V317: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V317", validationErrorsMap);
 
         log.debug("In shouldExecute of V317: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

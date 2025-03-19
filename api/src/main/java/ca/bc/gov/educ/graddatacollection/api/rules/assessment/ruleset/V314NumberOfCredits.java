@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V314 | WARNING  |  Number of credits value is ignored and must be blank                 |--------------|
+ *  | V314 | WARNING  |  Number of credits value is ignored and must be blank                 |V320, V303|
  *
  */
 @Component
@@ -30,7 +30,7 @@ public class V314NumberOfCredits implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V314: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V314", validationErrorsMap);
 
         log.debug("In shouldExecute of V314: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,

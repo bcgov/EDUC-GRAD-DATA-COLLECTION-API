@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V318 | ERROR    |  The assessment session is a duplicate of an existing assessment      | V301, V303   |
+ *  | V318 | ERROR    |  The assessment session is a duplicate of an existing assessment      | V301, V303, V20 |
  *                       session for this student
  *
  */

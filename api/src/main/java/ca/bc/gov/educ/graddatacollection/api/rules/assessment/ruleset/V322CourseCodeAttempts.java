@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V322 | ERROR    |  Error if the course status is not "W" and the student already        |V301,V303,V313|
+ *  | V322 | ERROR    |  Error if the course status is not "W" and the student already        |V301,V303,V312, V20|
  *                       has three write attempts for the submitted assessment (course code)
  *
  */
