@@ -20,7 +20,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V217 | ERROR    | Final pct or Final Letter Grade should not be included for future     | V202, V212   |
- *  |      |          | courses                                                               |              |
+ *  |      |          | courses                                                               |  V206      |
  *  |      |          | Future = Course Session > today's date                                |              |
  */
 @Component

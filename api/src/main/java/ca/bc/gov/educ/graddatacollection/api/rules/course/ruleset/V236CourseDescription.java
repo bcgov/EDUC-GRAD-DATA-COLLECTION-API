@@ -18,7 +18,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V236 | ERROR    | This field can only be accepted if the students' course is a          |   V202       |
- *  |      |          | "generic" course.                                                     |              |
+ *  |      |          | "generic" course.                                                     |   V206       |
  *  |      |          |                                                                       |              |
  */
 @Component

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | V213 | ERROR    | Courses that were examinable at the time of the course session date   | 202, 212      |
+ *  | V213 | ERROR    | Courses that were examinable at the time of the course session date   | 202, 212, V206|
  *                      cannot be submitted through the CRS file unless the record exists for
  *                      the same Course Code/Level/Session in Student Course and the Student
  *                      Course record has no associated Student Exam record and the Student

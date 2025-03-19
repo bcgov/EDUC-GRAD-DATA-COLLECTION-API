@@ -18,7 +18,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V226 | ERROR    | The number of credits must be equal to at least one of the Course     |   V202       |
- *  |      |          | Allowable Credits that were available for the course session.         |              |
+ *  |      |          | Allowable Credits that were available for the course session.         |   V206    |
  */
 @Component
 @Slf4j

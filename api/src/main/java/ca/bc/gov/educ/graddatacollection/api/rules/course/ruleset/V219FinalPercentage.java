@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V219 | ERROR    | If course session is prior to 199409 no Final percent should be       |   V217       |
+ *  | V219 | ERROR    | If course session is prior to 199409 no Final percent should be       |   V217, V206|
  *                      entered for these courses.  This field should be blank.
  *
  */

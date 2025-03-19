@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V222 | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | V202, V219   |
+ *  | V222 | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | V202, V219, V206  |
  *
  */
 @Component

@@ -20,7 +20,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V210 | WARN     | Course session date plus day of 01 should not be before the course    |   V202, V209 |
- *  |      |          | start date                                                            |   V237       |
+ *  |      |          | start date                                                            |   V237, V206 |
  */
 @Component
 @Slf4j
