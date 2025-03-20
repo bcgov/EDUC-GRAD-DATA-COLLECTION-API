@@ -1,8 +1,13 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1.reports;
 
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.ErrorFilesetStudentMapper;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +20,8 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ErrorReportHeaders.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportTypeCodes.STUDENT_ERROR_REPORT;
@@ -27,14 +30,22 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportT
 @Slf4j
 public class CSVReportService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    private final IncomingFilesetRepository incomingFilesetRepository;
     private static final ErrorFilesetStudentMapper errorFilesetStudentMapper = ErrorFilesetStudentMapper.mapper;
+    private final RestUtils restUtils;
 
     @Autowired
-    public CSVReportService(ErrorFilesetStudentRepository errorFilesetStudentRepository) {
+    public CSVReportService(ErrorFilesetStudentRepository errorFilesetStudentRepository, IncomingFilesetRepository incomingFilesetRepository, RestUtils restUtils) {
         this.errorFilesetStudentRepository = errorFilesetStudentRepository;
+        this.incomingFilesetRepository = incomingFilesetRepository;
+        this.restUtils = restUtils;
     }
 
     public DownloadableReportResponse generateErrorReport(UUID incomingFilesetId) {
+        Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity =  incomingFilesetRepository.findById(incomingFilesetId);
+        IncomingFilesetEntity incomingFileset = optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetId.toString()));
+        Optional<SchoolTombstone> optionalSchoolTombstones = restUtils.getSchoolBySchoolID(incomingFileset.getSchoolID().toString());
+        SchoolTombstone schoolTombstone = optionalSchoolTombstones.orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class,"incomingFilesetSchoolId", incomingFileset.getSchoolID().toString()));
         List<ErrorFilesetStudent> results = errorFilesetStudentRepository.findAllByIncomingFileset_IncomingFilesetID(incomingFilesetId)
                 .stream()
                 .map(errorFilesetStudentMapper::toStructure)
@@ -59,6 +70,7 @@ public class CSVReportService {
 
             var downloadableReport = new DownloadableReportResponse();
             downloadableReport.setReportType(STUDENT_ERROR_REPORT.getCode());
+            downloadableReport.setReportName(String.format("%s - Graduation Data Error Report - %s", schoolTombstone.getMincode(), incomingFileset.getCreateDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))));
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
             return downloadableReport;
 

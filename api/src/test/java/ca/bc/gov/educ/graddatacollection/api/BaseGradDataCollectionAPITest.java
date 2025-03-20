@@ -101,6 +101,10 @@ public abstract class BaseGradDataCollectionAPITest {
             .crsFileName("Test.crs")
             .xamFileName("Test.xam")
             .filesetStatusCode("LOADED")
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now())
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateDate(LocalDateTime.now())
             .build();
   }
 
