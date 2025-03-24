@@ -198,15 +198,16 @@ public class GradFileValidator {
     }
 
     public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
-        validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId());
         String schoolDistrictID = school.getDistrictId();
-        if(SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode()) || StringUtils.compare(schoolDistrictID, districtID) != 0) {
+        if(!school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) || StringUtils.compare(schoolDistrictID, districtID) != 0) {
             throw new FileUnProcessableException(
                     FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
                     guid,
                     GradCollectionStatus.LOAD_FAIL
             );
         }
+
+        validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId());
     }
 
     public SchoolTombstone getSchoolByID(@NonNull final String guid,final String schoolID) throws FileUnProcessableException {
