@@ -53,7 +53,7 @@ public class V121DemographicStudentProgram implements DemographicValidationBaseR
         log.debug("In executeValidation of StudentProgram-V121 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList(true);
+        List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList(false);
         String studentProgram = student.getGradRequirementYear();
 
         if (StringUtils.isNotEmpty(student.getGradRequirementYear())) {
