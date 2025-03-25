@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null);
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null, "ABC", LocalDateTime.now(), "ABC", LocalDateTime.now());
         } catch(Exception e) {
             fail("Should not have thrown any exception");
         }
@@ -67,7 +68,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         errorFilesetStudentRepository.save(errorStudent);
 
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null);
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null, "ABC", LocalDateTime.now(), "ABC", LocalDateTime.now());
         } catch(Exception e) {
             fail("Should not have thrown any exception");
         }

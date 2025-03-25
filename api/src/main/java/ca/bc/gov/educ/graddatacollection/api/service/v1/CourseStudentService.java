@@ -149,7 +149,7 @@ public class CourseStudentService {
 
     public void flagErrorOnStudent(final CourseStudent courseStudent) {
         try{
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), false, null, null, null, null);
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), false, null, null, null, null, courseStudent.getCreateUser(), LocalDateTime.parse(courseStudent.getCreateDate()), courseStudent.getUpdateUser(), LocalDateTime.parse(courseStudent.getUpdateDate()));
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
