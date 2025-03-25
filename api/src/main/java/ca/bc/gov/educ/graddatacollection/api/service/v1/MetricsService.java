@@ -43,19 +43,22 @@ public class MetricsService {
                 .totalStudents(String.valueOf(errorFilesetStudentRepository.countAllByIncomingFileset_IncomingFilesetID(filesetID)))
                 .build();
 
+        String ERROR = "ERROR";
+        String WARNING = "WARNING";
+
         Map<String, Long> demCountsMap = getCountsMap(demographicStudentRepository.countValidationIssuesBySeverity(filesetID));
-        long demErrorCount = demCountsMap.getOrDefault("ERROR", 0L);
-        long demWarningCount = demCountsMap.getOrDefault("WARNING", 0L);
+        long demErrorCount = demCountsMap.getOrDefault(ERROR, 0L);
+        long demWarningCount = demCountsMap.getOrDefault(WARNING, 0L);
         summary.setDemCounts(createFileWarningErrorCounts(demErrorCount, demWarningCount));
 
         Map<String, Long> xamCountsMap = getCountsMap(assessmentStudentRepository.countValidationIssuesBySeverity(filesetID));
-        long xamErrorCount = xamCountsMap.getOrDefault("ERROR", 0L);
-        long xamWarningCount = xamCountsMap.getOrDefault("WARNING", 0L);
+        long xamErrorCount = xamCountsMap.getOrDefault(ERROR, 0L);
+        long xamWarningCount = xamCountsMap.getOrDefault(WARNING, 0L);
         summary.setXamCounts(createFileWarningErrorCounts(xamErrorCount, xamWarningCount));
 
         Map<String, Long> crsCountsMap = getCountsMap(courseStudentRepository.countValidationIssuesBySeverity(filesetID));
-        long crsErrorCount = crsCountsMap.getOrDefault("ERROR", 0L);
-        long crsWarningCount = crsCountsMap.getOrDefault("WARNING", 0L);
+        long crsErrorCount = crsCountsMap.getOrDefault(ERROR, 0L);
+        long crsWarningCount = crsCountsMap.getOrDefault(WARNING, 0L);
         summary.setCrsCounts(createFileWarningErrorCounts(crsErrorCount, crsWarningCount));
 
         long totalErrors = demErrorCount + xamErrorCount + crsErrorCount;
