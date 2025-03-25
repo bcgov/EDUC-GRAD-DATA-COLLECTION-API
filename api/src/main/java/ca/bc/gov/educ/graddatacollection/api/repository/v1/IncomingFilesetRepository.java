@@ -22,6 +22,8 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     Optional<IncomingFilesetEntity> findBySchoolIDAndFilesetStatusCodeAndDemFileNameIsNotNullAndXamFileNameIsNotNullAndCrsFileNameIsNotNull(UUID schoolID, String statusCode);
 
+    Optional<IncomingFilesetEntity> findByIncomingFilesetID(UUID incomingFilesetID);
+
     @Query(value="""
     SELECT inFileset
     FROM IncomingFilesetEntity inFileset

@@ -1,12 +1,11 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorAndWarningSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.FileWarningErrorCounts;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,37 +25,35 @@ public class MetricsService {
     private final AssessmentStudentRepository assessmentStudentRepository;
     private final CourseStudentRepository courseStudentRepository;
 
-    public IncomingFilesetEntity getFilesetData(UUID schoolID) {
-        return incomingFilesetRepository.findBySchoolIDAndFilesetStatusCode(schoolID, FilesetStatus.LOADED.getCode())
-                .orElseThrow(() -> new EntityNotFoundException(School.class, "schoolID", schoolID.toString()));
+    public IncomingFilesetEntity getFilesetData(UUID incomingFilesetID) {
+        return incomingFilesetRepository.findByIncomingFilesetID(incomingFilesetID)
+                .orElseThrow(() -> new EntityNotFoundException(IncomingFileset.class, "incomingFilesetID", incomingFilesetID.toString()));
     }
 
-    public ErrorAndWarningSummary getErrorAndWarningSummary(UUID schoolID) {
-        IncomingFilesetEntity filesetEntity = incomingFilesetRepository.findBySchoolIDAndFilesetStatusCode(schoolID, FilesetStatus.LOADED.getCode())
-                .orElseThrow(() -> new EntityNotFoundException(School.class, "schoolID", schoolID.toString()));
-
-        UUID filesetID = filesetEntity.getIncomingFilesetID();
+    public ErrorAndWarningSummary getErrorAndWarningSummary(UUID incomingFilesetID) {
+        IncomingFilesetEntity filesetEntity = incomingFilesetRepository.findByIncomingFilesetID(incomingFilesetID)
+                .orElseThrow(() -> new EntityNotFoundException(IncomingFileset.class, "incomingFilesetID", incomingFilesetID.toString()));
 
         ErrorAndWarningSummary summary = ErrorAndWarningSummary.builder()
-                .schoolID(schoolID.toString())
-                .filesetID(filesetID.toString())
-                .totalStudents(String.valueOf(errorFilesetStudentRepository.countAllByIncomingFileset_IncomingFilesetID(filesetID)))
+                .schoolID(filesetEntity.getSchoolID().toString())
+                .filesetID(incomingFilesetID.toString())
+                .totalStudents(String.valueOf(errorFilesetStudentRepository.countAllByIncomingFileset_IncomingFilesetID(incomingFilesetID)))
                 .build();
 
         String error = "ERROR";
         String warning = "WARNING";
 
-        Map<String, Long> demCountsMap = getCountsMap(demographicStudentRepository.countValidationIssuesBySeverity(filesetID));
+        Map<String, Long> demCountsMap = getCountsMap(demographicStudentRepository.countValidationIssuesBySeverity(incomingFilesetID));
         long demErrorCount = demCountsMap.getOrDefault(error, 0L);
         long demWarningCount = demCountsMap.getOrDefault(warning, 0L);
         summary.setDemCounts(createFileWarningErrorCounts(demErrorCount, demWarningCount));
 
-        Map<String, Long> xamCountsMap = getCountsMap(assessmentStudentRepository.countValidationIssuesBySeverity(filesetID));
+        Map<String, Long> xamCountsMap = getCountsMap(assessmentStudentRepository.countValidationIssuesBySeverity(incomingFilesetID));
         long xamErrorCount = xamCountsMap.getOrDefault(error, 0L);
         long xamWarningCount = xamCountsMap.getOrDefault(warning, 0L);
         summary.setXamCounts(createFileWarningErrorCounts(xamErrorCount, xamWarningCount));
 
-        Map<String, Long> crsCountsMap = getCountsMap(courseStudentRepository.countValidationIssuesBySeverity(filesetID));
+        Map<String, Long> crsCountsMap = getCountsMap(courseStudentRepository.countValidationIssuesBySeverity(incomingFilesetID));
         long crsErrorCount = crsCountsMap.getOrDefault(error, 0L);
         long crsWarningCount = crsCountsMap.getOrDefault(warning, 0L);
         summary.setCrsCounts(createFileWarningErrorCounts(crsErrorCount, crsWarningCount));

@@ -48,8 +48,7 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
         mockFileset.setFilesetStatusCode("LOADED");
         incomingFilesetRepository.save(mockFileset);
 
-        mockMvc.perform(get(URL.METRICS + "/submission")
-                        .param("schoolID", schoolID.toString())
+        mockMvc.perform(get(URL.METRICS + "/" + mockFileset.getIncomingFilesetID() + "/submission")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -58,10 +57,7 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testGenerateSubmissionMetrics_withInvalidSchoolID_ReturnsNotFound() throws Exception {
-        UUID schoolID = UUID.randomUUID();
-
-        mockMvc.perform(get(URL.METRICS + "/submission")
-                        .param("schoolID", schoolID.toString())
+        mockMvc.perform(get(URL.METRICS + "/" + UUID.randomUUID()+"/submission")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -94,8 +90,7 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
         doReturn(assessmentResults).when(assessmentStudentRepository).countValidationIssuesBySeverity(savedEntity.getIncomingFilesetID());
         doReturn(courseResults).when(courseStudentRepository).countValidationIssuesBySeverity(savedEntity.getIncomingFilesetID());
 
-        mockMvc.perform(get(URL.METRICS + "/errors")
-                        .param("schoolID", schoolID.toString())
+        mockMvc.perform(get(URL.METRICS + "/" + filesetEntity.getIncomingFilesetID() + "/errors")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -140,7 +135,7 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
         when(courseStudentRepository.countValidationIssuesBySeverity(savedEntity.getIncomingFilesetID()))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get(URL.METRICS + "/errors")
+        mockMvc.perform(get(URL.METRICS + "/" + filesetEntity.getIncomingFilesetID()+ "/errors")
                         .param("schoolID", schoolID.toString())
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .contentType(APPLICATION_JSON))
