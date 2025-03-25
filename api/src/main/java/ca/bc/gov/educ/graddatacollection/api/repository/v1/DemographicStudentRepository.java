@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.UUID;
 @Repository
 public interface DemographicStudentRepository extends JpaRepository<DemographicStudentEntity, UUID>, JpaSpecificationExecutor<DemographicStudentEntity> {
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
-    long countByIncomingFileset_SchoolIDAndStudentStatusCode(UUID schoolID, String studentStatusCode);
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(UUID incomingFilesetID, String lastName, String pen, String localID);
 
     @Query(value = "SELECT d.* " +
@@ -36,4 +36,12 @@ public interface DemographicStudentRepository extends JpaRepository<DemographicS
             "  AND d.PEN = :pen " +
             "  AND d.STUDENT_STATUS_CODE <> 'LOADED'", nativeQuery = true)
     Optional<DemographicStudentEntity> findByIncomingFilesetIDAndSchoolID(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode);
+
+    @Query("SELECT " +
+            "   v.validationIssueSeverityCode, COUNT(v) " +
+            "FROM DemographicStudentEntity d " +
+            "JOIN d.demographicStudentValidationIssueEntities v " +
+            "WHERE d.incomingFileset.incomingFilesetID = :incomingFilesetId " +
+            "GROUP BY v.validationIssueSeverityCode")
+    List<Object[]> countValidationIssuesBySeverity(@Param("incomingFilesetId") UUID incomingFilesetId);
 }
