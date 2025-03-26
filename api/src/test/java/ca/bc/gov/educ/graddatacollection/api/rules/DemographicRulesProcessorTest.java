@@ -344,13 +344,13 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError1.size()).isZero();
 
-//        var demStudent2 = createMockDemographicStudent(savedFileSet);
-//        demStudent2.setBirthdate("12341212");
-//        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
-//        val validationError2 = rulesProcessor.processRules(studentRuleData2);
-//        assertThat(validationError2.size()).isNotZero();
-//        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
-//        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH.getCode());
+        var demStudent2 = createMockDemographicStudent(savedFileSet);
+        demStudent2.setBirthdate("12341212");
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        val validationError2 = rulesProcessor.processRules(studentRuleData2);
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH.getCode());
     }
 
     @Test
