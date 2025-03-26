@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolReportingRequirementCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -55,9 +56,15 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         this.incomingFilesetRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
         response.setHasPriorRegistration(false);
@@ -77,15 +84,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -116,15 +114,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -157,15 +146,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
         assessmentStudent.setCourseCode("LTE10");
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -213,15 +193,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
         assessmentStudent.setCourseCode("LTE10");
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -290,15 +261,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
@@ -327,15 +289,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -366,15 +319,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
@@ -403,15 +347,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -442,15 +377,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
@@ -479,15 +405,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -518,15 +435,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
@@ -555,15 +463,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -594,15 +493,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
@@ -631,15 +521,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -670,15 +551,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
@@ -708,15 +580,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -750,15 +613,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -808,64 +662,20 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError1.size()).isZero();
-
-        Student stud2 = new Student();
-        stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob(demStudent.getBirthdate());
-        stud2.setLegalLastName(demStudent.getLastName());
-        stud2.setLegalFirstName(demStudent.getFirstName());
-        stud2.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud2);
-
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
-
-        Student stud3 = new Student();
-        stud3.setStudentID(UUID.randomUUID().toString());
-        stud3.setDob(demStudent.getBirthdate());
-        stud3.setLegalLastName(demStudent.getLastName());
-        stud3.setLegalMiddleNames(demStudent.getMiddleName());
-        stud3.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud3);
 
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
 
-        Student stud4 = new Student();
-        stud4.setStudentID(UUID.randomUUID().toString());
-        stud4.setDob(demStudent.getBirthdate());
-        stud4.setLegalFirstName(demStudent.getFirstName());
-        stud4.setLegalMiddleNames(demStudent.getMiddleName());
-        stud4.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud4);
-
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
-
-        Student stud5 = new Student();
-        stud5.setStudentID(UUID.randomUUID().toString());
-        stud5.setLegalLastName(demStudent.getLastName());
-        stud5.setLegalFirstName(demStudent.getFirstName());
-        stud5.setLegalMiddleNames(demStudent.getMiddleName());
-        stud5.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud5);
 
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
@@ -885,15 +695,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
         assessmentStudent.setCourseCode("LTP12");
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -934,15 +735,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
