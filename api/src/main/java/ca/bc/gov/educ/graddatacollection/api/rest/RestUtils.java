@@ -708,7 +708,7 @@ public class RestUtils {
         log.debug("getGradStudentRecordByStudentID response{}", response.toString());
 
         if ("not found".equals(response.get(EXCEPTION))) {
-          log.error("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
+          log.info("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new EntityNotFoundException(GradStudentRecord.class);
         } else if ("error".equals(response.get(EXCEPTION))) {
           log.error("An exception error occurred while fetching GradStudentRecord for Student ID {}", studentID);
@@ -722,7 +722,7 @@ public class RestUtils {
       }
 
     } catch (EntityNotFoundException ex) {
-      log.error("Entity Not Found occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
+      log.info("Entity Not Found occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
       throw ex;
     } catch (final Exception ex) {
       log.error("Error occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
