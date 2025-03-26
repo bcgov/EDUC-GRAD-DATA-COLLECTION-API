@@ -129,7 +129,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -160,7 +160,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887554");
         studentApiStudent.setLegalLastName("JACKSON");
         studentApiStudent.setLegalFirstName("JIM");
-        studentApiStudent.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
@@ -176,7 +176,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent2.setLocalID("");
         studentApiStudent2.setLegalLastName("JACKSON");
         studentApiStudent2.setLegalFirstName("JIM");
-        studentApiStudent2.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent2.setDob("1990-01-01");
         studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
@@ -205,7 +205,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent2.setLocalID("8887555");
         studentApiStudent2.setLegalLastName("JACKSON");
         studentApiStudent2.setLegalFirstName("JIM");
-        studentApiStudent2.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent2.setDob("1990-01-01");
         studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
@@ -440,7 +440,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setDob("2020-01-01 00:00:00.000");
+        studentApiStudent.setDob("2020-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
@@ -644,7 +644,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
@@ -769,7 +769,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.D.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 

@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 
@@ -36,7 +35,7 @@ public class RuleUtil {
   public static boolean validateStudentDOBMatches(DemographicStudentEntity demStudent, Student studentFromAPI) {
     if(StringUtils.isNotBlank(studentFromAPI.getDob()) && StringUtils.isNotBlank(demStudent.getBirthdate())) {
       var formattedDemBirthdate = LocalDate.parse(demStudent.getBirthdate(), DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT));
-      var formattedStudentApiBirthdate = LocalDate.from(LocalDateTime.parse(studentFromAPI.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
+      var formattedStudentApiBirthdate = LocalDate.parse(studentFromAPI.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
       return formattedStudentApiBirthdate.isEqual(formattedDemBirthdate);
     }
     return false;

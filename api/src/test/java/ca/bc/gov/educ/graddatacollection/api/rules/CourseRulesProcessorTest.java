@@ -135,7 +135,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalFirstName("JIM");
         studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setDob("1990-01-01 00:00:00.000");
+        studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
     }
@@ -182,7 +182,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob("1990-01-01 00:00:00.000");
+        stud2.setDob("1990-01-01");
         stud2.setLegalLastName(demStudent.getLastName());
         stud2.setLegalFirstName("ABC");
         stud2.setPen(demStudent.getPen());
@@ -1078,7 +1078,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob("1990-01-01 00:00:00.000");
+        stud2.setDob("1990-01-01");
         stud2.setLegalLastName(demStudent2.getLastName());
         stud2.setLegalFirstName(demStudent2.getFirstName());
         stud2.setPen(demStudent2.getPen());
@@ -1287,7 +1287,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob("1990-01-01 00:00:00.000");
+        stud2.setDob("1990-01-01");
         stud2.setLegalLastName(demStudent2.getLastName());
         stud2.setLegalFirstName(demStudent2.getFirstName());
         stud2.setPen(demStudent2.getPen());
