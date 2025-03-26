@@ -51,7 +51,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         try {
             errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null, "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved.isPresent()).isTrue();
+            assertThat(saved).isPresent();
         } catch(Exception e) {
             Assertions.fail("Should not have thrown any exception");
         }
@@ -69,7 +69,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         try {
             errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", true, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved.isPresent()).isTrue();
+            assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
             assertThat(savedErrorFilesetStudentEntity.getFirstName()).isEqualTo("Test");
             assertThat(savedErrorFilesetStudentEntity.getLastName()).isEqualTo("McTest");
@@ -96,7 +96,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         try {
             errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved.isPresent()).isTrue();
+            assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
             assertThat(savedErrorFilesetStudentEntity.getFirstName()).isNull();
             assertThat(savedErrorFilesetStudentEntity.getLastName()).isNull();
@@ -131,7 +131,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         try {
             errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null, "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved.isPresent()).isTrue();
+            assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
             assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isNotEqualTo("ABC");
             assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isEqualTo(errorStudent.getCreateUser());
@@ -166,7 +166,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         try {
             errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved.isPresent()).isTrue();
+            assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
             assertThat(savedErrorFilesetStudentEntity.getFirstName()).isNotEqualTo("Test");
             assertThat(savedErrorFilesetStudentEntity.getFirstName()).isEqualTo(errorStudent.getFirstName());
@@ -209,7 +209,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         try {
             errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", true, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved.isPresent()).isTrue();
+            assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
             assertThat(savedErrorFilesetStudentEntity.getFirstName()).isEqualTo("Test");
             assertThat(savedErrorFilesetStudentEntity.getLastName()).isEqualTo("McTest");
