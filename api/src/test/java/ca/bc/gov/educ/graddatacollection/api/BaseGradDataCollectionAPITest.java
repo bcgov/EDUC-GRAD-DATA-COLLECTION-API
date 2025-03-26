@@ -115,6 +115,10 @@ public abstract class BaseGradDataCollectionAPITest {
             .lastName("Smith")
             .localID("123456789")
             .pen("123459987")
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now())
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateDate(LocalDateTime.now())
             .build();
   }
 
