@@ -170,7 +170,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
 
         Student stud1 = new Student();
         stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
+        stud1.setDob("1990-01-01 00:00:00.000");
         stud1.setLegalLastName(demStudent.getLastName());
         stud1.setLegalFirstName(demStudent.getFirstName());
         stud1.setPen(demStudent.getPen());
