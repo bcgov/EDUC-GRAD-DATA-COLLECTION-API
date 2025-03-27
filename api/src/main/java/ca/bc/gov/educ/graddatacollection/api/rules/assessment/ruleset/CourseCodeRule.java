@@ -17,28 +17,28 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V303 | WARNING  | The Assessment Code provided is not valid for the Assessment Session  |     V320     |
+ *  | V03 | WARNING  | The Assessment Code provided is not valid for the Assessment Session  |    V02  |
  *                      specified.
  */
 @Component
 @Slf4j
-@Order(120)
-public class V303CourseCode implements AssessmentValidationBaseRule {
+@Order(30)
+public class CourseCodeRule implements AssessmentValidationBaseRule {
 
     private final AssessmentRulesService assessmentRulesService;
 
-    public V303CourseCode(AssessmentRulesService assessmentRulesService) {
+    public CourseCodeRule(AssessmentRulesService assessmentRulesService) {
         this.assessmentRulesService = assessmentRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V303: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V03: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
         var shouldExecute = isValidationDependencyResolved("V303", validationErrorsMap);
 
-        log.debug("In shouldExecute of V303: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V03: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -48,15 +48,15 @@ public class V303CourseCode implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V303 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V03 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (!assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())) {
-            log.debug("V303: The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
+            log.debug("V03: The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage()));
         }
         if (!assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode())) {
-            log.debug("V303: The session code is not a valid ministry assessment session code. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
+            log.debug("V03: The session code is not a valid ministry assessment session code. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
         }
 

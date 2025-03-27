@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
@@ -8,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidati
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,23 +17,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V319 | ERROR    |  Student is in a Francophone school and cannot register for           | V303, V320   |
- *                       this assessment session for this student
+ *  | V07 | WARNING  | Final school percentage value is ignored and must be blank.           |      V03|
  *
  */
 @Component
 @Slf4j
-@Order(260)
-public class V319CourseCodeCSF implements AssessmentValidationBaseRule {
+@Order(70)
+public class FinalSchoolPercentageRule implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V319: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V07: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V319", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V07", validationErrorsMap);
 
-        log.debug("In shouldExecute of V319: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V07: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -43,12 +42,12 @@ public class V319CourseCodeCSF implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V319 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V07 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) && student.getCourseCode().equalsIgnoreCase("LTF12")){
-            log.debug("V319: Student is enrolled in a Programme Francophone school and the registration is for a French Immersion assessment. This registration will not be updated. :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getMessage()));
+        if (StringUtils.isNotBlank(student.getFinalSchoolPercent())) {
+            log.debug("V07: Final school percentage value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.FINAL_SCHOOL_PERCENT, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

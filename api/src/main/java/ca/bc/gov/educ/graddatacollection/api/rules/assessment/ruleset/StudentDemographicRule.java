@@ -18,29 +18,29 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V320 | ERROR    |  Student XAM record will not be processed due to an issue with the    | V301         |
+ *  | V02 | ERROR    |  Student XAM record will not be processed due to an issue with the    | V01         |
  *                       student's demographics
  *
  */
 @Component
 @Slf4j
-@Order(101)
-public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
+@Order(20)
+public class StudentDemographicRule implements AssessmentValidationBaseRule {
 
     private final AssessmentRulesService assessmentRulesService;
 
-    public V320ValidStudentInDEM(AssessmentRulesService assessmentRulesService) {
+    public StudentDemographicRule(AssessmentRulesService assessmentRulesService) {
         this.assessmentRulesService = assessmentRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V320: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V02: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V320", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V02", validationErrorsMap);
 
-        log.debug("In shouldExecute of V320: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V02: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -50,7 +50,7 @@ public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V320 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V02 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         var studentApiStudent = assessmentRulesService.getStudentApiStudent(studentRuleData, student.getPen());
@@ -65,7 +65,7 @@ public class V320ValidStudentInDEM implements AssessmentValidationBaseRule {
             !RuleUtil.validateStudentGivenNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
-            log.debug("V320: Student XAM record will not be processed due to an issue with the student's demographics :: {}", student.getAssessmentStudentID());
+            log.debug("V02: Student XAM record will not be processed due to an issue with the student's demographics :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;

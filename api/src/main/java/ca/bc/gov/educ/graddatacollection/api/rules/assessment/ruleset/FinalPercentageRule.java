@@ -17,22 +17,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V311 | ERROR    | Provincial special case cannot be submitted by the school.            |V320, V303|
+ *  | V08 | ERROR    | Final percentage result cannot be submitted by the school.            |V03|
  *
  */
 @Component
 @Slf4j
-@Order(190)
-public class V311ProvincialSpecialCase implements AssessmentValidationBaseRule {
+@Order(80)
+public class FinalPercentageRule implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V311: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V08: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V311", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V08", validationErrorsMap);
 
-        log.debug("In shouldExecute of V311: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V08: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -42,12 +42,12 @@ public class V311ProvincialSpecialCase implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V311 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V08 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(student.getProvincialSpecialCase())) {
-            log.debug("V311: Provincial special case cannot be submitted by the school :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PROVINCIAL_SPECIAL_CASE, AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getMessage()));
+        if (StringUtils.isNotBlank(student.getFinalPercent())) {
+            log.debug("V08: Final percentage result cannot be submitted by the school :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

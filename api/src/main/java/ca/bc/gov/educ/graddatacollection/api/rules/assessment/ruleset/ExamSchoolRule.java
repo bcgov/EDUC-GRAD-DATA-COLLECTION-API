@@ -20,28 +20,28 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V317 | ERROR    |  Invalid exam school provided.                                        |V320, V303|
+ *  | V14 | ERROR    |  Invalid exam school provided.                                        |V03|
  *
  */
 @Component
 @Slf4j
-@Order(240)
-public class V317ExamSchool implements AssessmentValidationBaseRule {
+@Order(140)
+public class ExamSchoolRule implements AssessmentValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V317ExamSchool(RestUtils restUtils) {
+    public ExamSchoolRule(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V317: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V14: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V317", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V14", validationErrorsMap);
 
-        log.debug("In shouldExecute of V317: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V14: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -51,11 +51,11 @@ public class V317ExamSchool implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V317 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V14 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (student.getExamSchoolID() != null && !isSchoolValid(student.getExamSchoolID())){
-            log.debug("V317: Invalid assessment center provided. :: {}", student.getAssessmentStudentID());
+            log.debug("V14: Invalid assessment center provided. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.EXAM_SCHOOL, AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID, AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID.getMessage()));
         }
         return errors;
