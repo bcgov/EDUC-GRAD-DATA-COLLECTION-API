@@ -89,7 +89,7 @@ public class DemographicStudentService {
     public void setStudentStatus(final UUID demographicStudentID, final SchoolStudentStatus status) {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
         if(currentStudentEntity.isPresent()) {
-            currentStudentEntity.get().setStudentStatus(status.getCode());
+            currentStudentEntity.get().setStudentStatusCode(status.getCode());
             saveSdcStudent(currentStudentEntity.get());
         } else {
             throw new EntityNotFoundException(DemographicStudentEntity.class, DEMOGRAPHIC_STUDENT_ID, demographicStudentID.toString());
