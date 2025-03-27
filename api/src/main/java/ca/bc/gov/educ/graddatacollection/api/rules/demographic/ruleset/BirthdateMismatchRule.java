@@ -19,31 +19,31 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V106 | ERROR    | Student birthdate must match what is in PEN	                          | V128         |
+ *  | V16 | ERROR    | Student birthdate must match what is in PEN	                          | V03, V04     |
  *
  */
 
 
 @Component
 @Slf4j
-@Order(600)
-public class V106DemographicStudentBirthdate implements DemographicValidationBaseRule {
+@Order(160)
+public class BirthdateMismatchRule implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
     private final ApplicationProperties props;
 
-    public V106DemographicStudentBirthdate(DemographicRulesService demographicRulesService, ApplicationProperties props) {
+    public BirthdateMismatchRule(DemographicRulesService demographicRulesService, ApplicationProperties props) {
         this.demographicRulesService = demographicRulesService;
         this.props = props;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentBirthdate-V106: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentBirthdate-V16: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V106", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V16", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentBirthdate-V106: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentBirthdate-V16: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -53,13 +53,12 @@ public class V106DemographicStudentBirthdate implements DemographicValidationBas
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var demStudent = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentBirthdate-V106 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        log.debug("In executeValidation of StudentBirthdate-V16 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var studentApiStudent = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
-        if (RuleUtil.validateStudentRecordExists(studentApiStudent) &&
-            !RuleUtil.validateStudentDOBMatches(demStudent, studentApiStudent)) {
-            log.debug("StudentBirthdate-V106: Student birthdate must match what is in PEN for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        if (!RuleUtil.validateStudentDOBMatches(demStudent, studentApiStudent)) {
+            log.debug("StudentBirthdate-V16: Student birthdate must match what is in PEN for demographicStudentID :: {}", demStudent.getDemographicStudentID());
             var message = "The submitted BIRTHDATE does not match the ministry database. If the submitted BIRTHDATE is correct, submit PEN update request through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_MISMATCH, message));
         }

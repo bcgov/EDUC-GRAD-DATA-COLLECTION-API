@@ -18,29 +18,29 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V119 | ERROR    |  If student status = "T" and the mincode provided in the data file    | V117         |
+ *  | V19 | ERROR    |  If student status = "T" and the mincode provided in the data file    | V03, V06     |
  *  |      |          |  does not match the current School of Record in GRAD and the student  |              |
  *  |      |          |  status on the students' GRAD data is CUR (current)                   |              |
  */
 
 @Component
 @Slf4j
-@Order(1900)
-public class V119DemographicStudentStatus implements DemographicValidationBaseRule {
+@Order(190)
+public class CurrentStudentReportedWithIncorrectStatusRule implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
 
-    public V119DemographicStudentStatus(DemographicRulesService demographicRulesService) {
+    public CurrentStudentReportedWithIncorrectStatusRule(DemographicRulesService demographicRulesService) {
         this.demographicRulesService = demographicRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentStatus-V119: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentStatus-V19: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute =  isValidationDependencyResolved("V119", validationErrorsMap);
+        var shouldExecute =  isValidationDependencyResolved("V19", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentStatus-V119: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentStatus-V19: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -50,7 +50,7 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentStatus-V119 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentStatus-V19 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
@@ -58,7 +58,7 @@ public class V119DemographicStudentStatus implements DemographicValidationBaseRu
             gradStudent.getStudentStatusCode().equalsIgnoreCase("CUR") &&
             !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())
             ) {
-            log.debug("StudentStatus-V119:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentStatus-V19:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()));
         }
 

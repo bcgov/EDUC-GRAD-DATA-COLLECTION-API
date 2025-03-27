@@ -21,29 +21,29 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V108 | ERROR    | If this is a new student to GRAD and they are submitted on the Adult  | V128         |
+ *  | V23 | ERROR    | If this is a new student to GRAD and they are submitted on the Adult  | V04, V05     |
  *  |      |          | program, students must be at least 18 years old at the time of data   |              |
  *  |      |          | submission		                           	                          |              |
  *
  */
 @Component
 @Slf4j
-@Order(800)
-public class V108DemographicStudentAdultBirthdate implements DemographicValidationBaseRule {
+@Order(230)
+public class AdultGraduationRule implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
 
-    public V108DemographicStudentAdultBirthdate(DemographicRulesService demographicRulesService) {
+    public AdultGraduationRule(DemographicRulesService demographicRulesService) {
         this.demographicRulesService = demographicRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentAdultBirthdate-V108: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentAdultBirthdate-V23: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V108", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V23", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentAdultBirthdate-V108: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentAdultBirthdate-V23: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -53,14 +53,14 @@ public class V108DemographicStudentAdultBirthdate implements DemographicValidati
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentAdultBirthdate-V108 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentAdultBirthdate-V23 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
         if (gradStudent == null &&
             GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear())) &&
             Period.between(LocalDate.parse(student.getBirthdate(), DateTimeFormatter.ofPattern("yyyyMMdd")), LocalDate.from(student.getIncomingFileset().getDemFileUploadDate())).getYears() < 18) {
-            log.debug("StudentAdultBirthdate-V108: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentAdultBirthdate-V23: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getMessage()));
         }
         return errors;

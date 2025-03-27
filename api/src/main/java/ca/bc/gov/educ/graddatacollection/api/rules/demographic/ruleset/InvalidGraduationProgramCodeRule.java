@@ -19,28 +19,27 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V121 | ERROR    | Must be a valid program                                               |              |
- *  |      |          |                                                                       |              |
+ *  | V05  | ERROR    | Must be a valid program                                               |              |
  */
 
 @Component
 @Slf4j
-@Order(2100)
-public class V121DemographicStudentProgram implements DemographicValidationBaseRule {
+@Order(50)
+public class InvalidGraduationProgramCodeRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public V121DemographicStudentProgram(RestUtils restUtils) {
+    public InvalidGraduationProgramCodeRule(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentProgram-V121: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentProgram-V05: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentProgram-V121: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentProgram-V05: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -50,13 +49,13 @@ public class V121DemographicStudentProgram implements DemographicValidationBaseR
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentProgram-V121 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentProgram-V05 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList(false);
         String studentProgram = student.getGradRequirementYear();
 
-        if (StringUtils.isNotEmpty(student.getGradRequirementYear())) {
+        if (StringUtils.isNotBlank(studentProgram)) {
             boolean isValid = graduationProgramCodes.stream().anyMatch(code -> {
                 String gradCode = code.getProgramCode();
                 String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
@@ -64,7 +63,7 @@ public class V121DemographicStudentProgram implements DemographicValidationBaseR
                 return baseGradCode.equalsIgnoreCase(studentProgram);
             });
             if (!isValid) {
-                log.debug("StudentProgram-V121: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
+                log.debug("StudentProgram-V05: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
             }
         }

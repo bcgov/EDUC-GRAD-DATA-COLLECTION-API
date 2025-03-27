@@ -1,9 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
-import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
@@ -16,32 +14,32 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND;
+
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | v103 | ERROR    | PEN not found	                                             	      | -            |
+ *  | V03 | ERROR    | PEN must exist in the PEN system.	                                  | -            |
  *
  */
 @Component
 @Slf4j
-@Order(300)
-public class V103DemographicStudentPEN implements DemographicValidationBaseRule {
+@Order(30)
+public class InvalidPenRule implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
-    private final ApplicationProperties props;
 
-    public V103DemographicStudentPEN(DemographicRulesService demographicRulesService, ApplicationProperties props) {
+    public InvalidPenRule(DemographicRulesService demographicRulesService) {
         this.demographicRulesService = demographicRulesService;
-        this.props = props;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentPEN-v103: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentPEN-v03: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentPEN-v103: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentPEN-v03: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -51,15 +49,13 @@ public class V103DemographicStudentPEN implements DemographicValidationBaseRule 
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var demStudent = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentPEN-v103 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        log.debug("In executeValidation of StudentPEN-v03 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
-        var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (student == null || StringUtils.isBlank(student.getPen())) {
-            log.debug("StudentPEN-v103: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated. Correct PEN in your system or through PEN Web. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            String message = "Student PEN is not valid so the student record cannot be updated. Correct the PEN in your system or request an update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_NOT_FOUND, message));
+            log.debug("StudentPEN-v03: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, STUDENT_PEN_NOT_FOUND, STUDENT_PEN_NOT_FOUND.getMessage()));
         }
         return errors;
     }

@@ -21,21 +21,21 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V128 | ERROR    | Birthdate value must be a valid date		                   	      |              |
+ *  | V04  | ERROR    | Birthdate value must be a valid date		                   	      |              |
  *
  */
 @Component
 @Slf4j
-@Order(50)
-public class V128DemographicStudentBirthdate implements DemographicValidationBaseRule {
+@Order(40)
+public class BirthdateRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentBirthdate-v128: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentBirthdate-v04: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentBirthdate-v128: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentBirthdate-v04: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -45,18 +45,18 @@ public class V128DemographicStudentBirthdate implements DemographicValidationBas
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentBirthdate-v128 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentBirthdate-v04 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
-        if (StringUtils.isEmpty(student.getBirthdate())) {
-            log.debug("StudentBirthdate-v128: Student date of birth is not valid (EMPTY). for demographicStudentID :: {}", student.getDemographicStudentID());
+        if (StringUtils.isBlank(student.getBirthdate())) {
+            log.debug("StudentBirthdate-v04: Student date of birth is not valid (EMPTY). for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage()));
         } else {
             try {
                 LocalDate.parse(student.getBirthdate(), format);
             } catch (DateTimeParseException ex) {
-                log.debug("StudentBirthdate-v128: Student date of birth is not valid (CANNOT PARSE). for demographicStudentID :: {}", student.getDemographicStudentID());
+                log.debug("StudentBirthdate-v04: Student date of birth is not valid (CANNOT PARSE). for demographicStudentID :: {}", student.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage()));
             }
         }

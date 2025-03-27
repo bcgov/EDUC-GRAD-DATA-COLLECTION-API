@@ -20,21 +20,21 @@ import java.util.regex.Pattern;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | v107 | WARNING  | Student address must exist for students in grades 12 or AD	 	      | -            |
+ *  | V01  | WARNING  | Student address must exist for students in grades 12 or AD	 	      | -            |
  *
  */
 @Component
 @Slf4j
-@Order(700)
-public class V107DemographicStudentAddress implements DemographicValidationBaseRule {
+@Order(10)
+public class Grade12ADAddressRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentAddress-v107: for demographicStudentAddress :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentAddress-v01: for demographicStudentAddress :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentAddress-v107: Condition returned - {} for demographicStudentAddress :: {}" ,
+        log.debug("In shouldExecute of StudentAddress-v01: Condition returned - {} for demographicStudentAddress :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -44,23 +44,22 @@ public class V107DemographicStudentAddress implements DemographicValidationBaseR
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentAddress-v107 for demographicStudentAddress :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentAddress-v01 for demographicStudentAddress :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (SchoolGradeCodes.getGrades12AndAD().stream().anyMatch(grade -> Objects.equals(grade, student.getGrade()))) {
-            log.debug("StudentAddress-v107: Student address must exist for students in grades 12 or AD. for demographicStudentAddress :: {}", student.getDemographicStudentID());
+        if (StringUtils.isNotBlank(student.getGrade()) && SchoolGradeCodes.getGrades12AndAD().stream().anyMatch(grade -> grade.equalsIgnoreCase(student.getGrade()))) {
+            log.debug("StudentAddress-v01: Student address must exist for students in grades 12 or AD. for demographicStudentAddress :: {}", student.getDemographicStudentID());
 
-            if (StringUtils.isAllEmpty(student.getAddressLine1(), student.getAddressLine2())) {
+            if (StringUtils.isBlank(student.getAddressLine1())) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.ADDRESS1, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getMessage()));
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.ADDRESS2, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_ADDRESS_BLANK.getMessage()));
             }
-            if (StringUtils.isEmpty(student.getCity())) {
+            if (StringUtils.isBlank(student.getCity())) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.CITY, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK, DemographicStudentValidationIssueTypeCode.STUDENT_CITY_BLANK.getMessage()));
             }
             Pattern pattern = Pattern.compile("^(?:[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d|\\d{5}|\\d{7})$");
             String postalCode = student.getPostalCode();
 
-            if(StringUtils.isEmpty(postalCode) || !pattern.matcher(student.getPostalCode()).matches()) {
+            if(StringUtils.isBlank(postalCode) || !pattern.matcher(student.getPostalCode()).matches()) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.POSTAL_CODE, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_POSTAL_CODE_INVALID.getMessage()));
             }
             if (!StringUtils.equalsIgnoreCase("BC", student.getProvincialCode())) {
