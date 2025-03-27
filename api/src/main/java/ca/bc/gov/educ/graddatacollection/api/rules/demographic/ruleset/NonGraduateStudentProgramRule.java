@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V123 | WARN     | Warn if the program is closed and the student has not yet graduated   |  V121        |
+ *  | V18  | WARN     | Warn if the program is closed and the student has not yet graduated   |  V03, V05    |
  *  |      |          | If the students' program completion date is null and the program has  |              |
  *                      expired then Warning.                                                 |              |
  *                      If the students' program completion date is not null - no warning     |              |
@@ -29,24 +29,24 @@ import java.util.List;
 
 @Component
 @Slf4j
-@Order(2300)
-public class V123DemographicStudentProgram implements DemographicValidationBaseRule {
+@Order(180)
+public class NonGraduateStudentProgramRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
     private final DemographicRulesService demographicRulesService;
 
-    public V123DemographicStudentProgram(RestUtils restUtils, DemographicRulesService demographicRulesService) {
+    public NonGraduateStudentProgramRule(RestUtils restUtils, DemographicRulesService demographicRulesService) {
         this.restUtils = restUtils;
         this.demographicRulesService = demographicRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentProgram-V123: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentProgram-V18: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V123", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V18", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentProgram-V123: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentProgram-V18: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -56,17 +56,17 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentProgram-V123 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentProgram-V18 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList(true);
         String studentProgram = student.getGradRequirementYear();
 
-        if (gradStudent != null && StringUtils.isNotEmpty(studentProgram)) {
+        if (gradStudent != null && StringUtils.isNotBlank(studentProgram)) {
             String completionDateStr = gradStudent.getProgramCompletionDate();
 
-            if (StringUtils.isEmpty(completionDateStr)) {
+            if (StringUtils.isBlank(completionDateStr)) {
                 boolean foundOpenProgram = graduationProgramCodes.stream().anyMatch(code -> {
                     String gradCode = code.getProgramCode();
                     String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
@@ -74,12 +74,12 @@ public class V123DemographicStudentProgram implements DemographicValidationBaseR
                 });
 
                 if (!foundOpenProgram) {
-                    log.debug("StudentProgram-V123: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
+                    log.debug("StudentProgram-V18: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
                     String message = "The "+ StringEscapeUtils.escapeHtml4(studentProgram)+" graduation program is closed. The student cannot graduate on this program.";
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED, message));
                 }
             } else {
-                log.debug("StudentProgram-V123: Program completion date provided for grad student with PEN {}. Skipping V123.", student.getPen());
+                log.debug("StudentProgram-V18: Program completion date provided for grad student with PEN {}. Skipping V123.", student.getPen());
             }
         }
         return errors;

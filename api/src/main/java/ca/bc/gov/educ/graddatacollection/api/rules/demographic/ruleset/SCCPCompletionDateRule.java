@@ -1,13 +1,14 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,27 +18,21 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | v104 | ERROR    | Should match a PEN in the .CRS 		                          	      | -            |
+ *  | V25 | WARN     | Student must be on the SCCP program	                           	      |   V05, V08   |
  *
  */
 @Component
 @Slf4j
-@Order(400)
-public class V104DemographicStudentPEN implements DemographicValidationBaseRule {
-
-    private final DemographicRulesService demographicRulesService;
-
-    public V104DemographicStudentPEN(DemographicRulesService demographicRulesService) {
-        this.demographicRulesService = demographicRulesService;
-    }
+@Order(250)
+public class SCCPCompletionDateRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentPEN-v104: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of SCCPCompletionDate-V25: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V25", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentPEN-v104: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of SCCPCompletionDate-V25: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -47,14 +42,13 @@ public class V104DemographicStudentPEN implements DemographicValidationBaseRule 
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentPEN-v104 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of SCCPCompletionDate-V25 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var isPresent = demographicRulesService.containsCoursePenForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen());
-
-        if (!isPresent) {
-            log.debug("StudentPEN-v104: Student in DEM file but not in CRS file (i.e., course data has not been submitted for this student). for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH.getMessage()));
+        if (StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) &&
+                !GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear())) {
+            log.debug("SCCPCompletionDate-V25: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM.getMessage()));
         }
         return errors;
     }

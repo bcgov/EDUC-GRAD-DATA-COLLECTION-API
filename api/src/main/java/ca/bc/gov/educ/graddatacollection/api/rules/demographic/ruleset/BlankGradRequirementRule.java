@@ -9,17 +9,17 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V130 | ERROR    | Null program can only be accepted/valid if the student grade is GA    |    V121      |
+ *  | V12  | ERROR    | Null program can only be accepted/valid if the student grade is GA    |    V03      |
  *                      or the reporting school is a non-Independent First Nations School
  *                      AND the student program completion date is null in the GRAD API (or
  *                      does not exist in the GRAD API)
@@ -27,16 +27,16 @@ import java.util.Objects;
  */
 @Component
 @Slf4j
-@Order(2800)
-public class V130DemographicStudentProgram implements DemographicValidationBaseRule {
+@Order(120)
+public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentProgram-v130: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentProgram-v12: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute =  isValidationDependencyResolved("V130", validationErrorsMap);
+        var shouldExecute =  isValidationDependencyResolved("V12", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentProgram-v130: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentProgram-v12: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -46,14 +46,16 @@ public class V130DemographicStudentProgram implements DemographicValidationBaseR
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentProgram-130 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentProgram-12 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradRecord = studentRuleData.getGradStudentRecord();
         var schoolCategory = studentRuleData.getSchool().getSchoolCategoryCode();
 
-        if(student.getGradRequirementYear() == null && (gradRecord == null || gradRecord.getProgramCompletionDate() == null) && (!Objects.equals(student.getGrade(), SchoolGradeCodes.GRADUATED_ADULT.getCode()) || !Objects.equals(schoolCategory, SchoolCategoryCodes.FED_BAND.getCode()))){
-            log.debug("StudentProgram-v130: Null program not valid for demographicStudentID :: {}", student.getDemographicStudentID());
+        if(StringUtils.isBlank(student.getGradRequirementYear()) &&
+                (gradRecord == null || gradRecord.getProgramCompletionDate() == null) && StringUtils.isNotBlank(student.getGrade()) &&
+                (!student.getGrade().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode()) || !(schoolCategory.equalsIgnoreCase(SchoolCategoryCodes.FED_BAND.getCode())))){
+            log.debug("StudentProgram-v12: Null program not valid for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage()));
         }
 

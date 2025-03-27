@@ -22,31 +22,31 @@ import java.util.Set;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V114 | ERROR    | Invalid Career Program code / Invalid Optional Program code           |              |
+ *  | V14 | ERROR    | Invalid Career Program code / Invalid Optional Program code           |       V05    |
  *  |      |          | Validate against GRAD Career and Optional Programs	                  |              |
  *
  */
 
 @Component
 @Slf4j
-@Order(1400)
-public class V114DemographicProgramCode15 implements DemographicValidationBaseRule {
+@Order(140)
+public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    private static final String DEBUG_MSG = "ProgramCode15-V114:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}";
+    private static final String DEBUG_MSG = "ProgramCode15-V14:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}";
 
-    public V114DemographicProgramCode15(RestUtils restUtils) {
+    public ProgramCode1to5Rule(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of ProgramCode15-V114: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of ProgramCode15-V14: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = true;
+        var shouldExecute = isValidationDependencyResolved("V14", validationErrorsMap);
 
-        log.debug("In shouldExecute of ProgramCode15-V114: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of ProgramCode15-V14: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -56,7 +56,7 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of ProgramCode15-V114 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of ProgramCode15-V14 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         List<CareerProgramCode> careerProgramCodes = restUtils.getCareerProgramCodeList();
@@ -68,8 +68,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
         careerProgramCodes.forEach(c -> careerProgramCodeSet.add(c.getCode()));
         optionalProgramCodes.forEach(o -> optionalProgramCodeSet.add(o.getOptProgramCode()));
 
-        if (StringUtils.isNotEmpty(student.getProgramCode1()) &&
-                !careerProgramCodeSet.contains(student.getProgramCode1()) && !optionalProgramCodeSet.contains(student.getProgramCode1())) {
+        if (StringUtils.isNotBlank(student.getProgramCode1()) &&
+                (!careerProgramCodeSet.contains(student.getProgramCode1()) || !optionalProgramCodeSet.contains(student.getProgramCode1()))) {
             log.debug(DEBUG_MSG, student.getProgramCode1(), student.getDemographicStudentID());
             errors.add(createValidationIssue(
                     StudentValidationIssueSeverityCode.ERROR,
@@ -79,8 +79,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
             ));
         }
 
-        if (StringUtils.isNotEmpty(student.getProgramCode2()) &&
-                !careerProgramCodeSet.contains(student.getProgramCode2()) && !optionalProgramCodeSet.contains(student.getProgramCode2())) {
+        if (StringUtils.isNotBlank(student.getProgramCode2()) &&
+                (!careerProgramCodeSet.contains(student.getProgramCode2()) || !optionalProgramCodeSet.contains(student.getProgramCode2()))) {
             log.debug(DEBUG_MSG, student.getProgramCode2(), student.getDemographicStudentID());
             errors.add(createValidationIssue(
                     StudentValidationIssueSeverityCode.ERROR,
@@ -90,8 +90,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
             ));
         }
 
-        if (StringUtils.isNotEmpty(student.getProgramCode3()) &&
-                !careerProgramCodeSet.contains(student.getProgramCode3()) && !optionalProgramCodeSet.contains(student.getProgramCode3())) {
+        if (StringUtils.isNotBlank(student.getProgramCode3()) &&
+                (!careerProgramCodeSet.contains(student.getProgramCode3()) || !optionalProgramCodeSet.contains(student.getProgramCode3()))) {
             log.debug(DEBUG_MSG, student.getProgramCode3(), student.getDemographicStudentID());
             errors.add(createValidationIssue(
                     StudentValidationIssueSeverityCode.ERROR,
@@ -101,8 +101,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
             ));
         }
 
-        if (StringUtils.isNotEmpty(student.getProgramCode4()) &&
-                !careerProgramCodeSet.contains(student.getProgramCode4()) && !optionalProgramCodeSet.contains(student.getProgramCode4())) {
+        if (StringUtils.isNotBlank(student.getProgramCode4()) &&
+                (!careerProgramCodeSet.contains(student.getProgramCode4()) || !optionalProgramCodeSet.contains(student.getProgramCode4()))) {
             log.debug(DEBUG_MSG, student.getProgramCode4(), student.getDemographicStudentID());
             errors.add(createValidationIssue(
                     StudentValidationIssueSeverityCode.ERROR,
@@ -112,8 +112,8 @@ public class V114DemographicProgramCode15 implements DemographicValidationBaseRu
             ));
         }
 
-        if (StringUtils.isNotEmpty(student.getProgramCode5()) &&
-                !careerProgramCodeSet.contains(student.getProgramCode5()) && !optionalProgramCodeSet.contains(student.getProgramCode5())) {
+        if (StringUtils.isNotBlank(student.getProgramCode5()) &&
+                (!careerProgramCodeSet.contains(student.getProgramCode5()) || !optionalProgramCodeSet.contains(student.getProgramCode5()))) {
             log.debug(DEBUG_MSG, student.getProgramCode5(), student.getDemographicStudentID());
             errors.add(createValidationIssue(
                     StudentValidationIssueSeverityCode.ERROR,

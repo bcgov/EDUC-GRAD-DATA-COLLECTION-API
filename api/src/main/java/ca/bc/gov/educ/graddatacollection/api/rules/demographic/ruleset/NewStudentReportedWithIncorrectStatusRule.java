@@ -19,28 +19,28 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V120 | ERROR    |  If this is a new student to GRAD and the student status in the data  | V117         |
- *  |      |          |  collection file is one of "T", or "D".                               |              |
+ *  | V20 | ERROR    |  If the student is new to GRAD, that reported status should not        | V03, V06      |
+ *  |      |          |  be “T” or “D”.                                                       |              |
  */
 
 @Component
 @Slf4j
-@Order(2000)
-public class V120DemographicStudentStatus implements DemographicValidationBaseRule {
+@Order(200)
+public class NewStudentReportedWithIncorrectStatusRule implements DemographicValidationBaseRule {
 
     private final DemographicRulesService demographicRulesService;
 
-    public V120DemographicStudentStatus(DemographicRulesService demographicRulesService) {
+    public NewStudentReportedWithIncorrectStatusRule(DemographicRulesService demographicRulesService) {
         this.demographicRulesService = demographicRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentStatus-V120: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentStatus-V20: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute =  isValidationDependencyResolved("V120", validationErrorsMap);
+        var shouldExecute =  isValidationDependencyResolved("V20", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentStatus-V120: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentStatus-V20: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -50,14 +50,14 @@ public class V120DemographicStudentStatus implements DemographicValidationBaseRu
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentStatus-V120 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentStatus-V20 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         GradStudentRecord gradStudentRecord = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         if (gradStudentRecord == null &&
             (student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())
             || student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.D.getCode()))) {
-            log.debug("StudentStatus-V120:Student No GRAD student record found and dem record contains student status of T or D for demographicStudentID: {}", student.getDemographicStudentID());
+            log.debug("StudentStatus-V20:Student No GRAD student record found and dem record contains student status of T or D for demographicStudentID: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage(), student.getStudentStatusCode()));
         }
         return errors;
