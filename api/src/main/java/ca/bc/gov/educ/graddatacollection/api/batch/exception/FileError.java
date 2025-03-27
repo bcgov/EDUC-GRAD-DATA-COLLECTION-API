@@ -60,7 +60,6 @@ public enum FileError {
 
   FILE_NOT_ALLOWED("File type not allowed"),
   COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
-  SCHOOL_IS_CLOSED("Invalid school provided - school is closed."),
   INVALID_SCHOOL_FOR_UPLOAD("This school is not eligible for graduation records and achievement data collection"),
   /**
    * School is opening.
