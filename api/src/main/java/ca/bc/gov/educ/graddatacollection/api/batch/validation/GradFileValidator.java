@@ -189,7 +189,7 @@ public class GradFileValidator {
                 throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
             }
             if ((endOfCloseDateGraceWindow != null) && currentDate.isAfter(endOfCloseDateGraceWindow)) {
-                throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
+                throw new FileUnProcessableException(FileError.MISSING_MINCODE, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
             }
         } catch (DateTimeParseException e) {
             throw new FileUnProcessableException(FileError.INVALID_SCHOOL_DATES, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
