@@ -17,29 +17,29 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V318 | ERROR    |  The assessment session is a duplicate of an existing assessment      | V301, V303, V20 |
+ *  | V15 | ERROR    |  The assessment session is a duplicate of an existing assessment      | V03 |
  *                       session for this student
  *
  */
 @Component
 @Slf4j
-@Order(250)
-public class V318CourseSession implements AssessmentValidationBaseRule {
+@Order(150)
+public class CourseSessionRule implements AssessmentValidationBaseRule {
 
     private final AssessmentRulesService assessmentRulesService;
 
-    public V318CourseSession(AssessmentRulesService assessmentRulesService) {
+    public CourseSessionRule(AssessmentRulesService assessmentRulesService) {
         this.assessmentRulesService = assessmentRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V318: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V15: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V318", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V15", validationErrorsMap);
 
-        log.debug("In shouldExecute of V318: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V15: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -49,11 +49,11 @@ public class V318CourseSession implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V318 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V15 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (assessmentRulesService.checkIfStudentHasDuplicatesInFileset(student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
-            log.debug("V318: There are more than one CODE/SESSION DATE registrations in the file for the same student. :: {}", student.getAssessmentStudentID());
+            log.debug("V15: There are more than one CODE/SESSION DATE registrations in the file for the same student. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage()));
         }
         return errors;

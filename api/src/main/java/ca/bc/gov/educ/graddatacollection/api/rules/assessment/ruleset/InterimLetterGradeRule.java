@@ -17,22 +17,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V309 | ERROR    | Final percentage result cannot be submitted by the school.            |V320, V303|
+ *  | V06 | WARNING  | Interim letter grade value is ignored and must be blank.              |   V03  |
  *
  */
 @Component
 @Slf4j
-@Order(170)
-public class V309FinalPercentage implements AssessmentValidationBaseRule {
+@Order(60)
+public class InterimLetterGradeRule implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V309: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V06: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V309", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V06", validationErrorsMap);
 
-        log.debug("In shouldExecute of V309: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V06: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -42,12 +42,12 @@ public class V309FinalPercentage implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V309 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V06 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(student.getFinalPercent())) {
-            log.debug("V309: Final percentage result cannot be submitted by the school :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getMessage()));
+        if (StringUtils.isNotBlank(student.getInterimLetterGrade())) {
+            log.debug("V06: Interim letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.INTERIM_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

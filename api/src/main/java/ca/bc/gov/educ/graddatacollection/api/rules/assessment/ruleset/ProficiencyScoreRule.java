@@ -19,27 +19,27 @@ import java.util.UUID;
 /**
  *  | ID          | Severity | Rule                                                                                              | Dependent On |
  *  |-------------|----------|---------------------------------------------------------------------------------------------------|--------------|
- *  | V304        | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V320, V303   |
+ *  | V19        | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V03, V18   |
  */
 @Component
 @Slf4j
-@Order(130)
-public class V304CourseSession implements AssessmentValidationBaseRule {
+@Order(190)
+public class ProficiencyScoreRule implements AssessmentValidationBaseRule {
 
     private final AssessmentRulesService assessmentRulesService;
 
-    public V304CourseSession(AssessmentRulesService assessmentRulesService) {
+    public ProficiencyScoreRule(AssessmentRulesService assessmentRulesService) {
         this.assessmentRulesService = assessmentRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V304: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V19: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V304", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V19", validationErrorsMap);
 
-        log.debug("In shouldExecute of V304: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V19: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -49,7 +49,7 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V304 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V19 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")) {
@@ -67,7 +67,7 @@ public class V304CourseSession implements AssessmentValidationBaseRule {
         }
 
         if (studAssessmentDetail == null || (studAssessmentDetail.isHasPriorRegistration() && studAssessmentDetail.isAlreadyWrittenAssessment())) {
-            log.debug("V304: The student has already received a Proficiency Score or Special Case for this assessment session. :: {}", student.getAssessmentStudentID());
+            log.debug("V19: The student has already received a Proficiency Score or Special Case for this assessment session. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage()));
         }
 

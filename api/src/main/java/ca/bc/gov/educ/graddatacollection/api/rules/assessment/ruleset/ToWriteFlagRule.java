@@ -17,22 +17,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V307 | WARNING  | Interim letter grade value is ignored and must be blank.              |V320, V303|
+ *  | V13 | WARNING  |  To write flag value is ignored and must be blank                     |V03|
  *
  */
 @Component
 @Slf4j
-@Order(150)
-public class V307InterimLetterGrade implements AssessmentValidationBaseRule {
+@Order(130)
+public class ToWriteFlagRule implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V307: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V13: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V307", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V13", validationErrorsMap);
 
-        log.debug("In shouldExecute of V307: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V13: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -42,12 +42,12 @@ public class V307InterimLetterGrade implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V307 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V13 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(student.getInterimLetterGrade())) {
-            log.debug("V307: Interim letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.INTERIM_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage()));
+        if (StringUtils.isNotBlank(student.getToWriteFlag())){
+            log.debug("V13: To write flag value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.TO_WRITE_FLAG, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK.getMessage()));
         }
         return errors;
     }

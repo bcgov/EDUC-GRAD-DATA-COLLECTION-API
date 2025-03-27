@@ -74,7 +74,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV301StudentPENRule() {
+    void testV01StudentPENRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -104,7 +104,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV302CourseLevelRule() {
+    void testV04CourseLevelRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -133,7 +133,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV303CourseCodeRule() {
+    void testV03CourseCodeRule() {
         Session sess = createMockSession();
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(sess));
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
@@ -160,27 +160,11 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setCourseMonth("12");
         assessmentStudent.setCourseCode("LTE10");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_MONTH.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode());
-
-        assessmentStudent.setCourseMonth("01");
-        assessmentStudent.setCourseCode("123");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError3.size()).isNotZero();
-        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
-
-        assessmentStudent.setCourseMonth("12");
-        assessmentStudent.setCourseCode("123");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.stream().anyMatch(ve -> ve.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) && ve.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()))).isTrue();
-        assertThat(validationError4.stream().anyMatch(ve -> ve.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) && ve.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()))).isTrue();
+        assertThat(validationError2.size()).isZero();
     }
 
     @Test
-    void testV304CourseSessionRule() {
+    void testV19ProficiencyScoreRule() {
         Session sess = createMockSession();
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(sess));
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
@@ -250,7 +234,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV306InterimSchoolPercentageRule() {
+    void testV05InterimSchoolPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -279,7 +263,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV307InterimLetterGradeRule() {
+    void testV06InterimLetterGradeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -308,7 +292,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV308FinalSchoolPercentageRule() {
+    void testV07FinalSchoolPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -337,7 +321,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV309FinalPercentageRule() {
+    void testV08FinalPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -366,7 +350,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV310FinalLetterGradeRule() {
+    void testV09FinalLetterGradeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -395,7 +379,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV311ProvincialSpecialCaseRule() {
+    void testV10ProvincialSpecialCaseRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -424,7 +408,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV312CourseStatusRule() {
+    void testV18CourseStatusRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -453,7 +437,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV314NumberOfCreditsRule() {
+    void testV11NumberOfCreditsRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -482,7 +466,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV315CourseTypeRule() {
+    void testV12CourseTypeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -511,7 +495,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV316ToWriteFlagRule() {
+    void testV13ToWriteFlagRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -540,7 +524,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV317ExamSchoolRule() {
+    void testV14ExamSchoolRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -570,7 +554,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV318CourseSessionRule() {
+    void testV15CourseSessionRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -603,7 +587,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV319CourseCodeRule() {
+    void testV16CourseCodeCSFRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -643,7 +627,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
 
     @Test
-    void testV320ValidStudentInDEMRule() {
+    void testV02ValidStudentInDEMRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -684,7 +668,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV321CourseCodeNonCSFRule() {
+    void testV17CourseCodeNonCSFRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -725,7 +709,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV322CourseCodeAttemptsRule() {
+    void testV20CourseCodeAttemptsRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);

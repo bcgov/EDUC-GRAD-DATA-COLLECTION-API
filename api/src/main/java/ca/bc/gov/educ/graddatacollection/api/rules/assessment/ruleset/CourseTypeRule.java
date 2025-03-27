@@ -17,22 +17,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V315 | WARNING  |  Course type value is ignored and must be blank                       |V320, V303|
+ *  | V12 | WARNING  |  Course type value is ignored and must be blank                       |V03|
  *
  */
 @Component
 @Slf4j
-@Order(220)
-public class V315CourseType implements AssessmentValidationBaseRule {
+@Order(120)
+public class CourseTypeRule implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V315: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V12: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V315", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V12", validationErrorsMap);
 
-        log.debug("In shouldExecute of V315: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V12: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -42,11 +42,11 @@ public class V315CourseType implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V315 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V12 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getCourseType())){
-            log.debug("V315: Course type value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            log.debug("V12: Course type value is ignored and must be blank :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.CRSE_TYPE, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getMessage()));
         }
         return errors;

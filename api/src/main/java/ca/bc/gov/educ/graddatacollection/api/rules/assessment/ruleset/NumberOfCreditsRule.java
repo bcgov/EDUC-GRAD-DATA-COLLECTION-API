@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
@@ -18,22 +17,22 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V312 | ERROR    |  Assessment registration must be A=active or W=withdraw               |V320, V303|
+ *  | V11 | WARNING  |  Number of credits value is ignored and must be blank                 |V03|
  *
  */
 @Component
 @Slf4j
-@Order(200)
-public class V312CourseStatus implements AssessmentValidationBaseRule {
+@Order(110)
+public class NumberOfCreditsRule implements AssessmentValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V312: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V11: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V312", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V11", validationErrorsMap);
 
-        log.debug("In shouldExecute of V312: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V11: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -43,12 +42,12 @@ public class V312CourseStatus implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V312 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V11 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isBlank(student.getCourseStatus()) || (!student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.ACTIVE.getCode()) && !student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.WITHDRAWN.getCode()))) {
-            log.debug("V312: Assessment registration must be A=active or W=withdraw :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
+        if (StringUtils.isNotBlank(student.getNumberOfCredits())){
+            log.debug("V11: Number of credits value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.NUM_CREDITS, AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK.getMessage()));
         }
         return errors;
     }
