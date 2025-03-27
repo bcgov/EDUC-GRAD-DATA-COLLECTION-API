@@ -28,8 +28,8 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
 
     @Query("SELECT " +
             "   v.validationIssueSeverityCode, COUNT(v) " +
-            "FROM DemographicStudentEntity d " +
-            "JOIN d.demographicStudentValidationIssueEntities v " +
+            "FROM AssessmentStudentEntity d " +
+            "JOIN d.assessmentStudentValidationIssueEntities v " +
             "WHERE d.incomingFileset.incomingFilesetID = :incomingFilesetId " +
             "GROUP BY v.validationIssueSeverityCode")
     List<Object[]> countValidationIssuesBySeverity(@Param("incomingFilesetId") UUID incomingFilesetId);

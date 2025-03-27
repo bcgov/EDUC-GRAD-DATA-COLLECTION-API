@@ -29,8 +29,8 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudentEnti
 
     @Query("SELECT " +
             "   v.validationIssueSeverityCode, COUNT(v) " +
-            "FROM DemographicStudentEntity d " +
-            "JOIN d.demographicStudentValidationIssueEntities v " +
+            "FROM CourseStudentEntity d " +
+            "JOIN d.courseStudentValidationIssueEntities v " +
             "WHERE d.incomingFileset.incomingFilesetID = :incomingFilesetId " +
             "GROUP BY v.validationIssueSeverityCode")
     List<Object[]> countValidationIssuesBySeverity(@Param("incomingFilesetId") UUID incomingFilesetId);
