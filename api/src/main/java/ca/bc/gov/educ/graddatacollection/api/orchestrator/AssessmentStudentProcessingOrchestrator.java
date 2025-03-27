@@ -35,11 +35,10 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
       .begin(VALIDATE_ASSESSMENT_STUDENT, this::validateCourseStudentRecord)
-      .step(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR, CREATE_ASSESSMENT_STUDENT_IN_GRAD, this::createCourseStudentRecordInGrad)
+      .step(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
       .end(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
       .or()
-      .step(CREATE_ASSESSMENT_STUDENT_IN_GRAD, ASSESSMENT_STUDENT_CREATED_IN_GRAD, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
-      .end(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, COURSE_ASSESSMENT_STATUS_IN_COLLECTION_UPDATED);
+      .end(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, ASSESSMENT_STATUS_IN_COLLECTION_UPDATED);
 
   }
 
@@ -64,12 +63,20 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void createCourseStudentRecordInGrad(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
-    //TODO
-  }
-
   public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
-    //TODO
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    assessmentStudentService.setStudentStatus(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED);
+
+    final Event.EventBuilder eventBuilder = Event.builder();
+    eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION);
+    eventBuilder.eventOutcome(ASSESSMENT_STATUS_IN_COLLECTION_UPDATED);
+    val nextEvent = eventBuilder.build();
+    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {

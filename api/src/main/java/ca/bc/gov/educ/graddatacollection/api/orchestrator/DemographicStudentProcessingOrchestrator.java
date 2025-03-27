@@ -35,12 +35,10 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
       .begin(VALIDATE_DEM_STUDENT, this::validateDEMStudentRecord)
-      .step(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR, CREATE_DEM_STUDENT_IN_GRAD, this::createDEMStudentRecordInGrad)
+      .step(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
       .end(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
       .or()
-      .step(CREATE_DEM_STUDENT_IN_GRAD, DEM_STUDENT_CREATED_IN_GRAD, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
       .end(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, DEM_STUDENT_STATUS_IN_COLLECTION_UPDATED);
-
   }
 
   public void validateDEMStudentRecord(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
@@ -65,12 +63,20 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void createDEMStudentRecordInGrad(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
-    //TODO
-  }
-
   public void updateDemStudentStatus(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
-    //TODO
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.VERIFIED);
+
+    final Event.EventBuilder eventBuilder = Event.builder();
+    eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION);
+    eventBuilder.eventOutcome(DEM_STUDENT_STATUS_IN_COLLECTION_UPDATED);
+    val nextEvent = eventBuilder.build();
+    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {

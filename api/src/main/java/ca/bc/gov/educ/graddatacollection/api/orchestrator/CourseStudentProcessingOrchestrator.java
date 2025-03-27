@@ -35,10 +35,9 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
       .begin(VALIDATE_COURSE_STUDENT, this::validateCourseStudentRecord)
-      .step(VALIDATE_COURSE_STUDENT, VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR, CREATE_COURSE_STUDENT_IN_GRAD, this::createCourseStudentRecordInGrad)
+      .step(VALIDATE_COURSE_STUDENT, VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR, UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
       .end(VALIDATE_COURSE_STUDENT, VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
       .or()
-      .step(CREATE_COURSE_STUDENT_IN_GRAD, COURSE_STUDENT_CREATED_IN_GRAD, UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
       .end(UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION, COURSE_STUDENT_STATUS_IN_COLLECTION_UPDATED);
 
   }
@@ -64,12 +63,20 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void createCourseStudentRecordInGrad(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
-    //TODO
-  }
-
   public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
-    //TODO
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.VERIFIED);
+
+    final Event.EventBuilder eventBuilder = Event.builder();
+    eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION);
+    eventBuilder.eventOutcome(COURSE_STUDENT_STATUS_IN_COLLECTION_UPDATED);
+    val nextEvent = eventBuilder.build();
+    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final CourseStudentSagaData courseStudentSagaData) {
