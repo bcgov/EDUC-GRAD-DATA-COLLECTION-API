@@ -78,5 +78,8 @@ public class DemographicStudent extends BaseRequest implements Serializable {
 
     private String schoolCertificateCompletionDate;
 
+    private String studentStatus;
+
     private List<DemographicStudentValidationIssue> demographicStudentValidationIssue;
+
 }
