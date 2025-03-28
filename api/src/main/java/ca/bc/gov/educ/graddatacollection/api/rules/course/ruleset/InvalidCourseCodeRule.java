@@ -25,11 +25,11 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(30)
-public class CourseCodeRule implements CourseValidationBaseRule {
+public class InvalidCourseCodeRule implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public CourseCodeRule(CourseRulesService courseRulesService) {
+    public InvalidCourseCodeRule(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
     @Override

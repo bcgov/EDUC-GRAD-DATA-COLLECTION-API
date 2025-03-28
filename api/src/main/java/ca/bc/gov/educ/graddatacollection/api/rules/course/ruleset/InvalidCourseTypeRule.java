@@ -25,11 +25,11 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(90)
-public class CourseTypeRule implements CourseValidationBaseRule {
+public class InvalidCourseTypeRule implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public CourseTypeRule(RestUtils restUtils) {
+    public InvalidCourseTypeRule(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 

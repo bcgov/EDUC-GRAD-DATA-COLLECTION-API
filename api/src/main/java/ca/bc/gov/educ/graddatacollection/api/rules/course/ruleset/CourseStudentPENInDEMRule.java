@@ -23,11 +23,11 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(10)
-public class StudentPENInDEMRule implements CourseValidationBaseRule {
+public class CourseStudentPENInDEMRule implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public StudentPENInDEMRule(CourseRulesService courseRulesService) {
+    public CourseStudentPENInDEMRule(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
 

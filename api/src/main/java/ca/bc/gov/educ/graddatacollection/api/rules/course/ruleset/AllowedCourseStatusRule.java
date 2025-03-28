@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(40)
-public class CourseStatusRule implements CourseValidationBaseRule {
+public class AllowedCourseStatusRule implements CourseValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
