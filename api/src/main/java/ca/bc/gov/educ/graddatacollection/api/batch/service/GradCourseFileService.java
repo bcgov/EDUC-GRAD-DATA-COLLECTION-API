@@ -192,7 +192,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(index + 1), ValidationUtil.getValueOrBlank(ds.getString(LOCAL_STUDENT_ID.getName())));
         }
 
-        var course = GradStudentCourseDetails.builder()
+        return GradStudentCourseDetails.builder()
                 .transactionCode(transactionCode)
                 .vendorID(ds.getString(VENDOR_ID.getName()))
                 .verificationFlag(ds.getString(VERIFICATION_FLAG.getName()))
@@ -217,7 +217,5 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 .courseGradReqt(StringMapper.trimAndUppercase(ds.getString(COURSE_GRAD_REQT.getName())))
                 .lineNumber(Long.toString(index + 1))
                 .build();
-        log.info("Course is: " + course);
-        return course;
     }
 }
