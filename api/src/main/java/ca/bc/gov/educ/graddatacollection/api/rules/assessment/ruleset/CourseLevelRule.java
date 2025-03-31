@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V04 | WARNING  | Invalid Course Level entry, value will be ignored.                    | V03 |
+ *  | V04 | ERROR  | Invalid Course Level entry, value will be ignored.                    | V03 |
  *                      Value should be blank.
  */
 @Component
@@ -47,7 +47,7 @@ public class CourseLevelRule implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getCourseLevel())) {
             log.debug("V04: Course level value is ignored and must be blank for assessmentStudentID :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COURSE_LEVEL, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_LEVEL, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getMessage()));
         }
         return errors;
     }
