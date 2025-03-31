@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V08 | ERROR    | Must be a valid date                                           	      | -            |
+ *  | D08 | ERROR    | Must be a valid date                                           	      | -            |
  *
  */
 @Component
@@ -34,11 +34,11 @@ public class InvalidSCCPCompletionDateRule implements DemographicValidationBaseR
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SCCPCompletionDate-V08: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of SCCPCompletionDate-D08: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of SCCPCompletionDate-V08: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of SCCPCompletionDate-D08: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -48,7 +48,7 @@ public class InvalidSCCPCompletionDateRule implements DemographicValidationBaseR
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of SCCPCompletionDate-V08 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of SCCPCompletionDate-D08 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         String sccpCompletionDate = student.getSchoolCertificateCompletionDate();
@@ -56,7 +56,7 @@ public class InvalidSCCPCompletionDateRule implements DemographicValidationBaseR
         if (StringUtils.isNotBlank(sccpCompletionDate) &&
                 (!DateValidator.isValidYYYYMMDD(sccpCompletionDate) ||
                 LocalDate.parse(sccpCompletionDate, YYYYMMDD_FORMATTER).isBefore(SCCP_EFFECTIVE_DATE))) {
-                log.debug("SCCPCompletionDate-V08: Invalid SCCP completion date. Must be blank or YYYYMMDD. The student's DEM file will not be processed. for demographicStudentID :: {}", student.getDemographicStudentID());
+                log.debug("SCCPCompletionDate-D08: Invalid SCCP completion date. Must be blank or YYYYMMDD. The student's DEM file will not be processed. for demographicStudentID :: {}", student.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE,  DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getMessage()));
             }
 

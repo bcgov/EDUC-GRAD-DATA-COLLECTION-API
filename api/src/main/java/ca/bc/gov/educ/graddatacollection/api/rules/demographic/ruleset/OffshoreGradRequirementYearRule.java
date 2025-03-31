@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V13 | ERROR    | If Offshore School, cannot be 1950 or SCCP	                          |  V05         |
+ *  | D13 | ERROR    | If Offshore School, cannot be 1950 or SCCP	                          |  D05         |
  *  |      |          |                                                                       |              |
  */
 
@@ -29,11 +29,11 @@ public class OffshoreGradRequirementYearRule implements DemographicValidationBas
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentProgram-V13: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentProgram-D13: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V13", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D13", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentProgram-V13: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentProgram-D13: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -43,12 +43,12 @@ public class OffshoreGradRequirementYearRule implements DemographicValidationBas
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentProgram-V13 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentProgram-D13 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) &&
             GradRequirementYearCodes.getOffshoreSchoolNotAllowedCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear()))) {
-            log.debug("StudentProgram-V13: Error: 1950 and SCCP are not valid program codes for offshore schools. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentProgram-D13: Error: 1950 and SCCP are not valid program codes for offshore schools. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID.getMessage()));
         }
         return errors;

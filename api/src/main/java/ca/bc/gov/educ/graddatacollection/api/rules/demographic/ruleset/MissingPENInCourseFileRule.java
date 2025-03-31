@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | v11 | ERROR    | Should match a PEN in the .CRS 		                          	      | V03          |
+ *  | D11 | ERROR    | Should match a PEN in the .CRS 		                          	      | D03          |
  *
  */
 @Component
@@ -33,11 +33,11 @@ public class MissingPENInCourseFileRule implements DemographicValidationBaseRule
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentPEN-v11: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentPEN-D11: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V11", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D11", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentPEN-v11: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentPEN-D11: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -47,13 +47,13 @@ public class MissingPENInCourseFileRule implements DemographicValidationBaseRule
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentPEN-v11 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentPEN-D11 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var isPresent = demographicRulesService.containsCoursePenForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen());
 
         if (!isPresent) {
-            log.debug("StudentPEN-v11: Student in DEM file but not in CRS file (i.e., course data has not been submitted for this student). for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentPEN-D11: Student in DEM file but not in CRS file (i.e., course data has not been submitted for this student). for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_PEN_MISMATCH.getMessage()));
         }
         return errors;

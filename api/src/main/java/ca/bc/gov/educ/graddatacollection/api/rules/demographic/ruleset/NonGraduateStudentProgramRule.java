@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V18  | WARN     | Warn if the program is closed and the student has not yet graduated   |  V03, V05    |
- *  |      |          | If the students' program completion date is null and the program has  |              |
- *                      expired then Warning.                                                 |              |
- *                      If the students' program completion date is not null - no warning     |              |
+ *  | ID   | Severity | Rule                                                        | Dependent On |
+ *  |------|----------|------------------------------------------------------------|--------------|
+ *  | D18  | WARN     | If the student has not yet graduated, the Grad Req Year    |  D03, D05    |
+ *  |      |          | (i.e., Grad Program) should not be closed.                 |              |
+ *                      Note: a student has graduated if they
+ *                      have a program completion date in GRAD.
  */
 
 @Component
@@ -42,11 +42,11 @@ public class NonGraduateStudentProgramRule implements DemographicValidationBaseR
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentProgram-V18: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentProgram-D18: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V18", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D18", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentProgram-V18: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentProgram-D18: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -56,7 +56,7 @@ public class NonGraduateStudentProgramRule implements DemographicValidationBaseR
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentProgram-V18 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentProgram-D18 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
@@ -74,12 +74,12 @@ public class NonGraduateStudentProgramRule implements DemographicValidationBaseR
                 });
 
                 if (!foundOpenProgram) {
-                    log.debug("StudentProgram-V18: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
+                    log.debug("StudentProgram-D18: Warning: Reported graduation program is closed. Students will not be able to graduate on this program. demographicStudentID :: {}", student.getDemographicStudentID());
                     String message = "The "+ StringEscapeUtils.escapeHtml4(studentProgram)+" graduation program is closed. The student cannot graduate on this program.";
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED, message));
                 }
             } else {
-                log.debug("StudentProgram-V18: Program completion date provided for grad student with PEN {}. Skipping V123.", student.getPen());
+                log.debug("StudentProgram-D18: Program completion date provided for grad student with PEN {}. Skipping V123.", student.getPen());
             }
         }
         return errors;

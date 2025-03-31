@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                         | Dependent On |
  *  |------|----------|----------------------------------------------|--------------|
- *  | V07  | ERROR    | Must be a valid grade               	     | -            |
+ *  | D07  | ERROR    | Must be a valid grade               	     | -            |
  *
  */
 
@@ -35,11 +35,11 @@ public class InvalidGradeRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentGrade-V07: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentGrade-D07: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentGrade-V07: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentGrade-D07: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -49,13 +49,13 @@ public class InvalidGradeRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentGrade-V07 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentGrade-D07 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var activeGradGrades = restUtils.getGradGradeList(true);
 
         if (StringUtils.isNotBlank(student.getGrade()) && activeGradGrades.stream().noneMatch(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade()))) {
-            log.debug("StudentGrade-V07: Must be a valid grade for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentGrade-D07: Must be a valid grade for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage()));
         }
         return errors;

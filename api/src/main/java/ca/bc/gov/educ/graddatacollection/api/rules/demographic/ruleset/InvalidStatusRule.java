@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V06 | ERROR    |  Must be a valid status	(A, D, T)                                     |              |
+ *  | D06 | ERROR    |  Must be a valid status	(A, D, T)                                     |              |
  *
  */
 
@@ -29,11 +29,11 @@ public class InvalidStatusRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentStatus-V06: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentStatus-D06: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentStatus-V06: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentStatus-D06: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -43,11 +43,11 @@ public class InvalidStatusRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentStatus-V06 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentStatus-D06 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isBlank(student.getStudentStatus()) || !StudentStatusCodes.getValidStudentStatusCodesExcludingM().contains(student.getStudentStatus())) {
-            log.debug("StudentStatus-V06:Invalid student status - must be A, D, or T for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentStatus-D06:Invalid student status - must be A, D, or T for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage()));
         }
         return errors;
