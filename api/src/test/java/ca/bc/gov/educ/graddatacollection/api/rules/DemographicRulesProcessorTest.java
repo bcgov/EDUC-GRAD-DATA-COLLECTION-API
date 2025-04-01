@@ -141,7 +141,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV09DemographicStudentLocalID() {
+    void testD09DemographicStudentLocalID() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -186,7 +186,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV03DemographicStudentPEN() {
+    void testD03DemographicStudentPEN() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -213,7 +213,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV11DemographicStudentPEN() {
+    void testD11DemographicStudentPEN() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -235,7 +235,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV10DemographicStudentName() {
+    void testD10DemographicStudentName() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -294,7 +294,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV10DemographicStudentName_withNotAllowedHtmlChars() {
+    void testD10DemographicStudentName_withNotAllowedHtmlChars() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -315,7 +315,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV16DemographicStudentBirthdate() {
+    void testD16DemographicStudentBirthdate() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -336,7 +336,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV23DemographicStudentAdultBirthdate() {
+    void testD23DemographicStudentAdultBirthdate() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -373,7 +373,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV02DemographicStudentCitizenship() {
+    void testD02DemographicStudentCitizenship() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -406,7 +406,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV07DemographicValidGradeRule() {
+    void testD07DemographicValidGradeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -445,7 +445,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV15DemographicValidGradeRule() {
+    void testD15DemographicValidGradeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -466,7 +466,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV26DemographicValidGradeProgramRule() {
+    void testD26DemographicValidGradeProgramRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -488,7 +488,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV24DemographicValidGradeProgramRule() {
+    void testD24DemographicValidGradeProgramRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -510,7 +510,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV14DemographicProgramCodeRule() {
+    void testD14DemographicProgramCodeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -542,7 +542,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV22DemographicValidStatusRule() {
+    void testD22DemographicValidStatusRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -582,7 +582,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV06DemographicValidStatusRule() {
+    void testD06DemographicValidStatusRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -607,7 +607,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV21DemographicStudentStatus() {
+    void testD21DemographicStudentStatus() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -640,7 +640,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV19DemographicStudentStatus() {
+    void testD19DemographicStudentStatus() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -664,7 +664,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV20DemographicStudentStatus() {
+    void testD20DemographicStudentStatus() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -699,7 +699,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV05DemographicStudentProgramRule() {
+    void testD05DemographicStudentProgramRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -717,7 +717,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
      }
 
     @Test
-    void testV13DemographicStudentProgramRule() {
+    void testD13DemographicStudentProgramRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -745,7 +745,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV18DemographicStudentProgramRule() {
+    void testD18DemographicStudentProgramRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -784,7 +784,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV17DemographicStudentProgramRule() {
+    void testD17DemographicStudentProgramRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -812,7 +812,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
 
     @Test
-    void testV08DemographicSCCPCompletionDate() {
+    void testD08DemographicSCCPCompletionDate() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -880,7 +880,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV04DemographicStudentBirthdate() {
+    void testD04DemographicStudentBirthdate() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -926,7 +926,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV12DemographicStudentProgramNull() {
+    void testD12DemographicStudentProgramNull() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);

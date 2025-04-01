@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V05  | ERROR    | Must be a valid program                                               |              |
+ *  | D05  | ERROR    | Must be a valid program                                               |              |
  */
 
 @Component
@@ -35,11 +35,11 @@ public class InvalidGraduationProgramCodeRule implements DemographicValidationBa
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentProgram-V05: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentProgram-D05: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentProgram-V05: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentProgram-D05: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -49,7 +49,7 @@ public class InvalidGraduationProgramCodeRule implements DemographicValidationBa
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentProgram-V05 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentProgram-D05 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         List<GraduationProgramCode> graduationProgramCodes = restUtils.getGraduationProgramCodeList(false);
@@ -63,7 +63,7 @@ public class InvalidGraduationProgramCodeRule implements DemographicValidationBa
                 return baseGradCode.equalsIgnoreCase(studentProgram);
             });
             if (!isValid) {
-                log.debug("StudentProgram-V05: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
+                log.debug("StudentProgram-D05: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
             }
         }

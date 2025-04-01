@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | v10 | ERROR    | Student name must match what is in PEN	                              | V03          |
+ *  | D10 | ERROR    | Student name must match what is in PEN	                              | D03          |
  *
  */
 @Component
@@ -39,11 +39,11 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of studentName-v10: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of studentName-D10: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V10", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D10", validationErrorsMap);
 
-        log.debug("In shouldExecute of studentName-v10: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of studentName-D10: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -53,7 +53,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var demStudent = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of studentName-v10 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        log.debug("In executeValidation of studentName-D10 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
 
@@ -65,7 +65,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
                 String message = StringUtils.isBlank(schoolSurname)
                         ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>"
                         : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
-                log.debug("studentSurName-v10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+                log.debug("studentSurName-D10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
@@ -82,7 +82,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
                     message = "MIDDLE NAME mismatch. School submitted: " + schoolMiddleName + " and the Ministry PEN system has: " + ministryMiddleNames
                             + ". If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 }
-                log.debug("studentMiddleNames-v10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+                log.debug("studentMiddleNames-D10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
@@ -99,7 +99,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
                     message = "FIRST NAME mismatch. School submitted: " + schoolGiven + " and the Ministry PEN system has: " + ministryGiven
                             + ". If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 }
-                log.debug("studentGivenName-v10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+                log.debug("studentGivenName-D10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH, message));
             }
         return errors;

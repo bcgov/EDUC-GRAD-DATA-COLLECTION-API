@@ -19,7 +19,7 @@ import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.Demographi
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V03 | ERROR    | PEN must exist in the PEN system.	                                  | -            |
+ *  | D03 | ERROR    | PEN must exist in the PEN system.	                                  | -            |
  *
  */
 @Component
@@ -35,11 +35,11 @@ public class InvalidPenRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentPEN-v03: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentPEN-D03: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentPEN-v03: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentPEN-D03: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -49,12 +49,12 @@ public class InvalidPenRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var demStudent = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentPEN-v03 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        log.debug("In executeValidation of StudentPEN-D03 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (student == null || StringUtils.isBlank(student.getPen())) {
-            log.debug("StudentPEN-v03: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+            log.debug("StudentPEN-D03: Error: Invalid PEN. Student not found on PEN database so the record for this student cannot be updated for demographicStudentID :: {}", demStudent.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, STUDENT_PEN_NOT_FOUND, STUDENT_PEN_NOT_FOUND.getMessage()));
         }
         return errors;
