@@ -5,6 +5,10 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
+
 @Slf4j
 public class RuleUtil {
   private RuleUtil() {
@@ -29,7 +33,12 @@ public class RuleUtil {
   }
 
   public static boolean validateStudentDOBMatches(DemographicStudentEntity demStudent, Student studentFromAPI) {
-    return (StringUtils.isNotBlank(studentFromAPI.getDob()) && StringUtils.isNotBlank(demStudent.getBirthdate()) && studentFromAPI.getDob().equalsIgnoreCase(demStudent.getBirthdate()));
+    if(StringUtils.isNotBlank(studentFromAPI.getDob()) && StringUtils.isNotBlank(demStudent.getBirthdate())) {
+      var formattedDemBirthdate = LocalDate.parse(demStudent.getBirthdate(), DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT));
+      var formattedStudentApiBirthdate = LocalDate.parse(studentFromAPI.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+      return formattedStudentApiBirthdate.isEqual(formattedDemBirthdate);
+    }
+    return false;
   }
 
 }

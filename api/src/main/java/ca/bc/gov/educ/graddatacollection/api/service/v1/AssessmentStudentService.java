@@ -11,6 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
@@ -77,6 +78,17 @@ public class AssessmentStudentService {
     public void saveSdcStudent(AssessmentStudentEntity studentEntity) {
         studentEntity.setUpdateDate(LocalDateTime.now());
         this.assessmentStudentRepository.save(studentEntity);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setStudentStatus(final UUID assessmentStudentID, final SchoolStudentStatus status) {
+        var currentStudentEntity = this.assessmentStudentRepository.findById(assessmentStudentID);
+        if(currentStudentEntity.isPresent()) {
+            currentStudentEntity.get().setStudentStatusCode(status.getCode());
+            saveSdcStudent(currentStudentEntity.get());
+        } else {
+            throw new EntityNotFoundException(AssessmentStudentEntity.class, ASSESSMENT_STUDENT_ID, assessmentStudentID.toString());
+        }
     }
 
     public List<AssessmentStudentValidationIssue> runValidationRules(AssessmentStudentEntity assessmentStudentEntity, SchoolTombstone schoolTombstone) {
@@ -149,7 +161,7 @@ public class AssessmentStudentService {
 
     public void flagErrorOnStudent(final AssessmentStudent assessmentStudent) {
         try {
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null, null);
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null, null, assessmentStudent.getCreateUser(), LocalDateTime.parse(assessmentStudent.getCreateDate()), assessmentStudent.getUpdateUser(), LocalDateTime.parse(assessmentStudent.getUpdateDate()));
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");

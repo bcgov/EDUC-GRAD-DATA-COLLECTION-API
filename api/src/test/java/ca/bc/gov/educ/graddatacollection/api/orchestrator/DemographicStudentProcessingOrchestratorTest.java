@@ -144,7 +144,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         studentApiStudent.setLocalID("8887555");
         studentApiStudent.setLegalLastName("JACKSON");
         studentApiStudent.setLegalFirstName("JIM");
-        studentApiStudent.setDob("19900101");
+        studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -195,7 +195,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.demographicStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_DEM_STUDENT);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR);
 
         val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();

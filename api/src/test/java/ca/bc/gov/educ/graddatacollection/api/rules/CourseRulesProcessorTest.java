@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -127,6 +128,16 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         coursesRecord.setCourseCategory(courseCategory);
         coursesRecord.setGenericCourseType("G");
         when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
     }
 
     @Test
@@ -140,14 +151,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -174,20 +177,12 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob(demStudent.getBirthdate());
+        stud2.setDob("1990-01-01");
         stud2.setLegalLastName(demStudent.getLastName());
         stud2.setLegalFirstName("ABC");
         stud2.setPen(demStudent.getPen());
@@ -210,14 +205,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -239,14 +226,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -291,14 +270,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -446,14 +417,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -502,14 +465,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -534,14 +489,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -577,14 +524,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -607,14 +546,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -663,14 +594,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
 
         // Case 1: Valid course session (within the current school year)
         courseStudent.setCourseYear(String.valueOf(currentSchoolYearStart.getYear()));
@@ -743,14 +666,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -794,14 +709,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -830,14 +737,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -860,14 +759,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -889,14 +780,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         YearMonth validFutureCourseSession = YearMonth.now().plusMonths(6);
         courseStudent.setCourseYear(String.valueOf(validFutureCourseSession.getYear()));
@@ -927,14 +810,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -962,14 +837,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -1008,14 +875,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1038,13 +897,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -1067,14 +919,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         courseStudent.setFinalLetterGrade("RM");
         courseStudent.setCourseCode("GT");
@@ -1100,14 +944,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         courseStudent.setFinalLetterGrade("RM");
         courseStudent.setCourseCode("GT");
@@ -1135,14 +971,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1165,14 +993,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         courseStudent.setCourseYear("2022");
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
@@ -1198,14 +1018,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1227,14 +1039,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -1258,14 +1062,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1282,7 +1078,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob(demStudent2.getBirthdate());
+        stud2.setDob("1990-01-01");
         stud2.setLegalLastName(demStudent2.getLastName());
         stud2.setLegalFirstName(demStudent2.getFirstName());
         stud2.setPen(demStudent2.getPen());
@@ -1306,14 +1102,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -1371,14 +1159,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1434,14 +1214,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1463,14 +1235,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -1523,7 +1287,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         Student stud2 = new Student();
         stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob(demStudent2.getBirthdate());
+        stud2.setDob("1990-01-01");
         stud2.setLegalLastName(demStudent2.getLastName());
         stud2.setLegalFirstName(demStudent2.getFirstName());
         stud2.setPen(demStudent2.getPen());
@@ -1551,13 +1315,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setRelatedCourse("IDS");
         courseStudent.setRelatedLevel("12G");
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -1653,13 +1410,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setRelatedCourse("WRO");
         courseStudent.setRelatedLevel("NG");
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -1764,14 +1514,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setRelatedCourse(null);
         courseStudent.setRelatedLevel(null);
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1833,14 +1575,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setRelatedCourse(null);
         courseStudent.setRelatedLevel(null);
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1894,14 +1628,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -1941,14 +1667,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
@@ -2000,14 +1718,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
-
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
@@ -2051,14 +1761,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud1 = new Student();
-        stud1.setStudentID(UUID.randomUUID().toString());
-        stud1.setDob(demStudent.getBirthdate());
-        stud1.setLegalLastName(demStudent.getLastName());
-        stud1.setLegalFirstName(demStudent.getFirstName());
-        stud1.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();

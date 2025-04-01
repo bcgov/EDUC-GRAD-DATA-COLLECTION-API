@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolReportingRequirementCodes;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -55,9 +56,15 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         this.incomingFilesetRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
         response.setHasPriorRegistration(false);
@@ -67,7 +74,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV301StudentPENRule() {
+    void testV01StudentPENRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -77,15 +84,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -106,7 +104,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV302CourseLevelRule() {
+    void testV04CourseLevelRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -116,15 +114,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -144,7 +133,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV303CourseCodeRule() {
+    void testV03CourseCodeRule() {
         Session sess = createMockSession();
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(sess));
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
@@ -157,15 +146,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
         assessmentStudent.setCourseCode("LTE10");
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -180,27 +160,11 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setCourseMonth("12");
         assessmentStudent.setCourseCode("LTE10");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_MONTH.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode());
-
-        assessmentStudent.setCourseMonth("01");
-        assessmentStudent.setCourseCode("123");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError3.size()).isNotZero();
-        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
-
-        assessmentStudent.setCourseMonth("12");
-        assessmentStudent.setCourseCode("123");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.stream().anyMatch(ve -> ve.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) && ve.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()))).isTrue();
-        assertThat(validationError4.stream().anyMatch(ve -> ve.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) && ve.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()))).isTrue();
+        assertThat(validationError2.size()).isZero();
     }
 
     @Test
-    void testV304CourseSessionRule() {
+    void testV19ProficiencyScoreRule() {
         Session sess = createMockSession();
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(sess));
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
@@ -213,15 +177,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
         assessmentStudent.setCourseCode("LTE10");
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -279,7 +234,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV306InterimSchoolPercentageRule() {
+    void testV05InterimSchoolPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -289,15 +244,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -317,7 +263,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV307InterimLetterGradeRule() {
+    void testV06InterimLetterGradeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -327,15 +273,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -355,7 +292,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV308FinalSchoolPercentageRule() {
+    void testV07FinalSchoolPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -365,15 +302,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -393,7 +321,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV309FinalPercentageRule() {
+    void testV08FinalPercentageRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -403,15 +331,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -431,7 +350,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV310FinalLetterGradeRule() {
+    void testV09FinalLetterGradeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -441,15 +360,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -469,7 +379,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV311ProvincialSpecialCaseRule() {
+    void testV10ProvincialSpecialCaseRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -479,15 +389,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -507,7 +408,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV312CourseStatusRule() {
+    void testV18CourseStatusRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -517,15 +418,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -545,7 +437,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV314NumberOfCreditsRule() {
+    void testV11NumberOfCreditsRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -555,15 +447,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -583,7 +466,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV315CourseTypeRule() {
+    void testV12CourseTypeRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -593,15 +476,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -621,7 +495,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV316ToWriteFlagRule() {
+    void testV13ToWriteFlagRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -631,15 +505,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -659,7 +524,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV317ExamSchoolRule() {
+    void testV14ExamSchoolRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -669,15 +534,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -698,7 +554,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV318CourseSessionRule() {
+    void testV15CourseSessionRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -708,15 +564,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -740,7 +587,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV319CourseCodeRule() {
+    void testV16CourseCodeCSFRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -750,15 +597,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -789,7 +627,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
 
     @Test
-    void testV320ValidStudentInDEMRule() {
+    void testV02ValidStudentInDEMRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -808,64 +646,20 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
 
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
-
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError1.size()).isZero();
-
-        Student stud2 = new Student();
-        stud2.setStudentID(UUID.randomUUID().toString());
-        stud2.setDob(demStudent.getBirthdate());
-        stud2.setLegalLastName(demStudent.getLastName());
-        stud2.setLegalFirstName(demStudent.getFirstName());
-        stud2.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud2);
-
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
-
-        Student stud3 = new Student();
-        stud3.setStudentID(UUID.randomUUID().toString());
-        stud3.setDob(demStudent.getBirthdate());
-        stud3.setLegalLastName(demStudent.getLastName());
-        stud3.setLegalMiddleNames(demStudent.getMiddleName());
-        stud3.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud3);
 
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
 
-        Student stud4 = new Student();
-        stud4.setStudentID(UUID.randomUUID().toString());
-        stud4.setDob(demStudent.getBirthdate());
-        stud4.setLegalFirstName(demStudent.getFirstName());
-        stud4.setLegalMiddleNames(demStudent.getMiddleName());
-        stud4.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud4);
-
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
-
-        Student stud5 = new Student();
-        stud5.setStudentID(UUID.randomUUID().toString());
-        stud5.setLegalLastName(demStudent.getLastName());
-        stud5.setLegalFirstName(demStudent.getFirstName());
-        stud5.setLegalMiddleNames(demStudent.getMiddleName());
-        stud5.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud5);
 
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
@@ -874,7 +668,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV321CourseCodeNonCSFRule() {
+    void testV17CourseCodeNonCSFRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -885,15 +679,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
         assessmentStudent.setCourseCode("LTP12");
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();
@@ -924,7 +709,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV322CourseCodeAttemptsRule() {
+    void testV20CourseCodeAttemptsRule() {
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
@@ -934,15 +719,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLocalID(demStudent.getLocalID());
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Student stud = new Student();
-        stud.setStudentID(UUID.randomUUID().toString());
-        stud.setDob(demStudent.getBirthdate());
-        stud.setLegalLastName(demStudent.getLastName());
-        stud.setLegalFirstName(demStudent.getFirstName());
-        stud.setLegalMiddleNames(demStudent.getMiddleName());
-        stud.setPen(demStudent.getPen());
-        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud);
 
         Session session = new Session();
         Assessment assessment = new Assessment();

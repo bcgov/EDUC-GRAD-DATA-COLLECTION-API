@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class ErrorFilesetStudentService {
 
     @Retryable(retryFor = {PSQLException.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void flagErrorOnStudent(UUID incomingFilesetID, String pen, boolean isDemLoad, String firstName, String lastName, String localID, String birthDate) {
+    public void flagErrorOnStudent(UUID incomingFilesetID, String pen, boolean isDemLoad, String firstName, String lastName, String localID, String birthDate, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
         if (preexisting.isPresent() && isDemLoad) {
             var stud =  preexisting.get();
@@ -34,6 +35,8 @@ public class ErrorFilesetStudentService {
             stud.setLastName(lastName);
             stud.setFirstName(firstName);
             stud.setBirthdate(birthDate);
+            stud.setUpdateUser(updateUser);
+            stud.setUpdateDate(updateDate);
             errorFilesetStudentRepository.save(stud);
         }else if(preexisting.isEmpty()){
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
@@ -46,6 +49,10 @@ public class ErrorFilesetStudentService {
                 newErrorFilesetStudent.setLocalID(localID);
                 newErrorFilesetStudent.setBirthdate(birthDate);
             }
+            newErrorFilesetStudent.setCreateUser(createUser);
+            newErrorFilesetStudent.setCreateDate(createDate);
+            newErrorFilesetStudent.setUpdateUser(updateUser);
+            newErrorFilesetStudent.setUpdateDate(updateDate);
             errorFilesetStudentRepository.save(newErrorFilesetStudent);
         }
     }

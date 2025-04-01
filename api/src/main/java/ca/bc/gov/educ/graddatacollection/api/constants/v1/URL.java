@@ -14,5 +14,6 @@ public final class URL {
   public static final String GRADUATION_PROGRAM_CODES = "/graduation-program-codes";
   public static final String VALIDATION_FIELD_CODES = "/validation-field-codes";
   public static final String BASE_URL_REPORT_GENERATION = BASE_URL + "/reportGeneration";
+  public static final String METRICS = BASE_URL + "/metrics";
 
 }
