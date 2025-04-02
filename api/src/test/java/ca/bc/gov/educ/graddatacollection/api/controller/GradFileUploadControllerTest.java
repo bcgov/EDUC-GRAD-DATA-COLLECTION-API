@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.controller;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
@@ -48,6 +45,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
 
     protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
@@ -58,6 +57,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
+        reportingPeriodRepository.deleteAll();
     }
 
     @Test
@@ -150,6 +150,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -183,11 +184,12 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenFiletypeCRS_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
-        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file.txt");
+        final var fis = this.getClass().getResourceAsStream("/student-crs-file.txt");
         final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
@@ -217,6 +219,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenFiletypeCRS_BadDates_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -254,6 +257,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenFiletypeCRS_OldDatesWithOverride_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -289,6 +293,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenFiletypeDEM_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -323,6 +328,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenEmptyCourseFile_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -354,6 +360,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenEmptyXAMFile_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -406,6 +413,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_forDistrict_givenFiletypeXAM_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
@@ -442,6 +450,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_forDistrict_givenFiletypeCRS_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
@@ -479,6 +488,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_forDistrict_givenFiletypeDEM_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
@@ -516,6 +526,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_forDistrict_givenEmptyCourseFile_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
@@ -550,6 +561,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_forDistrict_givenEmptyXAMFile_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
