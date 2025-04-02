@@ -49,6 +49,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -58,6 +60,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
@@ -65,7 +68,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
@@ -91,7 +95,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var savedFileset = incomingFilesetRepository.save(mockFileset);
 
@@ -117,7 +122,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 

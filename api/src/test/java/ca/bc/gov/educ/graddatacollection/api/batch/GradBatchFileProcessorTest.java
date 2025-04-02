@@ -5,10 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableEx
 import ca.bc.gov.educ.graddatacollection.api.batch.processor.GradBatchFileProcessor;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.exception.InvalidPayloadException;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
@@ -40,6 +37,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
+    @Autowired
     GradBatchFileProcessor gradBatchFileProcessor;
     @Autowired
     GradFileValidator gradFileValidator;
@@ -55,6 +54,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
@@ -62,7 +62,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
@@ -93,7 +94,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file-missing-pen.txt");
@@ -113,7 +115,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file-dupe-pen.txt");
@@ -133,7 +136,9 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file.txt");
@@ -166,7 +171,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
@@ -197,7 +203,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/crs-file-with-no-current-session.txt");
@@ -218,7 +225,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/crs-file-with-future-session.txt");
@@ -253,7 +261,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var districtID = UUID.randomUUID();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
@@ -277,7 +286,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var districtID = UUID.randomUUID();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/student-dem-file.txt");
@@ -301,7 +311,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setDistrictId(String.valueOf(districtID));
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var savedFileSet = incomingFilesetRepository.save(mockFileset);
 
@@ -338,7 +349,8 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setDistrictId(String.valueOf(districtID));
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriodEntity = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriodEntity);
         incomingFilesetRepository.save(mockFileset);
 
         final FileInputStream fis = new FileInputStream("src/test/resources/empty-file.txt");

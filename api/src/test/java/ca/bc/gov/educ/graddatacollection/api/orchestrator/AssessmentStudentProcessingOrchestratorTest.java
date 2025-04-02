@@ -6,10 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaEventRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
@@ -53,6 +50,8 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
+    @Autowired
     AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
@@ -65,6 +64,7 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         sagaRepository.deleteAll();
         assessmentStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
+        reportingPeriodRepository.deleteAll();
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
@@ -76,7 +76,8 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         var assessmentStudentEntity = createMockAssessmentStudent();

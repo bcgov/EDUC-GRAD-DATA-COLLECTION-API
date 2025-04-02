@@ -28,7 +28,7 @@ public class CourseMonthRule implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C07: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V07", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C07", validationErrorsMap);
 
         log.debug("In shouldExecute of C07: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

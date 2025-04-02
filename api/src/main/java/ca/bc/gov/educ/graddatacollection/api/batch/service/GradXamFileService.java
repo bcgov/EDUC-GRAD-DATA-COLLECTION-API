@@ -9,10 +9,13 @@ import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -47,6 +50,8 @@ public class GradXamFileService implements GradFileBatchProcessor {
     private static final BatchFileMapper mapper = BatchFileMapper.mapper;
     @Getter(PRIVATE)
     private final IncomingFilesetRepository incomingFilesetRepository;
+    @Getter(PRIVATE)
+    private final ReportingPeriodRepository reportingPeriodRepository;
     @Getter(PRIVATE)
     private final IncomingFilesetService incomingFilesetService;
     @Getter(PRIVATE)
@@ -148,6 +153,10 @@ public class GradXamFileService implements GradFileBatchProcessor {
             return incomingFilesetService.saveIncomingFilesetRecord(currentFileset);
         } else {
             incomingFilesetEntity.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
+
+            ReportingPeriodEntity reportingPeriodEntity = reportingPeriodRepository.findActiveReportingPeriod().orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "currentDate", String.valueOf(LocalDateTime.now())));
+            incomingFilesetEntity.setReportingPeriod(reportingPeriodEntity);
+
             return incomingFilesetService.saveIncomingFilesetRecord(incomingFilesetEntity);
         }
     }

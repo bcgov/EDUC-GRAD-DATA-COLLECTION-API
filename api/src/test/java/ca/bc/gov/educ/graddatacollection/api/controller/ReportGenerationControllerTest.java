@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,12 +35,15 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         this.incomingFilesetRepository.deleteAll();
         this.errorFilesetStudentRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
@@ -56,7 +60,8 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
         var incomingFileSet = incomingFilesetRepository.save(fileSet);
         errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));

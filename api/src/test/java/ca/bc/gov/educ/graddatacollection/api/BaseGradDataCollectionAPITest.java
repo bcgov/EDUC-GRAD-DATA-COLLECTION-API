@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -54,6 +55,29 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
+  public ReportingPeriodEntity createMockReportingPeriodEntity() {
+    LocalDateTime currentDate = LocalDateTime.now();
+    int currentMonthValue = currentDate.getMonthValue();
+    int startingSchYear = currentMonthValue > 8 ? currentDate.getYear() : currentDate.getYear() - 1;
+
+    LocalDateTime schYearStart = LocalDate.of(startingSchYear, 10, 8).atStartOfDay();
+    LocalDateTime schYearEnd = LocalDate.of(startingSchYear + 1, 7, 20).atStartOfDay();
+    LocalDateTime summerStart =  LocalDate.of(startingSchYear + 1, 8, 8).atStartOfDay();
+    LocalDateTime summerEnd =  LocalDate.of(startingSchYear + 1, 9, 20).atStartOfDay();
+
+    return ReportingPeriodEntity.builder()
+            .reportingPeriodID(UUID.randomUUID())
+            .schYrStart(schYearStart)
+            .schYrEnd(schYearEnd)
+            .summerStart(summerStart)
+            .summerEnd(summerEnd)
+            .createDate(LocalDateTime.now().minusMonths(2))
+            .updateDate(LocalDateTime.now().minusMonths(2))
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .build();
+  }
+
   public Assessment createMockAssessment(String assessmentTypeCode) {
     return Assessment.builder()
             .sessionID(UUID.randomUUID().toString())
@@ -65,8 +89,10 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public IncomingFilesetEntity createMockIncomingFilesetEntityWithDEMFile(UUID schoolID) {
+  public IncomingFilesetEntity createMockIncomingFilesetEntityWithDEMFile(UUID schoolID, ReportingPeriodEntity reportingPeriod) {
+
     return IncomingFilesetEntity.builder()
+            .reportingPeriod(reportingPeriod)
             .schoolID(schoolID)
             .demFileUploadDate(LocalDateTime.now())
             .crsFileUploadDate(null)
@@ -78,8 +104,9 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public IncomingFilesetEntity createMockIncomingFilesetEntityWithCRSFile(UUID schoolID) {
+  public IncomingFilesetEntity createMockIncomingFilesetEntityWithCRSFile(UUID schoolID, ReportingPeriodEntity reportingPeriod) {
     return IncomingFilesetEntity.builder()
+            .reportingPeriod(reportingPeriod)
             .schoolID(schoolID)
             .demFileUploadDate(null)
             .crsFileUploadDate(LocalDateTime.now())
@@ -91,8 +118,9 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
-  public IncomingFilesetEntity createMockIncomingFilesetEntityWithAllFilesLoaded() {
+  public IncomingFilesetEntity createMockIncomingFilesetEntityWithAllFilesLoaded(ReportingPeriodEntity reportingPeriod) {
     return IncomingFilesetEntity.builder()
+            .reportingPeriod(reportingPeriod)
             .schoolID(UUID.randomUUID())
             .demFileUploadDate(LocalDateTime.now())
             .crsFileUploadDate(LocalDateTime.now())
@@ -185,9 +213,11 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   public AssessmentStudentEntity createMockAssessmentStudent() {
+    ReportingPeriodEntity reportingPeriod = createMockReportingPeriodEntity();
+
     return AssessmentStudentEntity.builder()
             .assessmentStudentID(UUID.randomUUID())
-            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded())
+            .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod))
             .assessmentID(UUID.randomUUID())
             .pen("123456789")
             .createDate(LocalDateTime.now())

@@ -36,7 +36,7 @@ public class CourseSessionBeforeCourseStartRule implements CourseValidationBaseR
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C13: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V210", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C13", validationErrorsMap);
 
         log.debug("In shouldExecute of C13: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

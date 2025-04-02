@@ -5,10 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
@@ -51,6 +48,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     DemographicStudentRepository demographicStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
     public void setUp() {
@@ -59,11 +58,13 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         this.assessmentStudentRepository.deleteAll();
         this.errorFilesetStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
     void testReadErrorFilesetStudentPaginated_Always_ShouldReturnStatusOk() throws Exception {
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
@@ -83,7 +84,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testReadErrorFilesetStudentsPaginated_withName_ShouldReturnStatusOk() throws Exception {
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
@@ -112,7 +114,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testReadErrorFilesetStudentsPaginated_withDemErrors_ShouldReturnStatusOk() throws Exception {
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
@@ -164,7 +167,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testReadErrorFilesetStudentsPaginated_withErrors_ShouldReturnStatusOk() throws Exception {
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
@@ -216,7 +220,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testReadErrorFilesetStudentsPaginated_withFieldCode_ShouldReturnStatusOk() throws Exception {
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
@@ -278,7 +283,8 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testReadErrorFilesetStudentsPaginated_withErrors_ShouldReturnStatusOkAndReturnErrorContext() throws Exception {
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");

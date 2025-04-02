@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -32,6 +33,8 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     private IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     private ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    @Autowired
+    private ReportingPeriodRepository reportingPeriodRepository;
 
     @MockBean
     private DemographicStudentRepository demographicStudentRepository;
@@ -40,10 +43,21 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     @MockBean
     private CourseStudentRepository courseStudentRepository;
 
+    @BeforeEach
+    void setUp() {
+        incomingFilesetRepository.deleteAll();
+        errorFilesetStudentRepository.deleteAll();
+        reportingPeriodRepository.deleteAll();
+        demographicStudentRepository.deleteAll();
+        assessmentStudentRepository.deleteAll();
+        courseStudentRepository.deleteAll();
+    }
+
     @Test
     void testGenerateSubmissionMetrics_withValidSchoolID_ReturnsMetrics() throws Exception {
         UUID schoolID = UUID.randomUUID();
-        IncomingFilesetEntity mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        IncomingFilesetEntity mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(schoolID);
         mockFileset.setFilesetStatusCode("LOADED");
         incomingFilesetRepository.save(mockFileset);
@@ -67,7 +81,8 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testGenerateErrorAndWarningMetrics_withValidSchoolID_ReturnsSummary() throws Exception {
         UUID schoolID = UUID.randomUUID();
-        IncomingFilesetEntity filesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        IncomingFilesetEntity filesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         filesetEntity.setSchoolID(schoolID);
         filesetEntity.setFilesetStatusCode(FilesetStatus.LOADED.getCode());
 
@@ -123,7 +138,8 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testGenerateErrorAndWarningMetrics_noIssuesFound_ReturnsZeroCounts() throws Exception {
         UUID schoolID = UUID.randomUUID();
-        IncomingFilesetEntity filesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        IncomingFilesetEntity filesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         filesetEntity.setSchoolID(schoolID);
         filesetEntity.setFilesetStatusCode(FilesetStatus.LOADED.getCode());
         IncomingFilesetEntity savedEntity = incomingFilesetRepository.save(filesetEntity);

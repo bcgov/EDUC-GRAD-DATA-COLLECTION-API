@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
@@ -46,6 +47,8 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     private MockMvc mockMvc;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
     @MockBean
     DemographicStudentService demographicStudentService;
     @MockBean
@@ -57,11 +60,13 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         this.incomingFilesetRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
     void testReadIncomingFilesetStudentPaginated_Always_ShouldReturnStatusOk() throws Exception {
-        incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
@@ -77,7 +82,8 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testReadIncomingFilesetPaginated_withName_ShouldReturnStatusOk() throws Exception {
-        var incomingFileset = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("schoolID").operation(FilterOperation.EQUAL).value(incomingFileset.getSchoolID().toString()).valueType(ValueType.UUID).build();
@@ -138,7 +144,8 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
      * Helper method to create and populate an IncomingFilesetEntity.
      */
     private IncomingFilesetEntity buildIncomingFilesetEntity(String pen, UUID filesetId, UUID schoolId) {
-        IncomingFilesetEntity entity = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        IncomingFilesetEntity entity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         entity.setIncomingFilesetID(filesetId);
         entity.setSchoolID(schoolId);
 
