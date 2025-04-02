@@ -58,6 +58,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
+    @Autowired
     DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
@@ -70,6 +72,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         sagaRepository.deleteAll();
         demographicStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
+        reportingPeriodRepository.deleteAll();
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
@@ -161,7 +164,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         var courseStudent = createMockCourseStudent(mockFileset);
@@ -209,7 +213,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
         var demographicStudentEntity = createMockDemographicStudent(mockFileset);

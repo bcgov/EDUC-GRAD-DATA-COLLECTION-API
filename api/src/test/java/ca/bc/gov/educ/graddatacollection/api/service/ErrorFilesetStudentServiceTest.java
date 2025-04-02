@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ErrorFilesetStudentService;
 import org.junit.jupiter.api.Assertions;
@@ -31,12 +32,15 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     ErrorFilesetStudentRepository errorFilesetStudentRepository;
     @Autowired
     ErrorFilesetStudentService errorFilesetStudentService;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         errorFilesetStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
+        reportingPeriodRepository.deleteAll();
     }
 
     @Test
@@ -44,7 +48,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
@@ -62,7 +67,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
@@ -89,7 +95,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
@@ -116,7 +123,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
 
@@ -151,7 +159,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
 
@@ -194,7 +203,8 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var fileset = incomingFilesetRepository.save(mockFileset);
 

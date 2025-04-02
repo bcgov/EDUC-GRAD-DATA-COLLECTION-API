@@ -90,6 +90,12 @@ public class IncomingFilesetEntity {
     @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = ErrorFilesetStudentEntity.class)
     Set<ErrorFilesetStudentEntity> errorFilesetStudentEntities;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(optional = false, targetEntity = ReportingPeriodEntity.class)
+    @JoinColumn(name = "REPORTING_PERIOD_ID", referencedColumnName = "REPORTING_PERIOD_ID", updatable = false)
+    private ReportingPeriodEntity reportingPeriod;
+
     public Set<DemographicStudentEntity> getDemographicStudentEntities() {
         if (this.demographicStudentEntities == null) {
             this.demographicStudentEntities = new HashSet<>();

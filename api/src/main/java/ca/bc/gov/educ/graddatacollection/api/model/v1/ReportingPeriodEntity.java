@@ -1,10 +1,10 @@
 package ca.bc.gov.educ.graddatacollection.api.model.v1;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -13,108 +13,66 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Data
-@SuperBuilder
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-@DynamicUpdate
+@NoArgsConstructor
+@Data
 @Entity
 @Table(name = "REPORTING_PERIOD")
-@JsonIgnoreProperties(ignoreUnknown = true)
+@DynamicUpdate
 public class ReportingPeriodEntity {
+
     @Id
     @UuidGenerator
-    @Column(name = "INCOMING_FILESET_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
-    private UUID incomingFilesetID;
+    @Column(name = "REPORTING_PERIOD_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID reportingPeriodID;
 
-    @Getter
-    @Basic
-    @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
-    private UUID schoolID;
+    @NotNull(message = "schYrStart cannot be null")
+    @Column(name = "SCH_YR_START", nullable = false)
+    private LocalDateTime schYrStart;
 
-    @Column(name = "DISTRICT_ID", columnDefinition = "BINARY(16)")
-    private UUID districtID;
+    @NotNull(message = "schYrEnd cannot be null")
+    @Column(name = "SCH_YR_END", nullable = false)
+    private LocalDateTime schYrEnd;
 
-    @Column(name = "DEM_FILE_NAME")
-    private String demFileName;
+    @NotNull(message = "summerStart cannot be null")
+    @Column(name = "SUMMER_START", nullable = false)
+    private LocalDateTime summerStart;
 
-    @Column(name = "DEM_FILE_DATE_UPLOADED")
-    private LocalDateTime demFileUploadDate;
+    @NotNull(message = "summerEnd cannot be null")
+    @Column(name = "SUMMER_END", nullable = false)
+    private LocalDateTime summerEnd;
 
-    @Column(name = "XAM_FILE_NAME")
-    private String xamFileName;
-
-    @Column(name = "XAM_FILE_DATE_UPLOADED")
-    private LocalDateTime xamFileUploadDate;
-
-    @Column(name = "CRS_FILE_NAME")
-    private String crsFileName;
-
-    @Column(name = "CRS_FILE_DATE_UPLOADED")
-    private LocalDateTime crsFileUploadDate;
-
-    @Column(name = "FILESET_STATUS_CODE")
-    private String filesetStatusCode;
-
-    @Column(name = "CREATE_USER", updatable = false , length = 32)
+    @NotNull(message = "create user cannot be null")
+    @Size(max = 100)
+    @Column(name = "CREATE_USER", nullable = false, updatable = false)
     private String createUser;
 
+    @NotNull(message = "create date cannot be null")
     @PastOrPresent
-    @Column(name = "CREATE_DATE", updatable = false)
+    @Column(name = "CREATE_DATE", nullable = false, updatable = false)
     private LocalDateTime createDate;
 
-    @Column(name = "UPDATE_USER", length = 32)
+    @NotNull(message = "update user cannot be null")
+    @Size(max = 100)
+    @Column(name = "UPDATE_USER", nullable = false)
     private String updateUser;
 
+    @NotNull(message = "update date cannot be null")
     @PastOrPresent
-    @Column(name = "UPDATE_DATE")
+    @Column(name = "UPDATE_DATE", nullable = false)
     private LocalDateTime updateDate;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = DemographicStudentEntity.class)
-    Set<DemographicStudentEntity> demographicStudentEntities;
+    @OneToMany(mappedBy = "reportingPeriod", fetch = FetchType.LAZY, targetEntity = IncomingFilesetEntity.class)
+    private Set<IncomingFilesetEntity> incomingFilesets;
 
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = CourseStudentEntity.class)
-    Set<CourseStudentEntity> courseStudentEntities;
-
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = AssessmentStudentEntity.class)
-    Set<AssessmentStudentEntity> assessmentStudentEntities;
-
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = ErrorFilesetStudentEntity.class)
-    Set<ErrorFilesetStudentEntity> errorFilesetStudentEntities;
-
-    public Set<DemographicStudentEntity> getDemographicStudentEntities() {
-        if (this.demographicStudentEntities == null) {
-            this.demographicStudentEntities = new HashSet<>();
+    public Set<IncomingFilesetEntity> getIncomingFilesets() {
+        if (this.incomingFilesets == null) {
+            this.incomingFilesets = new HashSet<>();
         }
-        return this.demographicStudentEntities;
+        return this.incomingFilesets;
     }
 
-    public Set<CourseStudentEntity> getCourseStudentEntities() {
-        if (this.courseStudentEntities == null) {
-            this.courseStudentEntities = new HashSet<>();
-        }
-        return this.courseStudentEntities;
-    }
-
-    public Set<AssessmentStudentEntity> getAssessmentStudentEntities() {
-        if (this.assessmentStudentEntities == null) {
-            this.assessmentStudentEntities = new HashSet<>();
-        }
-        return this.assessmentStudentEntities;
-    }
-
-    public Set<ErrorFilesetStudentEntity> getErrorFilesetStudentEntities() {
-        if (this.errorFilesetStudentEntities == null) {
-            this.errorFilesetStudentEntities = new HashSet<>();
-        }
-        return this.errorFilesetStudentEntities;
-    }
 }

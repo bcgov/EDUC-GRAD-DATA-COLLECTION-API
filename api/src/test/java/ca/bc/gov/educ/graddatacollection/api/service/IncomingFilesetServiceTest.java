@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +28,13 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
     IncomingFilesetService incomingFilesetService;
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
+    @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
     public void setUp() {
         this.incomingFilesetRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
@@ -70,7 +74,8 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
 
-        var mockFileset = allFilesUploaded ? this.createMockIncomingFilesetEntityWithAllFilesLoaded() : this.createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()));
+var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = allFilesUploaded ? this.createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod) : this.createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         mockFileset.setCreateDate(timestamp);
         mockFileset.setUpdateDate(timestamp);

@@ -58,10 +58,13 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
+    ReportingPeriodRepository reportingPeriodRepository;
+    @Autowired
     EventHandlerService eventHandlerService;
 
     @BeforeEach
     void setUp() {
+        reportingPeriodRepository.deleteAll();
         MockitoAnnotations.openMocks(this);
     }
 
@@ -70,7 +73,8 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
@@ -115,7 +119,8 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         var savedFileset = incomingFilesetRepository.save(mockFileset);
 
@@ -152,7 +157,8 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(mockFileset);
 
