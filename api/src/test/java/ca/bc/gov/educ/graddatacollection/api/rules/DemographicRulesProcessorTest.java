@@ -229,7 +229,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demStudent.setPen(courseStudent.getPen());
         demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
 
-        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet2 = incomingFilesetRepository.save(incomingFileset2);
         var demStudent2 = createMockDemographicStudent(savedFileSet2);
         var courseStudent2 = createMockCourseStudent(savedFileSet2);

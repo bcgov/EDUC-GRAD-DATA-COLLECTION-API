@@ -271,7 +271,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testC12CourseStatusRule() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var demStudent = createMockDemographicStudent(savedFileSet);
         demographicStudentRepository.save(demStudent);
@@ -1100,7 +1100,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded();
+        var incomingFileset2 = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet2 = incomingFilesetRepository.save(incomingFileset2);
         var demStudent2 = createMockDemographicStudent(savedFileSet2);
         demStudent2.setGradRequirementYear(GradRequirementYearCodes.YEAR_1986.getCode());
