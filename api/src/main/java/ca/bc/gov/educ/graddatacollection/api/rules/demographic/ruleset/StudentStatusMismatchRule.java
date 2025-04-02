@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V21 | ERROR    |  Student Status must match PEN student status                         |  V03, V06    |
+ *  | D21 | ERROR    |  Student Status must match PEN student status                         |  D03, D06    |
  *  |      |          |                                     	                              |              |
  *
  */
@@ -38,11 +38,11 @@ public class StudentStatusMismatchRule implements DemographicValidationBaseRule 
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentStatus-V21: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentStatus-D21: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute =  isValidationDependencyResolved("V21", validationErrorsMap);
+        var shouldExecute =  isValidationDependencyResolved("D21", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentStatus-V21: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentStatus-D21: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -52,14 +52,14 @@ public class StudentStatusMismatchRule implements DemographicValidationBaseRule 
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var demStudent = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentStatus-V21 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        log.debug("In executeValidation of StudentStatus-D21 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
         if (!(demStudent.getStudentStatus().equalsIgnoreCase(student.getStatusCode()) ||
              ("A".equalsIgnoreCase(student.getStatusCode()) && "T".equalsIgnoreCase(demStudent.getStudentStatus())))
         ) {
-            log.debug("StudentStatus-V21: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
+            log.debug("StudentStatus-D21: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
             var demStudentStatus = demStudent.getStudentStatus();
             var ministryStudentStatus = student.getStatusCode();
             String message = "STUDENT STATUS mismatch. School submitted: " + StringEscapeUtils.escapeHtml4(demStudentStatus) + " and the Ministry PEN system has: " + ministryStudentStatus + ". If the submitted STUDENT STATUS is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";

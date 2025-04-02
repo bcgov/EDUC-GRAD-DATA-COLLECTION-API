@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V02 | ERROR    | Must be a valid citizenship code - must be C, O or blank              | -            |
+ *  | D02 | ERROR    | Must be a valid citizenship code - must be C, O or blank              | -            |
  *
  */
 @Component
@@ -36,11 +36,11 @@ public class ValidCitizenshipRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentCitizenship-v02: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentCitizenship-D02: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
         var shouldExecute = true;
 
-        log.debug("In shouldExecute of StudentCitizenship-v02: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentCitizenship-D02: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -50,13 +50,13 @@ public class ValidCitizenshipRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentCitizenship-v02 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentCitizenship-D02 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         List<CitizenshipCode> citizenshipCodes = restUtils.getScholarshipsCitizenshipCodeList();
 
         if (StringUtils.isNotBlank(student.getCitizenship()) && citizenshipCodes.stream().noneMatch(code -> code.getCitizenshipCode().equalsIgnoreCase(student.getCitizenship()))) {
-            log.debug("StudentCitizenship-v02: Invalid citizenship code - must be C, O or blank for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentCitizenship-D02: Invalid citizenship code - must be C, O or blank for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.CITIZENSHIP, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage()));
         }
         return errors;

@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum AssessmentStudentValidationIssueTypeCode {
 
-  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the XAM file but is missing from the DEM file. The student's assessment registrations will not be updated."),
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the XAM file but is missing from the DEM file."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level value is ignored and must be blank."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "The session code is not a valid ministry assessment session code. The student registration will not be updated."),
   COURSE_SESSION_INVALID_MONTH("COURSE_SESSION_INVALID_MONTH", "The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated."),
@@ -21,7 +21,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
   PROVINCIAL_SPECIAL_CASE_NOT_BLANK("PROVINCIAL_SPECIAL_CASE_NOT_BLANK", "Provincial special case cannot be submitted by the school."),
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "Assessment registration must be A=active or W=withdraw."),
   NUMBER_OF_CREDITS_NOT_BLANK("NUMBER_OF_CREDITS_NOT_BLANK", "Number of credits value is ignored and must be blank."),
-  COURSE_TYPE_NOT_BLANK("COURSE_TYPE_NOT_BLANK", "Course type value is ignored and must be blank."),
+  COURSE_TYPE_NOT_BLANK("COURSE_TYPE_NOT_BLANK", "Course Type value is ignored and must be blank."),
   TO_WRITE_FLAG_NOT_BLANK("TO_WRITE_FLAG_NOT_BLANK", "To write flag value is ignored and must be blank."),
   EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid assessment center provided."),
   DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "There are more than one CODE/SESSION DATE registrations in the file for the same student."),

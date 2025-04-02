@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V26 | WARN     | If student is reported on the Adult graduation program (1950)         | V07, V25   |
+ *  | D26 | WARN     | If student is reported on the Adult graduation program (1950)         | D07, D25   |
  *  |      |          | their reported grade must be AD or AN.                                |              |
  */
 
@@ -29,11 +29,11 @@ public class AdultGradeRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of StudentGrade-V26: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of StudentGrade-D26: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V26", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D26", validationErrorsMap);
 
-        log.debug("In shouldExecute of StudentGrade-V26: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of StudentGrade-D26: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -43,12 +43,12 @@ public class AdultGradeRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of StudentGrade-V26 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of StudentGrade-D26 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(adultGradYear -> adultGradYear.equalsIgnoreCase(student.getGradRequirementYear()))
             && SchoolGradeCodes.getGradAdultGrades().stream().noneMatch(validGrade -> validGrade.equalsIgnoreCase(student.getGrade()))) {
-            log.debug("StudentGrade-V26: Student reported on the Adult Graduation program (1950) must be grade AD or AN for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentGrade-D26: Student reported on the Adult Graduation program (1950) must be grade AD or AN for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID.getMessage()));
         }
         return errors;

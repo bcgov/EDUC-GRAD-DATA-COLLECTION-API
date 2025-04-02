@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                               | Dependent On |
  *  |------|----------|-------------------------------------------------------------------|--------------|
- *  | v09 | WARNING  | If Student Local ID is not blank, should match what's in PEN	      | V03          |
+ *  | D09 | WARNING  | If Student Local ID is not blank, should match what's in PEN	      | D03          |
  *
  */
 @Component
@@ -37,11 +37,11 @@ public class InvalidLocalIDRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of studentLocalD-v09: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of studentLocalD-D09: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V09", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D09", validationErrorsMap);
 
-        log.debug("In shouldExecute of studentLocalD-v09: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of studentLocalD-D09: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -51,14 +51,14 @@ public class InvalidLocalIDRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var demStudent = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of studentLocalD-v09 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+        log.debug("In executeValidation of studentLocalD-D09 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
         if (StringUtils.isNotBlank(student.getLocalID()) &&
             !student.getLocalID().equalsIgnoreCase(demStudent.getLocalID())) {
-            log.debug("studentLocalD-v09: Warning: The submitted STUDENT LOCAL ID does not match the ministry database. If the submitted STUDENT LOCAL ID is correct, submit PEN update request through Secure Messaging Inbox in EDX. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
+            log.debug("studentLocalD-D09: Warning: The submitted STUDENT LOCAL ID does not match the ministry database. If the submitted STUDENT LOCAL ID is correct, submit PEN update request through Secure Messaging Inbox in EDX. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
             String message = "The submitted STUDENT LOCAL ID does not match the Ministry PEN system. If the submitted data is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.LOCAL_ID, DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH, message));
         }

@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V14 | ERROR    | Invalid Career Program code / Invalid Optional Program code           |       V05    |
+ *  | D14 | ERROR    | Invalid Career Program code / Invalid Optional Program code           |       D05    |
  *  |      |          | Validate against GRAD Career and Optional Programs	                  |              |
  *
  */
@@ -34,7 +34,7 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    private static final String DEBUG_MSG = "ProgramCode15-V14:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}";
+    private static final String DEBUG_MSG = "ProgramCode15-D14:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}";
 
     public ProgramCode1to5Rule(RestUtils restUtils) {
         this.restUtils = restUtils;
@@ -42,11 +42,11 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of ProgramCode15-V14: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of ProgramCode15-D14: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V14", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D14", validationErrorsMap);
 
-        log.debug("In shouldExecute of ProgramCode15-V14: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of ProgramCode15-D14: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -56,7 +56,7 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of ProgramCode15-V14 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of ProgramCode15-D14 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         List<CareerProgramCode> careerProgramCodes = restUtils.getCareerProgramCodeList();

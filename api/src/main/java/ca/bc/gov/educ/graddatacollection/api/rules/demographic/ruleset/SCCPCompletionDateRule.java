@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V25 | WARN     | Student must be on the SCCP program	                           	      |   V05, V08   |
+ *  | D25 | WARN     | Student must be on the SCCP program	                           	      |   D05, D08   |
  *
  */
 @Component
@@ -28,11 +28,11 @@ public class SCCPCompletionDateRule implements DemographicValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<DemographicStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SCCPCompletionDate-V25: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+        log.debug("In shouldExecute of SCCPCompletionDate-D25: for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V25", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("D25", validationErrorsMap);
 
-        log.debug("In shouldExecute of SCCPCompletionDate-V25: Condition returned - {} for demographicStudentID :: {}" ,
+        log.debug("In shouldExecute of SCCPCompletionDate-D25: Condition returned - {} for demographicStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
 
@@ -42,12 +42,12 @@ public class SCCPCompletionDateRule implements DemographicValidationBaseRule {
     @Override
     public List<DemographicStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getDemographicStudentEntity();
-        log.debug("In executeValidation of SCCPCompletionDate-V25 for demographicStudentID :: {}", student.getDemographicStudentID());
+        log.debug("In executeValidation of SCCPCompletionDate-D25 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) &&
                 !GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear())) {
-            log.debug("SCCPCompletionDate-V25: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("SCCPCompletionDate-D25: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM.getMessage()));
         }
         return errors;
