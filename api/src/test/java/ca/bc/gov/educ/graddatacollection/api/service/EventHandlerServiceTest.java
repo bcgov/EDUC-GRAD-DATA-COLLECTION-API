@@ -64,7 +64,6 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @BeforeEach
     void setUp() {
-        reportingPeriodRepository.deleteAll();
         MockitoAnnotations.openMocks(this);
     }
 

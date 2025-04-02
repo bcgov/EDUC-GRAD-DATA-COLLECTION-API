@@ -349,7 +349,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setDistrictId(String.valueOf(districtID));
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-        var reportingPeriodEntity = createMockReportingPeriodEntity();
+        var reportingPeriodEntity = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriodEntity);
         incomingFilesetRepository.save(mockFileset);
 
