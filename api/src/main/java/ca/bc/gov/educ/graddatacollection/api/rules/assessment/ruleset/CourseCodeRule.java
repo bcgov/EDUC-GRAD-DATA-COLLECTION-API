@@ -51,6 +51,9 @@ public class CourseCodeRule implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V03 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
+        log.info("V03: Assessment Student is :: {}", student);
+        log.info("V03: Assessment Student is valid for session :: {}", assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode()));
+
         if (!assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())) {
             log.debug("V03: The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage()));
