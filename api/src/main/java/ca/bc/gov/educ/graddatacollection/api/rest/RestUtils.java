@@ -11,9 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentGet;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
@@ -21,6 +19,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -855,6 +854,50 @@ public class RestUtils {
 
     } catch (final Exception ex) {
       log.error("Error occurred calling GET GET_STUDENT_ASSESSMENT_DETAILS service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public EasEvent writeAssessmentStudentDetailInEAS(AssessmentStudent student, SchoolTombstone schoolTombstone) {
+    try {
+      final TypeReference<EasEvent> eventResult = new TypeReference<>() {
+      };
+
+      var studFromAPI = getStudentByPEN(UUID.randomUUID(), student.getPen());
+
+      var assessmentStudent = new EASAssessmentStudent();
+      assessmentStudent.setAssessmentStudentID(null);
+      assessmentStudent.setAssessmentID(student.getAssessmentID());
+      assessmentStudent.setDistrictID(schoolTombstone.getDistrictId());
+      assessmentStudent.setSchoolID(schoolTombstone.getSchoolId());
+      assessmentStudent.setAssessmentCenterID(student.getExamMincode());
+      assessmentStudent.setStudentID(studFromAPI.getStudentID());
+      assessmentStudent.setGivenName(studFromAPI.getLegalFirstName());
+      assessmentStudent.setSurname(student.getLastName());
+      assessmentStudent.setPen(student.getPen());
+      assessmentStudent.setLocalID(student.getLocalID());
+      assessmentStudent.setIsElectronicExam(student.getIsElectronicExam());
+      assessmentStudent.setProficiencyScore(null);
+      assessmentStudent.setProvincialSpecialCaseCode(student.getProvincialSpecialCase());
+      assessmentStudent.setCourseStatusCode(student.getCourseStatus());
+      assessmentStudent.setNumberOfAttempts(null);
+      assessmentStudent.setCreateUser(student.getCreateUser());
+      assessmentStudent.setUpdateUser(student.getCreateUser());
+      assessmentStudent.setCreateDate(null);
+      assessmentStudent.setUpdateDate(null);
+
+      Object event = Event.builder().eventType(EventType.CREATE_STUDENT_REGISTRATION).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.EAS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), eventResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling CREATE_STUDENT_REGISTRATION service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
     }
