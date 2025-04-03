@@ -36,7 +36,7 @@ public class CourseCodeRule implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V03: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V303", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V03", validationErrorsMap);
 
         log.debug("In shouldExecute of V03: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
