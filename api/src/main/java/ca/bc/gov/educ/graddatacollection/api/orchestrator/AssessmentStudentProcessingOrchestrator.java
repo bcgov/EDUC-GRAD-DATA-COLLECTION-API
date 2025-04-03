@@ -77,7 +77,9 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
     var student = assessmentStudentSagaData.getAssessmentStudent();
+    log.info("writeAssessmentStudentRecordInEAS: Assessment Student is :: {}", student);
     var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
+    log.info("writeAssessmentStudentRecordInEAS: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
     var eventResult = restUtils.writeAssessmentStudentDetailInEAS(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
 
     final Event.EventBuilder eventBuilder = Event.builder();
