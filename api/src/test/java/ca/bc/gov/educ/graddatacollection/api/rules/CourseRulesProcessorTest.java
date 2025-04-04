@@ -103,7 +103,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -351,7 +351,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord myEdBCOnlyRecord = new CoregCoursesRecord();
         myEdBCOnlyRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        myEdBCOnlyRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        myEdBCOnlyRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord myEdBCCode = new CourseCodeRecord();
@@ -395,7 +395,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord emptyCodesRecord = new CoregCoursesRecord();
         emptyCodesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        emptyCodesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        emptyCodesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         emptyCodesRecord.setCourseCode(new HashSet<>());  // No course code records
 
         Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
@@ -1151,7 +1151,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -1211,7 +1211,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -1303,7 +1303,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -1372,7 +1372,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -1409,7 +1409,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord2 = new CoregCoursesRecord();
         coursesRecord2.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord2.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord2.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes2 = new HashSet<>();
         CourseCodeRecord traxCode2 = new CourseCodeRecord();
         traxCode2.setCourseID("856787");
@@ -1468,7 +1468,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -1505,7 +1505,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord2 = new CoregCoursesRecord();
         coursesRecord2.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord2.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord2.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes2 = new HashSet<>();
         CourseCodeRecord traxCode2 = new CourseCodeRecord();
         traxCode2.setCourseID("856787");
@@ -1575,7 +1575,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
@@ -1637,7 +1637,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDateTime.of(9999, 5, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");
