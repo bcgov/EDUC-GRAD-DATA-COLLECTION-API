@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -79,4 +80,27 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     @Modifying
     @Query("DELETE FROM IncomingFilesetEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileName is null OR crsFileName is null OR xamFileName is null)")
     void deleteStaleWithUpdateDateBefore(LocalDateTime oldestIncomingFilesetTimestamp);
+
+    @Query(value = """
+    SELECT inFileset.school_id as schoolID,
+    COUNT(inFileset.incoming_fileset_id) as submissionCount
+    FROM incoming_fileset inFileset
+    WHERE inFileset.fileset_status_code = 'COMPLETED'
+    AND inFileset.create_date >= (current_timestamp - INTERVAL '30' day)
+    AND inFileset.reporting_period_id = :reportingPeriodID
+    GROUP BY inFileset.school_id
+    """, nativeQuery = true)
+    List<SchoolSubmissionCount> findSchoolSubmissionsInLast30Days(UUID reportingPeriodID);
+
+    @Query(value = """
+    SELECT inFileset.schoolID as schoolID,
+    COUNT(inFileset.incomingFilesetID) as submissionCount
+    FROM IncomingFilesetEntity inFileset
+    WHERE inFileset.filesetStatusCode = 'COMPLETED'
+    AND inFileset.createDate >= :summerStartDate
+    AND inFileset.createDate <= :summerEndDate
+    AND inFileset.reportingPeriod.reportingPeriodID = :reportingPeriodID
+    GROUP BY inFileset.schoolID
+    """)
+    List<SchoolSubmissionCount> findSchoolSubmissionsInSummerReportingPeriod(UUID reportingPeriodID, LocalDateTime summerStartDate, LocalDateTime summerEndDate);
 }
