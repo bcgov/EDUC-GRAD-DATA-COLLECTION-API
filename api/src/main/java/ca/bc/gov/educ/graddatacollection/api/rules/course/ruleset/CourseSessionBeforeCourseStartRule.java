@@ -56,7 +56,7 @@ public class CourseSessionBeforeCourseStartRule implements CourseValidationBaseR
 
         if (coursesRecord != null) {
             LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
-            LocalDate courseStartDate = LocalDateTime.parse(coursesRecord.getStartDate()).toLocalDate();
+            LocalDate courseStartDate = LocalDate.parse(coursesRecord.getStartDate());
 
             if (courseSessionDate.isBefore(courseStartDate)) {
                 log.debug("C13: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());

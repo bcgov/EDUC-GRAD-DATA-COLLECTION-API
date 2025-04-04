@@ -12,4 +12,6 @@ public interface ReportingPeriodMapper {
     ReportingPeriodMapper mapper = Mappers.getMapper(ReportingPeriodMapper.class);
 
     ReportingPeriod toStructure(final ReportingPeriodEntity reportingPeriodEntity);
+
+    ReportingPeriodEntity toReportingPeriodEntity(ReportingPeriod reportingPeriod);
 }
