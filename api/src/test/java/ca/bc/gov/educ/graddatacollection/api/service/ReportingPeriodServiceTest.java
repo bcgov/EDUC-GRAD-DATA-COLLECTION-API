@@ -61,4 +61,49 @@ class ReportingPeriodServiceTest {
         assertNotNull(exception.getMessage());
         verify(reportingPeriodRepository, times(1)).findActiveReportingPeriod();
     }
+
+    @Test
+    void testUpdateReportingPeriod_Success() {
+        UUID reportingPeriodId = UUID.randomUUID();
+
+        ReportingPeriodEntity existingEntity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .createUser("originalUser")
+                .createDate(LocalDateTime.of(2024, 1, 1, 0, 0))
+                .build();
+
+        ReportingPeriodEntity updatedEntity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .updateUser("editorUser")
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(existingEntity));
+        when(reportingPeriodRepository.save(any(ReportingPeriodEntity.class))).thenReturn(updatedEntity);
+
+        ReportingPeriodEntity result = reportingPeriodService.updateReportingPeriod(updatedEntity);
+
+        assertEquals(updatedEntity.getSchYrStart(), result.getSchYrStart());
+        assertEquals(updatedEntity.getSchYrEnd(), result.getSchYrEnd());
+        assertEquals(updatedEntity.getUpdateUser(), result.getUpdateUser());
+        verify(reportingPeriodRepository).findById(reportingPeriodId);
+        verify(reportingPeriodRepository).save(any(ReportingPeriodEntity.class));
+    }
+
+    @Test
+    void testUpdateReportingPeriod_ThrowsEntityNotFoundException_WhenIdNotFound() {
+        UUID reportingPeriodId = UUID.randomUUID();
+        ReportingPeriodEntity updateAttempt = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .build();
+
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> reportingPeriodService.updateReportingPeriod(updateAttempt));
+    }
 }
