@@ -63,6 +63,12 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -H "Authorization: Bearer $TKN" \
   -d "{\"description\": \"Read reporting period\",\"id\": \"READ_REPORTING_PERIOD\",\"name\": \"READ_REPORTING_PERIOD\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
+echo
+echo Writing scope WRITE_REPORTING_PERIOD
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Write reporting period\",\"id\": \"WRITE_REPORTING_PERIOD\",\"name\": \"WRITE_REPORTING_PERIOD\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
 echo Writing scope READ_GRAD_COLLECTION
