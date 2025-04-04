@@ -67,7 +67,7 @@ public class CourseSessionAfterCompletionDateRule implements CourseValidationBas
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID.getMessage()));
             }
 
-            LocalDate courseCompletionEndDate = LocalDateTime.parse(coursesRecord.getCompletionEndDate()).toLocalDate();
+            LocalDate courseCompletionEndDate = LocalDate.parse(coursesRecord.getCompletionEndDate());
 
             if (courseSessionDate!= null && courseSessionDate.isAfter(courseCompletionEndDate)) {
                 log.debug("C14: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());

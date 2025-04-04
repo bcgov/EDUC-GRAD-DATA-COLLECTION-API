@@ -860,7 +860,7 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public EasEvent writeAssessmentStudentDetailInEAS(AssessmentStudent student, SchoolTombstone schoolTombstone) {
+  public EasEvent writeAssessmentStudentDetailInEAS(AssessmentStudent student, String assessmentID, SchoolTombstone schoolTombstone) {
     try {
       final TypeReference<EasEvent> eventResult = new TypeReference<>() {
       };
@@ -869,7 +869,7 @@ public class RestUtils {
 
       var assessmentStudent = new EASAssessmentStudent();
       assessmentStudent.setAssessmentStudentID(null);
-      assessmentStudent.setAssessmentID(student.getAssessmentID());
+      assessmentStudent.setAssessmentID(assessmentID);
       assessmentStudent.setDistrictID(schoolTombstone.getDistrictId());
       assessmentStudent.setSchoolID(schoolTombstone.getSchoolId());
       assessmentStudent.setAssessmentCenterID(student.getExamMincode());
@@ -887,6 +887,8 @@ public class RestUtils {
       assessmentStudent.setUpdateUser(student.getCreateUser());
       assessmentStudent.setCreateDate(null);
       assessmentStudent.setUpdateDate(null);
+
+      log.info("Assessment Student Detail: " + assessmentStudent);
 
       Object event = Event.builder().eventType(EventType.CREATE_STUDENT_REGISTRATION).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.EAS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();

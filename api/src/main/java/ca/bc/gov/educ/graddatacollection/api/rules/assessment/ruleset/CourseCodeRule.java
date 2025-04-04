@@ -36,7 +36,7 @@ public class CourseCodeRule implements AssessmentValidationBaseRule {
         log.debug("In shouldExecute of V03: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V303", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V03", validationErrorsMap);
 
         log.debug("In shouldExecute of V03: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
@@ -50,6 +50,9 @@ public class CourseCodeRule implements AssessmentValidationBaseRule {
         var student = studentRuleData.getAssessmentStudentEntity();
         log.debug("In executeValidation of V03 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
+
+        log.info("V03: Assessment Student is :: {}", student);
+        log.info("V03: Assessment Student is valid for session :: {}", assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode()));
 
         if (!assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())) {
             log.debug("V03: The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated. :: {}", student.getAssessmentStudentID());

@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -26,12 +27,14 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 @Slf4j
 public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<AssessmentStudentSagaData> {
   private final AssessmentStudentService assessmentStudentService;
+  private final AssessmentRulesService assessmentRulesService;
   private final RestUtils restUtils;
 
-  protected AssessmentStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, AssessmentStudentService assessmentStudentService, RestUtils restUtils) {
+  protected AssessmentStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, AssessmentStudentService assessmentStudentService, AssessmentRulesService assessmentRulesService, RestUtils restUtils) {
     super(sagaService, messagePublisher, AssessmentStudentSagaData.class, SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA_TOPIC.toString());
-      this.assessmentStudentService = assessmentStudentService;
-      this.restUtils = restUtils;
+    this.assessmentStudentService = assessmentStudentService;
+    this.assessmentRulesService = assessmentRulesService;
+    this.restUtils = restUtils;
   }
 
   @Override
@@ -73,15 +76,19 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-    var eventResult = restUtils.writeAssessmentStudentDetailInEAS(assessmentStudentSagaData.getAssessmentStudent(), assessmentStudentSagaData.getSchool());
-
+//    var student = assessmentStudentSagaData.getAssessmentStudent();
+//    log.info("writeAssessmentStudentRecordInEAS: Assessment Student is :: {}", student);
+//    var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
+//    log.info("writeAssessmentStudentRecordInEAS: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
+//    var eventResult = restUtils.writeAssessmentStudentDetailInEAS(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
+//
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(WRITE_ASSESSMENT_STUDENT_IN_EAS);
-    if(eventResult.getEventOutcome().equalsIgnoreCase(STUDENT_ALREADY_EXIST.toString())) {
-      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_ALREADY_EXISTS_IN_EAS);
-    }else{
+//    if(eventResult.getEventOutcome().equalsIgnoreCase(STUDENT_ALREADY_EXIST.toString())) {
+//      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_ALREADY_EXISTS_IN_EAS);
+//    }else{
       eventBuilder.eventOutcome(ASSESSMENT_STUDENT_WRITTEN_IN_EAS);
-    }
+//    }
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
