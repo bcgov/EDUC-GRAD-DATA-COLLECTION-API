@@ -35,7 +35,7 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
     ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         this.incomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
