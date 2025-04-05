@@ -102,7 +102,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 )
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -350,7 +350,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
         CoregCoursesRecord myEdBCOnlyRecord = new CoregCoursesRecord();
-        myEdBCOnlyRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        myEdBCOnlyRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         myEdBCOnlyRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
 
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
@@ -394,7 +394,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
         CoregCoursesRecord emptyCodesRecord = new CoregCoursesRecord();
-        emptyCodesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        emptyCodesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         emptyCodesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         emptyCodesRecord.setCourseCode(new HashSet<>());  // No course code records
 
@@ -578,7 +578,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseYear(LocalDate.now().minusYears(1).toString());
         courseStudent.setCourseMonth("10");
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(null);
         coursesRecord.setCourseCode(new HashSet<>());
         Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
@@ -1150,7 +1150,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseGraduationRequirement("B");
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -1210,7 +1210,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseGraduationRequirement("B");
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -1302,7 +1302,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setNumberOfCredits("3");
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -1371,7 +1371,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -1408,7 +1408,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         CoregCoursesRecord coursesRecord2 = new CoregCoursesRecord();
-        coursesRecord2.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord2.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord2.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes2 = new HashSet<>();
         CourseCodeRecord traxCode2 = new CourseCodeRecord();
@@ -1467,7 +1467,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -1504,7 +1504,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         CoregCoursesRecord coursesRecord2 = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes2 = new HashSet<>();
         CourseCodeRecord traxCode2 = new CourseCodeRecord();
@@ -1574,7 +1574,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
@@ -1636,7 +1636,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
