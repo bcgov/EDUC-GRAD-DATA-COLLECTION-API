@@ -82,4 +82,25 @@ class ReportingPeriodControllerTest {
         assertEquals("2025-08-18T00:00:00", result.getSummerEnd());
         verify(reportingPeriodValidator).validatePayload(input);
     }
+
+    @Test
+    void testGetPreviousReportingPeriod_ReturnsMappedObject() {
+        UUID id = UUID.randomUUID();
+        ReportingPeriodEntity previousEntity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(id)
+                .schYrStart(LocalDateTime.of(2023, 10, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2024, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2024, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2024, 8, 31, 0, 0))
+                .build();
+
+        when(reportingPeriodService.getPreviousReportingPeriod()).thenReturn(previousEntity);
+
+        ReportingPeriod result = controller.getPreviousReportingPeriod();
+
+        assertEquals("2023-10-01T00:00:00", result.getSchYrStart());
+        assertEquals("2024-06-30T00:00:00", result.getSchYrEnd());
+        assertEquals("2024-07-01T00:00:00", result.getSummerStart());
+        assertEquals("2024-08-31T00:00:00", result.getSummerEnd());
+    }
 }

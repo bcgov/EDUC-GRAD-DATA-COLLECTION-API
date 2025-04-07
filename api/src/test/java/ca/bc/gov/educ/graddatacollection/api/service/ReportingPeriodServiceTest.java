@@ -106,4 +106,36 @@ class ReportingPeriodServiceTest {
         assertThrows(EntityNotFoundException.class,
                 () -> reportingPeriodService.updateReportingPeriod(updateAttempt));
     }
+
+    @Test
+    void testGetPreviousReportingPeriod_ReturnsEntity() {
+        ReportingPeriodEntity previous = ReportingPeriodEntity.builder()
+                .reportingPeriodID(UUID.randomUUID())
+                .schYrStart(LocalDateTime.of(2023, 10, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2024, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2024, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2024, 8, 31, 0, 0))
+                .createUser("testUser")
+                .createDate(LocalDateTime.now())
+                .updateUser("testUser")
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        when(reportingPeriodRepository.findPreviousReportingPeriod()).thenReturn(Optional.of(previous));
+
+        ReportingPeriodEntity result = reportingPeriodService.getPreviousReportingPeriod();
+
+        assertEquals(previous, result);
+        verify(reportingPeriodRepository, times(1)).findPreviousReportingPeriod();
+    }
+
+    @Test
+    void testGetPreviousReportingPeriod_ThrowsEntityNotFoundException_WhenEmpty() {
+        when(reportingPeriodRepository.findPreviousReportingPeriod()).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reportingPeriodService.getPreviousReportingPeriod());
+
+        assertNotNull(exception.getMessage());
+        verify(reportingPeriodRepository, times(1)).findPreviousReportingPeriod();
+    }
 }
