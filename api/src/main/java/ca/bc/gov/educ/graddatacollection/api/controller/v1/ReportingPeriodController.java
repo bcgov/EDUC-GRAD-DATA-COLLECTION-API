@@ -6,7 +6,6 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingCycleSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
-import lombok.RequiredArgsConstructor;
 import ca.bc.gov.educ.graddatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator;
