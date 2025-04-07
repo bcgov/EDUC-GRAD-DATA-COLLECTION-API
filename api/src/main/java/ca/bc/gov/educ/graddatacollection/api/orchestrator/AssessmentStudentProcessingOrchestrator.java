@@ -76,19 +76,19 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-//    var student = assessmentStudentSagaData.getAssessmentStudent();
-//    log.info("writeAssessmentStudentRecordInEAS: Assessment Student is :: {}", student);
-//    var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-//    log.info("writeAssessmentStudentRecordInEAS: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
-//    var eventResult = restUtils.writeAssessmentStudentDetailInEAS(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
-//
+    var student = assessmentStudentSagaData.getAssessmentStudent();
+    log.info("writeAssessmentStudentRecordInEAS: Assessment Student is :: {}", student);
+    var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
+    log.info("writeAssessmentStudentRecordInEAS: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
+    var eventResult = restUtils.writeAssessmentStudentDetailInEAS(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
+
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(WRITE_ASSESSMENT_STUDENT_IN_EAS);
-//    if(eventResult.getEventOutcome().equalsIgnoreCase(STUDENT_ALREADY_EXIST.toString())) {
-//      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_ALREADY_EXISTS_IN_EAS);
-//    }else{
+    if(eventResult.getEventOutcome().equalsIgnoreCase(STUDENT_ALREADY_EXIST.toString())) {
+      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_ALREADY_EXISTS_IN_EAS);
+    }else{
       eventBuilder.eventOutcome(ASSESSMENT_STUDENT_WRITTEN_IN_EAS);
-//    }
+    }
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
