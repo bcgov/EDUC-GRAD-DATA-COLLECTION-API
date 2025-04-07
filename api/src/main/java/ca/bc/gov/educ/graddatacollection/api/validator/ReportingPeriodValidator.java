@@ -21,6 +21,8 @@ import java.util.UUID;
 public class ReportingPeriodValidator {
 
     public static final String REPORITNG_PERIOD_ID = "reportingPeriodId";
+    private static final String SCHOOL_YEAR_START = "schYrStart";
+    private static final String SUMMER_START = "summerStart";
 
     private final ReportingPeriodRepository reportingPeriodRepository;
 
@@ -48,22 +50,22 @@ public class ReportingPeriodValidator {
             LocalDateTime cycleEnd = LocalDateTime.of(summerEnd.getYear(), 9, 30, 23, 59);
 
             if (schYrStart.isAfter(schYrEnd)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError("schYrStart", reportingPeriod.getSchYrStart(), "School Year start date must be before or equal to end date."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year start date must be before or equal to end date."));
             }
             if (summerStart.isAfter(summerEnd)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError("summerStart", reportingPeriod.getSummerStart(), "Summer start date must be before or equal to end date."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "Summer start date must be before or equal to end date."));
             }
 
             if (schYrStart.isBefore(cycleStart) || schYrEnd.isAfter(cycleEnd)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError("schYrStart", reportingPeriod.getSchYrStart(), "School Year must be within the reporting cycle (Oct 1 to Sep 30)."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year must be within the reporting cycle (Oct 1 to Sep 30)."));
             }
             if (summerStart.isBefore(cycleStart) || summerEnd.isAfter(cycleEnd)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError("summerStart", reportingPeriod.getSummerStart(), "Summer must be within the reporting cycle (Oct 1 to Sep 30)."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "Summer must be within the reporting cycle (Oct 1 to Sep 30)."));
             }
 
             if (dateTimeRangesOverlap(schYrStart, schYrEnd, summerStart, summerEnd)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError("schYrStart", reportingPeriod.getSchYrStart(), "School Year and Summer periods must not overlap."));
-                apiValidationErrors.add(ValidationUtil.createFieldError("summerStart", reportingPeriod.getSummerStart(), "School Year and Summer periods must not overlap."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year and Summer periods must not overlap."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "School Year and Summer periods must not overlap."));
             }
 
         } catch (DateTimeParseException e) {
