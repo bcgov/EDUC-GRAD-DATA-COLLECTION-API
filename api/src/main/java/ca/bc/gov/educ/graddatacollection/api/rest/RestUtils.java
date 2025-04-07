@@ -98,6 +98,7 @@ public class RestUtils {
   private Boolean isBackgroundInitializationEnabled;
 
   private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
+  private final Map<String, SchoolTombstone> transcriptEligibleSchool = new ConcurrentHashMap<>();
 
   @Autowired
   public RestUtils(@Qualifier("chesWebClient") final WebClient chesWebClient, WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
@@ -189,6 +190,9 @@ public class RestUtils {
         this.schoolMap.put(school.getSchoolId(), school);
         if (StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
           this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
+        }
+        if(Boolean.TRUE.equals(school.getCanIssueTranscripts())) {
+          transcriptEligibleSchool.put(school.getSchoolId(), school);
         }
       }
     } catch (Exception ex) {
@@ -645,6 +649,14 @@ public class RestUtils {
       this.populateDistrictMap();
     }
     return Optional.ofNullable(this.districtMap.get(districtID));
+  }
+
+  public List<SchoolTombstone> getTranscriptEligibleSchools() {
+    if (this.transcriptEligibleSchool.isEmpty()) {
+      log.info("The map is empty reloading schools");
+      this.populateSchoolMap();
+    }
+    return transcriptEligibleSchool.values().stream().toList();
   }
 
   public Optional<List<UUID>> getSchoolIDsByIndependentAuthorityID(final String independentAuthorityID) {
