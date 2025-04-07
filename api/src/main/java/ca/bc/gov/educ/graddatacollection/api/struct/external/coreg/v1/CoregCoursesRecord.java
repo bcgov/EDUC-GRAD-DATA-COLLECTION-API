@@ -3,11 +3,13 @@ package ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class CoregCoursesRecord {
     private String courseID;
@@ -24,9 +26,4 @@ public class CoregCoursesRecord {
     private CourseCharacteristicsRecord courseCategory;
     private Set<CourseAllowableCreditRecord> courseAllowableCredit;
     private Set<RequiredCourseRecord> requiredCourse;
-
-    // for testing
-    public CoregCoursesRecord() {
-
-    }
 }

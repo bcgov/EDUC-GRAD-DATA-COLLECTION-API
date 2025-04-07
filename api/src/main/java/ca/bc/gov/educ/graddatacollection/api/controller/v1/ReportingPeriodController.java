@@ -7,6 +7,9 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingCycleSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
 import lombok.RequiredArgsConstructor;
+import ca.bc.gov.educ.graddatacollection.api.util.RequestUtil;
+import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +24,13 @@ public class ReportingPeriodController implements ReportingPeriodEndpoint {
     private final ReportingPeriodMapper mapper =  ReportingPeriodMapper.mapper;
 
     @Override
+    private final ReportingPeriodValidator reportingPeriodValidator;
+
+    public ReportingPeriodController(ReportingPeriodService reportingPeriodService, ReportingPeriodValidator reportingPeriodValidator) {
+        this.reportingPeriodService = reportingPeriodService;
+        this.reportingPeriodValidator = reportingPeriodValidator;
+    }
+
     public ReportingPeriod getActiveReportingPeriod() {
         return mapper.toStructure(reportingPeriodService.getActiveReportingPeriod());
     }
@@ -28,5 +38,12 @@ public class ReportingPeriodController implements ReportingPeriodEndpoint {
     @Override
     public ReportingCycleSummary getReportingCycleSummary(UUID reportingPeriodID, String type) {
         return reportingSummaryService.getReportingSummary(reportingPeriodID, type);
+    }
+    
+    public ReportingPeriod updateReportingPeriod(ReportingPeriod reportingPeriod) {
+        ValidationUtil.validatePayload(() -> this.reportingPeriodValidator.validatePayload(reportingPeriod));
+        RequestUtil.setAuditColumnsForUpdate(reportingPeriod);
+        return mapper.toStructure(
+                reportingPeriodService.updateReportingPeriod(mapper.toReportingPeriodEntity(reportingPeriod)));
     }
 }

@@ -113,8 +113,8 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
                 )
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1, 0, 0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        coursesRecord.setStartDate(LocalDate.of(1983, 2, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         Set<CourseCodeRecord> courseCodes = new HashSet<>();
         CourseCodeRecord traxCode = new CourseCodeRecord();
         traxCode.setCourseID("856787");

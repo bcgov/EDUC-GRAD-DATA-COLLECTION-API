@@ -34,4 +34,21 @@ class ReportingPeriodEndpointTest {
         ReportingPeriod actualPeriod = reportingPeriodEndpoint.getActiveReportingPeriod();
         assertEquals(dummyPeriod, actualPeriod);
     }
+
+    @Test
+    void testUpdateReportingPeriod_ReturnsUpdatedPeriod() {
+        ReportingPeriod input = ReportingPeriod.builder()
+                .reportingPeriodID("RP2")
+                .schYrStart("2025-09-01")
+                .schYrEnd("2026-06-30")
+                .summerStart("2026-07-01")
+                .summerEnd("2026-08-31")
+                .build();
+
+        when(reportingPeriodEndpoint.updateReportingPeriod(input)).thenReturn(input);
+
+        ReportingPeriod updated = reportingPeriodEndpoint.updateReportingPeriod(input);
+        assertEquals("RP2", updated.getReportingPeriodID());
+        assertEquals("2025-09-01", updated.getSchYrStart());
+    }
 }
