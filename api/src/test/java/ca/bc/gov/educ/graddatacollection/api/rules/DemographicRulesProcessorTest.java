@@ -537,25 +537,24 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudent.setProgramCode1("ZEE");
+        demographicStudent.setProgramCode1("10ZE");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROGRAM_CODE_1.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
-        demographicStudent2.setProgramCode1("ZE");
+        demographicStudent2.setProgramCode1("1");
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROGRAM_CODE_1.getCode());
         assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
-        demographicStudent3.setProgramCode1("Z");
+        demographicStudent3.setProgramCode1("10AA");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROGRAM_CODE_1.getCode());
-        assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
+        var issueCode = validationError4.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PROGRAM_CODE_1.getCode()));
+        assertThat(issueCode).isFalse();
     }
 
     @Test

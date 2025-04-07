@@ -62,65 +62,79 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         List<CareerProgramCode> careerProgramCodes = restUtils.getCareerProgramCodeList();
         List<OptionalProgramCode> optionalProgramCodes = restUtils.getOptionalProgramCodeList();
 
-        Set<String> careerProgramCodeSet = new HashSet<>();
-        Set<String> optionalProgramCodeSet = new HashSet<>();
+        if (StringUtils.isNotBlank(student.getProgramCode1())) {
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode1().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode1().substring(2)));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode1().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode1().substring(2)));
 
-        careerProgramCodes.forEach(c -> careerProgramCodeSet.add(c.getCode()));
-        optionalProgramCodes.forEach(o -> optionalProgramCodeSet.add(o.getOptProgramCode()));
-
-        if (StringUtils.isNotBlank(student.getProgramCode1()) &&
-                (!careerProgramCodeSet.contains(student.getProgramCode1()) || !optionalProgramCodeSet.contains(student.getProgramCode1()))) {
-            log.debug(DEBUG_MSG, student.getProgramCode1(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    ValidationFieldCode.PROGRAM_CODE_1,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-            ));
+            if(!isValidCareerProgram && !isValidOptionalProgram) {
+                    log.debug(DEBUG_MSG, student.getProgramCode1(), student.getDemographicStudentID());
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.PROGRAM_CODE_1,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+                    ));
+            }
         }
 
-        if (StringUtils.isNotBlank(student.getProgramCode2()) &&
-                (!careerProgramCodeSet.contains(student.getProgramCode2()) || !optionalProgramCodeSet.contains(student.getProgramCode2()))) {
-            log.debug(DEBUG_MSG, student.getProgramCode2(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    ValidationFieldCode.PROGRAM_CODE_2,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-            ));
+        if (StringUtils.isNotBlank(student.getProgramCode2())) {
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode2().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode2().substring(2)));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode2().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode2().substring(2)));
+
+            if(!isValidCareerProgram && !isValidOptionalProgram) {
+                    log.debug(DEBUG_MSG, student.getProgramCode2(), student.getDemographicStudentID());
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.PROGRAM_CODE_2,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+                    ));
+                }
         }
 
-        if (StringUtils.isNotBlank(student.getProgramCode3()) &&
-                (!careerProgramCodeSet.contains(student.getProgramCode3()) || !optionalProgramCodeSet.contains(student.getProgramCode3()))) {
-            log.debug(DEBUG_MSG, student.getProgramCode3(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    ValidationFieldCode.PROGRAM_CODE_3,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-            ));
+        if (StringUtils.isNotBlank(student.getProgramCode3())) {
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode3().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode3().substring(2)));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode3().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode3().substring(2)));
+
+            if(!isValidCareerProgram && !isValidOptionalProgram) {
+                    log.debug(DEBUG_MSG, student.getProgramCode3(), student.getDemographicStudentID());
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.PROGRAM_CODE_3,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+                    ));
+                }
         }
 
-        if (StringUtils.isNotBlank(student.getProgramCode4()) &&
-                (!careerProgramCodeSet.contains(student.getProgramCode4()) || !optionalProgramCodeSet.contains(student.getProgramCode4()))) {
-            log.debug(DEBUG_MSG, student.getProgramCode4(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    ValidationFieldCode.PROGRAM_CODE_4,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-            ));
+        if (StringUtils.isNotBlank(student.getProgramCode4())) {
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode4().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode4().substring(2)));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode4().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode4().substring(2)));
+
+            if(!isValidCareerProgram && !isValidOptionalProgram) {
+                    log.debug(DEBUG_MSG, student.getProgramCode4(), student.getDemographicStudentID());
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.PROGRAM_CODE_4,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+                    ));
+                }
         }
 
-        if (StringUtils.isNotBlank(student.getProgramCode5()) &&
-                (!careerProgramCodeSet.contains(student.getProgramCode5()) || !optionalProgramCodeSet.contains(student.getProgramCode5()))) {
-            log.debug(DEBUG_MSG, student.getProgramCode5(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    ValidationFieldCode.PROGRAM_CODE_5,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-            ));
+        if (StringUtils.isNotBlank(student.getProgramCode5())) {
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode5().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode5().substring(2)));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode5().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode5().substring(2)));
+
+            if(!isValidCareerProgram && !isValidOptionalProgram) {
+                    log.debug(DEBUG_MSG, student.getProgramCode5(), student.getDemographicStudentID());
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.PROGRAM_CODE_5,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
+                    ));
+                }
         }
 
         return errors;
