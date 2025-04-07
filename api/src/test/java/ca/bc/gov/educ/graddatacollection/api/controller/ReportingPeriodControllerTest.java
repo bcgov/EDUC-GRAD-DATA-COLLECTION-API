@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.controller.v1.ReportingPeriodController;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
 import ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.*;
 class ReportingPeriodControllerTest {
 
     private ReportingPeriodService reportingPeriodService;
+    private ReportingSummaryService reportingSummaryService;
     private ReportingPeriodValidator reportingPeriodValidator;
     private ReportingPeriodController controller;
 
@@ -24,7 +26,8 @@ class ReportingPeriodControllerTest {
     void setup() {
         reportingPeriodService = mock(ReportingPeriodService.class);
         reportingPeriodValidator = mock(ReportingPeriodValidator.class);
-        controller = new ReportingPeriodController(reportingPeriodService, reportingPeriodValidator);
+        reportingSummaryService = mock(ReportingSummaryService.class);
+        controller = new ReportingPeriodController(reportingPeriodService, reportingSummaryService, reportingPeriodValidator);
     }
 
     @Test

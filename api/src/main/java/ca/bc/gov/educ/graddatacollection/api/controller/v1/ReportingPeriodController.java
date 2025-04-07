@@ -17,20 +17,19 @@ import java.util.UUID;
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 public class ReportingPeriodController implements ReportingPeriodEndpoint {
     private final ReportingPeriodService reportingPeriodService;
     private final ReportingSummaryService reportingSummaryService;
     private final ReportingPeriodMapper mapper =  ReportingPeriodMapper.mapper;
-
-    @Override
     private final ReportingPeriodValidator reportingPeriodValidator;
 
-    public ReportingPeriodController(ReportingPeriodService reportingPeriodService, ReportingPeriodValidator reportingPeriodValidator) {
+    public ReportingPeriodController(ReportingPeriodService reportingPeriodService, ReportingSummaryService reportingSummaryService, ReportingPeriodValidator reportingPeriodValidator) {
         this.reportingPeriodService = reportingPeriodService;
+        this.reportingSummaryService = reportingSummaryService;
         this.reportingPeriodValidator = reportingPeriodValidator;
     }
 
+    @Override
     public ReportingPeriod getActiveReportingPeriod() {
         return mapper.toStructure(reportingPeriodService.getActiveReportingPeriod());
     }
@@ -39,7 +38,8 @@ public class ReportingPeriodController implements ReportingPeriodEndpoint {
     public ReportingCycleSummary getReportingCycleSummary(UUID reportingPeriodID, String type) {
         return reportingSummaryService.getReportingSummary(reportingPeriodID, type);
     }
-    
+
+    @Override
     public ReportingPeriod updateReportingPeriod(ReportingPeriod reportingPeriod) {
         ValidationUtil.validatePayload(() -> this.reportingPeriodValidator.validatePayload(reportingPeriod));
         RequestUtil.setAuditColumnsForUpdate(reportingPeriod);
