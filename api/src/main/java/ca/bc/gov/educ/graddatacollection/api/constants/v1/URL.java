@@ -17,4 +17,5 @@ public final class URL {
   public static final String METRICS = BASE_URL + "/metrics";
   public static final String REPORTING_PERIOD_URL = BASE_URL + "/reporting-period";
   public static final String ACTIVE =  "/active";
+  public static final String PREVIOUS =  "/previous";
 }

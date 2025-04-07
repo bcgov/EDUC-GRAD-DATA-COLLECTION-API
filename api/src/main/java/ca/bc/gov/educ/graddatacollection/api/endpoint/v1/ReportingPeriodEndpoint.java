@@ -26,6 +26,11 @@ public interface ReportingPeriodEndpoint {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
     ReportingPeriod getActiveReportingPeriod();
 
+    @GetMapping(URL.PREVIOUS)
+    @PreAuthorize("hasAnyAuthority('SCOPE_READ_REPORTING_PERIOD')")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+    ReportingPeriod getPreviousReportingPeriod();
+
     @GetMapping("/{reportingPeriodID}/summary")
     @PreAuthorize("hasAnyAuthority('SCOPE_READ_REPORTING_PERIOD')")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})

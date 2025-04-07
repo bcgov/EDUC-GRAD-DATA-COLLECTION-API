@@ -13,4 +13,18 @@ public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriod
     @Query("SELECT rp FROM ReportingPeriodEntity rp WHERE CURRENT_TIMESTAMP BETWEEN rp.schYrStart AND rp.summerEnd")
     Optional<ReportingPeriodEntity> findActiveReportingPeriod();
 
+    @Query("""
+           SELECT prev_rp
+           FROM ReportingPeriodEntity prev_rp
+           WHERE prev_rp.schYrStart = (
+               SELECT MAX(inner_prev_rp.schYrStart)
+               FROM ReportingPeriodEntity inner_prev_rp
+               WHERE inner_prev_rp.schYrStart < (
+                   SELECT active_rp.schYrStart
+                   FROM ReportingPeriodEntity active_rp
+                   WHERE CURRENT_TIMESTAMP BETWEEN active_rp.schYrStart AND active_rp.summerEnd
+               )
+           )
+           """)
+    Optional<ReportingPeriodEntity> findPreviousReportingPeriod();
 }

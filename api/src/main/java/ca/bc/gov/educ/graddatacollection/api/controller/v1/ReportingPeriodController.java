@@ -34,6 +34,11 @@ public class ReportingPeriodController implements ReportingPeriodEndpoint {
     }
 
     @Override
+    public ReportingPeriod getPreviousReportingPeriod() {
+        return mapper.toStructure(reportingPeriodService.getPreviousReportingPeriod());
+    }
+
+    @Override
     public ReportingCycleSummary getReportingCycleSummary(UUID reportingPeriodID, String type) {
         return reportingSummaryService.getReportingSummary(reportingPeriodID, type);
     }

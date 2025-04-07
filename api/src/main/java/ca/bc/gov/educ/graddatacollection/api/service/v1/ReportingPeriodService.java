@@ -26,6 +26,15 @@ public class ReportingPeriodService {
         }
     }
 
+    public ReportingPeriodEntity getPreviousReportingPeriod() {
+        Optional<ReportingPeriodEntity> reportingPeriodEntity = reportingPeriodRepository.findPreviousReportingPeriod();
+        if (reportingPeriodEntity.isPresent()) {
+            return reportingPeriodEntity.get();
+        } else  {
+            throw new EntityNotFoundException(ReportingPeriodEntity.class, "currentDate", String.valueOf(LocalDateTime.now()));
+        }
+    }
+
     public  ReportingPeriodEntity updateReportingPeriod(final ReportingPeriodEntity reportingPeriodEntity) {
         final Optional<ReportingPeriodEntity> curOptionalReportingPeriodEntity = reportingPeriodRepository.findById(reportingPeriodEntity.getReportingPeriodID());
         if (curOptionalReportingPeriodEntity.isPresent()) {
