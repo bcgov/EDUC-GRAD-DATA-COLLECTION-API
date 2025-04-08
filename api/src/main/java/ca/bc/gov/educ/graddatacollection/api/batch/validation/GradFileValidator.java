@@ -199,7 +199,9 @@ public class GradFileValidator {
 
     public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
         String schoolDistrictID = school.getDistrictId();
-        if(!school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) || StringUtils.compare(schoolDistrictID, districtID) != 0) {
+        if(!(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode())
+                || school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode()))
+                || StringUtils.compare(schoolDistrictID, districtID) != 0) {
             throw new FileUnProcessableException(
                     FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
                     guid,
