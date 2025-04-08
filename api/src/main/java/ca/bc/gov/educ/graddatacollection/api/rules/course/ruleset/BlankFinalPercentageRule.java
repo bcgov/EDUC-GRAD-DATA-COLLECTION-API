@@ -53,7 +53,7 @@ public class BlankFinalPercentageRule implements CourseValidationBaseRule {
 
                 YearMonth cutoffDate = YearMonth.of(1994, 9);
 
-                if (courseSession.isBefore(cutoffDate) && !student.getFinalPercentage().isBlank()) {
+                if (courseSession.isBefore(cutoffDate) && !StringUtils.isBlank(student.getFinalPercentage())) {
                     log.debug("C31: Error: For course session dates prior to 199409 the final percent must be blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
                 }
