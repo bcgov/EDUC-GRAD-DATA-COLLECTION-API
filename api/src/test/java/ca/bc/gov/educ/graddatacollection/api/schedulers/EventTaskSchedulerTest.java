@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -11,6 +12,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.events.schedulers.EventT
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,7 +20,12 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -142,5 +149,39 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         verify(this.messagePublisher, atMost(1)).dispatchMessage(eq(TopicsEnum.READ_ASSESSMENT_STUDENTS_FROM_TOPIC.toString()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING);
+    }
+
+    @Test
+    @Transactional
+    void testSetupReportingPeriodForUpcomingYear() {
+        int currentYear = LocalDate.now().getYear();
+
+        LocalDate dateInOctober = LocalDate.of(currentYear, Month.OCTOBER, 1);
+        LocalDate firstOctoberMondayDate = dateInOctober.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+        LocalDateTime schoolYearStart = firstOctoberMondayDate.atStartOfDay();
+
+        LocalDate dateInJuly = LocalDate.of(currentYear + 1, Month.JULY, 1);
+        LocalDate thirdJulyFridayDate = dateInJuly.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
+        LocalDateTime schoolYearEnd = thirdJulyFridayDate.atStartOfDay();
+
+        LocalDate dateInAugust = LocalDate.of(currentYear + 1, Month.AUGUST, 1);
+        LocalDate firstAugustMondayDate = dateInAugust.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+        LocalDateTime summerStart = firstAugustMondayDate.atStartOfDay();
+
+        LocalDate dateInSeptember = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 1);
+        LocalDate thirdSeptemberFridayDate = dateInSeptember.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
+        LocalDateTime summerEnd = thirdSeptemberFridayDate.atStartOfDay();
+
+        eventTaskSchedulerAsyncService.createReportingPeriodForYear();
+
+        List<ReportingPeriodEntity> reportingPeriods = reportingPeriodRepository.findAll();
+        assertThat(reportingPeriods)
+                .hasSize(1)
+                .anySatisfy(period -> {
+                    assertThat(period.getSchYrStart()).isEqualTo(schoolYearStart);
+                    assertThat(period.getSchYrEnd()).isEqualTo(schoolYearEnd);
+                    assertThat(period.getSummerStart()).isEqualTo(summerStart);
+                    assertThat(period.getSummerEnd()).isEqualTo(summerEnd);
+                });
     }
 }

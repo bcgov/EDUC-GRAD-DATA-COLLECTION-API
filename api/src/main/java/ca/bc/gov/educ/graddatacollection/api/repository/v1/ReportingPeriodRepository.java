@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -27,4 +28,12 @@ public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriod
            )
            """)
     Optional<ReportingPeriodEntity> findPreviousReportingPeriod();
+
+    @Query("""
+            SELECT COUNT(rp) = 0
+            FROM ReportingPeriodEntity rp
+            WHERE EXTRACT(YEAR FROM rp.schYrStart) = :schoolYearStart
+        """)
+    boolean upcomingReportingPeriodDoesNotExist(@Param("schoolYearStart") int schoolYearStart);
+
 }
