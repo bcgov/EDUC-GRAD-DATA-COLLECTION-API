@@ -53,7 +53,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         var schoolCategory = studentRuleData.getSchool().getSchoolCategoryCode();
 
         if(StringUtils.isBlank(student.getGradRequirementYear()) &&
-                (gradRecord == null || gradRecord.getProgramCompletionDate() == null) && StringUtils.isNotBlank(student.getGrade()) &&
+                (gradRecord == null || StringUtils.isBlank(gradRecord.getProgramCompletionDate())) && StringUtils.isNotBlank(student.getGrade()) &&
                 (!student.getGrade().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode()) || !(schoolCategory.equalsIgnoreCase(SchoolCategoryCodes.FED_BAND.getCode())))){
             log.debug("StudentProgram-D12: Null program not valid for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage()));

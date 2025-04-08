@@ -59,7 +59,7 @@ public class NewStudentReportedWithIncorrectStatusRule implements DemographicVal
             (student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())
             || student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.D.getCode()))) {
             log.debug("StudentStatus-D20:Student No GRAD student record found and dem record contains student status of T or D for demographicStudentID: {}", student.getDemographicStudentID());
-            var message = "Student is being submitted with status of" + StringEscapeUtils.escapeHtml4(student.getStudentStatus());
+            var message = "Student is being submitted with status of " + StringEscapeUtils.escapeHtml4(student.getStudentStatus());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, message));
         }
         return errors;

@@ -108,32 +108,28 @@ public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStuden
 
   private void setCourseIssueType(ErrorFilesetStudentEntity errorFilesetStudentEntity, ErrorFilesetStudent filesetStudent) {
     errorFilesetStudentEntity.getCourseStudentEntities().forEach(courseStudent ->
-    {
-      var filteredValidation = courseStudent.getCourseStudentValidationIssueEntities().stream().filter(val -> !val.getValidationIssueCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.DEM_ISSUE.getCode())).toList();
-      filteredValidation.forEach(courseIssueEntity ->
+      courseStudent.getCourseStudentValidationIssueEntities().stream().forEach(courseIssueEntity ->
               filesetStudent.getErrorFilesetStudentValidationIssues().add(
                       getValidationIssue(ErrorFilesetValidationIssueType.COURSE,
                               courseIssueEntity.getValidationIssueDescription(),
                               courseIssueEntity.getValidationIssueCode(),
                               courseIssueEntity.getValidationIssueFieldCode(),
                               courseIssueEntity.getValidationIssueSeverityCode(),
-                              setCourseErrorContext(courseStudent))));
-    });
+                              setCourseErrorContext(courseStudent)))));
+
   }
 
   private void setXamIssueType(ErrorFilesetStudentEntity errorFilesetStudentEntity, ErrorFilesetStudent filesetStudent) {
       errorFilesetStudentEntity.getAssessmentStudentEntities().forEach(assessmentStudent ->
-              {
-                var filteredValidation = assessmentStudent.getAssessmentStudentValidationIssueEntities().stream().filter(val -> !val.getValidationIssueCode().equalsIgnoreCase(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode())).toList();
-                filteredValidation.forEach(assessmentIssueEntity ->
+                assessmentStudent.getAssessmentStudentValidationIssueEntities().stream().forEach(assessmentIssueEntity ->
                         filesetStudent.getErrorFilesetStudentValidationIssues().add(
                                 getValidationIssue(ErrorFilesetValidationIssueType.ASSESSMENT,
                                         assessmentIssueEntity.getValidationIssueDescription(),
                                         assessmentIssueEntity.getValidationIssueCode(),
                                         assessmentIssueEntity.getValidationIssueFieldCode(),
                                         assessmentIssueEntity.getValidationIssueSeverityCode(),
-                                        setAssessmentErrorContext(assessmentStudent))));
-              });
+                                        setAssessmentErrorContext(assessmentStudent)))));
+
   }
 
   private String setCourseErrorContext(CourseStudentEntity courseStudent) {
