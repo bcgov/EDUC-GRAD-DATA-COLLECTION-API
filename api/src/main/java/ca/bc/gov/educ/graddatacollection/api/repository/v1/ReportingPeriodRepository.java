@@ -34,6 +34,6 @@ public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriod
             FROM ReportingPeriodEntity rp
             WHERE YEAR(rp.schYrStart) = :schoolYearStart
         """)
-    Boolean upcomingReportingPeriodDoesNotExist(@Param("schoolYearStart") int schoolYearStart);
+    boolean upcomingReportingPeriodDoesNotExist(@Param("schoolYearStart") int schoolYearStart);
 
 }
