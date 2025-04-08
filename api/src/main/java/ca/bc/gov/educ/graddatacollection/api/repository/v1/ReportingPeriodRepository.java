@@ -30,10 +30,10 @@ public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriod
     Optional<ReportingPeriodEntity> findPreviousReportingPeriod();
 
     @Query("""
-            SELECT COUNT(rp) > 0
+            SELECT COUNT(rp) = 0
             FROM ReportingPeriodEntity rp
             WHERE YEAR(rp.schYrStart) = :schoolYearStart
         """)
-    Boolean upcomingReportingPeriodExists(@Param("schoolYearStart") int schoolYearStart);
+    Boolean upcomingReportingPeriodDoesNotExist(@Param("schoolYearStart") int schoolYearStart);
 
 }

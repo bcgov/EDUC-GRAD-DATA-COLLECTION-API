@@ -124,7 +124,7 @@ public class EventTaskSchedulerAsyncService {
   public void createReportingPeriodForYear(){
     int schoolYearStart = LocalDate.now().getYear();
     try {
-      if (!this.reportingPeriodRepository.upcomingReportingPeriodExists(schoolYearStart)) {
+      if (this.reportingPeriodRepository.upcomingReportingPeriodDoesNotExist(schoolYearStart)) {
         log.debug("Creating reporting period for {}/{}", schoolYearStart, schoolYearStart + 1);
         this.reportingPeriodService.createReportingPeriodForYear();
       }

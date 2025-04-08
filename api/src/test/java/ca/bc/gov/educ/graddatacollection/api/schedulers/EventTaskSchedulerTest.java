@@ -153,7 +153,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     @Transactional
-    void testSetupReportingPeriodForUpcomingYear() throws JsonProcessingException {
+    void testSetupReportingPeriodForUpcomingYear() {
         int currentYear = LocalDate.now().getYear();
 
         LocalDate dateInOctober = LocalDate.of(currentYear, Month.OCTOBER, 1);
