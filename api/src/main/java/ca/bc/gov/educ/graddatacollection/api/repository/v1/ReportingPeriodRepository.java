@@ -32,7 +32,7 @@ public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriod
     @Query("""
             SELECT COUNT(rp) = 0
             FROM ReportingPeriodEntity rp
-            WHERE YEAR(rp.schYrStart) = :schoolYearStart
+            WHERE EXTRACT(YEAR FROM rp.schYrStart) = :schoolYearStart
         """)
     boolean upcomingReportingPeriodDoesNotExist(@Param("schoolYearStart") int schoolYearStart);
 
