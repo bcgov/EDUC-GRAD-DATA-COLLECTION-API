@@ -27,7 +27,8 @@ public enum XamBatchFile {
     LEGAL_SURNAME("legalSurname"),
     NUM_CREDITS("numCredits"),
     COURSE_TYPE("courseType"),
-    WRITE_FLAG("writeFlag")
+    WRITE_FLAG("writeFlag"),
+    EXAM_MINCODE("examMincode")
     ;
     private final String name;
 

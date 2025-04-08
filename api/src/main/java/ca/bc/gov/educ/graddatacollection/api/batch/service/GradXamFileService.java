@@ -198,6 +198,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
                 .numCredits(StringMapper.trimAndUppercase(ds.getString(NUM_CREDITS.getName())))
                 .courseType(StringMapper.trimAndUppercase(ds.getString(COURSE_TYPE.getName())))
                 .writeFlag(StringMapper.trimAndUppercase(ds.getString(WRITE_FLAG.getName())))
+                .examMincode(StringMapper.trimAndUppercase(ds.getString(EXAM_MINCODE.getName())))
                 .lineNumber(Long.toString(index + 1))
                 .build();
     }
