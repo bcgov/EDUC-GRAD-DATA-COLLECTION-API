@@ -358,6 +358,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         GradFileUpload crsFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
+                .courseSessionOverride(true)
                 .fileName("school-empty-crs-file.crs")
                 .fileType("crs")
                 .build();
@@ -378,6 +379,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         GradFileUpload crsFile2 = GradFileUpload.builder()
                 .fileContents(fileContents2)
                 .createUser("ABC")
+                .courseSessionOverride(true)
                 .fileName("district-empty-crs-file.crs")
                 .fileType("crs")
                 .build();

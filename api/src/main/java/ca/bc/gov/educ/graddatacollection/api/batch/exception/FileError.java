@@ -58,6 +58,10 @@ public enum FileError {
 
   BLANK_PEN_IN_CRS_FILE("The PEN field is blank for one or more records in the CRS file on $? $?"),
 
+  INCORRECT_COURSE_DATE_IN_CRS_FILE("The course session year/month is invalid in the CRS file on line $?"),
+
+
+
   FILE_NOT_ALLOWED("File type not allowed"),
   COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
   INVALID_SCHOOL_FOR_UPLOAD("This school is not eligible for graduation records and achievement data collection"),
