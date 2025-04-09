@@ -127,21 +127,32 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             throw new FileUnProcessableException(BLANK_PEN_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines.length() == 1 ? "line" : "lines", lines);
         }
 
+        var courseLineSet = new HashMap<String, CourseStudentEntity>();
         for (final var student : batchFile.getCourseData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             final var crsStudentEntity = mapper.toCRSStudentEntity(student, entity);
+            courseLineSet.put(student.getLineNumber(), crsStudentEntity);
             entity.getCourseStudentEntities().add(crsStudentEntity);
         }
 
-        if(!entity.getCourseStudentEntities().isEmpty() && !fileUpload.isCourseSessionOverride()) {
-            var hasCurrentOrFutureSession = entity.getCourseStudentEntities().stream().filter(this::validateCourseYearAndMonth).findFirst();
-            if(hasCurrentOrFutureSession.isEmpty()) {
-                throw new ConfirmationRequiredException(new ApiError(PRECONDITION_REQUIRED));
+        boolean foundAnyFutureSessions = false;
+        if(!entity.getCourseStudentEntities().isEmpty()) {
+            var hasCurrentOrFutureSession = true;
+
+            for(String lineNumberKey: courseLineSet.keySet()){
+                hasCurrentOrFutureSession = validateCourseYearAndMonth(courseLineSet.get(lineNumberKey), guid, lineNumberKey);
+                if(hasCurrentOrFutureSession){
+                    foundAnyFutureSessions = true;
+                }
             }
+        }
+
+        if(!foundAnyFutureSessions && !fileUpload.isCourseSessionOverride()) {
+            throw new ConfirmationRequiredException(new ApiError(PRECONDITION_REQUIRED));
         }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
 
-    private boolean validateCourseYearAndMonth(CourseStudentEntity courseStudentEntity) {
+    private boolean validateCourseYearAndMonth(CourseStudentEntity courseStudentEntity, String guid, String lineNumber) throws FileUnProcessableException {
         if(StringUtils.isNotEmpty(courseStudentEntity.getCourseMonth()) && StringUtils.isNumeric(courseStudentEntity.getCourseMonth())
                 && StringUtils.isNotEmpty(courseStudentEntity.getCourseYear()) && StringUtils.isNumeric(courseStudentEntity.getCourseYear())) {
             LocalDate courseSessionStart = null;
@@ -155,13 +166,18 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 courseSessionEnd = LocalDate.of(LocalDate.now().getYear(), 8, 31);
             }
 
-            var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
-            var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
-            var incomingCourseSession = LocalDate.of(courseYear, courseMonth, 1);
+            LocalDate incomingCourseSession = null;
+            try {
+                var courseMonth = Integer.parseInt(courseStudentEntity.getCourseMonth());
+                var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
+                incomingCourseSession = LocalDate.of(courseYear, courseMonth, 1);
+            } catch (Exception e) {
+                throw new FileUnProcessableException(INCORRECT_COURSE_DATE_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lineNumber);
+            }
             return (incomingCourseSession.isEqual(courseSessionStart) || incomingCourseSession.isAfter(courseSessionStart))
                     && (incomingCourseSession.isEqual(courseSessionEnd) || incomingCourseSession.isBefore(courseSessionEnd));
         }
-        return false;
+        throw new FileUnProcessableException(INCORRECT_COURSE_DATE_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lineNumber);
     }
 
     @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))

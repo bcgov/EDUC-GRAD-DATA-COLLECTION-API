@@ -53,4 +53,11 @@ public class EventTaskScheduler {
     this.getTaskSchedulerAsyncService().findAndPublishLoadedStudentRecordsForProcessing();
     log.debug("Scheduler processLoadedStudents complete");
   }
+
+  @Scheduled(cron = "${scheduled.jobs.setup.reporting.period.cron}")
+  @SchedulerLock(name = "SETUP_REPORTING_PERIOD", lockAtLeastFor = "${scheduled.jobs.setup.reporting.period.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.setup.reporting.period.cron.lockAtMostFor}")
+  public void setupReportingPeriodForUpcomingYear() {
+    LockAssert.assertLocked();
+    this.getTaskSchedulerAsyncService().createReportingPeriodForYear();
+  }
 }

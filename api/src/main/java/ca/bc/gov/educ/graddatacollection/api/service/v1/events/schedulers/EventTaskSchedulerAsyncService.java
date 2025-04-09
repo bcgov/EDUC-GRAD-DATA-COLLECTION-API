@@ -7,10 +7,12 @@ import ca.bc.gov.educ.graddatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +37,7 @@ public class EventTaskSchedulerAsyncService {
   private final SagaRepository sagaRepository;
   private final Map<String, Orchestrator> sagaOrchestrators = new HashMap<>();
   private final IncomingFilesetRepository incomingFilesetRepository;
+  private final ReportingPeriodRepository reportingPeriodRepository;
   @Setter
   private List<String> statusFilters;
   @Value("${number.students.process.saga}")
@@ -41,13 +45,16 @@ public class EventTaskSchedulerAsyncService {
   private final DemographicStudentService demographicStudentService;
   private final AssessmentStudentService assessmentStudentService;
   private final CourseStudentService courseStudentService;
+  private final ReportingPeriodService reportingPeriodService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService) {
       this.sagaRepository = sagaRepository;
       this.incomingFilesetRepository = incomingFilesetRepository;
+      this.reportingPeriodRepository = reportingPeriodRepository;
       this.demographicStudentService = demographicStudentService;
       this.assessmentStudentService = assessmentStudentService;
       this.courseStudentService = courseStudentService;
+      this.reportingPeriodService = reportingPeriodService;
       orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
@@ -110,6 +117,19 @@ public class EventTaskSchedulerAsyncService {
     log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
     if (!courseStudentEntities.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities);
+    }
+  }
+
+  @Transactional
+  public void createReportingPeriodForYear(){
+    int schoolYearStart = LocalDate.now().getYear();
+    try {
+      if (this.reportingPeriodRepository.upcomingReportingPeriodDoesNotExist(schoolYearStart)) {
+        log.debug("Creating reporting period for {}/{}", schoolYearStart, schoolYearStart + 1);
+        this.reportingPeriodService.createReportingPeriodForYear();
+      }
+    } catch (Exception e) {
+      log.error("Error creating reporting period for {}/{}: ", schoolYearStart, schoolYearStart + 1, e);
     }
   }
 
