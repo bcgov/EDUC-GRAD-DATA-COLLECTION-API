@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.properties;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.threads.EnhancedQueueExecutor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -85,4 +86,10 @@ public class ApplicationProperties {
   private Integer incomingFilesetStaleInHours;
   @Value("${edx.base.url}")
   private String edxBaseUrl;
+  @Value("${folder.base.path}")
+  private String folderBasePath;
+
+  public String getFolderBasePath() {
+    return StringUtils.isBlank(this.folderBasePath) ? "/temp" : this.folderBasePath;
+  }
 }

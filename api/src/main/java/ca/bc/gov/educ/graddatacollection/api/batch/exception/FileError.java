@@ -12,6 +12,9 @@ public enum FileError {
    * Upload file did not contain any content.
    */
   EMPTY_FILE("The DEM data file contains no records."),
+  NO_HEADING("Heading row is missing"),
+  BLANK_CELL_IN_HEADING_ROW("Heading row has a blank cell at column $?"),
+  MISSING_MANDATORY_HEADER("Missing required header $?"),
 
   /**
    * The Invalid transaction code student details.
@@ -68,6 +71,7 @@ public enum FileError {
   INVALID_SCHOOL_DATES("Invalid school dates - this was not expected."),
   SCHOOL_OUTSIDE_OF_DISTRICT("The school is not in your district and cannot be uploaded."),
   MISSING_MINCODE("The school has been closed for more than 3 months or is not Transcript Eligible. The data cannot be uploaded."),
+  FILE_ENCRYPTED("File is password protected"),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**
