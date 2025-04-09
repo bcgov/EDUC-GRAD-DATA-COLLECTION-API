@@ -52,16 +52,17 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         var gradRecord = studentRuleData.getGradStudentRecord();
         var schoolCategory = studentRuleData.getSchool().getSchoolCategoryCode();
 
-        boolean isGradeGA = student.getGrade() != null && student.getGrade().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode());
+        boolean isNotGradeGA = student.getGrade() != null && !student.getGrade().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode());
         boolean isNotIndependentFNS = schoolCategory != null && !schoolCategory.equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode());
-        boolean gradInfoMissing = (gradRecord == null || StringUtils.isBlank(gradRecord.getProgramCompletionDate()));
-        boolean isGradRequirementYearBlank = StringUtils.isBlank(student.getGradRequirementYear());
+        boolean gradRequirementYearIsBlank = StringUtils.isBlank(student.getGradRequirementYear());
+        boolean isNotGraduated = gradRecord == null || StringUtils.isNotBlank(gradRecord.getProgramCompletionDate());
 
-        if (isGradRequirementYearBlank && (isGradeGA || isNotIndependentFNS) && gradInfoMissing) {
+        if (gradRequirementYearIsBlank && (isNotGradeGA || isNotIndependentFNS) && isNotGraduated) {
             log.debug("StudentProgram-D12: Null program not valid for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage()));
         }
 
         return errors;
     }
+
 }
