@@ -152,4 +152,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return buildResponseEntity(ex.getError());
   }
 
+
+  /**
+   * Handles ReportingPeriodValidationException. Created to drive reporting period validation errors from the backend.
+   *
+   * @param ex the ReportingPeriodValidationException
+   * @return the ApiError object
+   */
+  @ExceptionHandler(ReportingPeriodValidationException.class)
+  protected ResponseEntity<Object> handleReportingPeriodValidationException(ReportingPeriodValidationException ex) {
+    log.error("ReportingPeriod validation failed", ex);
+    return ResponseEntity.badRequest().body(ex.toSafeResponse());
+  }
 }

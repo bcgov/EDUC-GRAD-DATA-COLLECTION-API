@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.SCHOOL_YEAR_START;
+import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.SUMMER_START;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -55,11 +57,9 @@ class ReportingPeriodValidatorTest {
 
         List<FieldError> errors = validator.validatePayload(period);
 
-        long overlapErrors = errors.stream()
-                .filter(e -> e.getField().equals("schYrStart") || e.getField().equals("summerStart"))
-                .count();
-
-        assertEquals(2, overlapErrors);
+        assertEquals(3, errors.stream()
+                .filter(e -> e.getField().equals(SCHOOL_YEAR_START) || e.getField().equals(SUMMER_START))
+                .count());
     }
 
     @Test
@@ -73,7 +73,7 @@ class ReportingPeriodValidatorTest {
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
-        assertEquals(2, errors.stream().filter(e -> e.getField().equals("schYrStart")).count());
+        assertEquals(2, errors.stream().filter(e -> e.getField().equals(SCHOOL_YEAR_START)).count());
     }
 
     @Test
@@ -124,5 +124,57 @@ class ReportingPeriodValidatorTest {
         List<FieldError> errors = validator.validatePayload(period);
         assertEquals(1, errors.size());
         assertEquals("reportingPeriodId", errors.get(0).getField());
+    }
+    @Test
+    void testSchoolYearStartAfterSummerStart_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2025-08-01T00:00:00") // after summerStart
+                .schYrEnd("2025-08-31T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-07-31T00:00:00")
+                .build();
+
+        List<FieldError> errors = validator.validatePayload(period);
+
+        long orderingErrors = errors.stream()
+                .filter(e -> e.getDefaultMessage().contains("must start before Summer")
+                        || e.getDefaultMessage().contains("must start after School Year ends"))
+                .count();
+        assertEquals(2, orderingErrors);
+    }
+
+    @Test
+    void testBothPeriodsInPast_NoActivePeriod_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-01-01T00:00:00")
+                .schYrEnd("2024-03-30T00:00:00")
+                .summerStart("2024-04-01T00:00:00")
+                .summerEnd("2024-04-30T00:00:00")
+                .build();
+
+        List<FieldError> errors = validator.validatePayload(period);
+
+        assertEquals(1, errors.stream()
+                .filter(e -> e.getField().equals("periods") && e.getDefaultMessage().contains("No active reporting period"))
+                .count());
+    }
+
+    @Test
+    void testBothPeriodsInFuture_NoCurrentPeriod_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2025-10-01T00:00:00")
+                .schYrEnd("2026-06-30T00:00:00")
+                .summerStart("2026-07-01T00:00:00")
+                .summerEnd("2026-08-31T00:00:00")
+                .build();
+
+        List<FieldError> errors = validator.validatePayload(period);
+
+        assertEquals(1, errors.stream()
+                .filter(e -> e.getField().equals("periods") && e.getDefaultMessage().contains("in the future"))
+                .count());
     }
 }
