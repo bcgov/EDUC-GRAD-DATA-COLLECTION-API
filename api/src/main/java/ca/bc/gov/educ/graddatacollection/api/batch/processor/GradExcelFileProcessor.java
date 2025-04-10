@@ -40,9 +40,8 @@ public class GradExcelFileProcessor {
     public static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
     public static final String GRAD_FILE_UPLOAD = "gradFileUpload";
 
-    public GradExcelFileProcessor(final List<GradFileExcelProcessor> fileProcessors, Map<String, GradFileExcelProcessor> fileProcessorsMap, GradFileValidator gradFileValidator) {
+    public GradExcelFileProcessor(Map<String, GradFileExcelProcessor> fileProcessorsMap, GradFileValidator gradFileValidator) {
         this.fileProcessorsMap = fileProcessorsMap;
-                //fileProcessors.stream().collect(Collectors.toMap(GradFileExcelProcessor::getFileType, Function.identity()));
         this.gradFileValidator = gradFileValidator;
     }
 

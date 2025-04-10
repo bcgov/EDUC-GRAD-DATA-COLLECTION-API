@@ -82,7 +82,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         val headerNames = headersMap.values();
         for (val headerName : MANDATORY_HEADERS) {
             if (!headerNames.contains(headerName)) {
-                throw new FileUnProcessableException(FileError.MISSING_MANDATORY_HEADER, guid, GradCollectionStatus.LOAD_FAIL);
+                throw new FileUnProcessableException(FileError.MISSING_MANDATORY_HEADER, guid, GradCollectionStatus.LOAD_FAIL, headerName);
             }
         }
     }
@@ -98,7 +98,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
     private void handleHeaderRow(final Row r, final int cn, final String correlationID, final Map<Integer, String> headersMap) throws FileUnProcessableException {
         final Cell cell = r.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
         if (cell == null) {
-            throw new FileUnProcessableException(FileError.BLANK_CELL_IN_HEADING_ROW, correlationID, GradCollectionStatus.LOAD_FAIL);
+            throw new FileUnProcessableException(FileError.BLANK_CELL_IN_HEADING_ROW, correlationID, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
         }
         val headerNameFromFile = StringUtils.trim(cell.getStringCellValue());
         val headerOptional = Headers.fromString(headerNameFromFile);

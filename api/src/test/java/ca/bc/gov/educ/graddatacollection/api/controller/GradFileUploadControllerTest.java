@@ -9,10 +9,13 @@ import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import junitparams.Parameters;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -669,6 +672,35 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.summerStudents", hasSize(3)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "src/test/resources/summer-reporting-missing-header.xlsx, Missing required header Legal Middle Name",
+            "src/test/resources/summer-reporting-header-blank.xlsx, Heading row has a blank cell at column 6",
+    })
+    void testProcessSchoolXlsxFile_givenEncryptedFile_ShouldReturnStatusBadRequest(final String filePath, final String errorMessage) throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream(filePath);
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xlsx")
+                .createUser("test")
+                .fileName("summer-reporting.xls")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message", is(equalToIgnoringCase(errorMessage))));
     }
 
 }
