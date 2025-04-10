@@ -30,11 +30,11 @@ public interface GradFileUploadEndpoint {
     @Schema(name = "FileUpload", implementation = GradFileUpload.class)
     ResponseEntity<IncomingFileset> processDistrictBatchFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "districtID") String districtID);
 
-    @PostMapping("/{schoolID}/csv-upload")
+    @PostMapping("/{schoolID}/excel-upload")
     @PreAuthorize("hasAuthority('SCOPE_WRITE_GRAD_COLLECTION')")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
     @Tag(name = "Endpoint to Upload an excel file and convert to json structure.", description = "Endpoint to Upload an excel file and convert to json structure")
     @Schema(name = "FileUpload", implementation = GradFileUpload.class)
-    ResponseEntity<SummerStudentDataResponse> processSchoolCsvFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "schoolID") String schoolID);
+    ResponseEntity<SummerStudentDataResponse> processSchoolExcelFile(@Validated @RequestBody GradFileUpload fileUpload, @PathVariable(name = "schoolID") String schoolID);
 
 }

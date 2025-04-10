@@ -12,11 +12,10 @@ public enum Headers {
   LEGAL_SURNAME("Legal Surname", ColumnType.STRING),
   LEGAL_MIDDLE_NAME("Legal Middle Name", ColumnType.STRING),
   LEGAL_FIRST_NAME("Legal Given First Name", ColumnType.STRING),
-  DOB("DOB", ColumnType.DATE),
-  STUDENT_GRADE("Student Grade", ColumnType.STRING),
+  DOB("DOB\nyyyymmdd", ColumnType.DATE),
   COURSE("Course", ColumnType.STRING),
   SESSION_DATE("Session Date", ColumnType.STRING),
-  FINAL_PERCENT("Final School %", ColumnType.STRING),
+  FINAL_PERCENT("Final Sch %", ColumnType.STRING),
   FINAL_LETTER_GRADE("Final Letter Grade", ColumnType.STRING),
   NO_OF_CREDITS("Number of Credits", ColumnType.STRING);
 

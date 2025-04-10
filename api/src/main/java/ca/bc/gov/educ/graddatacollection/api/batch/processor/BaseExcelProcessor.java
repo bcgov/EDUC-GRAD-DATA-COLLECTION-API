@@ -14,10 +14,7 @@ import ca.bc.gov.educ.graddatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
@@ -67,14 +63,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
             }
             this.populateRowData(guid, headersMap, summerStudents, rowNum, summerStudent);
         }
-//        log.info("contains for invalid counter map is {}", invalidValueCounterMap);
-//        val isThresholdReachedList = invalidValueCounterMap.entrySet().stream()
-//                .filter(ivCounter -> ivCounter.getValue() > this.applicationProperties.getNominalRollInvalidFieldThreshold())
-//                .map(value -> value.getKey().toString())
-//                .collect(Collectors.toList());
-//        if (isThresholdReachedList.size() > 0) {
-//            throw new FileUnProcessableException(FileError.FILE_THRESHOLD_CHECK_FAILED, correlationID, String.join(",", isThresholdReachedList));
-//        }
+
         return SummerStudentDataResponse.builder().headers(new ArrayList<>(headersMap.values())).summerStudents(summerStudents).build();
     }
 
@@ -140,9 +129,6 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
                 case DOB:
                     this.setDOB(summerStudent, cell, header.getType());
                     break;
-                case STUDENT_GRADE:
-                    this.setStudentGrade(summerStudent, cell, header.getType());
-                    break;
                 case COURSE:
                     this.setCourse(summerStudent, cell, header.getType());
                     break;
@@ -177,11 +163,6 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
     private void setLegalSurname(final SummerStudentData summerStudent, final Cell cell,  final ColumnType columnType) {
         val fieldValue = this.getCellValueString(cell, columnType);
         summerStudent.setLegalSurname(fieldValue);
-    }
-
-    private void setStudentGrade(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType) {
-        val fieldValue = this.getCellValueString(cell, columnType);
-        summerStudent.setStudentGrade(fieldValue);
     }
 
     private void setFirstName(final SummerStudentData summerStudent, final Cell cell,  final ColumnType columnType) {

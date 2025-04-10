@@ -43,10 +43,10 @@ public class GradFileUploadController implements GradFileUploadEndpoint {
     }
 
     @Override
-    public ResponseEntity<SummerStudentDataResponse> processSchoolCsvFile(GradFileUpload fileUpload, String schoolID) {
+    public ResponseEntity<SummerStudentDataResponse> processSchoolExcelFile(GradFileUpload fileUpload, String schoolID) {
         log.info("Running file load for file: " + fileUpload.getFileName());
         SummerStudentDataResponse summerStudents =  gradExcelFileProcessor.processSchoolExcelFile(fileUpload, schoolID);
         log.info("File data committed for file: " + fileUpload.getFileName());
-        return null;
+        return ResponseEntity.ok(summerStudents);
     }
 }
