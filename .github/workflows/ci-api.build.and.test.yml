@@ -37,6 +37,8 @@ jobs:
           key: ${{ runner.os }}-maven-5Jun-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-5Jun-
+      - name: create temp directory
+        run: mkdir -p /home/runner/work/EDUC-GRAD-DATA-COLLECTION-API/EDUC-GRAD-DATA-COLLECTION-API/temp
       - name: Run unit tests
         run: mvn -f pom.xml clean package
       - name: Run Trivy vulnerability scanner in repo mode
