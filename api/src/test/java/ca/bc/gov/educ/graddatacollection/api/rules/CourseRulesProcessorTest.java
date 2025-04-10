@@ -890,8 +890,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseMonth("12");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
-        System.out.println("please dear god");
-        System.out.println(validationError4);
         Assertions.assertTrue(validationError4.stream().anyMatch(validationError -> validationError.getValidationIssueFieldCode().equalsIgnoreCase(ValidationFieldCode.FINAL_PERCENTAGE.getCode())));
         Assertions.assertTrue(validationError4.stream().anyMatch(validationError -> validationError.getValidationIssueCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getCode())));
     }

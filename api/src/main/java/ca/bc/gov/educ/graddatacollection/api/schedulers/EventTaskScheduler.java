@@ -58,6 +58,8 @@ public class EventTaskScheduler {
   @SchedulerLock(name = "SETUP_REPORTING_PERIOD", lockAtLeastFor = "${scheduled.jobs.setup.reporting.period.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.setup.reporting.period.cron.lockAtMostFor}")
   public void setupReportingPeriodForUpcomingYear() {
     LockAssert.assertLocked();
+    log.debug("Started setupReportingPeriodForUpcomingYear scheduler");
     this.getTaskSchedulerAsyncService().createReportingPeriodForYear();
+    log.debug("Scheduler setupReportingPeriodForYear complete");
   }
 }
