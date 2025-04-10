@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.SCHOOL_YEAR_START;
-import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.SUMMER_START;
+import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -157,7 +156,7 @@ class ReportingPeriodValidatorTest {
         List<FieldError> errors = validator.validatePayload(period);
 
         assertEquals(1, errors.stream()
-                .filter(e -> e.getField().equals("periods") && e.getDefaultMessage().contains("No active reporting period"))
+                .filter(e -> e.getField().equals(INVALID_PERIOD) && e.getDefaultMessage().contains("No active reporting period"))
                 .count());
     }
 
@@ -174,7 +173,7 @@ class ReportingPeriodValidatorTest {
         List<FieldError> errors = validator.validatePayload(period);
 
         assertEquals(1, errors.stream()
-                .filter(e -> e.getField().equals("periods") && e.getDefaultMessage().contains("in the future"))
+                .filter(e -> e.getField().equals(INVALID_PERIOD) && e.getDefaultMessage().contains("in the future"))
                 .count());
     }
 }
