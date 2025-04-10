@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.batch.service;
 import ca.bc.gov.educ.graddatacollection.api.batch.constants.ExcelFileType;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.batch.processor.BaseExcelProcessor;
+import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
@@ -18,8 +19,8 @@ import java.io.IOException;
 @Slf4j
 public class GradExcelFileService extends BaseExcelProcessor {
 
-    protected GradExcelFileService(ApplicationProperties applicationProperties) {
-        super(applicationProperties);
+    protected GradExcelFileService(ApplicationProperties applicationProperties, GradFileValidator gradFileValidator) {
+        super(applicationProperties, gradFileValidator);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class GradExcelFileService extends BaseExcelProcessor {
             final File outputFile = this.getFile(fileContents, ExcelFileType.XLS.getCode());
             try (final POIFSFileSystem fs = new POIFSFileSystem(outputFile)) {
                 try (final HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true)) {
-                    return this.processSheet(wb.getSheetAt(0), guid);
+                    return this.processSheet(wb.getSheetAt(0), schoolID, districtID, guid);
                 }
             }
         } catch (final IOException e) {
