@@ -624,7 +624,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testProcessSchoolExcelFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+    void testProcessSchoolXlsxFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -644,6 +644,30 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(body))
                 .contentType(APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.summerStudents", hasSize(3)));
+    }
+
+    @Test
+    void testProcessSchoolXlsFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-xls.xls");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xls")
+                .createUser("test")
+                .fileName("summer-reporting.xls")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.summerStudents", hasSize(3)));
     }
 
