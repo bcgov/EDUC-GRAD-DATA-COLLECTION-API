@@ -20,6 +20,8 @@ import java.util.List;
 public class GradFileUploadController implements GradFileUploadEndpoint {
     private final GradBatchFileProcessor gradBatchFileProcessor;
     private final GradExcelFileProcessor gradExcelFileProcessor;
+    public static final String LOAD_MSG = "Running file load for file:";
+    public static final String DATA_SAVED_MSG = "File data committed for file: ";
 
     public GradFileUploadController(GradBatchFileProcessor gradBatchFileProcessor, GradExcelFileProcessor gradExcelFileProcessor) {
         this.gradBatchFileProcessor = gradBatchFileProcessor;
@@ -28,25 +30,24 @@ public class GradFileUploadController implements GradFileUploadEndpoint {
 
     @Override
     public ResponseEntity<IncomingFileset> processSchoolBatchFile(GradFileUpload fileUpload, String schoolID) {
-        log.info("Running file load for file: " + fileUpload.getFileName());
+        log.info(LOAD_MSG + fileUpload.getFileName());
         IncomingFilesetEntity incomingFilesetEntity = gradBatchFileProcessor.processSchoolBatchFile(fileUpload, schoolID);
-        log.info("File data committed for file: " + fileUpload.getFileName());
+        log.info(DATA_SAVED_MSG + fileUpload.getFileName());
         return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(incomingFilesetEntity));
     }
 
     @Override
     public ResponseEntity<IncomingFileset> processDistrictBatchFile(GradFileUpload fileUpload, String districtID) {
-        log.info("Running file load for file: " + fileUpload.getFileName());
+        log.info(LOAD_MSG + fileUpload.getFileName());
         IncomingFilesetEntity incomingFilesetEntity = gradBatchFileProcessor.processDistrictBatchFile(fileUpload, districtID);
-        log.info("File data committed for file: " + fileUpload.getFileName());
+        log.info(DATA_SAVED_MSG + fileUpload.getFileName());
         return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(incomingFilesetEntity));
     }
 
     @Override
     public ResponseEntity<SummerStudentDataResponse> processSchoolExcelFile(GradFileUpload fileUpload, String schoolID) {
-        log.info("Running file load for file: " + fileUpload.getFileName());
+        log.info(LOAD_MSG + fileUpload.getFileName());
         SummerStudentDataResponse summerStudents =  gradExcelFileProcessor.processSchoolExcelFile(fileUpload, schoolID);
-        log.info("File data committed for file: " + fileUpload.getFileName());
         return ResponseEntity.ok(summerStudents);
     }
 }

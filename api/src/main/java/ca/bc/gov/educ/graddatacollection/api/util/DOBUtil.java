@@ -4,10 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.format.*;
-import java.util.Optional;
-
-import static java.time.temporal.ChronoField.*;
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 
 public class DOBUtil {
 

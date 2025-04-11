@@ -643,7 +643,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(body))
                 .contentType(APPLICATION_JSON)).andExpect(status().isOk())
@@ -667,7 +667,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isOk())
@@ -695,7 +695,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON))
@@ -720,7 +720,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -744,7 +744,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -768,7 +768,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -792,7 +792,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -816,7 +816,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -840,7 +840,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -864,7 +864,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -888,7 +888,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -912,7 +912,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
@@ -936,7 +936,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
