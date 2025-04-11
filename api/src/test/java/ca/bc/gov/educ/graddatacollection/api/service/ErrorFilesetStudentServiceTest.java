@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
@@ -54,7 +55,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var fileset = incomingFilesetRepository.save(mockFileset);
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null, "ABC", current, "ABC", current);
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", null, "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
             assertThat(saved).isPresent();
         } catch(Exception e) {
@@ -73,7 +74,12 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var fileset = incomingFilesetRepository.save(mockFileset);
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", true, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
+            var demRecord = createMockDemographicStudent(fileset);
+            demRecord.setFirstName("Test");
+            demRecord.setLastName("McTest");
+            demRecord.setLocalID("1234");
+            demRecord.setBirthdate("19000101");
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", demRecord, "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
             assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
@@ -101,7 +107,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         var fileset = incomingFilesetRepository.save(mockFileset);
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", null, "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
             assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
@@ -137,54 +143,10 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         errorFilesetStudentRepository.save(errorStudent);
 
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, null, null, null, null, "ABC", current, "ABC", current);
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", null, "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
             assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
-            assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isNotEqualTo("ABC");
-            assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isEqualTo(errorStudent.getCreateUser());
-            assertThat(savedErrorFilesetStudentEntity.getCreateDate().truncatedTo(ChronoUnit.SECONDS)).isNotEqualTo(current);
-            assertThat(savedErrorFilesetStudentEntity.getCreateDate().truncatedTo(ChronoUnit.SECONDS)).isEqualTo(errorStudent.getCreateDate().truncatedTo(ChronoUnit.SECONDS));
-            assertThat(savedErrorFilesetStudentEntity.getUpdateUser()).isNotEqualTo("ABC");
-            assertThat(savedErrorFilesetStudentEntity.getUpdateUser()).isEqualTo(errorStudent.getUpdateUser());
-            assertThat(savedErrorFilesetStudentEntity.getUpdateDate().truncatedTo(ChronoUnit.SECONDS)).isNotEqualTo(current);
-            assertThat(savedErrorFilesetStudentEntity.getUpdateDate().truncatedTo(ChronoUnit.SECONDS)).isEqualTo(errorStudent.getUpdateDate().truncatedTo(ChronoUnit.SECONDS));
-        } catch(Exception e) {
-            Assertions.fail("Should not have thrown any exception");
-        }
-    }
-
-    @Test
-    void testFlagErrorOnStudents_ExistingStudentError_isDemLoadedFalse_IsNotUpdated() {
-        var school = this.createMockSchool();
-        school.setMincode("07965039");
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
-        var fileset = incomingFilesetRepository.save(mockFileset);
-
-        LocalDateTime current = LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.SECONDS);
-
-        var errorStudent = createMockErrorFilesetStudentEntity(fileset);
-        errorStudent.setPen("123456789");
-        errorStudent.setCreateDate(current.minusMinutes(1));
-        errorStudent.setUpdateDate(current.minusMinutes(1));
-        errorFilesetStudentRepository.save(errorStudent);
-
-        try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", false, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
-            Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
-            assertThat(saved).isPresent();
-            ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
-            assertThat(savedErrorFilesetStudentEntity.getFirstName()).isNotEqualTo("Test");
-            assertThat(savedErrorFilesetStudentEntity.getFirstName()).isEqualTo(errorStudent.getFirstName());
-            assertThat(savedErrorFilesetStudentEntity.getLastName()).isNotEqualTo("McTest");
-            assertThat(savedErrorFilesetStudentEntity.getLastName()).isEqualTo(errorStudent.getLastName());
-            assertThat(savedErrorFilesetStudentEntity.getLocalID()).isNotEqualTo("1234");
-            assertThat(savedErrorFilesetStudentEntity.getLocalID()).isEqualTo(errorStudent.getLocalID());
-            assertThat(savedErrorFilesetStudentEntity.getBirthdate()).isNotEqualTo("19000101");
-            assertThat(savedErrorFilesetStudentEntity.getBirthdate()).isEqualTo(errorStudent.getBirthdate());
             assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isNotEqualTo("ABC");
             assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isEqualTo(errorStudent.getCreateUser());
             assertThat(savedErrorFilesetStudentEntity.getCreateDate().truncatedTo(ChronoUnit.SECONDS)).isNotEqualTo(current);
@@ -217,18 +179,22 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
         errorFilesetStudentRepository.save(errorStudent);
 
         try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", true, "Test", "McTest", "1234", "19000101", "ABC", current, "ABC", current);
+            var demRecord = createMockDemographicStudent(fileset);
+            demRecord.setFirstName("Test");
+            demRecord.setLastName("McTest");
+            demRecord.setLocalID("1234");
+            demRecord.setBirthdate("19000101");
+            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", demRecord,  "ABC", current, "ABC", current);
             Optional<ErrorFilesetStudentEntity> saved =  errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "123456789");
             assertThat(saved).isPresent();
             ErrorFilesetStudentEntity savedErrorFilesetStudentEntity = saved.get();
-            assertThat(savedErrorFilesetStudentEntity.getFirstName()).isEqualTo("Test");
-            assertThat(savedErrorFilesetStudentEntity.getLastName()).isEqualTo("McTest");
-            assertThat(savedErrorFilesetStudentEntity.getLocalID()).isEqualTo("1234");
+            assertThat(savedErrorFilesetStudentEntity.getFirstName()).isEqualTo("Jane");
+            assertThat(savedErrorFilesetStudentEntity.getLastName()).isEqualTo("Smith");
+            assertThat(savedErrorFilesetStudentEntity.getLocalID()).isEqualTo("123456789");
             assertThat(savedErrorFilesetStudentEntity.getBirthdate()).isEqualTo("19000101");
             assertThat(savedErrorFilesetStudentEntity.getCreateUser()).isEqualTo(errorStudent.getCreateUser());
             assertThat(savedErrorFilesetStudentEntity.getCreateDate().truncatedTo(ChronoUnit.SECONDS)).isEqualTo(errorStudent.getCreateDate().truncatedTo(ChronoUnit.SECONDS));
-            assertThat(savedErrorFilesetStudentEntity.getUpdateUser()).isEqualTo("ABC");
-            assertThat(savedErrorFilesetStudentEntity.getUpdateDate().truncatedTo(ChronoUnit.SECONDS)).isEqualTo(current);
+            assertThat(savedErrorFilesetStudentEntity.getUpdateUser()).isEqualTo(ApplicationProperties.GRAD_DATA_COLLECTION_API);
         } catch(Exception e) {
             Assertions.fail("Should not have thrown any exception");
         }

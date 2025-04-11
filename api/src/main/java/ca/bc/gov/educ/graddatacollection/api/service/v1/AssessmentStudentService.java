@@ -43,6 +43,7 @@ public class AssessmentStudentService {
     private final MessagePublisher messagePublisher;
     private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
+    private final AssessmentRulesService assessmentRulesService;
     private final AssessmentStudentRepository assessmentStudentRepository;
     private final AssessmentStudentRulesProcessor assessmentStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
@@ -53,7 +54,7 @@ public class AssessmentStudentService {
         List<AssessmentStudentEntity> assessmentStudentList;
 
         if (schoolID != null) {
-            assessmentStudentList = assessmentStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+            assessmentStudentList = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(incomingFilesetId, pen, schoolID,FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.VERIFIED.getCode());
         } else {
             throw new IllegalArgumentException("schoolID must be provided.");
         }
@@ -160,7 +161,8 @@ public class AssessmentStudentService {
 
     public void flagErrorOnStudent(final AssessmentStudent assessmentStudent) {
         try {
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), false, null, null, null, null, assessmentStudent.getCreateUser(), LocalDateTime.parse(assessmentStudent.getCreateDate()), assessmentStudent.getUpdateUser(), LocalDateTime.parse(assessmentStudent.getUpdateDate()));
+            var demographicStudentEntity = assessmentRulesService.getDemographicDataForStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), assessmentStudent.getLastName(), assessmentStudent.getLocalID());
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), demographicStudentEntity, assessmentStudent.getCreateUser(), LocalDateTime.parse(assessmentStudent.getCreateDate()), assessmentStudent.getUpdateUser(), LocalDateTime.parse(assessmentStudent.getUpdateDate()));
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
