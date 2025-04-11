@@ -65,7 +65,9 @@ public class AssessmentRulesService extends BaseRulesService {
     }
 
     public AssessmentStudentDetailResponse getAssessmentStudentDetail(UUID studentID, UUID assessmentID){
-        return restUtils.getAssessmentStudentDetail(studentID, assessmentID);
+        var stud = restUtils.getAssessmentStudentDetail(studentID, assessmentID);
+        log.debug("AssessmentRulesService:getAssessmentStudentDetail: Fetched student data using student ID: {} :: assessmentDetail: {}", studentID, stud);
+        return stud;
     }
 
     public boolean checkIfStudentHasDuplicatesInFileset(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear){
