@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface AssessmentStudentRepository extends JpaRepository<AssessmentStudentEntity, UUID>, JpaSpecificationExecutor<AssessmentStudentEntity> {
     List<AssessmentStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
-    long countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(String pen, String courseCode, String courseMonth, String courseYear);
+    long countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear);
 
     List<AssessmentStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode, String studentStatusCode);
 

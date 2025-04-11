@@ -68,7 +68,7 @@ public class AssessmentRulesService extends BaseRulesService {
         return restUtils.getAssessmentStudentDetail(studentID, assessmentID);
     }
 
-    public boolean checkIfStudentHasDuplicatesInFileset(String pen, String courseCode, String courseMonth, String courseYear){
-        return assessmentStudentRepository.countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(pen, courseCode, courseMonth, courseYear) > 1;
+    public boolean checkIfStudentHasDuplicatesInFileset(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear){
+        return assessmentStudentRepository.countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(incomingFilesetID, pen, courseCode, courseMonth, courseYear) > 1;
     }
 }
