@@ -52,7 +52,7 @@ public class CourseSessionRule implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V15 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (assessmentRulesService.checkIfStudentHasDuplicatesInFileset(student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
+        if (assessmentRulesService.checkIfStudentHasDuplicatesInFileset(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
             log.debug("V15: There are more than one CODE/SESSION DATE registrations in the file for the same student. :: {}", student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage()));
         }
