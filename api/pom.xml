@@ -36,6 +36,7 @@
     <awaitility.version>4.0.3</awaitility.version>
     <awaitility-proxy.version>3.1.6</awaitility-proxy.version>
     <log4j.version>2.17.1</log4j.version>
+    <poi.version>5.4.0</poi.version>
   </properties>
 
   <parent>
@@ -258,6 +259,18 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
       <version>1.13.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>${poi.version}</version>
     </dependency>
   </dependencies>
 
