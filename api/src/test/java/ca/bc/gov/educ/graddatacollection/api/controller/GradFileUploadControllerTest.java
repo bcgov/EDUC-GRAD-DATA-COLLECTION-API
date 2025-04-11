@@ -5,6 +5,8 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -23,6 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -650,6 +653,33 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .andExpect(jsonPath("$.summerStudents", hasSize(3)));
     }
 
+    @Test
+    void testProcessDistrictXlsxFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        var districtID = UUID.randomUUID();
+        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting.xlsx");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xlsx")
+                .createUser("test")
+                .fileName("summer-reporting.xlsx")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/district/" + districtID +"/excel-upload")
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.summerStudents", hasSize(3)));
+    }
+
     @ParameterizedTest
     @CsvSource({
             "src/test/resources/summer-reporting-missing-header.xlsx, Missing required header Legal Middle Name",
@@ -917,6 +947,101 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.subErrors[0].message").value("Birthdate must be in the format YYYYMMDD. Review the data on line 5"));
+    }
+
+    @Test
+    void testProcessSummerGradFile_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        SummerStudentData summerData = SummerStudentData.builder()
+                .dob("20030516")
+                .pen("123456789")
+                .course("ENST 12")
+                .finalPercent("72")
+                .legalFirstName("firstName")
+                .legalSurname("surname")
+                .legalMiddleName("middleName")
+                .noOfCredits("4")
+                .schoolCode("07965039")
+                .build();
+        SummerFileUpload fileData = SummerFileUpload.builder()
+                .createUser("ABC")
+                .fileName("summer-reporting.xlsx")
+                .summerStudents(List.of(summerData))
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/process")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(fileData))
+                .contentType(APPLICATION_JSON));
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
+        assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
+        assertThat(entity.getXamFileName()).isEqualTo("summer-reporting.XAM");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(1);
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(1);
+    }
+
+    @Test
+    void testProcessSummerGradFile_ForDistrict_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        var districtID = UUID.randomUUID();
+        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        SummerStudentData summerData = SummerStudentData.builder()
+                .dob("20030516")
+                .pen("123456789")
+                .course("ENST 12")
+                .finalPercent("72")
+                .legalFirstName("firstName")
+                .legalSurname("surname")
+                .legalMiddleName("middleName")
+                .noOfCredits("4")
+                .schoolCode("07965039")
+                .build();
+        SummerFileUpload fileData = SummerFileUpload.builder()
+                .createUser("ABC")
+                .fileName("summer-reporting.xlsx")
+                .summerStudents(List.of(summerData))
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/district/" + schoolTombstone.getDistrictId() + "/process")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(fileData))
+                .contentType(APPLICATION_JSON));
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
+        assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
+        assertThat(entity.getXamFileName()).isEqualTo("summer-reporting.XAM");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(1);
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(1);
     }
 
 }

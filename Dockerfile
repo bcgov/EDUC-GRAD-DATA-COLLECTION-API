@@ -8,9 +8,9 @@ RUN mvn package -DskipTests \
 
 FROM artifacts.developer.gov.bc.ca/docker-remote/openjdk:21-jdk-oracle
 RUN useradd -ms /bin/bash spring \
-&& mkdir -p /logs \
-&& chown -R spring:spring /logs \
-&& chmod 755 /logs
+&& mkdir -p /logs && mkdir -p /temp \
+&& chown -R spring:spring /logs && chown -R spring:spring /temp \
+&& chmod 755 /logs && chmod 755 /temp
 USER spring
 VOLUME /tmp
 ARG DEPENDENCY=/workspace/app/target/dependency
