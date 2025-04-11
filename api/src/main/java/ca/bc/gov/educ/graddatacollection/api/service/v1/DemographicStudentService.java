@@ -5,7 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
@@ -46,6 +45,7 @@ public class DemographicStudentService {
     private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
+    private final DemographicRulesService demographicRulesService;
     private final DemographicStudentRulesProcessor demographicStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
@@ -55,13 +55,13 @@ public class DemographicStudentService {
 
         if (incomingFilesetId != null) {
             if (schoolID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.VERIFIED.getCode());
             } else {
                 throw new IllegalArgumentException("schoolID must be provided.");
             }
         } else {
             if (schoolID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findFirstBySchoolIDAndPen(schoolID, FilesetStatus.COMPLETED.getCode(), pen);
+                optionalDemographicStudentEntity = demographicStudentRepository.findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeOrderByCreateDateDesc(schoolID, SchoolStudentStatus.VERIFIED.getCode(), pen, FilesetStatus.COMPLETED.getCode());
             } else {
                 throw new IllegalArgumentException("schoolID must be provided.");
             }
@@ -171,7 +171,8 @@ public class DemographicStudentService {
 
     public void flagErrorOnStudent(final DemographicStudent demographicStudent) {
         try{
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), true, demographicStudent.getFirstName(), demographicStudent.getLastName(), demographicStudent.getLocalID(), demographicStudent.getBirthdate(), demographicStudent.getCreateUser(), LocalDateTime.parse(demographicStudent.getCreateDate()), demographicStudent.getUpdateUser(), LocalDateTime.parse(demographicStudent.getUpdateDate()));
+            var demographicStudentEntity = demographicRulesService.getDemographicDataForStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), demographicStudent.getLastName(), demographicStudent.getLocalID());
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), demographicStudentEntity, demographicStudent.getCreateUser(), LocalDateTime.parse(demographicStudent.getCreateDate()), demographicStudent.getUpdateUser(), LocalDateTime.parse(demographicStudent.getUpdateDate()));
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");

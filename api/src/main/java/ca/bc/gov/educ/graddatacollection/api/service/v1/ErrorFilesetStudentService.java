@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
@@ -27,27 +28,18 @@ public class ErrorFilesetStudentService {
 
     @Retryable(retryFor = {PSQLException.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void flagErrorOnStudent(UUID incomingFilesetID, String pen, boolean isDemLoad, String firstName, String lastName, String localID, String birthDate, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
+    public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
-        if (preexisting.isPresent() && isDemLoad) {
-            var stud =  preexisting.get();
-            stud.setLocalID(localID);
-            stud.setLastName(lastName);
-            stud.setFirstName(firstName);
-            stud.setBirthdate(birthDate);
-            stud.setUpdateUser(updateUser);
-            stud.setUpdateDate(updateDate);
-            errorFilesetStudentRepository.save(stud);
-        }else if(preexisting.isEmpty()){
+        if (!preexisting.isPresent()) {
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
             ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
             newErrorFilesetStudent.setIncomingFileset(fileSet);
             newErrorFilesetStudent.setPen(pen);
-            if(isDemLoad) {
-                newErrorFilesetStudent.setLastName(lastName);
-                newErrorFilesetStudent.setFirstName(firstName);
-                newErrorFilesetStudent.setLocalID(localID);
-                newErrorFilesetStudent.setBirthdate(birthDate);
+            if(demStudent != null) {
+                newErrorFilesetStudent.setLocalID(demStudent.getLocalID());
+                newErrorFilesetStudent.setLastName(demStudent.getLastName());
+                newErrorFilesetStudent.setFirstName(demStudent.getFirstName());
+                newErrorFilesetStudent.setBirthdate(demStudent.getBirthdate());
             }
             newErrorFilesetStudent.setCreateUser(createUser);
             newErrorFilesetStudent.setCreateDate(createDate);

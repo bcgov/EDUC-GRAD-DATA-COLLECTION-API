@@ -11,7 +11,6 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
@@ -44,6 +43,7 @@ public class CourseStudentService {
     private final MessagePublisher messagePublisher;
     private final IncomingFilesetRepository incomingFilesetRepository;
     private final CourseStudentRepository courseStudentRepository;
+    private final CourseRulesService courseRulesService;
     private final RestUtils restUtils;
     private final CourseStudentRulesProcessor courseStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
@@ -54,7 +54,7 @@ public class CourseStudentService {
         List<CourseStudentEntity> courseStudentList;
 
         if (schoolID != null) {
-            courseStudentList = courseStudentRepository.findByIncomingFilesetIDAndSchoolID(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode());
+            courseStudentList = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.VERIFIED.getCode());
         } else {
             throw new IllegalArgumentException("schoolID must be provided.");
         }
@@ -161,7 +161,8 @@ public class CourseStudentService {
 
     public void flagErrorOnStudent(final CourseStudent courseStudent) {
         try{
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), false, null, null, null, null, courseStudent.getCreateUser(), LocalDateTime.parse(courseStudent.getCreateDate()), courseStudent.getUpdateUser(), LocalDateTime.parse(courseStudent.getUpdateDate()));
+            var demographicStudentEntity = courseRulesService.getDemographicDataForStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), courseStudent.getLastName(), courseStudent.getLocalID());
+            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), demographicStudentEntity, courseStudent.getCreateUser(), LocalDateTime.parse(courseStudent.getCreateDate()), courseStudent.getUpdateUser(), LocalDateTime.parse(courseStudent.getUpdateDate()));
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
