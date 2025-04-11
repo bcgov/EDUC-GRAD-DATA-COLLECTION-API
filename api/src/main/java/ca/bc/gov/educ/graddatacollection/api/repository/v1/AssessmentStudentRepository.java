@@ -15,16 +15,7 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
     List<AssessmentStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     long countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(String pen, String courseCode, String courseMonth, String courseYear);
 
-    @Query(value = "SELECT a.* " +
-            "FROM ASSESSMENT_STUDENT a " +
-            "JOIN INCOMING_FILESET i ON a.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.SCHOOL_ID = :schoolID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND a.PEN = :pen " +
-            "  AND a.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC", nativeQuery = true)
-    List<AssessmentStudentEntity> findByIncomingFilesetIDAndSchoolID(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode);
+    List<AssessmentStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode, String studentStatusCode);
 
     @Query("SELECT " +
             "   v.validationIssueSeverityCode, COUNT(v) " +

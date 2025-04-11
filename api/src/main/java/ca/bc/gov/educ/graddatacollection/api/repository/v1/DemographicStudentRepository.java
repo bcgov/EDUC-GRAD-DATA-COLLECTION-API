@@ -15,27 +15,8 @@ import java.util.UUID;
 public interface DemographicStudentRepository extends JpaRepository<DemographicStudentEntity, UUID>, JpaSpecificationExecutor<DemographicStudentEntity> {
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(UUID incomingFilesetID, String lastName, String pen, String localID);
-
-    @Query(value = "SELECT d.* " +
-            "FROM DEMOGRAPHIC_STUDENT d " +
-            "JOIN INCOMING_FILESET i ON d.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.SCHOOL_ID = :schoolID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.PEN = :pen " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED' " +
-            "ORDER BY i.CREATE_DATE DESC " +
-            "LIMIT 1", nativeQuery = true)
-    Optional<DemographicStudentEntity> findFirstBySchoolIDAndPen(UUID schoolID, String filesetStatusCode, String pen);
-
-    @Query(value = "SELECT d.* " +
-            "FROM DEMOGRAPHIC_STUDENT d " +
-            "JOIN INCOMING_FILESET i ON d.INCOMING_FILESET_ID = i.INCOMING_FILESET_ID " +
-            "WHERE i.INCOMING_FILESET_ID = :incomingFilesetID " +
-            "  AND i.SCHOOL_ID = :schoolID " +
-            "  AND i.FILESET_STATUS_CODE = :filesetStatusCode " +
-            "  AND d.PEN = :pen " +
-            "  AND d.STUDENT_STATUS_CODE <> 'LOADED'", nativeQuery = true)
-    Optional<DemographicStudentEntity> findByIncomingFilesetIDAndSchoolID(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode);
+    Optional<DemographicStudentEntity> findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeOrderByCreateDateDesc(UUID schoolID, String filesetStatusCode, String pen, String studentStatusCode);
+    Optional<DemographicStudentEntity> findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode, String studentStatusCode);
 
     @Query("SELECT " +
             "   v.validationIssueSeverityCode, COUNT(v) " +
