@@ -1,9 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.struct.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
@@ -11,9 +9,10 @@ import java.io.Serializable;
 @SuperBuilder
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SummerStudentData implements Serializable {
+public class SummerStudentData extends BaseRequest implements Serializable {
     private static final SummerStudentData EMPTY = new SummerStudentData();
     private static final long serialVersionUID = 1L;
     String schoolCode;
