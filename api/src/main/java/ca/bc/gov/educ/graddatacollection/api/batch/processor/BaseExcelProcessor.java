@@ -170,7 +170,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         if(StringUtils.isBlank(fieldValue)) {
             throw new FileUnProcessableException(FileError.BLANK_PEN_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
         }
-        if(fieldValue.length() != 10) {
+        if(fieldValue.length() != 9) {
             throw new FileUnProcessableException(FileError.PEN_LENGTH_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
         }
         summerStudent.setPen(fieldValue);

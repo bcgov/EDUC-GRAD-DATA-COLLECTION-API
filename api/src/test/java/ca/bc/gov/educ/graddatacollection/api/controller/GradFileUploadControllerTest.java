@@ -629,7 +629,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessSchoolXlsxFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
-        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting.xlsx");
@@ -653,7 +653,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessSchoolXlsFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
-        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setMincode("2496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-xls.xls");
@@ -725,6 +725,30 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.subErrors[0].message").value("The file does not contain any records."));
+    }
+
+    @Test
+    void testProcessSchoolXlsxFile_givenFileWithMincodeMismatch_ShouldReturnBadRequest() throws Exception {
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting.xlsx");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xlsx")
+                .createUser("test")
+                .fileName("summer-reporting.xlsx")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("The school codes in your file do not match your school's code. Please ensure that all school codes in the file correspond to your school code."));
     }
 
 }
