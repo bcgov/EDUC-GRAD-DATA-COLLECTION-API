@@ -7,8 +7,8 @@ import java.util.Optional;
 
 @Getter
 public enum ExcelFileType {
-  XLSX("xlsx", ".xlsx"),
-  XLS("xls", ".xls");
+  XLSX("xlsx", ".xlsx")
+  ;
 
   private final String code;
   private final String allowedExtensions;
