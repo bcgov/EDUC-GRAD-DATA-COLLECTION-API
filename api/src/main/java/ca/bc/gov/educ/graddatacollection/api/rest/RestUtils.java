@@ -890,7 +890,7 @@ public class RestUtils {
       assessmentStudent.setSurname(student.getLastName());
       assessmentStudent.setPen(student.getPen());
       assessmentStudent.setLocalID(student.getLocalID());
-      assessmentStudent.setIsElectronicExam(student.getIsElectronicExam());
+      assessmentStudent.setIsElectronicExam(StringUtils.isNotBlank(student.getIsElectronicExam()) && student.getIsElectronicExam().equalsIgnoreCase("Y") ? "true" : "false");
       assessmentStudent.setProficiencyScore(null);
       assessmentStudent.setProvincialSpecialCaseCode(student.getProvincialSpecialCase());
       assessmentStudent.setCourseStatusCode(student.getCourseStatus());
