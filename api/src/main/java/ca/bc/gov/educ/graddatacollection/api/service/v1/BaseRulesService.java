@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ public class BaseRulesService {
             Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), pen);
             studentRuleData.setStudentApiStudent(studentApiStudent);
         } catch (EntityNotFoundException e) {
-            log.warn("No StudentApiStudent found for PEN: {}", pen);
+            log.debug("No StudentApiStudent found for PEN: {}", pen);
             studentRuleData.setStudentApiStudent(null);
         }
         studentRuleData.setStudentApiStudentFetched(true);
@@ -49,7 +50,7 @@ public class BaseRulesService {
         }
 
         if (studentRuleData.getStudentApiStudent() == null) {
-            log.warn("No GradStudentRecord found for null studentApiStudent Record");
+            log.debug("No GradStudentRecord found for null studentApiStudent Record");
             studentRuleData.setGradStudentRecord(null);
             studentRuleData.setGradStudentRecordFetched(true);
             return null;
@@ -62,7 +63,7 @@ public class BaseRulesService {
             GradStudentRecord gradStudent = restUtils.getGradStudentRecordByStudentID(UUID.randomUUID(), studentUUID);
             studentRuleData.setGradStudentRecord(gradStudent);
         } catch (EntityNotFoundException e) {
-            log.warn("No GradStudentRecord found for student ID: {}", studentUUID);
+            log.debug("No GradStudentRecord found for student ID: {}", studentUUID);
             studentRuleData.setGradStudentRecord(null);
         }
         studentRuleData.setGradStudentRecordFetched(true);
@@ -72,6 +73,11 @@ public class BaseRulesService {
     public CoregCoursesRecord getCoregCoursesRecord(StudentRuleData studentRuleData, String externalID) {
         if (studentRuleData.getCoregCoursesRecordMap() != null && studentRuleData.getCoregCoursesRecordMap().containsKey(externalID)) {
             return studentRuleData.getCoregCoursesRecordMap().get(externalID);
+        }
+
+        if (StringUtils.isEmpty(externalID)) {
+            log.info("External ID is empty. Skipping call out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+            return null;
         }
 
         try {
@@ -85,7 +91,7 @@ public class BaseRulesService {
 
             return coregCourses;
         } catch (EntityNotFoundException e) {
-            log.warn("No CoregCoursesRecord found for externalID: {}", externalID);
+            log.debug("No CoregCoursesRecord found for externalID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             return null;
         }
     }
@@ -102,7 +108,7 @@ public class BaseRulesService {
 
             return gradStudentCourses;
         } catch (EntityNotFoundException e) {
-            log.warn("No gradStudentCourses found for externalID: {}", pen);
+            log.debug("No gradStudentCourses found for externalID: {}", pen);
             return null;
         }
     }
