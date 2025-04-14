@@ -209,12 +209,12 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
                 if(sessionYear != LocalDate.now().getYear() || (sessionMonth != 8 && sessionMonth != 7)) {
                     throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
                 }
-                summerStudent.setDob(String.valueOf(sessionDate));
+                summerStudent.setSessionDate(String.valueOf(sessionDate));
             } catch (DateTimeParseException ex) {
                 throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
             }
         } else {
-            summerStudent.setDob(null);
+            summerStudent.setSessionDate(null);
         }
         summerStudent.setSessionDate(fieldValue);
     }
