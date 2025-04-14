@@ -60,7 +60,9 @@ public class CourseCodeAttemptsRule implements AssessmentValidationBaseRule {
                 var studentApiStudent = assessmentRulesService.getStudentApiStudent(studentRuleData, student.getPen());
                 studentRuleData.setStudentApiStudent(studentApiStudent);
             }
-            var studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentRuleData.getStudentApiStudent().getStudentID()), student.getAssessmentID());
+            var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
+            var studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentRuleData.getStudentApiStudent().getStudentID()), UUID.fromString(assessmentID));
+            student.setAssessmentID(UUID.fromString(assessmentID));
             studentRuleData.setAssessmentStudentDetail(studAssessmentDetail);
         }
 
