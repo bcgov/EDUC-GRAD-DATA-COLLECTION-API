@@ -49,8 +49,7 @@ public class InvalidRelatedCourseInCoRegRule implements CourseValidationBaseRule
         log.debug("In executeValidation of C28 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", courseStudent.getRelatedCourse());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getRelatedLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(),  courseStudent.getCourseLevel());
 
         if (coursesRecord == null) {
             log.debug("C28: Error: Invalid related course code used for the Independent Directed Studies course. Please check the Course Registry. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
