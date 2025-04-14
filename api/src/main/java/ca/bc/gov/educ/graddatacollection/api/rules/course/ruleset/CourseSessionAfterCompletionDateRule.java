@@ -13,7 +13,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +52,7 @@ public class CourseSessionAfterCompletionDateRule implements CourseValidationBas
         log.debug("In executeValidation of C14 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", student.getCourseCode());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + student.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
 
         if (coursesRecord != null && StringUtils.isNotBlank(coursesRecord.getCompletionEndDate())) {
             LocalDate courseSessionDate = null;

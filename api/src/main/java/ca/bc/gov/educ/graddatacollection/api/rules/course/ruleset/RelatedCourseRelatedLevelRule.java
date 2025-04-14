@@ -49,8 +49,7 @@ public class RelatedCourseRelatedLevelRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C20 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", courseStudent.getCourseCode());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(), courseStudent.getCourseLevel());
 
         if (coursesRecord != null && "Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
             log.debug("C20: Error: Related course code and level missing for Independent Directed Studies course. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());

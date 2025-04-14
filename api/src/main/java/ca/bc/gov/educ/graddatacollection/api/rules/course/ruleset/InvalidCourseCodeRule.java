@@ -51,8 +51,7 @@ public class InvalidCourseCodeRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C03 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", student.getCourseCode());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + student.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
 
         if (coursesRecord == null || coursesRecord.getCourseCode().isEmpty()) {
             log.debug("C03: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
