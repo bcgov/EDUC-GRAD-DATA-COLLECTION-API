@@ -765,7 +765,7 @@ public class RestUtils {
 
       byte[] responseData = responseMessage.getData();
       if (responseData.length == 0) {
-        log.warn("No course information found for external ID {}", externalID);
+        log.debug("No course information found for externalID {}", externalID);
         throw new EntityNotFoundException(CoregCoursesRecord.class);
       }
 
@@ -805,7 +805,7 @@ public class RestUtils {
 
       byte[] responseData = responseMessage.getData();
       if (responseData.length == 0) {
-        log.warn("No course information found for PEN {}", pen);
+        log.debug("No course information found for PEN {}", pen);
         throw new EntityNotFoundException(CoregCoursesRecord.class);
       }
 
