@@ -129,11 +129,8 @@ public class AssessmentStudentService {
         final List<AssessmentStudentSagaData> assessmentStudentSagaData = assessmentStudentEntity.stream()
                 .map(el -> {
                     val gradAssessmentStudentSagaData = new AssessmentStudentSagaData();
-                    Optional<IncomingFilesetEntity> incomingFilesetEntity = this.incomingFilesetRepository.findById(el.getIncomingFileset().getIncomingFilesetID());
-                    if(incomingFilesetEntity.isPresent()) {
-                        var school = this.restUtils.getSchoolBySchoolID(incomingFilesetEntity.get().getSchoolID().toString());
-                        gradAssessmentStudentSagaData.setSchool(school.get());
-                    }
+                    var school = this.restUtils.getSchoolBySchoolID(el.getIncomingFileset().getSchoolID().toString());
+                    gradAssessmentStudentSagaData.setSchool(school.get());
                     gradAssessmentStudentSagaData.setAssessmentStudent(AssessmentStudentMapper.mapper.toAssessmentStudent(el));
                     return gradAssessmentStudentSagaData;
                 }).toList();
