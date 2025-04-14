@@ -76,7 +76,7 @@ public class BaseRulesService {
         }
 
         if (StringUtils.isEmpty(externalID) || externalID.equalsIgnoreCase("null null")) {
-            log.info("External ID is empty. Skipping call out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+            log.debug("External ID is empty. Skipping call out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             return null;
         }
 
