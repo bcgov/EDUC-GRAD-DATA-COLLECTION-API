@@ -719,21 +719,21 @@ public class RestUtils {
         log.debug("getGradStudentRecordByStudentID response{}", response.toString());
 
         if ("not found".equals(response.get(EXCEPTION))) {
-          log.info("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
+          log.debug("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new EntityNotFoundException(GradStudentRecord.class);
         } else if ("error".equals(response.get(EXCEPTION))) {
           log.error("An exception error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
         }
 
-        log.info("Success fetching GradStudentRecord for Student ID {}", studentID);
+        log.debug("Success fetching GradStudentRecord for Student ID {}", studentID);
         return objectMapper.readValue(responseData, refGradStudentRecordResult);
       } else {
         throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
 
     } catch (EntityNotFoundException ex) {
-      log.info("Entity Not Found occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
+      log.debug("Entity Not Found occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());
       throw ex;
     } catch (final Exception ex) {
       log.error("Error occurred calling GET GRAD STUDENT RECORD service :: {}", ex.getMessage());

@@ -89,9 +89,9 @@ public class EventTaskSchedulerAsyncService {
   @Async("processLoadedStudentsTaskExecutor")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndPublishLoadedStudentRecordsForProcessing() {
-    log.debug("Querying for loaded students to process");
+    log.info("Querying for loaded students to process");
     if (this.sagaRepository.countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
-      log.debug("Saga count is greater than 100, so not processing student records");
+      log.info("Saga count is greater than 100, so not processing student records");
       return;
     }
 
@@ -100,21 +100,21 @@ public class EventTaskSchedulerAsyncService {
     incomingFilesetRepository.saveAll(completedFilesets);
 
     final var demographicStudentEntities = this.incomingFilesetRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
-    log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
+    log.info("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
     if (!demographicStudentEntities.isEmpty()) {
       this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities);
       return;
     }
 
     final var assessmentStudentEntities = this.incomingFilesetRepository.findTopLoadedAssessmentStudentForProcessing(numberOfStudentsToProcess);
-    log.debug("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
+    log.info("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
     if (!assessmentStudentEntities.isEmpty()) {
       this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities);
       return;
     }
 
     final var courseStudentEntities = this.incomingFilesetRepository.findTopLoadedCRSStudentForProcessing(numberOfStudentsToProcess);
-    log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
+    log.info("Found :: {} course records in loaded status", courseStudentEntities.size());
     if (!courseStudentEntities.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities);
     }
