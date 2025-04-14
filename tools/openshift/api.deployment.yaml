@@ -77,6 +77,8 @@ objects:
                   readOnly: true
                 - name: log-storage
                   mountPath: /logs
+                - name: app-storage
+                  mountPath: /temp
             - name: "${APP_NAME}-${BRANCH}-fluent-bit-sidecar"
               image: artifacts.developer.gov.bc.ca/docker-remote/fluent/fluent-bit:1.5.7
               imagePullPolicy: Always
@@ -120,6 +122,8 @@ objects:
               secret:
                 secretName: "${APP_NAME}-cert"
             - name: log-storage
+              emptyDir: {}
+            - name: app-storage
               emptyDir: {}
             - name: flb-sc-config-volume
               configMap:
