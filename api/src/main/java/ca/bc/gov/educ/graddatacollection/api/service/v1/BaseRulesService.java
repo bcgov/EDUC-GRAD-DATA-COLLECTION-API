@@ -86,10 +86,7 @@ public class BaseRulesService {
         try {
             log.debug("Calling out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             CoregCoursesRecord coregCourses = restUtils.getCoursesByExternalID(UUID.randomUUID(), externalID);
-
-            if (studentRuleData.getCoregCoursesRecord() == null) {
-                studentRuleData.setCoregCoursesRecord(coregCourses);
-            }
+            studentRuleData.setCoregCoursesRecord(coregCourses);
 
             return coregCourses;
         } catch (EntityNotFoundException e) {
