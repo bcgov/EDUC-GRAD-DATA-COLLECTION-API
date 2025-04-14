@@ -60,7 +60,7 @@ public class GradExcelFileProcessor {
         try {
             ExcelFileType fileDetails = ExcelFileType.findByCode(fileUpload.getFileType()).orElseThrow(() -> new FileUnProcessableException(FileError.FILE_NOT_ALLOWED, guid, GradCollectionStatus.LOAD_FAIL));
             var fileContent = Base64.getDecoder().decode(fileUpload.getFileContents());
-            return fileProcessorsMap.get(fileDetails.getCode()).extractData(guid, fileContent, schoolID, null);
+            return fileProcessorsMap.get(fileDetails.getCode()).extractData(guid, fileContent, schoolID, districtID);
         } catch (final OLE2NotOfficeXmlFileException ole2NotOfficeXmlFileException) {
             log.warn("OLE2NotOfficeXmlFileException during Nominal Roll file processing", ole2NotOfficeXmlFileException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();

@@ -165,6 +165,10 @@ public class GradFileValidator {
         return restUtils.getSchoolByMincode(mincode);
     }
 
+    public Optional<SchoolTombstone> getSchool(final String schoolID) {
+        return restUtils.getSchoolBySchoolID(schoolID);
+    }
+
     public void checkForMincodeMismatch(@NonNull final String guid, String fileMincode, String studentMincode, String schoolID, String districtID) throws FileUnProcessableException {
         if (!Objects.equals(fileMincode, studentMincode)) {
             if (districtID != null) {
