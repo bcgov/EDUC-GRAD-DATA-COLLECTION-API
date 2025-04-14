@@ -33,6 +33,6 @@ public class StudentRuleData {
   private GradStudentRecord gradStudentRecord;
   private Boolean gradStudentRecordFetched = false;
   private AssessmentStudentDetailResponse assessmentStudentDetail;
-  private Map<String, CoregCoursesRecord> coregCoursesRecordMap;
+  private CoregCoursesRecord coregCoursesRecord;
   private List<GradStudentCourseRecord> gradStudentCourseRecordList;
 }
