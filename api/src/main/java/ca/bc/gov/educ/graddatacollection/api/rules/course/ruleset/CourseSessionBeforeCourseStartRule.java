@@ -51,8 +51,7 @@ public class CourseSessionBeforeCourseStartRule implements CourseValidationBaseR
         log.debug("In executeValidation of C13 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", student.getCourseCode());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + student.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
 
         if (coursesRecord != null) {
             LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");

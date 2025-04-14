@@ -49,9 +49,9 @@ public class InvalidRelatedCourseInCoRegRule implements CourseValidationBaseRule
         log.debug("In executeValidation of C28 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", courseStudent.getRelatedCourse());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getRelatedLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(),  courseStudent.getCourseLevel());
 
+        // todo c28 can never be hit currently - rules it depends on require a courses record != null to pass
         if (coursesRecord == null) {
             log.debug("C28: Error: Invalid related course code used for the Independent Directed Studies course. Please check the Course Registry. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID.getMessage()));

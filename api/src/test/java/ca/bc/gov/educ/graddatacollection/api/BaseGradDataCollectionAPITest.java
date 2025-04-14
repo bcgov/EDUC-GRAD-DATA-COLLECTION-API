@@ -207,7 +207,8 @@ public abstract class BaseGradDataCollectionAPITest {
             .numberOfCredits("3")
             .interimPercentage("70")
             .interimGrade("C+")
-            .courseCode("123")
+            .courseCode("PH")
+            .courseLevel("12")
             .localID("8887555")
             .transactionID("E08")
             .build();

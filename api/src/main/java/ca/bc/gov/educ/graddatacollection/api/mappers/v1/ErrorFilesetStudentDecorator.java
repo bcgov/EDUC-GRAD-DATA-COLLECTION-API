@@ -6,8 +6,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +19,9 @@ import java.util.Optional;
 public abstract class ErrorFilesetStudentDecorator implements ErrorFilesetStudentMapper {
 
   private final ErrorFilesetStudentMapper delegate;
-  private static final String MISSING_COURSE_CODE = "missing course code";
-  private static final String MISSING_COURSE_YEAR = "missing course year";
-  private static final String MISSING_COURSE_MONTH = "missing course month";
+  private static final String MISSING_COURSE_CODE = "Missing Course Code";
+  private static final String MISSING_COURSE_YEAR = "Missing Course Year";
+  private static final String MISSING_COURSE_MONTH = "Missing Course Month";
 
   protected ErrorFilesetStudentDecorator(ErrorFilesetStudentMapper delegate) {
     this.delegate = delegate;

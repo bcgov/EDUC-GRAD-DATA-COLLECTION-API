@@ -49,8 +49,7 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C18 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", student.getCourseCode());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + student.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
 
         if (coursesRecord != null) {
             if (coursesRecord.getCourseAllowableCredit().stream().noneMatch(cac -> cac.getCreditValue().equalsIgnoreCase(student.getNumberOfCredits()))) {
