@@ -773,7 +773,7 @@ public class RestUtils {
       return objectMapper.readValue(responseData, refCourseInformation);
 
     } catch (EntityNotFoundException ex) {
-      log.error("EntityNotFoundException occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
+      log.debug("EntityNotFoundException occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
       throw new EntityNotFoundException();
     } catch (final Exception ex) {
       log.error("Error occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
