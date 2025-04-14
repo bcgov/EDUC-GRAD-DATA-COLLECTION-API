@@ -75,7 +75,7 @@ public class BaseRulesService {
             return studentRuleData.getCoregCoursesRecordMap().get(externalID);
         }
 
-        if (StringUtils.isEmpty(externalID)) {
+        if (StringUtils.isEmpty(externalID) || externalID.equalsIgnoreCase("null null")) {
             log.info("External ID is empty. Skipping call out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             return null;
         }
