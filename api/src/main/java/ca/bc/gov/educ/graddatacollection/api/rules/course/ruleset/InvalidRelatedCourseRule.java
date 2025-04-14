@@ -50,8 +50,7 @@ public class InvalidRelatedCourseRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C19 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        String paddedCourseCode = String.format("%-5s", courseStudent.getCourseCode());
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, paddedCourseCode + courseStudent.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(),  courseStudent.getCourseLevel());
 
         if (StringUtils.isNotBlank(courseStudent.getRelatedCourse()) && coursesRecord != null && !"Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
             log.debug("C19: Error: Invalid entry. A related course code can only be applied to an Independent Directed Studies course. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
