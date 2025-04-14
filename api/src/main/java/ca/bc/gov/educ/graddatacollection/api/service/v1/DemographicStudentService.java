@@ -55,13 +55,13 @@ public class DemographicStudentService {
 
         if (incomingFilesetId != null) {
             if (schoolID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.VERIFIED.getCode());
+                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.VERIFIED.getCode());
             } else {
                 throw new IllegalArgumentException("schoolID must be provided.");
             }
         } else {
             if (schoolID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeOrderByCreateDateDesc(schoolID, SchoolStudentStatus.VERIFIED.getCode(), pen, FilesetStatus.COMPLETED.getCode());
+                optionalDemographicStudentEntity = demographicStudentRepository.findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeNotOrderByCreateDateDesc(schoolID, FilesetStatus.COMPLETED.getCode(), pen, SchoolStudentStatus.VERIFIED.getCode());
             } else {
                 throw new IllegalArgumentException("schoolID must be provided.");
             }
