@@ -29,7 +29,7 @@ public class GradExcelXFileService extends BaseExcelProcessor {
     @Override
     public SummerStudentDataResponse extractData(String guid, byte[] fileContents, String schoolID, String districtID) throws FileUnProcessableException {
         try {
-            final File outputFile = this.getFile(fileContents, ExcelFileType.XLSX.getCode());
+            final File outputFile = this.getFile(fileContents, ExcelFileType.XLSX.getAllowedExtensions());
             try (final OPCPackage pkg = OPCPackage.open(outputFile)) {
                 try (final XSSFWorkbook wb = new XSSFWorkbook(pkg)) {
                     return this.processSheet(wb.getSheetAt(0), schoolID, districtID, guid);
