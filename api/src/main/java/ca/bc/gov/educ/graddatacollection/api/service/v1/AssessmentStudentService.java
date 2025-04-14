@@ -54,7 +54,7 @@ public class AssessmentStudentService {
         List<AssessmentStudentEntity> assessmentStudentList;
 
         if (schoolID != null) {
-            assessmentStudentList = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCode(incomingFilesetId, pen, schoolID,FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.VERIFIED.getCode());
+            assessmentStudentList = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID,FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
         } else {
             throw new IllegalArgumentException("schoolID must be provided.");
         }
