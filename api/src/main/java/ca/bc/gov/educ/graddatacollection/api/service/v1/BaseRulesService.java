@@ -72,26 +72,21 @@ public class BaseRulesService {
 
     public CoregCoursesRecord getCoregCoursesRecord(StudentRuleData studentRuleData, String courseCode, String courseLevel) {
         if (StringUtils.isEmpty(courseCode) ||  StringUtils.isEmpty(courseLevel)) {
-            log.info("External ID components are empty. Skipping call out for course with course code: {}, course level: {}, for course student: {}", courseCode, courseLevel, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+            log.debug("External ID components are empty. Skipping call out for course with course code: {}, course level: {}, for course student: {}", courseCode, courseLevel, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             return null;
         }
 
         String paddedCourseCode = String.format("%-5s", courseCode);
         String externalID = paddedCourseCode + courseLevel;
 
-
-        if (studentRuleData.getCoregCoursesRecordMap() != null && studentRuleData.getCoregCoursesRecordMap().containsKey(externalID)) {
-            return studentRuleData.getCoregCoursesRecordMap().get(externalID);
+        if (studentRuleData.getCoregCoursesRecord() != null) {
+            return studentRuleData.getCoregCoursesRecord();
         }
 
         try {
             log.debug("Calling out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             CoregCoursesRecord coregCourses = restUtils.getCoursesByExternalID(UUID.randomUUID(), externalID);
-
-            if (studentRuleData.getCoregCoursesRecordMap() == null) {
-                studentRuleData.setCoregCoursesRecordMap(new HashMap<>());
-            }
-            studentRuleData.getCoregCoursesRecordMap().put(externalID, coregCourses);
+            studentRuleData.setCoregCoursesRecord(coregCourses);
 
             return coregCourses;
         } catch (EntityNotFoundException e) {
