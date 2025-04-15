@@ -677,7 +677,7 @@ public class RestUtils {
       if (responseMessage != null) {
         byte[] data = responseMessage.getData();
         if (data == null || data.length == 0) {
-          log.info("Empty response data for getStudentByPEN; treating as student not found for PEN: {}", assignedPEN);
+          log.debug("Empty response data for getStudentByPEN; treating as student not found for PEN: {}", assignedPEN);
           throw new EntityNotFoundException(Student.class);
         }
 
@@ -695,7 +695,7 @@ public class RestUtils {
       }
 
     } catch (EntityNotFoundException ex) {
-      log.error("Entity Not Found occurred calling GET STUDENT service :: {}", ex.getMessage());
+      log.debug("Entity Not Found occurred calling GET STUDENT service :: {}", ex.getMessage());
       throw ex;
     } catch (final Exception ex) {
       log.error("Error occurred calling GET STUDENT service :: {}", ex.getMessage());

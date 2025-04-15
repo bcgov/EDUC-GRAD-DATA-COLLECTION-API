@@ -21,7 +21,7 @@ public class MetricsController implements MetricsEndpoint {
 
     @Override
     public ResponseEntity<IncomingFileset> generateSubmissionMetrics(UUID schoolID) {
-        log.info("Retrieving submission metrics for schoolID: {}", schoolID.toString());
+        log.debug("Retrieving submission metrics for schoolID: {}", schoolID.toString());
         IncomingFilesetEntity submissionMetrics = metricsService.getFilesetData(schoolID);
 
         return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(submissionMetrics));
@@ -29,7 +29,7 @@ public class MetricsController implements MetricsEndpoint {
 
     @Override
     public ResponseEntity<ErrorAndWarningSummary> generateErrorAndWarningMetrics(UUID schoolID){
-        log.info("Retrieving error and warning summary metrics for schoolID: {}", schoolID.toString());
+        log.debug("Retrieving error and warning summary metrics for schoolID: {}", schoolID.toString());
         ErrorAndWarningSummary errorAndWarningSummary = metricsService.getErrorAndWarningSummary(schoolID);
 
         return ResponseEntity.ok(errorAndWarningSummary);
