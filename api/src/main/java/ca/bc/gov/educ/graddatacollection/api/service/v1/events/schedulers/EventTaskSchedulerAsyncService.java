@@ -6,9 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.Orchestrator;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
@@ -37,6 +35,9 @@ public class EventTaskSchedulerAsyncService {
   private final SagaRepository sagaRepository;
   private final Map<String, Orchestrator> sagaOrchestrators = new HashMap<>();
   private final IncomingFilesetRepository incomingFilesetRepository;
+  private final DemographicStudentLightRepository demographicStudentLightRepository;
+  private final AssessmentStudentLightRepository assessmentStudentLightRepository;
+  private final CourseStudentLightRepository courseStudentLightRepository;
   private final ReportingPeriodRepository reportingPeriodRepository;
   @Setter
   private List<String> statusFilters;
@@ -47,9 +48,12 @@ public class EventTaskSchedulerAsyncService {
   private final CourseStudentService courseStudentService;
   private final ReportingPeriodService reportingPeriodService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, DemographicStudentLightRepository demographicStudentLightRepository, AssessmentStudentLightRepository assessmentStudentLightRepository, CourseStudentLightRepository courseStudentLightRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService) {
       this.sagaRepository = sagaRepository;
       this.incomingFilesetRepository = incomingFilesetRepository;
+      this.demographicStudentLightRepository = demographicStudentLightRepository;
+      this.assessmentStudentLightRepository = assessmentStudentLightRepository;
+      this.courseStudentLightRepository = courseStudentLightRepository;
       this.reportingPeriodRepository = reportingPeriodRepository;
       this.demographicStudentService = demographicStudentService;
       this.assessmentStudentService = assessmentStudentService;
@@ -99,21 +103,21 @@ public class EventTaskSchedulerAsyncService {
     completedFilesets.forEach(completedFileset -> completedFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode()));
     incomingFilesetRepository.saveAll(completedFilesets);
 
-    final var demographicStudentEntities = this.incomingFilesetRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
+    final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
     log.info("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
     if (!demographicStudentEntities.isEmpty()) {
       this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities);
       return;
     }
 
-    final var assessmentStudentEntities = this.incomingFilesetRepository.findTopLoadedAssessmentStudentForProcessing(numberOfStudentsToProcess);
+    final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(numberOfStudentsToProcess);
     log.info("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
     if (!assessmentStudentEntities.isEmpty()) {
       this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities);
       return;
     }
 
-    final var courseStudentEntities = this.incomingFilesetRepository.findTopLoadedCRSStudentForProcessing(numberOfStudentsToProcess);
+    final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(numberOfStudentsToProcess);
     log.info("Found :: {} course records in loaded status", courseStudentEntities.size());
     if (!courseStudentEntities.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities);

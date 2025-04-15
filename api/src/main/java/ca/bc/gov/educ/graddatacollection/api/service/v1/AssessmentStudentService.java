@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRunt
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -125,7 +126,7 @@ public class AssessmentStudentService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendAssessmentStudentsForFurtherProcessing(final List<AssessmentStudentEntity> assessmentStudentEntity) {
+    public void prepareAndSendAssessmentStudentsForFurtherProcessing(final List<AssessmentStudentLightEntity> assessmentStudentEntity) {
         final List<AssessmentStudentSagaData> assessmentStudentSagaData = assessmentStudentEntity.stream()
                 .map(el -> {
                     val gradAssessmentStudentSagaData = new AssessmentStudentSagaData();

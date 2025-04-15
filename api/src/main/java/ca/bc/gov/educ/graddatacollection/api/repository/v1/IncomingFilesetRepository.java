@@ -1,9 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.repository.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -37,44 +34,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     AND (select count(as2) from AssessmentStudentEntity as2 where as2.studentStatusCode = 'LOADED' and as2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) = 0
     """)
     List<IncomingFilesetEntity> findCompletedCollectionsForStatusUpdate();
-
-    @Query(value="""
-    SELECT dse FROM DemographicStudentEntity dse WHERE dse.demographicStudentID
-    NOT IN (SELECT saga.demographicStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.demographicStudentID IS NOT NULL)
-    AND dse.incomingFileset.demFileName is not null
-    AND dse.incomingFileset.crsFileName is not null
-    AND dse.incomingFileset.xamFileName is not null
-    AND dse.studentStatusCode = 'LOADED'
-    order by dse.createDate
-    LIMIT :numberOfStudentsToProcess""")
-    List<DemographicStudentEntity> findTopLoadedDEMStudentForProcessing(String numberOfStudentsToProcess);
-
-    @Query(value="""
-    SELECT cse FROM CourseStudentEntity cse WHERE cse.courseStudentID
-    NOT IN (SELECT saga.courseStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.courseStudentID IS NOT NULL)
-    AND cse.incomingFileset.demFileName is not null
-    AND cse.incomingFileset.crsFileName is not null
-    AND cse.incomingFileset.xamFileName is not null
-    AND cse.studentStatusCode = 'LOADED'
-    and (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = cse.incomingFileset.incomingFilesetID) = 0
-    order by cse.createDate
-    LIMIT :numberOfStudentsToProcess""")
-    List<CourseStudentEntity> findTopLoadedCRSStudentForProcessing(String numberOfStudentsToProcess);
-
-    @Query(value="""
-    SELECT ase FROM AssessmentStudentEntity ase WHERE ase.assessmentStudentID
-    NOT IN (SELECT saga.assessmentStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.assessmentStudentID IS NOT NULL)
-    AND ase.incomingFileset.demFileName is not null
-    AND ase.incomingFileset.crsFileName is not null
-    AND ase.incomingFileset.xamFileName is not null
-    and (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = ase.incomingFileset.incomingFilesetID) = 0
-    AND ase.studentStatusCode = 'LOADED'
-    order by ase.createDate
-    LIMIT :numberOfStudentsToProcess""")
-    List<AssessmentStudentEntity> findTopLoadedAssessmentStudentForProcessing(String numberOfStudentsToProcess);
 
     @Transactional
     @Modifying

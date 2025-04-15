@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRunt
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -135,7 +136,7 @@ public class DemographicStudentService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendDemStudentsForFurtherProcessing(final List<DemographicStudentEntity> demographicStudentEntities) {
+    public void prepareAndSendDemStudentsForFurtherProcessing(final List<DemographicStudentLightEntity> demographicStudentEntities) {
         final List<DemographicStudentSagaData> demographicStudentSagaData = demographicStudentEntities.stream()
                 .map(el -> {
                     val gradDemographicStudentSagaData = new DemographicStudentSagaData();
