@@ -56,13 +56,8 @@ public class InvalidRelatedCourseRule implements CourseValidationBaseRule {
                 && coursesRecord != null && !"Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
             log.debug("C19: Error: Invalid entry. A related course code can only be applied to an Independent Directed Studies course. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES.getMessage()));
-        }
-        if (courseStudent.getRelatedLevel() != null && StringUtils.isNotBlank(courseStudent.getRelatedLevel())
-                && coursesRecord != null &&!"Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
-            log.debug("C19: Error: Invalid entry. A related level can only be applied to an Independent Directed Studies course. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_LEVEL, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES.getMessage()));
         }
-
         return errors;
     }
 }
