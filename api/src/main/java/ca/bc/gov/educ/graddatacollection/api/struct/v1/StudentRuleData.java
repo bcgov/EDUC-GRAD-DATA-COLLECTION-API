@@ -34,5 +34,6 @@ public class StudentRuleData {
   private Boolean gradStudentRecordFetched = false;
   private AssessmentStudentDetailResponse assessmentStudentDetail;
   private CoregCoursesRecord coregCoursesRecord;
+  private CoregCoursesRecord coregRelatedCoursesRecord;
   private List<GradStudentCourseRecord> gradStudentCourseRecordList;
 }
