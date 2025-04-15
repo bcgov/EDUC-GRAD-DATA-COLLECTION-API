@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -49,10 +50,9 @@ public class InvalidRelatedCourseInCoRegRule implements CourseValidationBaseRule
         log.debug("In executeValidation of C28 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(),  courseStudent.getCourseLevel());
+        var coursesRecord = courseRulesService.getCoregRelatedCoursesRecord(studentRuleData, courseStudent.getRelatedCourse(),  courseStudent.getRelatedLevel());
 
-        // todo c28 can never be hit currently - rules it depends on require a courses record != null to pass
-        if (coursesRecord == null) {
+        if (StringUtils.isNotBlank(courseStudent.getRelatedCourse()) && StringUtils.isNotBlank(courseStudent.getRelatedLevel()) && coursesRecord == null) {
             log.debug("C28: Error: Invalid related course code used for the Independent Directed Studies course. Please check the Course Registry. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID.getMessage()));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_LEVEL, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID.getMessage()));

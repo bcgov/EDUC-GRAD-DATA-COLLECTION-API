@@ -83,14 +83,34 @@ public class BaseRulesService {
             return studentRuleData.getCoregCoursesRecord();
         }
 
-        try {
-            log.debug("Calling out for course with external ID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
-            CoregCoursesRecord coregCourses = restUtils.getCoursesByExternalID(UUID.randomUUID(), externalID);
-            studentRuleData.setCoregCoursesRecord(coregCourses);
+        CoregCoursesRecord coregCourses = getCoRegCourseRecord(externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        studentRuleData.setCoregCoursesRecord(coregCourses);
+        return coregCourses;
+    }
 
-            return coregCourses;
+    public CoregCoursesRecord getCoregRelatedCoursesRecord(StudentRuleData studentRuleData, String relatedCourseCode, String relatedCourseLevel) {
+        if (StringUtils.isEmpty(relatedCourseCode) ||  StringUtils.isEmpty(relatedCourseLevel)) {
+            log.debug("External ID components are empty. Skipping call out for course with related course code: {}, related course level: {}, for course student: {}", relatedCourseCode, relatedCourseLevel, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+            return null;
+        }
+
+        String paddedCourseCode = String.format("%-5s", relatedCourseCode);
+        String externalID = paddedCourseCode + relatedCourseLevel;
+
+        if (studentRuleData.getCoregRelatedCoursesRecord() != null) {
+            return studentRuleData.getCoregRelatedCoursesRecord();
+        }
+        CoregCoursesRecord coregRelatedCourses = getCoRegCourseRecord(externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+        studentRuleData.setCoregRelatedCoursesRecord(coregRelatedCourses);
+        return coregRelatedCourses;
+    }
+
+    public CoregCoursesRecord getCoRegCourseRecord(String externalID, UUID courseStudentID) {
+        try {
+            log.debug("Calling out for course with external ID: {} for course student: {}", externalID, courseStudentID);
+            return restUtils.getCoursesByExternalID(UUID.randomUUID(), externalID);
         } catch (EntityNotFoundException e) {
-            log.debug("No CoregCoursesRecord found for externalID: {} for course student: {}", externalID, studentRuleData.getCourseStudentEntity().getCourseStudentID());
+            log.debug("No CoRegCoursesRecord found for externalID: {} for course student: {}", externalID, courseStudentID);
             return null;
         }
     }
