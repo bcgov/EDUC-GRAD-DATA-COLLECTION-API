@@ -6,7 +6,7 @@ env:
   # To get a permanent token, refer to https://github.com/redhat-actions/oc-login/wiki/Using-a-Service-Account-for-GitHub-Actions
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE_DEV: ${{ secrets.GRAD_COLLECTION_NAMESPACE_NO_ENV }}-prod
+  OPENSHIFT_NAMESPACE_PROD: ${{ secrets.GRAD_COLLECTION_NAMESPACE_NO_ENV }}-prod
 
   DB_JDBC_CONNECT_STRING: ${{ secrets.DB_JDBC_CONNECT_STRING }}
   DB_PWD: ${{ secrets.DB_PWD }}
@@ -39,12 +39,10 @@ env:
   COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   GRAD_NAMESPACE: ${{ secrets.GRAD_NAMESPACE_NO_ENV }}
   TAG: "latest"
-  MIN_REPLICAS_DEV: "1"
-  MAX_REPLICAS_DEV: "2"
-  MIN_REPLICAS_TEST: "4"
-  MAX_REPLICAS_TEST: "5"
-  MIN_CPU: "250m"
-  MAX_CPU: "500m"
+  MIN_REPLICAS: "6"
+  MAX_REPLICAS: "7"
+  MIN_CPU: "750m"
+  MAX_CPU: "1000m"
   MIN_MEM: "512Mi"
   MAX_MEM: "1024Mi"
 
@@ -125,17 +123,17 @@ jobs:
           oc rollout cancel dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
           || true && echo "No rollout in progress"
           
-          oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }}
+          oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-prod/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }}
           
           # Process and apply deployment template with secrets
             oc process -f tools/openshift/api.deployment.yaml \
             -p APP_NAME=${{ env.APP_NAME }} \
             -p REPO_NAME=${{ env.REPO_NAME }} \
             -p BRANCH=${{ env.BRANCH }} \
-            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_DEV }} \
+            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_PROD }} \
             -p TAG=${{ env.TAG }} \
-            -p MIN_REPLICAS=${{ env.MIN_REPLICAS_DEV }} \
-            -p MAX_REPLICAS=${{ env.MAX_REPLICAS_DEV }} \
+            -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} \
+            -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
             -p MIN_CPU=${{ env.MIN_CPU }} \
             -p MAX_CPU=${{ env.MAX_CPU }} \
             -p MIN_MEM=${{ env.MIN_MEM }} \
