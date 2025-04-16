@@ -298,7 +298,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "PH", "CAREER-LIFE EDUCATION", 4, "12", "2023/06", "", "MET", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
+                                "131411258", "PH", "CAREER-LIFE EDUCATION", 4, "12", "2023/06", "", "MET", null, null, 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
                                 new GradCourseRecord(
                                         "PH", "12", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
                                 )
