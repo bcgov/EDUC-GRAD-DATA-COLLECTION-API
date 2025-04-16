@@ -1035,6 +1035,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
         assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
         assertThat(entity.getXamFileName()).isEqualTo("summer-reporting.XAM");
+        assertThat(entity.getCsvFileName()).isEqualTo("summer-reporting.xlsx");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
 
         final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());

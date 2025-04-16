@@ -50,7 +50,7 @@ public class InvalidRelatedCourseRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C19 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var coursesRecord = courseRulesService.getCoregRelatedCoursesRecord(studentRuleData, courseStudent.getRelatedCourse(), courseStudent.getRelatedLevel());
+        var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(), courseStudent.getCourseLevel());
 
         if (StringUtils.isNotBlank(courseStudent.getRelatedCourse()) && StringUtils.isNotBlank(courseStudent.getRelatedLevel())
                 && coursesRecord != null && !"Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
