@@ -114,6 +114,7 @@ public class ProcessSummerStudentService {
         incomingFilesetEntity.setDemFileName(incomingFileName.split("\\.")[0] + ".DEM");
         incomingFilesetEntity.setCrsFileName(incomingFileName.split("\\.")[0] + ".CRS");
         incomingFilesetEntity.setXamFileName(incomingFileName.split("\\.")[0] + ".XAM");
+        incomingFilesetEntity.setCsvFileName(incomingFileName);
 
         for (final var student : demFile.getDemogData()) {
             final var demStudentEntity = mapper.toDEMStudentEntity(student, incomingFilesetEntity);

@@ -70,6 +70,9 @@ public class IncomingFilesetEntity {
     @Column(name = "UPDATE_DATE")
     private LocalDateTime updateDate;
 
+    @Column(name = "CSV_FILE_NAME")
+    private String csvFileName;
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = DemographicStudentEntity.class)
