@@ -38,13 +38,12 @@ public class CourseRulesService extends BaseRulesService {
         return null;
     }
 
-    public Boolean letterGradeMatch(LetterGrade letterGrade, String finalGrade) {
+    public Boolean letterGradeMatch(LetterGrade letterGrade, String finalGrade, LocalDate sessionStartDate) {
         // expiry dates can be null
         LocalDate effectiveDate = ZonedDateTime.parse(letterGrade.getEffectiveDate()).toLocalDate();
         LocalDate expiryDate = letterGrade.getExpiryDate() != null ? ZonedDateTime.parse(letterGrade.getExpiryDate()).toLocalDate() : null;
-        LocalDate currentDate = LocalDate.now();
 
-        boolean isWithinDateRange = currentDate.isAfter(effectiveDate) && (expiryDate == null || currentDate.isBefore(expiryDate));
+        boolean isWithinDateRange = sessionStartDate.isAfter(effectiveDate) && (expiryDate == null || sessionStartDate.isBefore(expiryDate));
 
         return isWithinDateRange && letterGrade.getGrade().equalsIgnoreCase(finalGrade);
     }
