@@ -56,7 +56,7 @@ public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(true);
-        if (StringUtils.isNotBlank(student.getFinalLetterGrade()) && letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getFinalLetterGrade()))) {
+        if (letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getFinalLetterGrade()))) {
             log.debug("C32: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
         }
