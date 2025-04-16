@@ -280,6 +280,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
 
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError1.size()).isZero();
