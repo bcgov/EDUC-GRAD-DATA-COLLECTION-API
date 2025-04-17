@@ -155,16 +155,10 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     private boolean validateCourseYearAndMonth(CourseStudentEntity courseStudentEntity, String guid, String lineNumber) throws FileUnProcessableException {
         if(StringUtils.isNotEmpty(courseStudentEntity.getCourseMonth()) && StringUtils.isNumeric(courseStudentEntity.getCourseMonth())
                 && StringUtils.isNotEmpty(courseStudentEntity.getCourseYear()) && StringUtils.isNumeric(courseStudentEntity.getCourseYear())) {
-            LocalDate courseSessionStart = null;
-            LocalDate courseSessionEnd = null;
 
-            if(LocalDate.now().getMonth().getValue() > 9) {
-                courseSessionStart = LocalDate.of(LocalDate.now().getYear(), 9, 1);
-                courseSessionEnd = LocalDate.of(LocalDate.now().getYear() + 1, 8, 31);
-            } else {
-                courseSessionStart = LocalDate.of(LocalDate.now().getYear() - 1, 9, 1);
-                courseSessionEnd = LocalDate.of(LocalDate.now().getYear(), 8, 31);
-            }
+            ReportingPeriodEntity reportingPeriodEntity = reportingPeriodRepository.findActiveReportingPeriod().orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "currentDate", String.valueOf(LocalDateTime.now())));
+            LocalDate courseSessionStart = LocalDate.now();
+            LocalDate courseSessionEnd = reportingPeriodEntity.getSummerEnd().toLocalDate();
 
             LocalDate incomingCourseSession = null;
             try {
