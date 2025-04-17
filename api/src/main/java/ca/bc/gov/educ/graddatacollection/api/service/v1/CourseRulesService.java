@@ -38,16 +38,6 @@ public class CourseRulesService extends BaseRulesService {
         return null;
     }
 
-    public Boolean letterGradeMatch(LetterGrade letterGrade, String finalGrade, LocalDate sessionStartDate) {
-        // expiry dates can be null
-        LocalDate effectiveDate = ZonedDateTime.parse(letterGrade.getEffectiveDate()).toLocalDate();
-        LocalDate expiryDate = letterGrade.getExpiryDate() != null ? ZonedDateTime.parse(letterGrade.getExpiryDate()).toLocalDate() : null;
-
-        boolean isWithinDateRange = sessionStartDate.isAfter(effectiveDate) && (expiryDate == null || sessionStartDate.isBefore(expiryDate));
-
-        return isWithinDateRange && letterGrade.getGrade().equalsIgnoreCase(finalGrade);
-    }
-
     public boolean checkIfStudentHasDuplicateInFileset(String pen, String courseCode, String courseMonth, String courseYear, String courseLevel) {
         return courseStudentRepository.countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEqualsAndCourseLevelEquals(pen, courseCode, courseMonth, courseYear, courseLevel) > 1;
     }

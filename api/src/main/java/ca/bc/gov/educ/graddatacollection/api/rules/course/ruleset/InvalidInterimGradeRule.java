@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C23 | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C16|
+ *  | C23 | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C160, C07, C08|
  *
  */
 @Component
@@ -29,11 +29,9 @@ import java.util.List;
 public class InvalidInterimGradeRule implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
-    private final CourseRulesService courseRulesService;
 
     public InvalidInterimGradeRule(RestUtils restUtils, CourseRulesService courseRulesService) {
         this.restUtils = restUtils;
-        this.courseRulesService = courseRulesService;
     }
 
     @Override
@@ -55,10 +53,10 @@ public class InvalidInterimGradeRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C23 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(true);
         LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
+        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
-        if (letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getInterimGrade(), sessionStartDate))) {
+        if (student.getInterimGrade() != null && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getInterimGrade()))) {
             log.debug("C23: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage()));
         }

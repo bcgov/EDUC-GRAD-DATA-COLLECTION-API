@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C32 | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C24 |
+ *  | C32 | ERROR    | Must be a valid letter grade for the course session provided	          | C03, C07, C08, C24 |
  *
  */
 @Component
@@ -30,11 +30,9 @@ import java.util.List;
 public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
-    private final CourseRulesService courseRulesService;
 
     public InvalidFinalLetterGrade(RestUtils restUtils, CourseRulesService courseRulesService) {
         this.restUtils = restUtils;
-        this.courseRulesService = courseRulesService;
     }
 
     @Override
@@ -56,10 +54,10 @@ public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
         log.debug("In executeValidation of C32 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(true);
         LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
+        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
-        if (letterGradeList.stream().noneMatch(letterGrade -> courseRulesService.letterGradeMatch(letterGrade, student.getFinalLetterGrade(), sessionStartDate))) {
+        if (student.getFinalLetterGrade() != null && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getFinalLetterGrade()))) {
             log.debug("C32: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
         }
