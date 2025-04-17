@@ -4,12 +4,9 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Service
@@ -36,17 +33,6 @@ public class CourseRulesService extends BaseRulesService {
             return results.getFirst();
         }
         return null;
-    }
-
-    public Boolean letterGradeMatch(LetterGrade letterGrade, String finalGrade) {
-        // expiry dates can be null
-        LocalDate effectiveDate = ZonedDateTime.parse(letterGrade.getEffectiveDate()).toLocalDate();
-        LocalDate expiryDate = letterGrade.getExpiryDate() != null ? ZonedDateTime.parse(letterGrade.getExpiryDate()).toLocalDate() : null;
-        LocalDate currentDate = LocalDate.now();
-
-        boolean isWithinDateRange = currentDate.isAfter(effectiveDate) && (expiryDate == null || currentDate.isBefore(expiryDate));
-
-        return isWithinDateRange && letterGrade.getGrade().equalsIgnoreCase(finalGrade);
     }
 
     public boolean checkIfStudentHasDuplicateInFileset(String pen, String courseCode, String courseMonth, String courseYear, String courseLevel) {

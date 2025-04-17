@@ -14,6 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,8 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
                 YearMonth cutoffDate = YearMonth.of(1994, 9);
 
                 if (courseSession.isAfter(cutoffDate)) {
-                    List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(true);
+                    LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
+                    List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
                     int finalPercentage = Integer.parseInt(student.getFinalPercentage());
                     Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getFinalLetterGrade())).findFirst();

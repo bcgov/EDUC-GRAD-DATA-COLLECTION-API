@@ -68,7 +68,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         this.incomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
 
-        when(restUtils.getLetterGradeList(true)).thenReturn(
+        when(restUtils.getLetterGradeList(any())).thenReturn(
                 List.of(
                         new LetterGrade("A", "4", "Y", "The student demonstrates excellent or outstanding performance in relation to expected learning outcomes for the course or subject and grade.", "A", 100, 86, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("B", "3", "Y", "", "B", 85, 73, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
@@ -652,8 +652,12 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         // Case 6: Boundary case - last month of next school year
         courseStudent.setCourseYear(String.valueOf(nextSchoolYearEnd.getYear()));
         courseStudent.setCourseMonth("09");
-        courseStudent.setFinalLetterGrade("");
+        courseStudent.setFinalLetterGrade(null);
+        System.out.println("courseStudent");
+        System.out.println(courseStudent);
         val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        System.out.println("problem righ here");
+        System.out.println(validationError6);
         assertThat(validationError6.size()).isZero();
 
         // Case 7: Boundary case - just before the earliest valid date
@@ -1698,7 +1702,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_YEAR.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getCode());
 
-        courseStudent.setCourseYear("");
+        courseStudent.setCourseYear(null);
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_YEAR.getCode());

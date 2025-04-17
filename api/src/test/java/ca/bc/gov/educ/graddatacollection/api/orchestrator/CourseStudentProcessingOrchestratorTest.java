@@ -80,7 +80,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
-        when(restUtils.getLetterGradeList(true)).thenReturn(
+        when(restUtils.getLetterGradeList(any())).thenReturn(
                 List.of(
                         new LetterGrade("A", "4", "Y", "The student demonstrates excellent or outstanding performance in relation to expected learning outcomes for the course or subject and grade.", "A", 100, 86, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("B", "3", "Y", "", "B", 85, 73, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
