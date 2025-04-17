@@ -82,7 +82,7 @@ public class ReportingPeriodValidator {
             }
 
             if (schYrStart.isAfter(now) && summerStart.isAfter(now)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod, "No active reporting period — both periods would bve scheduled to start in the future."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod, "No active reporting period — both periods would be scheduled to start in the future."));
             }
 
         } catch (DateTimeParseException e) {
