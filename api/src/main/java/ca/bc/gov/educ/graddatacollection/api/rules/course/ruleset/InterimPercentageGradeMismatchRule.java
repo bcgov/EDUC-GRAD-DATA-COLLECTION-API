@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,7 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C29 | ERROR    | Interim percent must match interim letter grade if interim letter 	  |C03, C22, C23 |
+ *  | C29 | ERROR    | Interim percent must match interim letter grade if interim letter 	  |C03, C07, C08, C22, C23 |
  *  |      |          | grade provided
  */
 @Component
@@ -59,7 +60,8 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
             return errors;
         }
 
-        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(true);
+        LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
+        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
         int interimPercentage = Integer.parseInt(student.getInterimPercentage());
         Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimGrade())).findFirst();
