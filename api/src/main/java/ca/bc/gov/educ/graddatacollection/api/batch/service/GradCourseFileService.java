@@ -172,12 +172,12 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 var courseYear = Integer.parseInt(courseStudentEntity.getCourseYear());
                 incomingCourseSession = LocalDate.of(courseYear, courseMonth, 1);
             } catch (Exception e) {
-                throw new FileUnProcessableException(INCORRECT_COURSE_DATE_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lineNumber);
+                return false;
             }
             return (incomingCourseSession.isEqual(courseSessionStart) || incomingCourseSession.isAfter(courseSessionStart))
                     && (incomingCourseSession.isEqual(courseSessionEnd) || incomingCourseSession.isBefore(courseSessionEnd));
         }
-        throw new FileUnProcessableException(INCORRECT_COURSE_DATE_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lineNumber);
+        return false;
     }
 
     @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
