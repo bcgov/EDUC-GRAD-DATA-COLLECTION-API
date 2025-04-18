@@ -35,7 +35,7 @@ public class CourseRulesService extends BaseRulesService {
         return null;
     }
 
-    public boolean checkIfStudentHasDuplicateInFileset(String pen, String courseCode, String courseMonth, String courseYear, String courseLevel) {
-        return courseStudentRepository.countByPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEqualsAndCourseLevelEquals(pen, courseCode, courseMonth, courseYear, courseLevel) > 1;
+    public boolean checkIfStudentHasDuplicateInFileset(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear, String courseLevel) {
+        return courseStudentRepository.countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEqualsAndCourseLevelEquals(incomingFilesetID, pen, courseCode, courseMonth, courseYear, courseLevel) > 1;
     }
 }

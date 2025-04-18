@@ -50,7 +50,7 @@ public class DuplicateCourseSessionRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C06 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (courseRulesService.checkIfStudentHasDuplicateInFileset(student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear(), student.getCourseLevel())) {
+        if (courseRulesService.checkIfStudentHasDuplicateInFileset(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear(), student.getCourseLevel())) {
             log.debug("C06: Error: Duplicate course and session date reported for the same student. These courses will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage()));
         }

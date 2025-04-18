@@ -39,7 +39,7 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C29: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C29", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C29", validationErrorsMap) && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getInterimGrade());
 
         log.debug("In shouldExecute of C29: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
