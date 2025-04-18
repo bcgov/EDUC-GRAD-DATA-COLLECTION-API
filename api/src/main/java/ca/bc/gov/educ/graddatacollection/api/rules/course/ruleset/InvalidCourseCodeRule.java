@@ -63,7 +63,7 @@ public class InvalidCourseCodeRule implements CourseValidationBaseRule {
             if (!hasTRAX && !hasMyEdBC) {
                 log.debug("C03: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
-            }else if(hasMyEdBC) {
+            }else if(!hasTRAX && hasMyEdBC) {
                 log.debug("C03: Error2: The submitted course code is a local course code, not a ministry code. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getMessage()));
             }

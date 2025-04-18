@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.course.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FineArtsAppliedSkillsCourseGradReqt;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
@@ -7,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRu
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -54,7 +56,7 @@ public class GraduationProgramCourseRule implements CourseValidationBaseRule {
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(), courseStudent.getCourseLevel());
 
         if (coursesRecord != null && demStudent != null) {
-            if (
+            if ((StringUtils.isNotBlank(courseStudent.getCourseGraduationRequirement()) && FineArtsAppliedSkillsCourseGradReqt.getCodes().contains(courseStudent.getCourseGraduationRequirement())) &&
                 ("2004".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2018".equalsIgnoreCase(demStudent.getGradRequirementYear()) || "2023".equalsIgnoreCase(demStudent.getGradRequirementYear()))
                 && coursesRecord.getCourseCategory() != null
                 && !("CC".equalsIgnoreCase(coursesRecord.getCourseCategory().getType()) && "BA".equalsIgnoreCase(coursesRecord.getCourseCategory().getCode()))
