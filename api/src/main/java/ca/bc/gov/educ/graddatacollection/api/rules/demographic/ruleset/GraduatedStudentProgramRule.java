@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -55,11 +56,19 @@ public class GraduatedStudentProgramRule implements DemographicValidationBaseRul
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         String studentProgram = student.getGradRequirementYear();
 
-        if (gradStudent != null &&
-            gradStudent.getGraduated().equalsIgnoreCase("true")) {
-            log.debug("StudentProgram-D17: Error: The student has already graduated so their program code cannot be changed. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
-            String message = "The student has a "+ StringEscapeUtils.escapeHtml4(studentProgram)+" completion date so the program code cannot be changed or removed.";
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, message));
+
+        // Prog Completion
+        // If you have a prog completion date in GRAD, you can't change it unless it's SCCP and there's another one incoming
+
+        if (gradStudent != null && StringUtils.isNotBlank(gradStudent.getProgramCompletionDate()) && StringUtils.isNotBlank(gradStudent.getProgram())) {
+            var program = gradStudent.getProgram().length() >= 4 ? gradStudent.getProgram().substring(0, 4) : null;
+            if ((!program.equalsIgnoreCase("SCCP") &&
+                    (StringUtils.isBlank(studentProgram) || !studentProgram.equalsIgnoreCase(program))) ||
+                    (program.equalsIgnoreCase("SCCP") && StringUtils.isBlank(studentProgram))) {
+                log.debug("StudentProgram-D17: Error: The student has already graduated so their program code cannot be changed. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
+                String message = "The student has a " + StringEscapeUtils.escapeHtml4(studentProgram) + " completion date so the program code cannot be changed or removed.";
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, message));
+            }
         }
 
         return errors;

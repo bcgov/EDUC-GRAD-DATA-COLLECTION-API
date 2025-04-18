@@ -820,6 +820,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("true");
         gradStudentRecord.setProgramCompletionDate("2023-01-01 00:00:00.000");
+        gradStudentRecord.setProgram("2018");
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
