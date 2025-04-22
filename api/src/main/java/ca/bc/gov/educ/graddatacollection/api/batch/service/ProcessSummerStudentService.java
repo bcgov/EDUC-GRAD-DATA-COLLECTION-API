@@ -158,7 +158,7 @@ public class ProcessSummerStudentService {
         }
 
         if(StringUtils.isNotBlank(session)) {
-            courseYear = session.substring(0, 3);
+            courseYear = session.substring(0, 4);
             courseMonth = session.substring(4);
         }
 
