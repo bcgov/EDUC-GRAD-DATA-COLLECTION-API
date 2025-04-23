@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,13 +70,13 @@ public class BaseRulesService {
     }
 
     public CoregCoursesRecord getCoregCoursesRecord(StudentRuleData studentRuleData, String courseCode, String courseLevel) {
-        if (StringUtils.isEmpty(courseCode) ||  StringUtils.isEmpty(courseLevel)) {
+        if (StringUtils.isEmpty(courseCode)) {
             log.debug("External ID components are empty. Skipping call out for course with course code: {}, course level: {}, for course student: {}", courseCode, courseLevel, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             return null;
         }
 
         String paddedCourseCode = String.format("%-5s", courseCode);
-        String externalID = paddedCourseCode + courseLevel;
+        String externalID = courseLevel != null ? paddedCourseCode + courseLevel : paddedCourseCode;
 
         if (studentRuleData.getCoregCoursesRecord() != null) {
             return studentRuleData.getCoregCoursesRecord();
@@ -89,13 +88,13 @@ public class BaseRulesService {
     }
 
     public CoregCoursesRecord getCoregRelatedCoursesRecord(StudentRuleData studentRuleData, String relatedCourseCode, String relatedCourseLevel) {
-        if (StringUtils.isEmpty(relatedCourseCode) ||  StringUtils.isEmpty(relatedCourseLevel)) {
+        if (StringUtils.isEmpty(relatedCourseCode)) {
             log.debug("External ID components are empty. Skipping call out for course with related course code: {}, related course level: {}, for course student: {}", relatedCourseCode, relatedCourseLevel, studentRuleData.getCourseStudentEntity().getCourseStudentID());
             return null;
         }
 
         String paddedCourseCode = String.format("%-5s", relatedCourseCode);
-        String externalID = paddedCourseCode + relatedCourseLevel;
+        String externalID = relatedCourseLevel != null ? paddedCourseCode + relatedCourseLevel : paddedCourseCode;
 
         if (studentRuleData.getCoregRelatedCoursesRecord() != null) {
             return studentRuleData.getCoregRelatedCoursesRecord();
