@@ -23,7 +23,6 @@ public class ReportingPeriodValidator {
     public static final String REPORITNG_PERIOD_ID = "reportingPeriodId";
     public static final String SCHOOL_YEAR_START = "School Year Start";
     public static final String SUMMER_START = "Summer Start";
-    public static final String INVALID_PERIOD =  "Invalid Period";
 
     private final ReportingPeriodRepository reportingPeriodRepository;
 
@@ -75,14 +74,6 @@ public class ReportingPeriodValidator {
             }
             if (summerStart.isBefore(schYrEnd)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "Summer must start after School Year ends."));
-            }
-
-            if (schYrEnd.isBefore(now) && summerEnd.isBefore(now)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod, "No active reporting period — both periods would be closed."));
-            }
-
-            if (schYrStart.isAfter(now) && summerStart.isAfter(now)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod, "No active reporting period — both periods would be scheduled to start in the future."));
             }
 
         } catch (DateTimeParseException e) {
