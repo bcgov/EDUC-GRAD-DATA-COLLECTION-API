@@ -75,8 +75,7 @@ public class BaseRulesService {
             return null;
         }
 
-        String paddedCourseCode = String.format("%-5s", courseCode);
-        String externalID = courseLevel != null ? paddedCourseCode + courseLevel : paddedCourseCode;
+        String externalID = StringUtils.isEmpty(courseLevel) ? courseCode : String.format("%-5s", courseCode) + courseLevel;
 
         if (studentRuleData.getCoregCoursesRecord() != null) {
             return studentRuleData.getCoregCoursesRecord();
@@ -93,8 +92,7 @@ public class BaseRulesService {
             return null;
         }
 
-        String paddedCourseCode = String.format("%-5s", relatedCourseCode);
-        String externalID = relatedCourseLevel != null ? paddedCourseCode + relatedCourseLevel : paddedCourseCode;
+        String externalID = StringUtils.isEmpty(relatedCourseLevel) ? relatedCourseCode : String.format("%-5s", relatedCourseCode) + relatedCourseLevel;
 
         if (studentRuleData.getCoregRelatedCoursesRecord() != null) {
             return studentRuleData.getCoregRelatedCoursesRecord();
