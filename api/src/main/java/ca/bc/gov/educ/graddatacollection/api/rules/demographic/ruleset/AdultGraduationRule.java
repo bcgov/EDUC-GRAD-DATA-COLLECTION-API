@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -57,7 +58,7 @@ public class AdultGraduationRule implements DemographicValidationBaseRule {
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
-        if (gradStudent == null &&
+        if (gradStudent == null && StringUtils.isNotBlank(student.getGradRequirementYear()) &&
             GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(code -> code.equalsIgnoreCase(student.getGradRequirementYear())) &&
             Period.between(LocalDate.parse(student.getBirthdate(), DateTimeFormatter.ofPattern("yyyyMMdd")), LocalDate.from(student.getIncomingFileset().getDemFileUploadDate())).getYears() < 18) {
             log.debug("StudentAdultBirthdate-D23: Student must be on the SCCP program. SCCP Completion date not updated. for demographicStudentID :: {}", student.getDemographicStudentID());

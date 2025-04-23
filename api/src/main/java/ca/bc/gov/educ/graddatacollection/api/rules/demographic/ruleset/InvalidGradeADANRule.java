@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +48,8 @@ public class InvalidGradeADANRule implements DemographicValidationBaseRule {
         log.debug("In executeValidation of StudentGrade-D24 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        if (GradRequirementYearCodes.getNonAdultGraduationProgramYearCodes().stream().anyMatch(nonAdultGradYear -> nonAdultGradYear.equalsIgnoreCase(student.getGradRequirementYear()))
+        if (StringUtils.isNotBlank(student.getGradRequirementYear()) && StringUtils.isNotBlank(student.getGrade())
+            && GradRequirementYearCodes.getNonAdultGraduationProgramYearCodes().stream().anyMatch(nonAdultGradYear -> nonAdultGradYear.equalsIgnoreCase(student.getGradRequirementYear()))
             && SchoolGradeCodes.getGradAdultGrades().stream().anyMatch(validGrade -> validGrade.equalsIgnoreCase(student.getGrade()))) {
             log.debug("StudentGrade-D24:  Student grade should not be AD or AN for the reported graduation program for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_OG_INVALID.getMessage()));
