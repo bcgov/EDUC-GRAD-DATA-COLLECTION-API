@@ -48,16 +48,17 @@ class ReportingPeriodValidatorTest {
     void testOverlappingSchoolAndSummerPeriods_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
-                .schYrStart("2025-10-01T00:00:00")
-                .schYrEnd("2026-06-30T00:00:00")
-                .summerStart("2026-06-01T00:00:00") // overlaps with school year
-                .summerEnd("2026-08-31T00:00:00")
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-06-01T00:00:00") // overlaps with school year
+                .summerEnd("2025-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
 
         assertEquals(3, errors.stream()
-                .filter(e -> e.getField().equals(SCHOOL_YEAR_START) || e.getField().equals(SUMMER_START))
+                .filter(e -> e.getField().equals(SCHOOL_YEAR_START)
+                        || e.getField().equals(SUMMER_START))
                 .count());
     }
 
@@ -65,14 +66,19 @@ class ReportingPeriodValidatorTest {
     void testOutOfBoundsDates_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
-                .schYrStart("2023-09-30T00:00:00") // before Oct 1
-                .schYrEnd("2025-10-01T00:00:00")   // after Sep 30
+                .schYrStart("2023-09-30T00:00:00") // before Oct 1 of current cycle
+                .schYrEnd("2025-10-01T00:00:00")   // after Sep 30 of current cycle
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
-        assertEquals(2, errors.stream().filter(e -> e.getField().equals(SCHOOL_YEAR_START)).count());
+
+        // Only count the cycle-boundary errors for school year
+        long cycleErrors = errors.stream()
+                .filter(e -> e.getDefaultMessage().contains("within the reporting cycle"))
+                .count();
+        assertEquals(1, cycleErrors);
     }
 
     @Test
@@ -124,6 +130,7 @@ class ReportingPeriodValidatorTest {
         assertEquals(1, errors.size());
         assertEquals("reportingPeriodId", errors.get(0).getField());
     }
+
     @Test
     void testSchoolYearStartAfterSummerStart_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
@@ -144,10 +151,10 @@ class ReportingPeriodValidatorTest {
     }
 
     @Test
-    void testBothPeriodsInFuture_NoCurrentPeriod_ReturnsError() {
+    void testBothPeriodsInFuture_ReturnsCycleErrors() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
-                .schYrStart("2025-10-01T00:00:00")
+                .schYrStart("2025-10-01T00:00:00") // after cycle end
                 .schYrEnd("2026-06-30T00:00:00")
                 .summerStart("2026-07-01T00:00:00")
                 .summerEnd("2026-08-31T00:00:00")
@@ -155,6 +162,28 @@ class ReportingPeriodValidatorTest {
 
         List<FieldError> errors = validator.validatePayload(period);
 
-        assertEquals(0, errors.size());
+        // Expect one cycle-boundary error for each period
+        long cycleFieldErrors = errors.stream()
+                .filter(e -> e.getField().equals(SCHOOL_YEAR_START)
+                        || e.getField().equals(SUMMER_START))
+                .count();
+        assertEquals(2, cycleFieldErrors);
+    }
+
+    @Test
+    void testBothPeriodsInPast_NoActivePeriod_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-01-01T00:00:00")
+                .schYrEnd("2024-03-30T00:00:00")
+                .summerStart("2024-04-01T00:00:00")
+                .summerEnd("2024-04-30T00:00:00")
+                .build();
+
+        List<FieldError> errors = validator.validatePayload(period);
+
+        assertEquals(1, errors.stream()
+                .filter(e -> e.getField().equals(INVALID_PERIOD) && e.getDefaultMessage().contains("No active reporting period"))
+                .count());
     }
 }
