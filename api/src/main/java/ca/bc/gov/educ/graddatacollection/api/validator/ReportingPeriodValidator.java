@@ -48,7 +48,6 @@ public class ReportingPeriodValidator {
 
             LocalDateTime cycleStart = LocalDateTime.of(schYrStart.getYear(), 10, 1, 0, 0);
             LocalDateTime cycleEnd = LocalDateTime.of(summerEnd.getYear(), 9, 30, 23, 59);
-            LocalDateTime now = LocalDateTime.now();
 
             if (schYrStart.isAfter(schYrEnd)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year start date must be before or equal to end date."));
