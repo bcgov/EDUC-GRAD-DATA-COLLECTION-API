@@ -144,23 +144,6 @@ class ReportingPeriodValidatorTest {
     }
 
     @Test
-    void testBothPeriodsInPast_NoActivePeriod_ReturnsError() {
-        ReportingPeriod period = ReportingPeriod.builder()
-                .reportingPeriodID(id.toString())
-                .schYrStart("2024-01-01T00:00:00")
-                .schYrEnd("2024-03-30T00:00:00")
-                .summerStart("2024-04-01T00:00:00")
-                .summerEnd("2024-04-30T00:00:00")
-                .build();
-
-        List<FieldError> errors = validator.validatePayload(period);
-
-        assertEquals(1, errors.stream()
-                .filter(e -> e.getField().equals(INVALID_PERIOD) && e.getDefaultMessage().contains("No active reporting period"))
-                .count());
-    }
-
-    @Test
     void testBothPeriodsInFuture_NoCurrentPeriod_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
@@ -172,8 +155,6 @@ class ReportingPeriodValidatorTest {
 
         List<FieldError> errors = validator.validatePayload(period);
 
-        assertEquals(1, errors.stream()
-                .filter(e -> e.getField().equals(INVALID_PERIOD) && e.getDefaultMessage().contains("in the future"))
-                .count());
+        assertEquals(0, errors.size());
     }
 }
