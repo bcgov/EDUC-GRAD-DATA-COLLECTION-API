@@ -993,6 +993,50 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testD12BlankGradRequirement_Error_When_BlankYear_NotSummer_NotFNS_IsGraduated() {
+        var reportingPeriodEntity = createMockReportingPeriodEntity();
+        reportingPeriodEntity.setSummerStart(LocalDateTime.now().minusDays(2));
+        reportingPeriodEntity.setSummerEnd(LocalDateTime.now().plusDays(2));
+        var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        var assessmentStudent = createMockAssessmentStudent();
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        var school = createMockSchool();
+
+        var gradStudentRecord = new GradStudentRecord();
+        demStudent.setGradRequirementYear("");
+        demStudent.setGrade(SchoolGradeCodes.GRADUATED_ADULT.getCode());
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        gradStudentRecord.setProgramCompletionDate("2025-01-15 00:00:00.000");
+        gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+
+        StudentRuleData studentRuleDataError = new StudentRuleData();
+        studentRuleDataError.setDemographicStudentEntity(demStudent);
+        studentRuleDataError.setCourseStudentEntity(courseStudent);
+        studentRuleDataError.setAssessmentStudentEntity(assessmentStudent);
+        studentRuleDataError.setSchool(school);
+        studentRuleDataError.setGradStudentRecord(gradStudentRecord);
+
+        val validationErrorsError = rulesProcessor.processRules(studentRuleDataError);
+
+        var d12ErrorOptional = validationErrorsError.stream()
+                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getCode()))
+                .findFirst();
+
+        assertThat(d12ErrorOptional)
+                .isPresent();
+
+        d12ErrorOptional.ifPresent(err -> {
+            assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.ERROR.getCode());
+        });
+    }
+
+    @Test
     void testD12BlankGradRequirement_Valid_When_NotGraduated() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
