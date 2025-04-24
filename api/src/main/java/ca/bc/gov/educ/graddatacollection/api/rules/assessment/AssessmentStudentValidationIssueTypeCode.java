@@ -9,7 +9,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
 
   DEM_DATA_MISSING("DEM_DATA_MISSING", "This student appears in the XAM file but is missing from the DEM file."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level value is ignored and must be blank."),
-  COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "The session code is not a valid ministry assessment session code. The student registration will not be updated."),
+  COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "The session date is not in the current school year. The student registration will not be updated."),
   COURSE_SESSION_INVALID_MONTH("COURSE_SESSION_INVALID_MONTH", "The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated."),
   COURSE_SESSION_DUP("COURSE_SESSION_DUP", "The student has already received a Proficiency Score or Special Case for this assessment session."),
   COURSE_SESSION_EXCEED("COURSE_SESSION_EXCEED", "The student has reached the maximum number of writes for %s. The registration will not be updated."),
