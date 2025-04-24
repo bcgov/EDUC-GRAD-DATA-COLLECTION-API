@@ -43,6 +43,14 @@ public class ReportingPeriodEntity {
     @Column(name = "SUMMER_END", nullable = false)
     private LocalDateTime summerEnd;
 
+    @NotNull(message = "periodStart cannot be null")
+    @Column(name = "PERIOD_START", nullable = false, updatable = false)
+    private LocalDateTime periodStart;
+
+    @NotNull(message = "periodEnd cannot be null")
+    @Column(name = "PERIOD_END", nullable = false, updatable = false)
+    private LocalDateTime periodEnd;
+
     @NotNull(message = "create user cannot be null")
     @Size(max = 100)
     @Column(name = "CREATE_USER", nullable = false, updatable = false)

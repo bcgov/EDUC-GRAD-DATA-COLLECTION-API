@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,15 +46,8 @@ public class ReportingPeriodValidator {
             LocalDateTime schYrEnd = LocalDateTime.parse(reportingPeriod.getSchYrEnd());
             LocalDateTime summerStart = LocalDateTime.parse(reportingPeriod.getSummerStart());
             LocalDateTime summerEnd = LocalDateTime.parse(reportingPeriod.getSummerEnd());
-
-            // derive reporting‐cycle start/end from today
-            LocalDateTime now = LocalDateTime.now();
-            LocalDate today = LocalDate.now();
-            int year = today.getYear();
-            int startYear = (today.getMonthValue() >= 10) ? year : year - 1;
-            int endYear   = startYear + 1;
-            LocalDateTime cycleStart = LocalDateTime.of(startYear, Month.OCTOBER,   1,  0,  0);
-            LocalDateTime cycleEnd   = LocalDateTime.of(endYear,   Month.SEPTEMBER, 30, 23, 59);
+            LocalDateTime periodStart = LocalDateTime.parse(reportingPeriod.getPeriodStart());
+            LocalDateTime periodEnd = LocalDateTime.parse(reportingPeriod.getPeriodEnd());
 
             if (schYrStart.isAfter(schYrEnd)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year start date must be before or equal to end date."));
@@ -65,32 +56,24 @@ public class ReportingPeriodValidator {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "Summer start date must be before or equal to end date."));
             }
 
-            if (schYrStart.isBefore(cycleStart) || schYrEnd.isAfter(cycleEnd)) {
+            if (schYrStart.isBefore(periodStart) || schYrEnd.isAfter(periodEnd) || schYrStart.isAfter(periodEnd) || schYrEnd.isBefore(periodStart)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year must be within the reporting cycle (Oct 1 to Sep 30)."));
             }
-            if (summerStart.isBefore(cycleStart) || summerEnd.isAfter(cycleEnd)) {
+
+            if (summerStart.isBefore(periodStart) || summerEnd.isAfter(periodEnd) || summerStart.isAfter(periodEnd) || summerEnd.isBefore(periodStart)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "Summer must be within the reporting cycle (Oct 1 to Sep 30)."));
             }
 
             if (dateTimeRangesOverlap(schYrStart, schYrEnd, summerStart, summerEnd)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year and Summer periods must not overlap."));
-                apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "School Year and Summer periods must not overlap."));
+                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod.getSummerStart(), "School Year and Summer periods must not overlap."));
             }
 
-            if (schYrStart.isAfter(summerStart)) {
+            if (schYrStart.isAfter(summerStart) || schYrEnd.isAfter(summerStart)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_YEAR_START, reportingPeriod.getSchYrStart(), "School Year must start before Summer."));
             }
 
-            if (summerStart.isBefore(schYrEnd)) {
+            if (summerStart.isBefore(schYrEnd) || summerEnd.isBefore(schYrEnd)) {
                 apiValidationErrors.add(ValidationUtil.createFieldError(SUMMER_START, reportingPeriod.getSummerStart(), "Summer must start after School Year ends."));
-            }
-
-            if (schYrEnd.isBefore(now) && summerEnd.isBefore(now)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod, "No active reporting period — both periods would be closed."));
-            }
-
-            if (schYrStart.isAfter(now) && summerStart.isAfter(now)) {
-                apiValidationErrors.add(ValidationUtil.createFieldError(INVALID_PERIOD, reportingPeriod, "No active reporting period — both periods would be scheduled to start in the future."));
             }
 
         } catch (DateTimeParseException e) {

@@ -39,6 +39,8 @@ class ReportingPeriodControllerTest {
                 .schYrEnd(LocalDateTime.of(2025, 7, 18, 0, 0))
                 .summerStart(LocalDateTime.of(2025, 8, 18, 0, 0))
                 .summerEnd(LocalDateTime.of(2025, 8, 18, 0, 0))
+                .periodStart(LocalDateTime.of(2022, 8, 18, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 8, 18, 0, 0))
                 .build();
 
         when(reportingPeriodService.getActiveReportingPeriod()).thenReturn(entity);
@@ -61,6 +63,8 @@ class ReportingPeriodControllerTest {
                 .schYrEnd("2025-07-18T00:00:00")
                 .summerStart("2025-08-18T00:00:00")
                 .summerEnd("2025-08-18T00:00:00")
+                .periodStart("2022-08-18T00:00:00")
+                .periodEnd("2026-08-18T00:00:00")
                 .updateUser("tester")
                 .build();
 
@@ -70,6 +74,8 @@ class ReportingPeriodControllerTest {
                 .schYrEnd(LocalDateTime.of(2025, 7, 18, 0, 0))
                 .summerStart(LocalDateTime.of(2025, 8, 18, 0, 0))
                 .summerEnd(LocalDateTime.of(2025, 8, 18, 0, 0))
+                .periodStart(LocalDateTime.of(2022, 8, 18, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 8, 18, 0, 0))
                 .build();
 
         when(reportingPeriodService.updateReportingPeriod(any())).thenReturn(saved);
@@ -80,6 +86,8 @@ class ReportingPeriodControllerTest {
         assertEquals("2025-07-18T00:00:00", result.getSchYrEnd());
         assertEquals("2025-08-18T00:00:00", result.getSummerStart());
         assertEquals("2025-08-18T00:00:00", result.getSummerEnd());
+        assertEquals("2022-08-18T00:00:00", result.getPeriodStart());
+        assertEquals("2026-08-18T00:00:00", result.getPeriodEnd());
         verify(reportingPeriodValidator).validatePayload(input);
     }
 
@@ -92,6 +100,8 @@ class ReportingPeriodControllerTest {
                 .schYrEnd(LocalDateTime.of(2024, 6, 30, 0, 0))
                 .summerStart(LocalDateTime.of(2024, 7, 1, 0, 0))
                 .summerEnd(LocalDateTime.of(2024, 8, 31, 0, 0))
+                .periodStart(LocalDateTime.of(2022, 8, 18, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 8, 18, 0, 0))
                 .build();
 
         when(reportingPeriodService.getPreviousReportingPeriod()).thenReturn(previousEntity);
