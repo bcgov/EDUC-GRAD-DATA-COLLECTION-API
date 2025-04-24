@@ -45,7 +45,7 @@ public class ReportingPeriodService {
         final Optional<ReportingPeriodEntity> curOptionalReportingPeriodEntity = reportingPeriodRepository.findById(reportingPeriodEntity.getReportingPeriodID());
         if (curOptionalReportingPeriodEntity.isPresent()) {
             ReportingPeriodEntity curReportingPeriodEntity = curOptionalReportingPeriodEntity.get();
-            BeanUtils.copyProperties(reportingPeriodEntity, curReportingPeriodEntity, "reportingPeriodID", "createUser", "createDate", "incomingFilesets", "reportingPeriodID");
+            BeanUtils.copyProperties(reportingPeriodEntity, curReportingPeriodEntity, "reportingPeriodID", "createUser", "createDate", "incomingFilesets", "reportingPeriodID", "periodStart", "periodEnd");
             return reportingPeriodRepository.save(curReportingPeriodEntity);
         } else {
             throw new EntityNotFoundException(ReportingPeriodEntity.class, "ReportingPeriodEntity", reportingPeriodEntity.getReportingPeriodID().toString());
