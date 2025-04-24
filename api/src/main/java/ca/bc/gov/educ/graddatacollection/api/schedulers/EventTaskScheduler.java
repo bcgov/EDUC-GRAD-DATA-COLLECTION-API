@@ -33,7 +33,6 @@ public class EventTaskScheduler {
     this.taskSchedulerAsyncService = taskSchedulerAsyncService;
   }
 
-
   @Scheduled(cron = "${scheduled.jobs.extract.uncompleted.sagas.cron}") // 1 * * * * *
   @SchedulerLock(name = "EXTRACT_UNCOMPLETED_SAGAS",
     lockAtLeastFor = "${scheduled.jobs.extract.uncompleted.sagas.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.extract.uncompleted.sagas.cron.lockAtMostFor}")
@@ -43,7 +42,6 @@ public class EventTaskScheduler {
     this.getTaskSchedulerAsyncService().findAndProcessUncompletedSagas();
     log.debug("Scheduler findAndProcessPendingSagaEvents complete");
   }
-
 
   @Scheduled(cron = "${scheduled.jobs.process.loaded.grad.students.cron}")
   @SchedulerLock(name = "PROCESS_LOADED_STUDENTS", lockAtLeastFor = "${scheduled.jobs.process.loaded.grad.students.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.loaded.grad.students.cron.lockAtMostFor}")
@@ -59,7 +57,7 @@ public class EventTaskScheduler {
   public void setupReportingPeriodForUpcomingYear() {
     LockAssert.assertLocked();
     log.debug("Started setupReportingPeriodForUpcomingYear scheduler");
-    this.getTaskSchedulerAsyncService().createReportingPeriodForYear();
+    this.getTaskSchedulerAsyncService().createReportingPeriodForYearAndPurge5YearOldFilesets();
     log.debug("Scheduler setupReportingPeriodForYear complete");
   }
 }

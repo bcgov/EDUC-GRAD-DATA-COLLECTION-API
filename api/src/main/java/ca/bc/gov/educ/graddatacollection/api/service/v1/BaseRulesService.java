@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -127,6 +130,13 @@ public class BaseRulesService {
             log.debug("No gradStudentCourses found for externalID: {}", pen);
             return null;
         }
+    }
+
+    public boolean isSummerCollection(IncomingFilesetEntity incomingFilesetEntity) {
+        ReportingPeriodEntity reportingPeriod = incomingFilesetEntity.getReportingPeriod();
+        LocalDateTime now = LocalDateTime.now();
+        return (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
+                && (now.isEqual(reportingPeriod.getSummerEnd()) || now.isBefore(reportingPeriod.getSummerEnd()));
     }
 }
 

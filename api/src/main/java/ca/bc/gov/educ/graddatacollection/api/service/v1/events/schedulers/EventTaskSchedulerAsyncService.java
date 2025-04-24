@@ -124,14 +124,16 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Transactional
-  public void createReportingPeriodForYear(){
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void createReportingPeriodForYearAndPurge5YearOldFilesets(){
     int schoolYearStart = LocalDate.now().getYear();
     try {
       if (this.reportingPeriodRepository.upcomingReportingPeriodDoesNotExist(schoolYearStart)) {
         log.debug("Creating reporting period for {}/{}", schoolYearStart, schoolYearStart + 1);
         this.reportingPeriodService.createReportingPeriodForYear();
       }
+      log.info("Purging incoming filesets which are 5 years old");
+      this.reportingPeriodService.purgeReportingPeriodFor5YearsAgo();
     } catch (Exception e) {
       log.error("Error creating reporting period for {}/{}: ", schoolYearStart, schoolYearStart + 1, e);
     }

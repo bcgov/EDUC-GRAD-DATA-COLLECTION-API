@@ -63,8 +63,9 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         List<OptionalProgramCode> optionalProgramCodes = restUtils.getOptionalProgramCodeList();
 
         if (StringUtils.isNotBlank(student.getProgramCode1())) {
-            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode1().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode1().substring(2)));
-            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode1().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode1().substring(2)));
+            var programCode = extractProgramCode(student.getProgramCode1());
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
             if(!isValidCareerProgram && !isValidOptionalProgram) {
                     log.debug(DEBUG_MSG, student.getProgramCode1(), student.getDemographicStudentID());
@@ -78,8 +79,9 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode2())) {
-            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode2().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode2().substring(2)));
-            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode2().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode2().substring(2)));
+            var programCode = extractProgramCode(student.getProgramCode2());
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
             if(!isValidCareerProgram && !isValidOptionalProgram) {
                     log.debug(DEBUG_MSG, student.getProgramCode2(), student.getDemographicStudentID());
@@ -93,8 +95,9 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode3())) {
-            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode3().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode3().substring(2)));
-            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode3().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode3().substring(2)));
+            var programCode = extractProgramCode(student.getProgramCode3());
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
             if(!isValidCareerProgram && !isValidOptionalProgram) {
                     log.debug(DEBUG_MSG, student.getProgramCode3(), student.getDemographicStudentID());
@@ -108,8 +111,9 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode4())) {
-            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode4().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode4().substring(2)));
-            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode4().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode4().substring(2)));
+            var programCode = extractProgramCode(student.getProgramCode4());
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
             if(!isValidCareerProgram && !isValidOptionalProgram) {
                     log.debug(DEBUG_MSG, student.getProgramCode4(), student.getDemographicStudentID());
@@ -123,8 +127,9 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode5())) {
-            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> student.getProgramCode5().length() > 2 && careerProgramCode.getCode().equalsIgnoreCase(student.getProgramCode5().substring(2)));
-            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> student.getProgramCode5().length() > 2 && optionalProgramCode.getOptProgramCode().equalsIgnoreCase(student.getProgramCode5().substring(2)));
+            var programCode = extractProgramCode(student.getProgramCode5());
+            var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
+            var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
             if(!isValidCareerProgram && !isValidOptionalProgram) {
                     log.debug(DEBUG_MSG, student.getProgramCode5(), student.getDemographicStudentID());
@@ -138,5 +143,14 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
         }
 
         return errors;
+    }
+
+    private String extractProgramCode(String incomingProgramCode) {
+        if(incomingProgramCode.length() == 3) {
+            return incomingProgramCode.substring(1);
+        } else if(incomingProgramCode.length() == 4) {
+            return incomingProgramCode.substring(2);
+        }
+        return incomingProgramCode;
     }
 }
