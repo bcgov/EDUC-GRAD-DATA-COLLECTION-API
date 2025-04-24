@@ -38,6 +38,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-06-30T00:00:00")
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -52,6 +54,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-06-30T00:00:00")
                 .summerStart("2025-06-01T00:00:00") // overlaps with school year
                 .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -70,6 +74,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-10-01T00:00:00")   // after Sep 30 of current cycle
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -89,6 +95,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-01-01T00:00:00")
                 .summerStart("2025-08-01T00:00:00")
                 .summerEnd("2025-07-01T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -106,6 +114,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-01-01T00:00:00")
                 .summerStart("2025-08-01T00:00:00")
                 .summerEnd("2025-09-01T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -122,6 +132,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-06-30T00:00:00")
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         when(reportingPeriodRepository.findById(badId)).thenReturn(Optional.empty());
@@ -139,6 +151,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-08-31T00:00:00")
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-07-31T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -158,6 +172,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2026-06-30T00:00:00")
                 .summerStart("2026-07-01T00:00:00")
                 .summerEnd("2026-08-31T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -178,6 +194,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2024-03-30T00:00:00")
                 .summerStart("2024-04-01T00:00:00")
                 .summerEnd("2024-04-30T00:00:00")
+                .periodStart("2020-07-30T00:00:00")
+                .periodEnd("2026-08-31T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);

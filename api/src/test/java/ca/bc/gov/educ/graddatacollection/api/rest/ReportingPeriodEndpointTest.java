@@ -27,6 +27,8 @@ class ReportingPeriodEndpointTest {
                 .schYrEnd("2025-06-30")
                 .summerStart("2025-07-01")
                 .summerEnd("2025-08-31")
+                .periodStart("2022-09-01")
+                .periodEnd("2027-10-30")
                 .build();
 
         when(reportingPeriodEndpoint.getActiveReportingPeriod()).thenReturn(dummyPeriod);
@@ -43,6 +45,8 @@ class ReportingPeriodEndpointTest {
                 .schYrEnd("2026-06-30")
                 .summerStart("2026-07-01")
                 .summerEnd("2026-08-31")
+                .periodStart("2022-09-01")
+                .periodEnd("2027-10-30")
                 .build();
 
         when(reportingPeriodEndpoint.updateReportingPeriod(input)).thenReturn(input);

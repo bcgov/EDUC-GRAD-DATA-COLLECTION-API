@@ -71,6 +71,8 @@ public abstract class BaseGradDataCollectionAPITest {
             .schYrEnd(schYearEnd)
             .summerStart(summerStart)
             .summerEnd(summerEnd)
+            .periodStart(schYearStart)
+            .periodEnd(summerEnd)
             .createDate(LocalDateTime.now().minusMonths(2))
             .updateDate(LocalDateTime.now().minusMonths(2))
             .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)

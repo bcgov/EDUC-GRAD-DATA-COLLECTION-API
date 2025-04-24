@@ -50,6 +50,7 @@ public class ReportingPeriodValidator {
             LocalDateTime summerEnd = LocalDateTime.parse(reportingPeriod.getSummerEnd());
 
             // derive reporting‐cycle start/end from today
+            // todo this is going to be derived from the payload with period start and end dates - update tests after
             LocalDateTime now = LocalDateTime.now();
             LocalDate today = LocalDate.now();
             int year = today.getYear();
