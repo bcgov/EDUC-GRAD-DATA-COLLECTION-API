@@ -140,7 +140,7 @@ public class DemographicStudentEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "demographicStudent", fetch = FetchType.EAGER, cascade = CascadeType.ALL, targetEntity = DemographicStudentValidationIssueEntity.class)
+  @OneToMany(mappedBy = "demographicStudent", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = DemographicStudentValidationIssueEntity.class)
   Set<DemographicStudentValidationIssueEntity> demographicStudentValidationIssueEntities;
 
   public Set<DemographicStudentValidationIssueEntity> getDemographicStudentValidationIssueEntities() {

@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRu
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -49,7 +50,7 @@ public class CourseDescriptionRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C21 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (courseStudent.getCourseDescription() != null) {
+        if (StringUtils.isNotBlank(courseStudent.getCourseDescription())) {
 
             var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(), courseStudent.getCourseLevel());
 

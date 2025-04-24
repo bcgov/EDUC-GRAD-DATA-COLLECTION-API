@@ -41,10 +41,6 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     EventTaskSchedulerAsyncService eventTaskSchedulerAsyncService;
     @Autowired
-    SagaRepository sagaRepository;
-    @Autowired
-    SagaEventRepository sagaEventRepository;
-    @Autowired
     MessagePublisher messagePublisher;
     @MockBean
     protected RestUtils restUtils;
@@ -152,7 +148,6 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    @Transactional
     void testSetupReportingPeriodForUpcomingYear() {
         int currentYear = LocalDate.now().getYear();
 
@@ -172,7 +167,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         LocalDate thirdSeptemberFridayDate = dateInSeptember.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
         LocalDateTime summerEnd = thirdSeptemberFridayDate.atStartOfDay();
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYear();
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
 
         List<ReportingPeriodEntity> reportingPeriods = reportingPeriodRepository.findAll();
         assertThat(reportingPeriods)
@@ -183,5 +178,19 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
                     assertThat(period.getSummerStart()).isEqualTo(summerStart);
                     assertThat(period.getSummerEnd()).isEqualTo(summerEnd);
                 });
+    }
+
+    @Test
+    void testSetupReportingPeriodForUpcomingYearAndOldFilesets() {
+        var pe = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+
+        var fileset = createMockIncomingFilesetEntityWithAllFilesLoaded(pe);
+        fileset.setCreateDate(LocalDateTime.now().minusYears(6));
+        incomingFilesetRepository.save(fileset);
+
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
+
+        var incomingSets = incomingFilesetRepository.findAll();
+        assertThat(incomingSets).hasSize(0);
     }
 }
