@@ -32,4 +32,10 @@ public class ReportingPeriod extends BaseRequest implements Serializable {
     @NotNull(message = "summerEnd cannot be null")
     private String summerEnd;
 
+    @NotNull(message = "periodStart cannot be null")
+    private String periodStart;
+
+    @NotNull(message = "periodEnd cannot be null")
+    private String periodEnd;
+
 }
