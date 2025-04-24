@@ -167,6 +167,12 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         LocalDate thirdSeptemberFridayDate = dateInSeptember.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
         LocalDateTime summerEnd = thirdSeptemberFridayDate.atStartOfDay();
 
+        LocalDate periodStartDate = LocalDate.of(currentYear, Month.OCTOBER, 1);
+        LocalDateTime periodStart = periodStartDate.atStartOfDay();
+
+        LocalDate periodEndDate = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 30);
+        LocalDateTime periodEnd = periodEndDate.atTime(23, 59, 59, 999_000_000);
+
         eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
 
         List<ReportingPeriodEntity> reportingPeriods = reportingPeriodRepository.findAll();
@@ -177,6 +183,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
                     assertThat(period.getSchYrEnd()).isEqualTo(schoolYearEnd);
                     assertThat(period.getSummerStart()).isEqualTo(summerStart);
                     assertThat(period.getSummerEnd()).isEqualTo(summerEnd);
+                    assertThat(period.getPeriodStart()).isEqualTo(periodStart);
+                    assertThat(period.getPeriodEnd()).isEqualTo(periodEnd);
                 });
     }
 
@@ -194,3 +202,4 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         assertThat(incomingSets).hasSize(0);
     }
 }
+
