@@ -109,6 +109,6 @@ public class ReportingPeriodService {
 
     private LocalDateTime getPeriodEnd(int startYear) {
         LocalDate dateInSeptember = LocalDate.of(startYear + 1, Month.SEPTEMBER, 30);
-        return dateInSeptember.atTime(23, 59, 59, 999_000_000);
+        return dateInSeptember.atTime(23, 59, 59, 0);
     }
 }

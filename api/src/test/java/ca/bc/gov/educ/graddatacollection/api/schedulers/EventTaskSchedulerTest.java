@@ -171,7 +171,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         LocalDateTime periodStart = periodStartDate.atStartOfDay();
 
         LocalDate periodEndDate = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 30);
-        LocalDateTime periodEnd = periodEndDate.atTime(23, 59, 59, 999_000_000);
+        LocalDateTime periodEnd = periodEndDate.atTime(23, 59, 59, 0);
 
         eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
 
