@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C37 | ERROR    | Final letter grade must match final pct unless course session is	  |C03,C32,C30,C31  |
+ *  | C37  | ERROR    | Final letter grade must match final pct unless course session is	  |C03,C32,C30,C31  |
  *  |      |          | prior to 199409.
  */
 @Component
