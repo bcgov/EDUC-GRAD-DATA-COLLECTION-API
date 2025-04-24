@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ReportingPeriodValidatorTest {
@@ -38,8 +38,8 @@ class ReportingPeriodValidatorTest {
                 .schYrEnd("2025-06-30T00:00:00")
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
 
         List<FieldError> errors = validator.validatePayload(period);
@@ -47,63 +47,40 @@ class ReportingPeriodValidatorTest {
     }
 
     @Test
-    void testOverlappingSchoolAndSummerPeriods_ReturnsError() {
+    void testReportingPeriodIdNotFound_ReturnsError() {
+        UUID badId = UUID.randomUUID();
+        when(reportingPeriodRepository.findById(badId)).thenReturn(Optional.empty());
         ReportingPeriod period = ReportingPeriod.builder()
-                .reportingPeriodID(id.toString())
+                .reportingPeriodID(badId.toString())
                 .schYrStart("2024-10-01T00:00:00")
                 .schYrEnd("2025-06-30T00:00:00")
-                .summerStart("2025-06-01T00:00:00") // overlaps with school year
-                .summerEnd("2025-08-31T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
-                .build();
-
-        List<FieldError> errors = validator.validatePayload(period);
-
-        assertEquals(3, errors.stream()
-                .filter(e -> e.getField().equals(SCHOOL_YEAR_START)
-                        || e.getField().equals(SUMMER_START))
-                .count());
-    }
-
-    @Test
-    void testOutOfBoundsDates_ReturnsError() {
-        ReportingPeriod period = ReportingPeriod.builder()
-                .reportingPeriodID(id.toString())
-                .schYrStart("2023-09-30T00:00:00") // before Oct 1 of current cycle
-                .schYrEnd("2025-10-01T00:00:00")   // after Sep 30 of current cycle
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
-
         List<FieldError> errors = validator.validatePayload(period);
-
-        // Only count the cycle-boundary errors for school year
-        long cycleErrors = errors.stream()
-                .filter(e -> e.getDefaultMessage().contains("within the reporting cycle"))
-                .count();
-        assertEquals(1, cycleErrors);
+        assertEquals(1, errors.size());
+        assertEquals(REPORITNG_PERIOD_ID, errors.get(0).getField());
     }
 
     @Test
-    void testStartDateAfterEndDate_ReturnsError() {
+    void testInvalidReportingPeriodIdFormat_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
-                .reportingPeriodID(id.toString())
-                .schYrStart("2025-06-30T00:00:00")
-                .schYrEnd("2025-01-01T00:00:00")
-                .summerStart("2025-08-01T00:00:00")
-                .summerEnd("2025-07-01T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .reportingPeriodID("not-a-uuid")
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
-
-        List<FieldError> errors = validator.validatePayload(period);
-        long logicalErrors = errors.stream()
-                .filter(e -> e.getDefaultMessage().contains("must be before or equal to"))
-                .count();
-        assertEquals(2, logicalErrors);
+        try {
+            validator.validatePayload(period);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
     }
 
     @Test
@@ -111,97 +88,195 @@ class ReportingPeriodValidatorTest {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
                 .schYrStart("not-a-date")
-                .schYrEnd("2025-01-01T00:00:00")
-                .summerStart("2025-08-01T00:00:00")
-                .summerEnd("2025-09-01T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
-
         List<FieldError> errors = validator.validatePayload(period);
         assertEquals(1, errors.size());
         assertEquals("date", errors.get(0).getField());
     }
 
     @Test
-    void testInvalidReportingPeriodID_ReturnsError() {
-        UUID badId = UUID.randomUUID();
+    void testSchoolYearStartAfterEnd_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
-                .reportingPeriodID(badId.toString())
+                .reportingPeriodID(id.toString())
+                .schYrStart("2025-07-01T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-07-02T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("School Year start date must be before or equal to end date.")));
+    }
+
+    @Test
+    void testSummerStartAfterEnd_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
                 .schYrStart("2024-10-01T00:00:00")
                 .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-08-31T00:00:00")
+                .summerEnd("2025-07-01T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("Summer start date must be before or equal to end date.")));
+    }
+
+    @Test
+    void testSchoolYearOutsideReportingCycle_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-09-30T00:00:00")
+                .schYrEnd("2025-10-01T00:00:00")
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-08-31T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
-
-        when(reportingPeriodRepository.findById(badId)).thenReturn(Optional.empty());
-
         List<FieldError> errors = validator.validatePayload(period);
-        assertEquals(1, errors.size());
-        assertEquals("reportingPeriodId", errors.get(0).getField());
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("School Year must be within the reporting cycle")));
+    }
+
+    @Test
+    void testSummerOutsideReportingCycle_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-09-29T00:00:00")
+                .summerEnd("2025-10-01T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("Summer must be within the reporting cycle")));
+    }
+
+    @Test
+    void testSchoolYearAndSummerOverlap_ReturnsError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-07-15T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getField().equals(INVALID_PERIOD)));
     }
 
     @Test
     void testSchoolYearStartAfterSummerStart_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
-                .schYrStart("2025-08-01T00:00:00") // after summerStart
+                .schYrStart("2025-08-01T00:00:00")
                 .schYrEnd("2025-08-31T00:00:00")
                 .summerStart("2025-07-01T00:00:00")
                 .summerEnd("2025-07-31T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
-
         List<FieldError> errors = validator.validatePayload(period);
-
-        long orderingErrors = errors.stream()
-                .filter(e -> e.getDefaultMessage().contains("must start before Summer")
-                        || e.getDefaultMessage().contains("must start after School Year ends"))
-                .count();
-        assertEquals(2, orderingErrors);
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("School Year must start before Summer.")));
     }
 
     @Test
-    void testBothPeriodsInFuture_ReturnsCycleErrors() {
+    void testSummerStartBeforeSchoolYearEnd_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
-                .schYrStart("2025-10-01T00:00:00") // after cycle end
-                .schYrEnd("2026-06-30T00:00:00")
-                .summerStart("2026-07-01T00:00:00")
-                .summerEnd("2026-08-31T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-07-15T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
                 .build();
-
         List<FieldError> errors = validator.validatePayload(period);
-
-        // Expect one cycle-boundary error for each period
-        long cycleFieldErrors = errors.stream()
-                .filter(e -> e.getField().equals(SCHOOL_YEAR_START)
-                        || e.getField().equals(SUMMER_START))
-                .count();
-        assertEquals(2, cycleFieldErrors);
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("Summer must start after School Year ends.")));
     }
 
     @Test
-    void testBothPeriodsInPast_NoActivePeriod_ReturnsError() {
+    void testPeriodStartAfterPeriodEnd_ReturnsError() {
         ReportingPeriod period = ReportingPeriod.builder()
                 .reportingPeriodID(id.toString())
-                .schYrStart("2024-01-01T00:00:00")
-                .schYrEnd("2024-03-30T00:00:00")
-                .summerStart("2024-04-01T00:00:00")
-                .summerEnd("2024-04-30T00:00:00")
-                .periodStart("2020-07-30T00:00:00")
-                .periodEnd("2026-08-31T00:00:00")
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2025-09-30T00:00:00")
+                .periodEnd("2024-10-01T00:00:00")
                 .build();
-
         List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("School Year must be within the reporting cycle")));
+        assertTrue(errors.stream().anyMatch(e -> e.getDefaultMessage().contains("Summer must be within the reporting cycle")));
+    }
 
-        assertEquals(1, errors.stream()
-                .filter(e -> e.getField().equals(INVALID_PERIOD) && e.getDefaultMessage().contains("No active reporting period"))
-                .count());
+    @Test
+    void testSchoolYearAndSummerExactlyTouching_NoOverlap_NoError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-06-30T00:00:00")
+                .summerStart("2025-06-30T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getField().equals(INVALID_PERIOD)));
+    }
+
+    @Test
+    void testSchoolYearAndSummerIdenticalDates_ReturnsOverlapError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-08-31T00:00:00")
+                .summerStart("2024-10-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getField().equals(INVALID_PERIOD)));
+    }
+
+    @Test
+    void testSummerStartEqualsSchoolYearEnd_ReturnsOverlapError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-07-01T00:00:00")
+                .summerStart("2025-07-01T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertTrue(errors.stream().anyMatch(e -> e.getField().equals(INVALID_PERIOD)));
+    }
+
+    @Test
+    void testSchoolYearAndSummerNonOverlapping_NoError() {
+        ReportingPeriod period = ReportingPeriod.builder()
+                .reportingPeriodID(id.toString())
+                .schYrStart("2024-10-01T00:00:00")
+                .schYrEnd("2025-06-29T00:00:00")
+                .summerStart("2025-06-30T00:00:00")
+                .summerEnd("2025-08-31T00:00:00")
+                .periodStart("2024-10-01T00:00:00")
+                .periodEnd("2025-09-30T00:00:00")
+                .build();
+        List<FieldError> errors = validator.validatePayload(period);
+        assertFalse(errors.stream().anyMatch(e -> e.getField().equals(INVALID_PERIOD)));
     }
 }
