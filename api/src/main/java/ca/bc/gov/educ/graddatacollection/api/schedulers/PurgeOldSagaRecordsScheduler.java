@@ -45,9 +45,8 @@ public class PurgeOldSagaRecordsScheduler {
   public void pollSagaTableAndPurgeOldRecords() {
     LockAssert.assertLocked();
     final LocalDateTime createDateToCompare = this.calculateCreateDateBasedOnStaleSagaRecordInDays();
-    this.sagaEventRepository.deleteBySagaCreateDateBefore(createDateToCompare);
     this.sagaRepository.deleteByCreateDateBefore(createDateToCompare);
-    log.info("Purged old saga and event records from EDUC-STUDENT-DATA-COLLECTION-SAGA-API");
+    log.info("Purged old saga and event records from EDUC-GRAD-DATA-COLLECTION-SAGA-API");
   }
 
   private LocalDateTime calculateCreateDateBasedOnStaleSagaRecordInDays() {
