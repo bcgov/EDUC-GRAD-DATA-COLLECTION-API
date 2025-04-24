@@ -11,19 +11,19 @@ import java.util.UUID;
 
 public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriodEntity, UUID>, JpaSpecificationExecutor<ReportingPeriodEntity> {
 
-    @Query("SELECT rp FROM ReportingPeriodEntity rp WHERE CURRENT_TIMESTAMP BETWEEN rp.schYrStart AND rp.summerEnd")
+    @Query("SELECT rp FROM ReportingPeriodEntity rp WHERE CURRENT_TIMESTAMP BETWEEN rp.periodStart AND rp.periodEnd")
     Optional<ReportingPeriodEntity> findActiveReportingPeriod();
 
     @Query("""
            SELECT prev_rp
            FROM ReportingPeriodEntity prev_rp
-           WHERE prev_rp.schYrStart = (
-               SELECT MAX(inner_prev_rp.schYrStart)
+           WHERE prev_rp.periodStart = (
+               SELECT MAX(inner_prev_rp.periodStart)
                FROM ReportingPeriodEntity inner_prev_rp
-               WHERE inner_prev_rp.schYrStart < (
-                   SELECT active_rp.schYrStart
+               WHERE inner_prev_rp.periodStart < (
+                   SELECT active_rp.periodStart
                    FROM ReportingPeriodEntity active_rp
-                   WHERE CURRENT_TIMESTAMP BETWEEN active_rp.schYrStart AND active_rp.summerEnd
+                   WHERE CURRENT_TIMESTAMP BETWEEN active_rp.periodStart AND active_rp.periodEnd
                )
            )
            """)
@@ -32,7 +32,7 @@ public interface ReportingPeriodRepository extends JpaRepository<ReportingPeriod
     @Query("""
             SELECT COUNT(rp) = 0
             FROM ReportingPeriodEntity rp
-            WHERE EXTRACT(YEAR FROM rp.schYrStart) = :schoolYearStart
+            WHERE EXTRACT(YEAR FROM rp.periodStart) = :schoolYearStart
         """)
     boolean upcomingReportingPeriodDoesNotExist(@Param("schoolYearStart") int schoolYearStart);
 
