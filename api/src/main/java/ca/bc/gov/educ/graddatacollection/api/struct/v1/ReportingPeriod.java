@@ -37,5 +37,4 @@ public class ReportingPeriod extends BaseRequest implements Serializable {
 
     @NotNull(message = "periodEnd cannot be null")
     private String periodEnd;
-
 }
