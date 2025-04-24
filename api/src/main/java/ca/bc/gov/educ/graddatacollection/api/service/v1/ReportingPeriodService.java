@@ -60,6 +60,8 @@ public class ReportingPeriodService {
                 .schYrEnd(getSchoolYearEnd(currentYear))
                 .summerStart(getSummerStart(currentYear))
                 .summerEnd(getSummerEnd(currentYear))
+                .periodStart(getPeriodStart(currentYear))
+                .periodEnd(getPeriodEnd(currentYear))
                 .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
                 .createDate(LocalDateTime.now())
                 .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
@@ -98,5 +100,15 @@ public class ReportingPeriodService {
         LocalDate dateInSeptember = LocalDate.of(startYear + 1, Month.SEPTEMBER, 1);
         LocalDate thirdSeptemberFridayDate = dateInSeptember.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
         return thirdSeptemberFridayDate.atStartOfDay();
+    }
+
+    private LocalDateTime getPeriodStart(int startYear) {
+        LocalDate dateInOctober = LocalDate.of(startYear, Month.OCTOBER, 1);
+        return dateInOctober.atStartOfDay();
+    }
+
+    private LocalDateTime getPeriodEnd(int startYear) {
+        LocalDate dateInSeptember = LocalDate.of(startYear + 1, Month.SEPTEMBER, 30);
+        return dateInSeptember.atTime(23, 59, 59, 999_000_000);
     }
 }
