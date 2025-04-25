@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -51,12 +52,14 @@ public class EffectiveGradeInGradRule implements DemographicValidationBaseRule {
         log.debug("In executeValidation of StudentGrade-D15 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var activeGradGrades = restUtils.getGradGradeList(true);
-        var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
+        if(StringUtils.isNotBlank(student.getGrade())) {
+            var activeGradGrades = restUtils.getGradGradeList(true);
+            var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
 
-        if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N") ) {
-            log.debug("StudentGrade-D15: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage()));
+            if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N")) {
+                log.debug("StudentGrade-D15: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage()));
+            }
         }
         return errors;
     }
