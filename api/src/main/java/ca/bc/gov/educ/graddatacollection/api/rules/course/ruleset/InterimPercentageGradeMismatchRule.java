@@ -54,23 +54,19 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
         log.debug("In executeValidation of C29 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        if (StringUtils.isBlank(student.getInterimPercentage())) {
-            log.debug("C29: Interim percentage is missing while an interim letter grade is provided for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
-            return errors;
-        }
-
         LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
-        int interimPercentage = Integer.parseInt(student.getInterimPercentage());
-        Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimGrade())).findFirst();
+        if (StringUtils.isNotBlank(student.getInterimPercentage())) {
+            int interimPercentage = Integer.parseInt(student.getInterimPercentage());
+            Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimGrade())).findFirst();
 
-        if (optionalStudentLetterGrade.isEmpty() ||
-                interimPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
-                interimPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
-            log.debug("C29: Error: The interim percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+            if (optionalStudentLetterGrade.isEmpty() ||
+                    interimPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
+                    interimPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
+                log.debug("C29: Error: The interim percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+            }
         }
         return errors;
     }
