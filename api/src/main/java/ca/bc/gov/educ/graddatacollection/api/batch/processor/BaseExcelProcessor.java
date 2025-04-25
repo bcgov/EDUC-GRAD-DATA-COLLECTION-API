@@ -100,7 +100,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         if (rowNum == 0) {
             this.handleHeaderRow(r, cn, guid, headersMap);
         } else if (StringUtils.isNotBlank(headersMap.get(cn))) {
-            this.handleEachCell(r, cn, headersMap, summerStudent, schoolID, districtID, guid);
+            this.handleEachCell(r, cn, rowNum, headersMap, summerStudent, schoolID, districtID, guid);
         }
     }
 
@@ -114,7 +114,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         headerOptional.ifPresent(header -> headersMap.put(cn, StringUtils.trim(header.getCode())));
     }
 
-    private void handleEachCell(final Row r, final int cn, final Map<Integer, String> headersMap, final SummerStudentData summerStudent, final String schoolID, final String districtID, final String guid) throws FileUnProcessableException {
+    private void handleEachCell(final Row r, final int cn, final int rowNum, final Map<Integer, String> headersMap, final SummerStudentData summerStudent, final String schoolID, final String districtID, final String guid) throws FileUnProcessableException {
         final Cell cell = r.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
         val headerNamesOptional = Headers.fromString(headersMap.get(cn));
         if (headerNamesOptional.isPresent()) {
@@ -124,34 +124,34 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
                     this.setSchoolCode(summerStudent, cell, header.getType(), schoolID, districtID, guid);
                     break;
                 case PEN:
-                    this.setPen(summerStudent, cell, header.getType(), guid, cn);
+                    this.setPen(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case LEGAL_SURNAME:
-                    this.setLegalSurname(summerStudent, cell, header.getType(), guid, cn);
+                    this.setLegalSurname(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case LEGAL_MIDDLE_NAME:
-                    this.setMiddleName(summerStudent, cell, header.getType(), guid, cn);
+                    this.setMiddleName(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case LEGAL_FIRST_NAME:
-                    this.setFirstName(summerStudent, cell, header.getType(), guid, cn);
+                    this.setFirstName(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case DOB:
-                    this.setDOB(summerStudent, cell, header.getType(), guid, cn);
+                    this.setDOB(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case COURSE:
-                    this.setCourse(summerStudent, cell, header.getType(), guid, cn);
+                    this.setCourse(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case SESSION_DATE:
-                    this.setSessionDate(summerStudent, cell, header.getType(), guid, cn);
+                    this.setSessionDate(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case FINAL_PERCENT:
-                    this.setFinalPercent(summerStudent, cell, header.getType(), guid, cn);
+                    this.setFinalPercent(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case FINAL_LETTER_GRADE:
-                    this.setFinalLetterGrade(summerStudent, cell, header.getType(), guid, cn);
+                    this.setFinalLetterGrade(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case NO_OF_CREDITS:
-                    this.setNoOfCredits(summerStudent, cell, header.getType(), guid, cn);
+                    this.setNoOfCredits(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
             }
         } else {
@@ -165,41 +165,41 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         summerStudent.setSchoolCode(fieldValue);
     }
 
-    private void setPen(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setPen(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(StringUtils.isBlank(fieldValue)) {
-            throw new FileUnProcessableException(FileError.BLANK_PEN_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.BLANK_PEN_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         if(fieldValue.length() != 9) {
-            throw new FileUnProcessableException(FileError.PEN_LENGTH_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.PEN_LENGTH_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setPen(fieldValue);
     }
 
-    private void setLegalSurname(final SummerStudentData summerStudent, final Cell cell,  final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setLegalSurname(final SummerStudentData summerStudent, final int rowNum, final Cell cell,  final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 25) {
-            throw new FileUnProcessableException(FileError.LEGAL_SURNAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.LEGAL_SURNAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setLegalSurname(fieldValue);
     }
 
-    private void setFirstName(final SummerStudentData summerStudent, final Cell cell,  final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setFirstName(final SummerStudentData summerStudent, final int rowNum, final Cell cell,  final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 25) {
-            throw new FileUnProcessableException(FileError.LEGAL_FIRST_NAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.LEGAL_FIRST_NAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setLegalFirstName(fieldValue);
     }
 
-    private void setCourse(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setCourse(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 8) {
-            throw new FileUnProcessableException(FileError.COURSE_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.COURSE_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setCourse(fieldValue);
     }
-    private void setSessionDate(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setSessionDate(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(StringUtils.isNotBlank(fieldValue)) {
             try {
@@ -207,54 +207,56 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
                 var sessionYear = sessionDate.getYear();
                 var sessionMonth = sessionDate.getMonthValue();
                 if(sessionYear != LocalDate.now().getYear() || (sessionMonth != 8 && sessionMonth != 7)) {
-                    throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+                    String sub1= LocalDate.now().getYear() +"07";
+                    String sub2= LocalDate.now().getYear() +"08";
+                    throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, sub1, sub2, String.valueOf(rowNum));
                 }
                 summerStudent.setSessionDate(String.valueOf(sessionDate));
             } catch (DateTimeParseException ex) {
-                throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+                throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
             }
         } else {
             summerStudent.setSessionDate(null);
         }
         summerStudent.setSessionDate(fieldValue);
     }
-    private void setFinalPercent(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setFinalPercent(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 3) {
-            throw new FileUnProcessableException(FileError.FINAL_SCH_PERCENT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.FINAL_SCH_PERCENT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setFinalPercent(fieldValue);
     }
-    private void setFinalLetterGrade(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setFinalLetterGrade(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 2) {
-            throw new FileUnProcessableException(FileError.FINAL_LETTER_GRADE_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.FINAL_LETTER_GRADE_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setFinalLetterGrade(fieldValue);
     }
-    private void setNoOfCredits(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setNoOfCredits(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 1) {
-            throw new FileUnProcessableException(FileError.NO_OF_CREDITS_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.NO_OF_CREDITS_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setNoOfCredits(fieldValue);
     }
-    private void setMiddleName(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setMiddleName(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(fieldValue.length() > 25) {
-            throw new FileUnProcessableException(FileError.LEGAL_MIDDLE_NAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+            throw new FileUnProcessableException(FileError.LEGAL_MIDDLE_NAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setLegalMiddleName(fieldValue);
     }
 
-    private void setDOB(final SummerStudentData summerStudent, final Cell cell, final ColumnType columnType, final String guid, final int cn) throws FileUnProcessableException {
+    private void setDOB(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
         val fieldValue = this.getCellValueString(cell, columnType);
         if(StringUtils.isNotBlank(fieldValue)) {
             try {
                 LocalDate.parse(fieldValue, format);
             } catch (DateTimeParseException ex) {
-                throw new FileUnProcessableException(FileError.BIRTHDATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
+                throw new FileUnProcessableException(FileError.BIRTHDATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
             }
         } else {
             summerStudent.setDob(null);
