@@ -1049,4 +1049,66 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(uploadedCRSStudents).hasSize(1);
     }
 
+    @Test
+    void testProcessSummerGradFile_WithTwoRecords_ForDistrict_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        var districtID = UUID.randomUUID();
+        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        SummerStudentData summerData1 = SummerStudentData.builder()
+                .dob("20030516")
+                .pen("123456789")
+                .course("ENST 12")
+                .finalPercent("72")
+                .legalFirstName("firstName")
+                .legalSurname("surname")
+                .legalMiddleName("middleName")
+                .noOfCredits("4")
+                .schoolCode("07965039")
+                .build();
+        SummerStudentData summerData2 = SummerStudentData.builder()
+                .dob("20030516")
+                .pen("123456789")
+                .course("CNST 12")
+                .finalPercent("62")
+                .legalFirstName("firstName")
+                .legalSurname("surname")
+                .legalMiddleName("middleName")
+                .noOfCredits("4")
+                .schoolCode("07965039")
+                .build();
+
+        SummerFileUpload fileData = SummerFileUpload.builder()
+                .createUser("ABC")
+                .fileName("summer-reporting.xlsx")
+                .summerStudents(List.of(summerData1, summerData2))
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/district/" + schoolTombstone.getDistrictId() + "/process")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(fileData))
+                .contentType(APPLICATION_JSON));
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
+        assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
+        assertThat(entity.getXamFileName()).isEqualTo("summer-reporting.XAM");
+        assertThat(entity.getCsvFileName()).isEqualTo("summer-reporting.xlsx");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(1);
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(2);
+    }
+
 }
