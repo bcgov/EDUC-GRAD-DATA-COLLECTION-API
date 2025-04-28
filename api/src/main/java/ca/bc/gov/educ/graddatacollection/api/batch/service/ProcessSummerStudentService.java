@@ -33,7 +33,9 @@ import org.springframework.validation.FieldError;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -69,9 +71,16 @@ public class ProcessSummerStudentService {
                 }
             }
 
-            GradStudentDemogFile demFile = createDemFile(summerUpload.getSummerStudents());
-            GradStudentCourseFile courseFile = createCourseFile(summerUpload.getSummerStudents());
-            createAndSaveIncomingFileset(summerUpload, incomingSchoolID, incomingDistrictID, demFile, courseFile);
+            Map<String, List<SummerStudentData>> groupedSummerStudents = summerUpload.getSummerStudents().stream()
+                    .collect(Collectors.groupingBy(SummerStudentData::getPen));
+
+            val demBatchFile = new GradStudentDemogFile();
+            val courseBatchFile = new GradStudentCourseFile();
+            groupedSummerStudents.forEach((key, listOfSummerStudents) -> {
+                demBatchFile.getDemogData().add(this.createStudentDemogDetailRecord(listOfSummerStudents.getFirst()));
+                listOfSummerStudents.forEach(student -> courseBatchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(student)));
+            });
+            createAndSaveIncomingFileset(summerUpload, incomingSchoolID, incomingDistrictID, demBatchFile, courseBatchFile);
         } catch(final FileUnProcessableException fileUnProcessableException) {
             log.error("File could not be processed exception :: {}", fileUnProcessableException);
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
@@ -89,18 +98,6 @@ public class ProcessSummerStudentService {
             error.addValidationErrors(fieldErrorList);
             throw new InvalidPayloadException(error);
         }
-    }
-
-    public GradStudentDemogFile createDemFile(final List<SummerStudentData> summerStudents) {
-        val batchFile = new GradStudentDemogFile();
-        summerStudents.forEach(student -> batchFile.getDemogData().add(this.createStudentDemogDetailRecord(student)));
-        return batchFile;
-    }
-
-    public GradStudentCourseFile createCourseFile(final List<SummerStudentData> summerStudents) {
-        val batchFile = new GradStudentCourseFile();
-        summerStudents.forEach(student -> batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(student)));
-        return batchFile;
     }
 
     public void createAndSaveIncomingFileset(final SummerFileUpload summerUpload, final String schoolID, final String districtID, final GradStudentDemogFile demFile, final GradStudentCourseFile courseFile) {
