@@ -10,12 +10,12 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
@@ -56,8 +56,9 @@ public class ValidCitizenshipRule implements DemographicValidationBaseRule {
         List<CitizenshipCode> citizenshipCodes = restUtils.getScholarshipsCitizenshipCodeList();
 
         if (StringUtils.isNotBlank(student.getCitizenship()) && citizenshipCodes.stream().noneMatch(code -> code.getCitizenshipCode().equalsIgnoreCase(student.getCitizenship()))) {
-            log.debug("StudentCitizenship-D02: Invalid citizenship code - must be C, O or blank for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.CITIZENSHIP, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage()));
+            String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCitizenship()));
+            log.debug("StudentCitizenship-D02: {} :: {}", errorMessage, student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.CITIZENSHIP, DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID, errorMessage));
         }
         return errors;
     }

@@ -65,7 +65,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isSummer = demographicRulesService.isSummerCollection(student.getIncomingFileset());
 
         if (gradRequirementYearIsBlank && (!isSummer || isNotGradeGA || isNotIndependentFNS) && isGraduated) {
-            log.debug("StudentProgram-D12: Null program not valid for demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage(), student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage()));
         }
 

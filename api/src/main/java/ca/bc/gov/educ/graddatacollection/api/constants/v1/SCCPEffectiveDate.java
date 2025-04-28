@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum SCCPEffectiveDate {
-    SCCP_EFFECTIVE_DATE("20060701");
+    SCCP_EFFECTIVE_DATE("19930701");
 
     private final String date;
 

@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -59,8 +60,9 @@ public class InvalidGradeRule implements DemographicValidationBaseRule {
         boolean isSummer = demographicRulesService.isSummerCollection(student.getIncomingFileset());
 
         if ((!isSummer && StringUtils.isBlank(student.getGrade())) || (StringUtils.isNotBlank(student.getGrade()) && activeGradGrades.stream().noneMatch(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())))) {
-            log.debug("StudentGrade-D07: Must be a valid grade for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage()));
+            String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
+            log.debug("StudentGrade-D07: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, errorMessage));
         }
         return errors;
     }

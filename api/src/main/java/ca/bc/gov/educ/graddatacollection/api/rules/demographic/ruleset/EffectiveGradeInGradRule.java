@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -57,8 +58,9 @@ public class EffectiveGradeInGradRule implements DemographicValidationBaseRule {
             var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
 
             if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N")) {
-                log.debug("StudentGrade-D15: Must be a valid grade that is currently effective in GRAD for demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage()));
+                String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
+                log.debug("StudentGrade-D15: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED, errorMessage));
             }
         }
         return errors;
