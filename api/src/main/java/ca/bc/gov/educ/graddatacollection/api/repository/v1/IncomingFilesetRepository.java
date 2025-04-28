@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +58,8 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
 
     @Query(value = """
     SELECT inFileset.schoolID as schoolID,
-    COUNT(inFileset.incomingFilesetID) as submissionCount
+    COUNT(inFileset.incomingFilesetID) as submissionCount,
+    MAX(inFileset.createDate) as lastSubmissionDate
     FROM IncomingFilesetEntity inFileset
     WHERE inFileset.filesetStatusCode = 'COMPLETED'
     AND inFileset.createDate >= :summerStartDate
@@ -68,4 +68,17 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     GROUP BY inFileset.schoolID
     """)
     List<SchoolSubmissionCount> findSchoolSubmissionsInSummerReportingPeriod(UUID reportingPeriodID, LocalDateTime summerStartDate, LocalDateTime summerEndDate);
+
+    @Query(value = """
+    SELECT inFileset.schoolID as schoolID,
+    COUNT(inFileset.incomingFilesetID) as submissionCount,
+    MAX(inFileset.createDate) as lastSubmissionDate
+    FROM IncomingFilesetEntity inFileset
+    WHERE inFileset.filesetStatusCode = 'COMPLETED'
+    AND inFileset.createDate >= :schoolStartDate
+    AND inFileset.createDate <= :schoolEndDate
+    AND inFileset.reportingPeriod.reportingPeriodID = :reportingPeriodID
+    GROUP BY inFileset.schoolID
+    """)
+    List<SchoolSubmissionCount> findSchoolSubmissionsInSchoolReportingPeriod(UUID reportingPeriodID, LocalDateTime schoolStartDate, LocalDateTime schoolEndDate);
 }

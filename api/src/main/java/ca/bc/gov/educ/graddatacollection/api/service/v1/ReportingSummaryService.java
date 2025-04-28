@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -81,6 +82,37 @@ public class ReportingSummaryService {
         }
         summary.setRows(rows);
         return summary;
+    }
+
+    public List<SchoolSubmissionCount> getSchoolSubmissionCounts(UUID reportingPeriodID, String categoryCode, Boolean isSummer) {
+        ReportingPeriodEntity reportingEntity = reportingPeriodRepository.findById(reportingPeriodID).orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "reportingPeriodID", reportingPeriodID.toString()));
+
+        List<SchoolSubmissionCount> submissionCount;
+        if (Boolean.TRUE.equals(isSummer)) {
+            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodID, reportingEntity.getSummerStart(), reportingEntity.getSummerEnd());
+        } else {
+            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodID, reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
+        }
+
+        List<SchoolTombstone> schools = restUtils.getTranscriptEligibleSchools();
+        
+        if (categoryCode != null && !categoryCode.isEmpty()) {
+            Map<String, String> schoolToFacilityTypeMap = schools.stream()
+                .collect(Collectors.toMap(
+                    SchoolTombstone::getSchoolId,
+                    SchoolTombstone::getSchoolCategoryCode,
+                    (existing, replacement) -> existing
+                ));
+            
+            submissionCount = submissionCount.stream()
+                .filter(submission -> {
+                    String schoolFacilityType = schoolToFacilityTypeMap.get(submission.getSchoolID());
+                    return schoolFacilityType != null && schoolFacilityType.equalsIgnoreCase(categoryCode);
+                })
+                .toList();
+        }
+
+        return submissionCount;
     }
 
     private Map<String, String> getSchoolCategoryTitles() {
