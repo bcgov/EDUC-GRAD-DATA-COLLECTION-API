@@ -109,7 +109,7 @@ public class ReportingSummaryService {
                     String schoolFacilityType = schoolToFacilityTypeMap.get(submission.getSchoolID());
                     return schoolFacilityType != null && schoolFacilityType.equalsIgnoreCase(categoryCode);
                 })
-                .collect(Collectors.toList());
+                .toList();
         }
 
         return submissionCount;
