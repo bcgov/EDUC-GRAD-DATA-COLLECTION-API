@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -710,7 +711,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testProcessSchoolXlsxFile_givenEmptyFile_ShouldReturnStatusBadRequest() throws Exception {
+    void testProcessSchoolXlsxFile_givenEmptyFile_WithNoHeaders_ShouldReturnStatusBadRequest() throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -754,7 +755,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PENs cannot be more than 10 digits. Review the data on line 1"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PENs cannot be more than 10 digits. Review the data on line 1."));
     }
 
     @Test
@@ -797,12 +798,15 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileName("summer-reporting.xlsx")
                 .build();
 
+        String sub1= LocalDate.now().getYear() +"07";
+        String sub2= LocalDate.now().getYear() +"08";
+
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the <YYYY current year>07 or <YYYY current year>08 sessions. Review the data on line 7"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the "+sub1+" or "+sub2+" sessions. Review the data on line 1."));
     }
 
     @Test
@@ -826,7 +830,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Surnames cannot be longer than 25 characters. Review the data on line 2"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Surnames cannot be longer than 25 characters. Review the data on line 1."));
     }
 
     @Test
@@ -850,7 +854,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Given Names cannot be longer than 25 characters. Review the data on line 4"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Given Names cannot be longer than 25 characters. Review the data on line 1."));
     }
 
     @Test
@@ -874,7 +878,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Middle Names cannot be longer than 25 characters. Review the data on line 3"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Middle Names cannot be longer than 25 characters. Review the data on line 1."));
     }
 
     @Test
@@ -898,7 +902,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Course code and level cannot be longer than 8 characters. Review the data on line 6"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Course code and level cannot be longer than 8 characters. Review the data on line 1."));
     }
 
     @Test
@@ -922,7 +926,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Final School Percent cannot be more than 3 digits. Review the data on line 8"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Final School Percent cannot be more than 3 digits. Review the data on line 1."));
     }
 
     @Test
@@ -946,7 +950,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Birthdate must be in the format YYYYMMDD. Review the data on line 5"));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Birthdate must be in the format YYYYMMDD. Review the data on line 1."));
     }
 
     @Test
@@ -1043,6 +1047,68 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedCRSStudents).hasSize(1);
+    }
+
+    @Test
+    void testProcessSummerGradFile_WithTwoRecords_ForDistrict_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchool();
+        var districtID = UUID.randomUUID();
+        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        SummerStudentData summerData1 = SummerStudentData.builder()
+                .dob("20030516")
+                .pen("123456789")
+                .course("ENST 12")
+                .finalPercent("72")
+                .legalFirstName("firstName")
+                .legalSurname("surname")
+                .legalMiddleName("middleName")
+                .noOfCredits("4")
+                .schoolCode("07965039")
+                .build();
+        SummerStudentData summerData2 = SummerStudentData.builder()
+                .dob("20030516")
+                .pen("123456789")
+                .course("CNST 12")
+                .finalPercent("62")
+                .legalFirstName("firstName")
+                .legalSurname("surname")
+                .legalMiddleName("middleName")
+                .noOfCredits("4")
+                .schoolCode("07965039")
+                .build();
+
+        SummerFileUpload fileData = SummerFileUpload.builder()
+                .createUser("ABC")
+                .fileName("summer-reporting.xlsx")
+                .summerStudents(List.of(summerData1, summerData2))
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/district/" + schoolTombstone.getDistrictId() + "/process")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(fileData))
+                .contentType(APPLICATION_JSON));
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
+        assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
+        assertThat(entity.getXamFileName()).isEqualTo("summer-reporting.XAM");
+        assertThat(entity.getCsvFileName()).isEqualTo("summer-reporting.xlsx");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedDEMStudents = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(1);
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(2);
     }
 
 }

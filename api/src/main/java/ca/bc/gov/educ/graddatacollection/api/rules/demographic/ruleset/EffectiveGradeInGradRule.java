@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValida
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -52,13 +53,15 @@ public class EffectiveGradeInGradRule implements DemographicValidationBaseRule {
         log.debug("In executeValidation of StudentGrade-D15 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
-        var activeGradGrades = restUtils.getGradGradeList(true);
-        var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
+        if(StringUtils.isNotBlank(student.getGrade())) {
+            var activeGradGrades = restUtils.getGradGradeList(true);
+            var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
 
-        if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N") ) {
-            String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
-            log.debug("StudentGrade-D15: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED, errorMessage));
+            if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N")) {
+                String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
+                log.debug("StudentGrade-D15: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED, errorMessage));
+            }
         }
         return errors;
     }

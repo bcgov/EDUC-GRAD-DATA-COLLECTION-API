@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +30,11 @@ import java.util.List;
 public class InvalidGradeRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
+    private final DemographicRulesService demographicRulesService;
 
-    public InvalidGradeRule(RestUtils restUtils) {
+    public InvalidGradeRule(RestUtils restUtils, DemographicRulesService demographicRulesService) {
         this.restUtils = restUtils;
+        this.demographicRulesService = demographicRulesService;
     }
 
     @Override
@@ -54,8 +57,9 @@ public class InvalidGradeRule implements DemographicValidationBaseRule {
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var activeGradGrades = restUtils.getGradGradeList(true);
+        boolean isSummer = demographicRulesService.isSummerCollection(student.getIncomingFileset());
 
-        if (StringUtils.isNotBlank(student.getGrade()) && activeGradGrades.stream().noneMatch(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade()))) {
+        if ((!isSummer && StringUtils.isBlank(student.getGrade())) || (StringUtils.isNotBlank(student.getGrade()) && activeGradGrades.stream().noneMatch(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())))) {
             String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
             log.debug("StudentGrade-D07: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, errorMessage));

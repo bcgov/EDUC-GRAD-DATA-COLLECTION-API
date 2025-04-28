@@ -5,11 +5,14 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCount;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCounts;
 import ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -112,5 +115,40 @@ class ReportingPeriodControllerTest {
         assertEquals("2024-06-30T00:00:00", result.getSchYrEnd());
         assertEquals("2024-07-01T00:00:00", result.getSummerStart());
         assertEquals("2024-08-31T00:00:00", result.getSummerEnd());
+    }
+
+    @Test
+    void testGetSchoolSubmissionCounts_ReturnsExpectedCounts() {
+        UUID reportingPeriodID = UUID.randomUUID();
+        String categoryCode = "PUBLIC";
+
+        SchoolSubmissionCount schoolSubmission1 = new SchoolSubmissionCount() {
+            public String getSchoolID() { return "123"; }
+            public String getSubmissionCount() { return "5"; }
+            public java.time.LocalDateTime getLastSubmissionDate() { return java.time.LocalDateTime.of(2024, 6, 1, 12, 0); }
+        };
+        SchoolSubmissionCount schoolSubmission2 = new SchoolSubmissionCount() {
+            public String getSchoolID() { return "456"; }
+            public String getSubmissionCount() { return "3"; }
+            public java.time.LocalDateTime getLastSubmissionDate() { return java.time.LocalDateTime.of(2024, 6, 2, 13, 0); }
+        };
+        List<SchoolSubmissionCount> schoolSubmissions = List.of(schoolSubmission1);
+        List<SchoolSubmissionCount> summerSubmissions = List.of(schoolSubmission2);
+
+        when(reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodID, categoryCode, Boolean.FALSE)).thenReturn(schoolSubmissions);
+        when(reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodID, categoryCode, Boolean.TRUE)).thenReturn(summerSubmissions);
+
+        SchoolSubmissionCounts result = controller.getSchoolSubmissionCounts(reportingPeriodID, categoryCode);
+
+        assertEquals(categoryCode, result.getCategoryCode());
+        assertEquals(1, result.getSchoolSubmissions().size());
+        assertEquals("123", result.getSchoolSubmissions().getFirst().getSchoolID());
+        assertEquals("5", result.getSchoolSubmissions().getFirst().getSubmissionCount());
+        assertEquals(1, result.getSummerSubmissions().size());
+        assertEquals("456", result.getSummerSubmissions().getFirst().getSchoolID());
+        assertEquals("3", result.getSummerSubmissions().getFirst().getSubmissionCount());
+
+        verify(reportingSummaryService).getSchoolSubmissionCounts(reportingPeriodID, categoryCode, Boolean.FALSE);
+        verify(reportingSummaryService).getSchoolSubmissionCounts(reportingPeriodID, categoryCode, Boolean.TRUE);
     }
 }
