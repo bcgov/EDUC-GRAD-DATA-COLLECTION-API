@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingCycleSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCounts;
 import ca.bc.gov.educ.graddatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,15 @@ public class ReportingPeriodController implements ReportingPeriodEndpoint {
     @Override
     public ReportingCycleSummary getReportingCycleSummary(UUID reportingPeriodID, String type) {
         return reportingSummaryService.getReportingSummary(reportingPeriodID, type);
+    }
+
+    @Override
+    public SchoolSubmissionCounts getSchoolSubmissionCounts(UUID reportingPeriodID, String categoryCode) {
+        SchoolSubmissionCounts schoolSubmissionCounts = new SchoolSubmissionCounts();
+        schoolSubmissionCounts.setCategoryCode(categoryCode);
+        schoolSubmissionCounts.setSchoolSubmissions(reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodID, categoryCode, Boolean.FALSE));
+        schoolSubmissionCounts.setSummerSubmissions(reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodID, categoryCode, Boolean.TRUE));
+        return schoolSubmissionCounts;
     }
 
     @Override

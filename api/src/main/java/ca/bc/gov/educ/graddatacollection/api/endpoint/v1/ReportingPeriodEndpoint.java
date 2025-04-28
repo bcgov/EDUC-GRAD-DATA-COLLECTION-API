@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.endpoint.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingCycleSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCounts;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,7 +36,12 @@ public interface ReportingPeriodEndpoint {
     @PreAuthorize("hasAnyAuthority('SCOPE_READ_REPORTING_PERIOD')")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
     ReportingCycleSummary getReportingCycleSummary(@PathVariable("reportingPeriodID") UUID reportingPeriodID, @RequestParam("type") String type);
-    
+
+    @GetMapping("/{reportingPeriodID}/school-submission-counts")
+    @PreAuthorize("hasAnyAuthority('SCOPE_READ_REPORTING_PERIOD')")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+    SchoolSubmissionCounts getSchoolSubmissionCounts(@PathVariable("reportingPeriodID") UUID reportingPeriodID, @RequestParam("categoryCode") String type);
+
     @PutMapping()
     @PreAuthorize("hasAuthority('SCOPE_WRITE_REPORTING_PERIOD')")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
