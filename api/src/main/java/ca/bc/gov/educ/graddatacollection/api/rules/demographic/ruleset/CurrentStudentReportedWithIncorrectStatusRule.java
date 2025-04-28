@@ -58,7 +58,7 @@ public class CurrentStudentReportedWithIncorrectStatusRule implements Demographi
             gradStudent.getStudentStatusCode().equalsIgnoreCase("CUR") &&
             !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())
             ) {
-            log.debug("StudentStatus-D19:Student This school is not the School of Record showing in GRAD; the student record will not be updated. demographicStudentID :: {}", student.getDemographicStudentID());
+            log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage(), student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()));
         }
 

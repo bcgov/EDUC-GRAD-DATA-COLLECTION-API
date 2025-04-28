@@ -61,13 +61,13 @@ public class GraduatedStudentProgramRule implements DemographicValidationBaseRul
         // If you have a prog completion date in GRAD, you can't change it unless it's SCCP and there's another one incoming
 
         if (gradStudent != null && StringUtils.isNotBlank(gradStudent.getProgramCompletionDate()) && StringUtils.isNotBlank(gradStudent.getProgram())) {
-            var program = gradStudent.getProgram().length() >= 4 ? gradStudent.getProgram().substring(0, 4) : null;
+            var program = gradStudent.getProgram().length() >= 4 ? gradStudent.getProgram().substring(0, 4) : "";
             if ((!program.equalsIgnoreCase("SCCP") &&
                     (StringUtils.isBlank(studentProgram) || !studentProgram.equalsIgnoreCase(program))) ||
                     (program.equalsIgnoreCase("SCCP") && StringUtils.isBlank(studentProgram))) {
-                log.debug("StudentProgram-D17: Error: The student has already graduated so their program code cannot be changed. The student's DEM file will not be processed. demographicStudentID :: {}", student.getDemographicStudentID());
-                String message = "The student has a " + StringEscapeUtils.escapeHtml4(studentProgram) + " completion date so the program code cannot be changed or removed.";
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, message));
+                String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getMessage().formatted(StringEscapeUtils.escapeHtml4(gradStudent.getProgram()));
+                log.debug("StudentProgram-D17: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, errorMessage));
             }
         }
 

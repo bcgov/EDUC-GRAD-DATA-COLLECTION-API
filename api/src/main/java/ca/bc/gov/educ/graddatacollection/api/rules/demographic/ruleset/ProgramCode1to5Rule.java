@@ -11,13 +11,12 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
@@ -33,8 +32,6 @@ import java.util.Set;
 public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
-
-    private static final String DEBUG_MSG = "ProgramCode15-D14:Invalid Career Program code / Invalid Optional Program code {} for demographicStudentID :: {}";
 
     public ProgramCode1to5Rule(RestUtils restUtils) {
         this.restUtils = restUtils;
@@ -67,14 +64,15 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
             var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
             var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
-            if(!isValidCareerProgram && !isValidOptionalProgram) {
-                    log.debug(DEBUG_MSG, student.getProgramCode1(), student.getDemographicStudentID());
-                    errors.add(createValidationIssue(
-                            StudentValidationIssueSeverityCode.ERROR,
-                            ValidationFieldCode.PROGRAM_CODE_1,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-                    ));
+            if (!isValidCareerProgram && !isValidOptionalProgram) {
+                String programCode1ErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getProgramCode1()));
+                logDebugStatement(programCode1ErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.PROGRAM_CODE_1,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                        programCode1ErrorMessage
+                ));
             }
         }
 
@@ -83,15 +81,16 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
             var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
             var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
-            if(!isValidCareerProgram && !isValidOptionalProgram) {
-                    log.debug(DEBUG_MSG, student.getProgramCode2(), student.getDemographicStudentID());
-                    errors.add(createValidationIssue(
-                            StudentValidationIssueSeverityCode.ERROR,
-                            ValidationFieldCode.PROGRAM_CODE_2,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-                    ));
-                }
+            if (!isValidCareerProgram && !isValidOptionalProgram) {
+                String programCode2ErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getProgramCode2()));
+                logDebugStatement(programCode2ErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.PROGRAM_CODE_2,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                        programCode2ErrorMessage
+                ));
+            }
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode3())) {
@@ -99,15 +98,16 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
             var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
             var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
-            if(!isValidCareerProgram && !isValidOptionalProgram) {
-                    log.debug(DEBUG_MSG, student.getProgramCode3(), student.getDemographicStudentID());
-                    errors.add(createValidationIssue(
-                            StudentValidationIssueSeverityCode.ERROR,
-                            ValidationFieldCode.PROGRAM_CODE_3,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-                    ));
-                }
+            if (!isValidCareerProgram && !isValidOptionalProgram) {
+                String programCode3ErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getProgramCode3()));
+                logDebugStatement(programCode3ErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.PROGRAM_CODE_3,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                        programCode3ErrorMessage
+                ));
+            }
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode4())) {
@@ -115,15 +115,16 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
             var isValidCareerProgram = careerProgramCodes.stream().anyMatch(careerProgramCode -> careerProgramCode.getCode().equalsIgnoreCase(programCode));
             var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
-            if(!isValidCareerProgram && !isValidOptionalProgram) {
-                    log.debug(DEBUG_MSG, student.getProgramCode4(), student.getDemographicStudentID());
-                    errors.add(createValidationIssue(
-                            StudentValidationIssueSeverityCode.ERROR,
-                            ValidationFieldCode.PROGRAM_CODE_4,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-                    ));
-                }
+            if (!isValidCareerProgram && !isValidOptionalProgram) {
+                String programCode4ErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getProgramCode4()));
+                logDebugStatement(programCode4ErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.PROGRAM_CODE_4,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                        programCode4ErrorMessage
+                ));
+            }
         }
 
         if (StringUtils.isNotBlank(student.getProgramCode5())) {
@@ -132,14 +133,15 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
             var isValidOptionalProgram = optionalProgramCodes.stream().anyMatch(optionalProgramCode -> optionalProgramCode.getOptProgramCode().equalsIgnoreCase(programCode));
 
             if(!isValidCareerProgram && !isValidOptionalProgram) {
-                    log.debug(DEBUG_MSG, student.getProgramCode5(), student.getDemographicStudentID());
-                    errors.add(createValidationIssue(
-                            StudentValidationIssueSeverityCode.ERROR,
-                            ValidationFieldCode.PROGRAM_CODE_5,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
-                            DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage()
-                    ));
-                }
+                String programCode4ErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getProgramCode5()));
+                logDebugStatement(programCode4ErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.PROGRAM_CODE_5,
+                        DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID,
+                        programCode4ErrorMessage
+                ));
+            }
         }
 
         return errors;
@@ -152,5 +154,9 @@ public class ProgramCode1to5Rule implements DemographicValidationBaseRule {
             return incomingProgramCode.substring(2);
         }
         return incomingProgramCode;
+    }
+
+    private void logDebugStatement(String errorMessage, java.util.UUID demographicStudentID) {
+        log.debug("ProgramCode15-D14: {} for demographicStudentID :: {}", errorMessage, demographicStudentID);
     }
 }

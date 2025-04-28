@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +48,9 @@ public class InvalidStatusRule implements DemographicValidationBaseRule {
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isBlank(student.getStudentStatus()) || !StudentStatusCodes.getValidStudentStatusCodesExcludingM().contains(student.getStudentStatus())) {
-            log.debug("StudentStatus-D06:Invalid student status - must be A, D, or T for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage()));
+            String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getStudentStatus()));
+            log.debug("StudentStatus-D06: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID, errorMessage));
         }
         return errors;
     }

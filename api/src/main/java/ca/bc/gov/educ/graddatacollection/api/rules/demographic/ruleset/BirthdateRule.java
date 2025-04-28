@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -50,18 +51,24 @@ public class BirthdateRule implements DemographicValidationBaseRule {
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
         if (StringUtils.isBlank(student.getBirthdate())) {
-            log.debug("StudentBirthdate-D04: Student date of birth is not valid (EMPTY). for demographicStudentID :: {}", student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage()));
+            String emptyErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage().formatted("(EMPTY)");
+            logDebugStatement(emptyErrorMessage, student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, emptyErrorMessage));
         } else {
             try {
                 LocalDate.parse(student.getBirthdate(), format);
             } catch (DateTimeParseException ex) {
-                log.debug("StudentBirthdate-D04: Student date of birth is not valid (CANNOT PARSE). for demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage()));
+                String invalidDateErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getBirthdate()));
+                logDebugStatement(invalidDateErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.BIRTHDATE, DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID, invalidDateErrorMessage));
             }
         }
 
         return errors;
+    }
+
+    private void logDebugStatement(String errorMessage, java.util.UUID demographicStudentID) {
+        log.debug("StudentBirthdate-D04: {} for demographicStudentID :: {}", errorMessage, demographicStudentID);
     }
 
 }

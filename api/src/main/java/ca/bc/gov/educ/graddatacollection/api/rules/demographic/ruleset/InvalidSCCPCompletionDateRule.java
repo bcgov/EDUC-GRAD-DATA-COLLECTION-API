@@ -2,7 +2,6 @@ package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SCCPEffectiveDate;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
-import ca.bc.gov.educ.graddatacollection.api.helpers.DateValidator;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
@@ -10,11 +9,13 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,14 +54,27 @@ public class InvalidSCCPCompletionDateRule implements DemographicValidationBaseR
 
         String sccpCompletionDate = student.getSchoolCertificateCompletionDate();
 
-        if (StringUtils.isNotBlank(sccpCompletionDate) &&
-                (!DateValidator.isValidYYYYMMDD(sccpCompletionDate) ||
-                LocalDate.parse(sccpCompletionDate, YYYYMMDD_FORMATTER).isBefore(SCCP_EFFECTIVE_DATE))) {
-                log.debug("SCCPCompletionDate-D08: Invalid SCCP completion date. Must be blank or YYYYMMDD. The student's DEM file will not be processed. for demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE,  DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getMessage()));
+        if (!StringUtils.isBlank(sccpCompletionDate)) {
+            String escapedSccpCompletionDate = StringEscapeUtils.escapeHtml4(student.getSchoolCertificateCompletionDate());
+            try {
+                LocalDate parsedSccpCompletionDate = LocalDate.parse(sccpCompletionDate, YYYYMMDD_FORMATTER);
+                if (parsedSccpCompletionDate.isBefore(SCCP_EFFECTIVE_DATE)) {
+                    String tooEarlyErrorMessage = DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY.getMessage().formatted(escapedSccpCompletionDate);
+                    logDebugStatement(tooEarlyErrorMessage, student.getDemographicStudentID());
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY, tooEarlyErrorMessage));
+                }
+            } catch (DateTimeParseException ex) {
+                String invalidSccpCompletionDateErrorMessage = DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getMessage().formatted(escapedSccpCompletionDate);
+                logDebugStatement(invalidSccpCompletionDateErrorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE, invalidSccpCompletionDateErrorMessage));
             }
+        }
 
         return errors;
+    }
+
+    private void logDebugStatement(String errorMessage, java.util.UUID demographicStudentID) {
+        log.debug("SCCPCompletionDate-D08: {} for demographicStudentID :: {}", errorMessage, demographicStudentID);
     }
 
 }

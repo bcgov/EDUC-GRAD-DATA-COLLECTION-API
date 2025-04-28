@@ -24,6 +24,7 @@ hs_err_pid*
 api/target/
 api/src/main/java/META-INF/
 api/src/main/resources/application-local.properties
+api/src/test/resources/application-test.properties
 api/src/main/resources/student-request.http
 
 # IDE

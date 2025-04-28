@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -59,12 +60,12 @@ public class InvalidGraduationProgramCodeRule implements DemographicValidationBa
             boolean isValid = graduationProgramCodes.stream().anyMatch(code -> {
                 String gradCode = code.getProgramCode();
                 String baseGradCode = gradCode.contains("-") ? gradCode.split("-")[0] : gradCode;
-
                 return baseGradCode.equalsIgnoreCase(studentProgram);
             });
             if (!isValid) {
-                log.debug("StudentProgram-D05: Invalid graduation program code. demographicStudentID :: {}", student.getDemographicStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage()));
+                String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(studentProgram));
+                log.debug("StudentProgram-D05: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID, errorMessage));
             }
         }
 
