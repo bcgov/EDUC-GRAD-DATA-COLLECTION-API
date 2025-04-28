@@ -438,9 +438,9 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var issueCode2 = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
         var errorCode2 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode()));
         var errorMessage2 = validationError2.stream().anyMatch(val -> val.getValidationIssueDescription().equals(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage().formatted(demographicStudent2.getGrade())));
-        assertThat(issueCode2).isFalse();
-        assertThat(errorCode2).isFalse();
-        assertThat(errorMessage2).isFalse();
+        assertThat(issueCode2).isTrue();
+        assertThat(errorCode2).isTrue();
+        assertThat(errorMessage2).isTrue();
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setGrade("02");
