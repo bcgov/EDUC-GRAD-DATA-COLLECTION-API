@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,15 @@ public class ReportingSummaryService {
             submissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID());
         }
 
-        List<SchoolTombstone> schools = restUtils.getTranscriptEligibleSchools();
+        List<SchoolTombstone> schools = restUtils.getTranscriptEligibleSchools().stream().filter(schoolTombstone -> {
+            LocalDateTime currentDate = LocalDateTime.now();
+            LocalDateTime openDate = LocalDateTime.parse(schoolTombstone.getOpenedDate());
+            LocalDateTime closeDate = schoolTombstone.getClosedDate() != null ? LocalDateTime.parse(schoolTombstone.getClosedDate()) : null;
+            LocalDateTime endOfCloseDateGraceWindow = closeDate != null ? closeDate.plusMonths(3) : null;
+            return (currentDate.isAfter(openDate) && closeDate == null) //open schools
+                    || (currentDate.isAfter(openDate) && currentDate.isBefore(closeDate)) //closing
+                    || (endOfCloseDateGraceWindow != null && currentDate.isBefore(endOfCloseDateGraceWindow));
+        }).toList();
         ReportingCycleSummary summary = new ReportingCycleSummary();
         summary.setRows(new ArrayList<>());
 
@@ -145,8 +154,8 @@ public class ReportingSummaryService {
         Map<String, String> rowTitles = new LinkedHashMap<>();
         rowTitles.put(FacilityTypeCodes.STANDARD.getCode(), STANDARD_TYPE);
         rowTitles.put(FacilityTypeCodes.CONT_ED.getCode(), CONT_ED_TYPE);
-        rowTitles.put(FacilityTypeCodes.PROVINCIAL.getCode(), PROVINCIAL_TYPE);
-        rowTitles.put(FacilityTypeCodes.DIST_LEARN.getCode(), DIST_LEARN_TYPE);
+        rowTitles.put(FacilityTypeCodes.DIST_LEARN.getCode(), PROVINCIAL_TYPE);
+        rowTitles.put(FacilityTypeCodes.DISTONLINE.getCode(), DIST_LEARN_TYPE);
         rowTitles.put(FacilityTypeCodes.ALT_PROGS.getCode(), ALT_PROGS_TYPE);
         rowTitles.put(FacilityTypeCodes.SHORT_PRP.getCode(), SHORT_PRP_TYPE);
         rowTitles.put(FacilityTypeCodes.LONG_PRP.getCode(), LONG_PRP_TYPE);
@@ -157,7 +166,7 @@ public class ReportingSummaryService {
     private Map<String, String> getIndpFacilityTitles() {
         Map<String, String> rowTitles = new LinkedHashMap<>();
         rowTitles.put(FacilityTypeCodes.STANDARD.getCode(), STANDARD_TYPE);
-        rowTitles.put(FacilityTypeCodes.PROVINCIAL.getCode(), PROVINCIAL_TYPE);
+        rowTitles.put(FacilityTypeCodes.DIST_LEARN.getCode(), PROVINCIAL_TYPE);
         return rowTitles;
     }
     private Map<String, String> getIndpFnsFacilityTitles() {
@@ -178,7 +187,7 @@ public class ReportingSummaryService {
     private Map<String, String> getYukonFacilityTitles() {
         Map<String, String> rowTitles = new LinkedHashMap<>();
         rowTitles.put(FacilityTypeCodes.STANDARD.getCode(), STANDARD_TYPE);
-        rowTitles.put(FacilityTypeCodes.PROVINCIAL.getCode(), PROVINCIAL_TYPE);
+        rowTitles.put(FacilityTypeCodes.DIST_LEARN.getCode(), PROVINCIAL_TYPE);
         rowTitles.put(FacilityTypeCodes.SUMMER.getCode(), SUMMER_TYPE);
         return rowTitles;
     }
