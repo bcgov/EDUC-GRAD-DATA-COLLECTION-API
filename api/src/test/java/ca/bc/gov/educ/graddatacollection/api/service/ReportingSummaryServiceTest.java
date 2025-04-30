@@ -68,6 +68,66 @@ class ReportingSummaryServiceTest {
     }
 
     @Test
+    void testGetReportingSummary_Summer_WithClosedDateWithIn3Months() {
+        UUID reportingPeriodId = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .build();
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
+        when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+                .thenReturn(Collections.emptyList());
+        SchoolTombstone school = SchoolTombstone.builder()
+                .schoolId("SCHOOL1")
+                .schoolCategoryCode("PUBLIC")
+                .facilityTypeCode("STANDARD")
+                .openedDate("1964-09-01T00:00:00")
+                .closedDate("2025-02-01T00:00:00")
+                .build();
+        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
+
+        ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
+
+        assertNotNull(result);
+        assertFalse(result.getRows().isEmpty());
+        assertTrue(result.getRows().stream().anyMatch(r -> r.getCategoryOrFacilityType().equals("Public") && r.getSchoolsExpected().equals("1")));
+        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
+    }
+
+    @Test
+    void testGetReportingSummary_Summer_WithClosedDatePast3Months() {
+        UUID reportingPeriodId = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .build();
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
+        when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+                .thenReturn(Collections.emptyList());
+        SchoolTombstone school = SchoolTombstone.builder()
+                .schoolId("SCHOOL1")
+                .schoolCategoryCode("PUBLIC")
+                .facilityTypeCode("STANDARD")
+                .openedDate("1964-09-01T00:00:00")
+                .closedDate("2025-01-01T00:00:00")
+                .build();
+        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
+
+        ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
+
+        assertNotNull(result);
+        assertFalse(result.getRows().isEmpty());
+        assertTrue(result.getRows().stream().anyMatch(r -> r.getCategoryOrFacilityType().equals("Public") && r.getSchoolsExpected().equals("0")));
+        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
+    }
+
+    @Test
     void testGetReportingSummary_SchoolYear() {
         UUID reportingPeriodId = UUID.randomUUID();
         ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
