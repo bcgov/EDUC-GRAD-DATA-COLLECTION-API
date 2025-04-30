@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,7 @@ class ReportingSummaryServiceTest {
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
         when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(Collections.emptyList());
-        SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").build();
+        SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
         when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
 
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
