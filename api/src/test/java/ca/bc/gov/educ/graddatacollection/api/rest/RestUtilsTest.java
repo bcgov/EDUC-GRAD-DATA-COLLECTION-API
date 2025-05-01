@@ -8,8 +8,10 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseAllo
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCharacteristicsRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static ca.bc.gov.educ.graddatacollection.api.rest.RestUtils.NATS_TIMEOUT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -516,5 +517,30 @@ class RestUtilsTest {
         assertEquals(2, restUtils.getSchoolCategoryCodeList().size());
         assertEquals("Category One", restUtils.getSchoolCategoryCodeList().getFirst().getLabel());
         assertEquals("Category Two", restUtils.getSchoolCategoryCodeList().getLast().getLabel());
+    }
+
+    @Test
+    void testPopulateGradSchoolMap() {
+        var school1=UUID.randomUUID().toString();
+        List<GradSchool> mockSchools = List.of(
+                new GradSchool(null, school1, "A", "Y", "Y"),
+                new GradSchool(null, UUID.randomUUID().toString(), "A", "Y", "Y")
+        );
+
+        doReturn(mockSchools).when(restUtils).getGradSchools();
+        assertTrue(restUtils.getGradSchoolBySchoolID(school1).isPresent());
+    }
+
+    @Test
+    void testGetAllSchools() {
+        var school1 = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
+        var school2 = SchoolTombstone.builder().schoolId("SCHOOL2").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
+
+        List<SchoolTombstone> mockSchools = List.of(school1, school2);
+
+        doReturn(mockSchools).when(restUtils).getAllSchools();
+        assertEquals(2, restUtils.getAllSchools().size());
+        assertEquals("SCHOOL1", restUtils.getAllSchools().getFirst().getSchoolId());
+        assertEquals("SCHOOL2", restUtils.getAllSchools().getLast().getSchoolId());
     }
 }

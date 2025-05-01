@@ -523,7 +523,7 @@ public class RestUtils {
             .block();
   }
 
-  private List<GradSchool> getGradSchools() {
+  public List<GradSchool> getGradSchools() {
     log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/school")

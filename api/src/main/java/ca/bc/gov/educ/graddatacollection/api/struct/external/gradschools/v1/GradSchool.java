@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.BaseRequest;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GradSchool extends BaseRequest implements Serializable {
