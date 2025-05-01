@@ -12,9 +12,9 @@ public enum FileError {
    * Upload file did not contain any content.
    */
   EMPTY_FILE("The DEM data file contains no records."),
-  NO_HEADING("Heading row is missing"),
-  BLANK_CELL_IN_HEADING_ROW("Heading row has a blank cell at column $?"),
-  MISSING_MANDATORY_HEADER("Missing required header $?"),
+  NO_HEADING("Heading row is missing."),
+  BLANK_CELL_IN_HEADING_ROW("Heading row has a blank cell at column $?."),
+  MISSING_MANDATORY_HEADER("Missing required header $?."),
 
   /**
    * The Invalid transaction code student details.
@@ -32,40 +32,40 @@ public enum FileError {
 
   NO_FILE_EXTENSION("No file extension provided. Files must be of type \".dem\" or \".crs\" or \".xam\"."),
 
-  CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. School ministry code is: $?"),
+  CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. School ministry code is: $?."),
 
   /**
    * No record for the provided school ID was found.
    */
-  INVALID_SCHOOL("Unable to find a school record for school ministry code $?"),
+  INVALID_SCHOOL("Unable to find a school record for school ministry code $?."),
 
-  INVALID_FILENAME("File not processed due to invalid filename. Must be the school ministry code"),
+  INVALID_FILENAME("File not processed due to invalid filename. Must be the school ministry code."),
 
   /**
    * The mincode on the uploaded document does not match the collection record.
    */
   MINCODE_MISMATCH("The school codes in your file do not match your school's code. Please ensure that all school codes in the file correspond to your school code."),
 
-  DISTRICT_MINCODE_MISMATCH("The school codes in the file must match. Please verify the school codes supplied. "),
+  DISTRICT_MINCODE_MISMATCH("The school codes in the file must match. Please verify the school codes supplied."),
   /**
    * Invalid row length file error.
    * This will be thrown when any row in the given file is longer or shorter than expected.
    */
   INVALID_ROW_LENGTH("$?"),
 
-  DUPLICATE_PEN_IN_DEM_FILE("The same PEN $? is appearing more than once in the DEM file on $? $?"),
+  DUPLICATE_PEN_IN_DEM_FILE("The same PEN $? is appearing more than once in the DEM file on $? $?."),
 
-  BLANK_PEN_IN_DEM_FILE("The PEN field is blank for one or more records in the DEM file on $? $?"),
+  BLANK_PEN_IN_DEM_FILE("The PEN field is blank for one or more records in the DEM file on $? $?."),
 
-  BLANK_PEN_IN_XAM_FILE("The PEN field is blank for one or more records in the XAM file on $? $?"),
+  BLANK_PEN_IN_XAM_FILE("The PEN field is blank for one or more records in the XAM file on $? $?."),
 
-  BLANK_PEN_IN_CRS_FILE("The PEN field is blank for one or more records in the CRS file on $? $?"),
+  BLANK_PEN_IN_CRS_FILE("The PEN field is blank for one or more records in the CRS file on $? $?."),
 
-  INCORRECT_COURSE_DATE_IN_CRS_FILE("The course session year/month is invalid in the CRS file on line $?"),
-  FILE_NOT_ALLOWED("File type not allowed"),
+  INCORRECT_COURSE_DATE_IN_CRS_FILE("The course session year/month is invalid in the CRS file on line $?."),
+  FILE_NOT_ALLOWED("File type not allowed."),
   EMPTY_EXCEL_NOT_ALLOWED("The file does not contain any records."),
-  COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session"),
-  INVALID_SCHOOL_FOR_UPLOAD("This school is not eligible for graduation records and achievement data collection"),
+  COURSE_FILE_SESSION_ERROR(".CRS file must have at least 1 record with a current or future course session."),
+  INVALID_SCHOOL_FOR_UPLOAD("This school is not eligible for graduation records and achievement data collection."),
   /**
    * School is opening.
    */
@@ -73,7 +73,7 @@ public enum FileError {
   INVALID_SCHOOL_DATES("Invalid school dates - this was not expected."),
   SCHOOL_OUTSIDE_OF_DISTRICT("The school is not in your district and cannot be uploaded."),
   MISSING_MINCODE("The school has been closed for more than 3 months or is not Transcript Eligible. The data cannot be uploaded."),
-  FILE_ENCRYPTED("File is password protected"),
+  FILE_ENCRYPTED("File is password protected."),
   BLANK_PEN_IN_EXCEL("The PEN field cannot be blank. Review the data on line $?."),
   PEN_LENGTH_IN_EXCEL("Submitted PENs cannot be more than 10 digits. Review the data on line $?."),
   LEGAL_SURNAME_IN_EXCEL("Legal Surnames cannot be longer than 25 characters. Review the data on line $?."),
