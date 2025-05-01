@@ -123,6 +123,7 @@ public class RestUtils {
     this.populateSchoolMap();
     this.populateSchoolMincodeMap();
     this.populateDistrictMap();
+    this.populateGradSchoolMap();
     this.populateAssessmentSessionMap();
     this.populateCitizenshipCodesMap();
     this.populateGradGradesMap();
@@ -132,7 +133,6 @@ public class RestUtils {
     this.populateProgramRequirementCodesMap();
     this.populateEquivalencyChallengeCodeMap();
     this.populateGradProgramCodesMap();
-    this.populateGradSchoolMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
