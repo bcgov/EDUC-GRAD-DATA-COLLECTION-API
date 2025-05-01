@@ -524,9 +524,9 @@ public class RestUtils {
   }
 
   public List<GradSchool> getGradSchools() {
-    log.info("Calling Institute api to load schools to memory");
+    log.info("Calling Grad schools api to load schools to memory");
     return this.webClient.get()
-            .uri(this.props.getInstituteApiURL() + "/school")
+            .uri(this.props.getGradSchoolApiURL())
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GradSchool.class)
