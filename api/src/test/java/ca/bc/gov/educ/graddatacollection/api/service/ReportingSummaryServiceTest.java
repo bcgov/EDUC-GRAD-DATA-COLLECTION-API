@@ -70,12 +70,16 @@ class ReportingSummaryServiceTest {
     @Test
     void testGetReportingSummary_Summer_WithClosedDateWithIn3Months() {
         UUID reportingPeriodId = UUID.randomUUID();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime closedDate = now.minusMonths(2);
         ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
                 .reportingPeriodID(reportingPeriodId)
-                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
-                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
-                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
-                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .summerStart(now.minusMonths(1))
+                .summerEnd(now.plusMonths(1))
+                .schYrStart(now.minusMonths(6))
+                .schYrEnd(now.minusMonths(2))
+                .periodStart(now.minusMonths(6))
+                .periodEnd(now.plusMonths(1))
                 .build();
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
         when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
@@ -85,7 +89,7 @@ class ReportingSummaryServiceTest {
                 .schoolCategoryCode("PUBLIC")
                 .facilityTypeCode("STANDARD")
                 .openedDate("1964-09-01T00:00:00")
-                .closedDate("2025-02-01T00:00:00")
+                .closedDate(closedDate.toString())
                 .build();
         when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
 

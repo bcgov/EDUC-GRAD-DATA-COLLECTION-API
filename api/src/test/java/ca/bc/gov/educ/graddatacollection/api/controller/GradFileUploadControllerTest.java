@@ -89,7 +89,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("File type not allowed"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("File type not allowed."));
     }
 
     @Test
@@ -683,8 +683,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @ParameterizedTest
     @CsvSource({
-            "src/test/resources/summer-reporting-missing-header.xlsx, Missing required header Legal Middle Name",
-            "src/test/resources/summer-reporting-header-blank.xlsx, Heading row has a blank cell at column 6",
+            "src/test/resources/summer-reporting-missing-header.xlsx, Missing required header Legal Middle Name.",
+            "src/test/resources/summer-reporting-header-blank.xlsx, Heading row has a blank cell at column 6.",
     })
     void testProcessSchoolXlsxFile_givenEncryptedFile_ShouldReturnStatusBadRequest(final String filePath, final String errorMessage) throws Exception {
         SchoolTombstone schoolTombstone = this.createMockSchool();
