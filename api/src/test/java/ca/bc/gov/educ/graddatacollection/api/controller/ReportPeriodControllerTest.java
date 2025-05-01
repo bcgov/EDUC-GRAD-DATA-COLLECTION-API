@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -44,11 +46,13 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testGetReportingCycleSummary_ShouldReturnReportData() throws Exception {
         var school = this.createMockSchool();
-        school.setCanIssueTranscripts(true);
-
         var listOfSchools = new ArrayList<SchoolTombstone>();
         listOfSchools.add(school);
-        when(this.restUtils.getTranscriptEligibleSchools()).thenReturn(listOfSchools);
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        when(this.restUtils.getAllSchools()).thenReturn(listOfSchools);
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);

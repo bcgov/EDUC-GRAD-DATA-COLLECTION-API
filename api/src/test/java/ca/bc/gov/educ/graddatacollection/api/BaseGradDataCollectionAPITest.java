@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessment;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
@@ -278,6 +279,15 @@ public abstract class BaseGradDataCollectionAPITest {
     schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
     schoolTombstone.setFacilityTypeCode("STANDARD");
     return schoolTombstone;
+  }
+
+  public GradSchool createMockGradSchool() {
+    final GradSchool gradSchool = new GradSchool();
+    gradSchool.setSchoolID(UUID.randomUUID().toString());
+    gradSchool.setCanIssueTranscripts("Y");
+    gradSchool.setCanIssueCertificates("Y");
+    gradSchool.setSubmissionModeCode("Append");
+    return gradSchool;
   }
 
   public School createMockSchoolDetail() {
