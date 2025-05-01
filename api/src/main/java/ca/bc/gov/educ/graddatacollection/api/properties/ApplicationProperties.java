@@ -88,6 +88,8 @@ public class ApplicationProperties {
   private String edxBaseUrl;
   @Value("${folder.base.path}")
   private String folderBasePath;
+  @Value("${url.api.grad.school}")
+  private String gradSchoolApiURL;
 
   public String getFolderBasePath() {
     return StringUtils.isBlank(this.folderBasePath) ? "/temp" : this.folderBasePath;

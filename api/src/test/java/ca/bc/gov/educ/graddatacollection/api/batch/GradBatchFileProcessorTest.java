@@ -25,6 +25,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -171,6 +172,11 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
@@ -225,6 +231,12 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
@@ -282,10 +294,15 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testProcessDistrictBatchFile_givenSchoolTranscriptInEligible_ShouldThrowException() throws Exception {
         var school = this.createMockSchool();
         school.setMincode("07965039");
-        school.setCanIssueTranscripts(false);
         var districtID = UUID.randomUUID();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("N");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
@@ -399,10 +416,15 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_AllConditionsMet() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(true);
+        var school = this.createMockSchool();
         school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(null);
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
@@ -411,8 +433,13 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testValidateSchoolIsTranscriptEligibleAndOpen_TranscriptIneligible() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(false);
         school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("N");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertThrows(FileUnProcessableException.class,
                 () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
@@ -422,8 +449,12 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolOpeningInFuture() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertThrows(FileUnProcessableException.class,
                 () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
@@ -434,8 +465,12 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
         LocalDateTime today = LocalDateTime.now();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate(today.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
@@ -444,9 +479,13 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInFuture() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate(LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
@@ -455,9 +494,13 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInPast() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate(LocalDateTime.now().minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(LocalDateTime.now().minusMonths(4).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertThrows(FileUnProcessableException.class,
                 () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
@@ -468,9 +511,13 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
         LocalDateTime today = LocalDateTime.now();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate(today.minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(today.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertDoesNotThrow(() -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
     }
@@ -479,8 +526,12 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testValidateSchoolIsTranscriptEligibleAndOpen_InvalidOpenDateFormat() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate("Invalid Date");
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertThrows(FileUnProcessableException.class,
                 () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));
@@ -490,9 +541,13 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     void testValidateSchoolIsTranscriptEligibleAndOpen_InvalidCloseDateFormat() {
         String guid = UUID.randomUUID().toString();
         SchoolTombstone school = createMockSchool();
-        school.setCanIssueTranscripts(true);
         school.setOpenedDate(LocalDateTime.now().minusMonths(3).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate("Invalid Date");
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         assertThrows(FileUnProcessableException.class,
                 () -> gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, school, school.getSchoolId()));

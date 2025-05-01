@@ -13,6 +13,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
@@ -98,7 +99,8 @@ public class RestUtils {
   private Boolean isBackgroundInitializationEnabled;
 
   private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
-  private final Map<String, SchoolTombstone> transcriptEligibleSchool = new ConcurrentHashMap<>();
+  private final ReadWriteLock gradSchoolLock = new ReentrantReadWriteLock();
+  private final Map<String, GradSchool> gradSchoolMap = new ConcurrentHashMap<>();
 
   @Autowired
   public RestUtils(@Qualifier("chesWebClient") final WebClient chesWebClient, WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
@@ -130,6 +132,7 @@ public class RestUtils {
     this.populateProgramRequirementCodesMap();
     this.populateEquivalencyChallengeCodeMap();
     this.populateGradProgramCodesMap();
+    this.populateGradSchoolMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -191,9 +194,6 @@ public class RestUtils {
         if (StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
           this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
         }
-        if(Boolean.TRUE.equals(school.getCanIssueTranscripts())) {
-          transcriptEligibleSchool.put(school.getSchoolId(), school);
-        }
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache school {}", ex);
@@ -201,6 +201,21 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} schools to memory", this.schoolMap.values().size());
+  }
+
+  public void populateGradSchoolMap() {
+    val writeLock = this.gradSchoolLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val school : this.getGradSchools()) {
+        this.gradSchoolMap.put(school.getSchoolID(), school);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache grad-school {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} grad-schools to memory", this.gradSchoolMap.values().size());
   }
 
   public void populateSchoolMincodeMap() {
@@ -508,6 +523,17 @@ public class RestUtils {
             .block();
   }
 
+  public List<GradSchool> getGradSchools() {
+    log.info("Calling Institute api to load schools to memory");
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/school")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GradSchool.class)
+            .collectList()
+            .block();
+  }
+
   public List<SchoolCategoryCode> getSchoolCategoryCodeList() {
     if (this.schoolCategoryCodesMap.isEmpty()) {
       log.info("School Category Code map is empty reloading them");
@@ -596,6 +622,22 @@ public class RestUtils {
     return Optional.ofNullable(this.schoolMap.get(schoolID));
   }
 
+  public List<SchoolTombstone> getAllSchools() {
+    if (this.schoolMap.isEmpty()) {
+      log.info("School map is empty reloading schools");
+      this.populateSchoolMap();
+    }
+    return this.schoolMap.values().stream().toList();
+  }
+
+  public Optional<GradSchool> getGradSchoolBySchoolID(final String schoolID) {
+    if (this.gradSchoolMap.isEmpty()) {
+      log.info("School map is empty reloading schools");
+      this.populateGradSchoolMap();
+    }
+    return Optional.ofNullable(this.gradSchoolMap.get(schoolID));
+  }
+
   public Optional<SchoolTombstone> getSchoolByMincode(final String mincode) {
     if (this.schoolMincodeMap.isEmpty()) {
       log.info("School mincode map is empty reloading schools");
@@ -649,22 +691,6 @@ public class RestUtils {
       this.populateDistrictMap();
     }
     return Optional.ofNullable(this.districtMap.get(districtID));
-  }
-
-  public List<SchoolTombstone> getTranscriptEligibleSchools() {
-    if (this.transcriptEligibleSchool.isEmpty()) {
-      log.info("The map is empty reloading schools");
-      this.populateSchoolMap();
-    }
-    return transcriptEligibleSchool.values().stream().toList();
-  }
-
-  public Optional<List<UUID>> getSchoolIDsByIndependentAuthorityID(final String independentAuthorityID) {
-    if (this.independentAuthorityToSchoolIDMap.isEmpty()) {
-      log.info("The map is empty reloading schools");
-      this.populateSchoolMap();
-    }
-    return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class, EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))

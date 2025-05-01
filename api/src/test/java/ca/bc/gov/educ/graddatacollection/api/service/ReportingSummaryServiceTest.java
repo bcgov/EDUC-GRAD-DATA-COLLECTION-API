@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingCycleSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCount;
@@ -57,7 +58,16 @@ class ReportingSummaryServiceTest {
         when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(Collections.emptyList());
         SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
-        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        gradSchool.setSchoolID(school.getSchoolId());
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(school));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
 
@@ -91,7 +101,16 @@ class ReportingSummaryServiceTest {
                 .openedDate("1964-09-01T00:00:00")
                 .closedDate(closedDate.toString())
                 .build();
-        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        gradSchool.setSchoolID(school.getSchoolId());
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(school));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
 
@@ -121,7 +140,17 @@ class ReportingSummaryServiceTest {
                 .openedDate("1964-09-01T00:00:00")
                 .closedDate("2025-01-01T00:00:00")
                 .build();
-        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        gradSchool.setSchoolID(school.getSchoolId());
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(school));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
 
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
 
@@ -144,7 +173,15 @@ class ReportingSummaryServiceTest {
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
         when(incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingPeriodId))
                 .thenReturn(Collections.emptyList());
-        when(restUtils.getTranscriptEligibleSchools()).thenReturn(Collections.emptyList());
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        when(this.restUtils.getAllSchools()).thenReturn(Collections.emptyList());
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Other");
         assertNotNull(result);
@@ -175,8 +212,16 @@ class ReportingSummaryServiceTest {
         
         when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(List.of(submission));
-        SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").build();
-        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school));
+        SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        gradSchool.setSchoolID(school.getSchoolId());
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(school));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         List<SchoolSubmissionCount> result = reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodId, null, true);
         assertNotNull(result);
@@ -216,9 +261,17 @@ class ReportingSummaryServiceTest {
         
         when(incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
                 .thenReturn(List.of(submission1, submission2));
-        SchoolTombstone school1 = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").build();
-        SchoolTombstone school2 = SchoolTombstone.builder().schoolId("SCHOOL2").schoolCategoryCode("INDEPEND").facilityTypeCode("STANDARD").build();
-        when(restUtils.getTranscriptEligibleSchools()).thenReturn(List.of(school1, school2));
+        SchoolTombstone school1 = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
+        SchoolTombstone school2 = SchoolTombstone.builder().schoolId("SCHOOL2").schoolCategoryCode("INDEPEND").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        gradSchool.setSchoolID(school1.getSchoolId());
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(school1, school2));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         List<SchoolSubmissionCount> result = reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodId, "PUBLIC", false);
         assertNotNull(result);
