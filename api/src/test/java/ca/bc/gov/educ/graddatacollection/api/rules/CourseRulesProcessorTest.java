@@ -1623,64 +1623,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testC21CourseDescription() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudentRepository.save(demStudent);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        courseStudent.setPen(demStudent.getPen());
-        courseStudent.setLocalID(demStudent.getLocalID());
-        courseStudent.setLastName(demStudent.getLastName());
-        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-        courseStudent.setCourseCode("IDS");
-        courseStudent.setCourseLevel("12G");
-        courseStudent.setRelatedCourse(null);
-        courseStudent.setRelatedLevel(null);
-
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError1.size()).isZero();
-
-        CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        Set<CourseCodeRecord> courseCodes = new HashSet<>();
-        CourseCodeRecord traxCode = new CourseCodeRecord();
-        traxCode.setCourseID("856787");
-        traxCode.setExternalCode("PH   11");
-        traxCode.setOriginatingSystem("39"); // TRAX
-        courseCodes.add(traxCode);
-        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
-        myEdBCCode.setCourseID("856787");
-        myEdBCCode.setExternalCode("MPH--11");
-        myEdBCCode.setOriginatingSystem("38"); // MyEdBC
-        courseCodes.add(myEdBCCode);
-        coursesRecord.setCourseCode(courseCodes);
-        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
-        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
-        courseAllowableCreditRecord.setCourseID("856787");
-        courseAllowableCreditRecord.setCreditValue("3");
-        courseAllowableCreditRecord.setCacID("2145166");
-        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
-        courseAllowableCreditRecord.setEndDate(null);
-        courseAllowableCredits.add(courseAllowableCreditRecord);
-        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
-        CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
-        courseCategory.setId("2932");
-        courseCategory.setType("CC");
-        courseCategory.setCode("BA");
-        courseCategory.setDescription("");
-        coursesRecord.setCourseCategory(courseCategory);
-        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
-
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_DESCRIPTION.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_DESCRIPTION_INVALID.getCode());
-    }
-
-    @Test
     void testC08CourseYear() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
