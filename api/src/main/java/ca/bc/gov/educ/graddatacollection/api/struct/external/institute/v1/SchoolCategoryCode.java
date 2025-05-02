@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("squid:S1700")
 public class SchoolCategoryCode implements Serializable {
 
