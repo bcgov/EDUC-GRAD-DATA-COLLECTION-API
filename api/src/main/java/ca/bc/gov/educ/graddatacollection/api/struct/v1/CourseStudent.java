@@ -44,6 +44,8 @@ public class CourseStudent extends BaseRequest implements Serializable {
 
     private String  interimPercentage;
 
+    private String  interimGrade;
+
     private String  finalPercentage;
 
     private String  finalGrade;
