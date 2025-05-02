@@ -9,9 +9,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Builder
@@ -66,7 +63,7 @@ public class CourseStudentLightEntity {
   String interimPercentage;
 
   @Column(name = "INTERIM_GRADE")
-  String interimGrade;
+  String interimLetterGrade;
 
   @Column(name = "FINAL_PERCENTAGE")
   String finalPercentage;
