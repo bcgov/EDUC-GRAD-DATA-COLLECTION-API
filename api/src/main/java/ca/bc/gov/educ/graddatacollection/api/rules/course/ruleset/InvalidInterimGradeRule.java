@@ -57,7 +57,7 @@ public class InvalidInterimGradeRule implements CourseValidationBaseRule {
         LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
-        if (StringUtils.isNotBlank(student.getInterimGrade()) && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getInterimGrade()))) {
+        if (StringUtils.isNotBlank(student.getInterimLetterGrade()) && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getInterimLetterGrade()))) {
             log.debug("C23: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage()));
         }
