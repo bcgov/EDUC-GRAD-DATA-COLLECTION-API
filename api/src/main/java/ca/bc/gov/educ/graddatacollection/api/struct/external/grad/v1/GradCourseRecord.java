@@ -14,6 +14,7 @@ public class GradCourseRecord {
     private String language;
     private String startDate;
     private String endDate;
+    private String completionEndDate;
     private String workExpFlag;
     private String genericCourseType;
     private String courseID;
