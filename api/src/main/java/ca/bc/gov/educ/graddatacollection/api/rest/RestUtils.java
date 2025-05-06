@@ -928,7 +928,7 @@ public class RestUtils {
 
       log.info("Assessment Student Detail: " + assessmentStudent);
 
-      Object event = Event.builder().eventType(EventType.CREATE_STUDENT_REGISTRATION).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
+      Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_REGISTRATION).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_ASSESSMENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), eventResult);
@@ -937,7 +937,7 @@ public class RestUtils {
       }
 
     } catch (final Exception ex) {
-      log.error("Error occurred calling CREATE_STUDENT_REGISTRATION service :: " + ex.getMessage());
+      log.error("Error occurred calling PROCESS_STUDENT_REGISTRATION service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
     }
