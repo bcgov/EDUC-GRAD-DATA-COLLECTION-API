@@ -41,12 +41,11 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
             .begin(VALIDATE_ASSESSMENT_STUDENT, this::validateAssessmentStudentRecord)
-            .step(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR, WRITE_ASSESSMENT_STUDENT_IN_EAS, this::writeAssessmentStudentRecordInEAS)
+            .step(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR, PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, this::writeAssessmentStudentRecordInAssessmentService)
             .end(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
             .or()
-            .step(WRITE_ASSESSMENT_STUDENT_IN_EAS, ASSESSMENT_STUDENT_REGISTRATION_WRITTEN_IN_EAS, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
-            .step(WRITE_ASSESSMENT_STUDENT_IN_EAS, ASSESSMENT_STUDENT_REGISTRATION_ALREADY_EXISTS_IN_EAS, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
-            .step(WRITE_ASSESSMENT_STUDENT_IN_EAS, ASSESSMENT_STUDENT_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
+            .step(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, ASSESSMENT_STUDENT_REGISTRATION_PROCESSED, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateAssessmentStudentStatus)
+            .step(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, ASSESSMENT_STUDENT_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateAssessmentStudentStatus)
             .end(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, ASSESSMENT_STATUS_IN_COLLECTION_UPDATED);
   }
 
@@ -71,9 +70,9 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void writeAssessmentStudentRecordInEAS(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
+  public void writeAssessmentStudentRecordInAssessmentService(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(WRITE_ASSESSMENT_STUDENT_IN_EAS.toString());
+    saga.setSagaState(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
     var student = assessmentStudentSagaData.getAssessmentStudent();
@@ -81,17 +80,12 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     var demStudent = assessmentRulesService.getDemographicDataForStudent(UUID.fromString(student.getIncomingFilesetID()),student.getPen(), student.getLastName(), student.getLocalID());
 
     final Event.EventBuilder eventBuilder = Event.builder();
-    eventBuilder.sagaId(saga.getSagaId()).eventType(WRITE_ASSESSMENT_STUDENT_IN_EAS);
+    eventBuilder.sagaId(saga.getSagaId()).eventType(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE);
 
     if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
       var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-      var eventResult = restUtils.writeAssessmentStudentDetailInEAS(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
-
-      if(eventResult.getEventOutcome().equalsIgnoreCase(STUDENT_ALREADY_EXIST.toString())) {
-        eventBuilder.eventOutcome(ASSESSMENT_STUDENT_REGISTRATION_ALREADY_EXISTS_IN_EAS);
-      }else{
-        eventBuilder.eventOutcome(ASSESSMENT_STUDENT_REGISTRATION_WRITTEN_IN_EAS);
-      }
+      restUtils.writeAssessmentStudentDetailInAssessmentService(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
+      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_REGISTRATION_PROCESSED);
     }else{
       eventBuilder.eventOutcome(ASSESSMENT_STUDENT_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR);
     }
@@ -101,7 +95,7 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void updateCourseStudentStatus(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
+  public void updateAssessmentStudentStatus(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION.toString());
     saga.setStatus(IN_PROGRESS.toString());

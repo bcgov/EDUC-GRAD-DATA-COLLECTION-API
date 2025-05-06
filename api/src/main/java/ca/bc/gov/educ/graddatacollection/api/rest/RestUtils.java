@@ -898,7 +898,7 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public EasEvent writeAssessmentStudentDetailInEAS(AssessmentStudent student, String assessmentID, SchoolTombstone schoolTombstone) {
+  public EasEvent writeAssessmentStudentDetailInAssessmentService(AssessmentStudent student, String assessmentID, SchoolTombstone schoolTombstone) {
     try {
       final TypeReference<EasEvent> eventResult = new TypeReference<>() {
       };
