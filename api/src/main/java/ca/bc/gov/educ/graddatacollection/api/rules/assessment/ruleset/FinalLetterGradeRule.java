@@ -47,7 +47,7 @@ public class FinalLetterGradeRule implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getFinalLetterGrade())) {
             log.debug("V09: Final letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.FINAL_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V06 | WARNING  | Interim letter grade value is ignored and must be blank.              |   V03  |
+ *  | V06 | ERROR  | Interim letter grade value is ignored and must be blank.              |   V03  |
  *
  */
 @Component
@@ -47,7 +47,7 @@ public class InterimLetterGradeRule implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getInterimLetterGrade())) {
             log.debug("V06: Interim letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.INTERIM_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

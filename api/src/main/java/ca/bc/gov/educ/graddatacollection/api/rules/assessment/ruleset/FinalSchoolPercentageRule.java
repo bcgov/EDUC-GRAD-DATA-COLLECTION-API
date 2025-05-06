@@ -47,7 +47,7 @@ public class FinalSchoolPercentageRule implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getFinalSchoolPercent())) {
             log.debug("V07: Final school percentage value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.FINAL_SCHOOL_PERCENT, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_SCHOOL_PERCENT, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;
     }

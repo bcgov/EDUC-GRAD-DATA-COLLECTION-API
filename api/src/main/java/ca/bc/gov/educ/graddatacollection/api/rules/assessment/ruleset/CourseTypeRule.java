@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V12 | WARNING  |  Course type value is ignored and must be blank                       |V03|
+ *  | V12 | ERROR  |  Course type value is ignored and must be blank                       |V03|
  *
  */
 @Component
@@ -47,7 +47,7 @@ public class CourseTypeRule implements AssessmentValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getCourseType())){
             log.debug("V12: Course type value is ignored and must be blank :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.CRSE_TYPE, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.CRSE_TYPE, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getMessage()));
         }
         return errors;
     }
