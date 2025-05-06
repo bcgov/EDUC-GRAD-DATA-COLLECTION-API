@@ -44,11 +44,11 @@ public class CourseStudent extends BaseRequest implements Serializable {
 
     private String  interimPercentage;
 
-    private String  interimGrade;
+    private String  interimLetterGrade;
 
     private String  finalPercentage;
 
-    private String  finalGrade;
+    private String  finalLetterGrade;
 
     private String  courseStatus;
 

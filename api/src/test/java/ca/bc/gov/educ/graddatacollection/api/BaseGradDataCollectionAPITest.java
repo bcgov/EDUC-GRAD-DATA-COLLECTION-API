@@ -209,7 +209,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .finalPercentage("92")
             .numberOfCredits("3")
             .interimPercentage("70")
-            .interimGrade("C+")
+            .interimLetterGrade("C+")
             .courseCode("PH")
             .courseLevel("12")
             .localID("8887555")

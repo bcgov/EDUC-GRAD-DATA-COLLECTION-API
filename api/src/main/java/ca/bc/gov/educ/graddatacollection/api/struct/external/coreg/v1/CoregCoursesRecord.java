@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,6 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CoregCoursesRecord {
     private String courseID;
     private String sifSubjectCode;

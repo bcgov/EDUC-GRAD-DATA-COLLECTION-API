@@ -39,7 +39,7 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C29: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C29", validationErrorsMap) && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getInterimGrade());
+        var shouldExecute = isValidationDependencyResolved("C29", validationErrorsMap) && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getInterimLetterGrade());
 
         log.debug("In shouldExecute of C29: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
@@ -59,7 +59,7 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
 
         if (StringUtils.isNotBlank(student.getInterimPercentage())) {
             int interimPercentage = Integer.parseInt(student.getInterimPercentage());
-            Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimGrade())).findFirst();
+            Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimLetterGrade())).findFirst();
 
             if (optionalStudentLetterGrade.isEmpty() ||
                     interimPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
