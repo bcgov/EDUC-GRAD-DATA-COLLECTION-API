@@ -502,6 +502,39 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testD27SCCPCompletionDateAlreadyReportedRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        demStudent.setSchoolCertificateCompletionDate("2025-01-16");
+
+        var gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setProgramCompletionDate("2025-01-15T00:00:00+01:00");
+        gradStudentRecord.setSchoolAtGradId(UUID.randomUUID().toString());
+        gradStudentRecord.setGraduated("false");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+
+        when(restUtils.getGradStudentRecordByStudentID(any(UUID.class), any(UUID.class))).thenReturn(gradStudentRecord);
+
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudent.setGradRequirementYear("SCCP");
+        demographicStudent.setGrade("08");
+        demographicStudent.setSchoolCertificateCompletionDate("20250116");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+
+        var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
+        var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED.getCode()));
+        assertThat(issueCode).isTrue();
+        assertThat(errorCode).isTrue();
+    }
+
+    @Test
     void testD24DemographicValidGradeProgramRule() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);

@@ -99,6 +99,7 @@ class RestUtilsTest {
                 "Program A",
                 "20230615",
                 "School XYZ",
+                "School XYZ",
                 "Active",
                 "true"
         );

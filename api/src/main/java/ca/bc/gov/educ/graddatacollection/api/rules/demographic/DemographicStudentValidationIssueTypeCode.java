@@ -31,6 +31,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   SCCP_INVALID_DATE("SCCPINVALIDDATE", "The submitted SCCP Completion Date %s is not a valid date. The format must be YYYYMMDD."),
   SCCP_DATE_TOO_EARLY("SCCPDATETOOEARLY", "The submitted SCCP Completion Date %s date cannot be before 1993/07/01."),
   SCCP_INVALID_STUDENT_PROGRAM("SCCPINVALIDSTUDENTPROGRAM", "Student is not on the SCCP program. The submitted completion date will not be updated."),
+  SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED("SCCPINVALIDALREADYREPORTED", "The student has already been reported as completing SCCP in %s. This date will not be updated. Please contact student.certification@gov.bc.ca for assistance."),
   STUDENT_BIRTHDATE_INVALID("STUDENTBIRTHDATEINVALID", "The submitted birthdate %s is not a valid date. The format must be YYYYMMDD."),
   STUDENT_BIRTHDATE_ADULT("STUDENTBIRTHDATEADULT", "Student cannot start the Adult Graduation Program before they are 18 years old."),
   STUDENT_PROGRAM_CODE_INVALID("STUDENTPROGRAMCODEINVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification."),
