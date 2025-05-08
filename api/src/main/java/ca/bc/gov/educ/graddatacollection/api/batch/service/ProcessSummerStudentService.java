@@ -149,7 +149,9 @@ public class ProcessSummerStudentService {
         String courseYear = null;
         String courseMonth = null;
 
-        if(StringUtils.isNotBlank(course)) {
+        if(StringUtils.isNotBlank(course) && course.length() < 5) {
+            courseCode = course;
+        }else if(StringUtils.isNotBlank(course) && course.length() > 5) {
             courseCode = course.substring(0, 4);
             courseLevel = course.substring(5);
         }
