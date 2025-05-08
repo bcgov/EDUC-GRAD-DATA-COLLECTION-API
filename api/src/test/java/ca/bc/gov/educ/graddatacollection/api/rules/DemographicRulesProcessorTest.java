@@ -131,7 +131,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecordId("03636018");
         gradStudentRecord.setStudentStatusCode("CUR");
-        gradStudentRecord.setProgramCompletionDate("2023-06-30 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
         gradStudentRecord.setGraduated("false");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
@@ -497,6 +497,39 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
         var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID.getCode()));
+        assertThat(issueCode).isTrue();
+        assertThat(errorCode).isTrue();
+    }
+
+    @Test
+    void testD27SCCPCompletionDateAlreadyReportedRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+        demStudent.setSchoolCertificateCompletionDate("2025-01-16");
+
+        var gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setProgramCompletionDate("2025-01-15T00:00:00+01:00");
+        gradStudentRecord.setSchoolAtGradId(UUID.randomUUID().toString());
+        gradStudentRecord.setGraduated("false");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+
+        when(restUtils.getGradStudentRecordByStudentID(any(UUID.class), any(UUID.class))).thenReturn(gradStudentRecord);
+
+        var demographicStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudent.setGradRequirementYear("SCCP");
+        demographicStudent.setGrade("08");
+        demographicStudent.setSchoolCertificateCompletionDate("20250116");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        assertThat(validationError2.size()).isNotZero();
+
+        var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
+        var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED.getCode()));
         assertThat(issueCode).isTrue();
         assertThat(errorCode).isTrue();
     }
@@ -894,7 +927,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setSchoolOfRecordId(UUID.randomUUID().toString());
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("true");
-        gradStudentRecord.setProgramCompletionDate("2023-01-01 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2023-01-01T00:00:00+01:00");
         gradStudentRecord.setProgram("2018");
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
@@ -1082,7 +1115,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demStudent.setGradRequirementYear("");
         demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
-        gradStudentRecord.setProgramCompletionDate("2025-01-15 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2025-01-15T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
         gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
         gradStudentRecord.setStudentStatusCode("CUR");
@@ -1127,7 +1160,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demStudent.setGradRequirementYear("");
         demStudent.setGrade(SchoolGradeCodes.GRADUATED_ADULT.getCode());
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
-        gradStudentRecord.setProgramCompletionDate("2025-01-15 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2025-01-15T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
         gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
         gradStudentRecord.setStudentStatusCode("CUR");
@@ -1204,7 +1237,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
-        gradStudentRecord.setProgramCompletionDate("2024-01-15 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2024-01-15T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
         gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
 
@@ -1239,7 +1272,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demStudent.setGrade(SchoolGradeCodes.GRADUATED_ADULT.getCode());
         school.setSchoolCategoryCode(SchoolCategoryCodes.INDP_FNS.getCode());
 
-        gradStudentRecord.setProgramCompletionDate("2024-01-15 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2024-01-15T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
         gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
 

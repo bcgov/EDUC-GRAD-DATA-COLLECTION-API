@@ -99,11 +99,12 @@ class RestUtilsTest {
                 "Program A",
                 "20230615",
                 "School XYZ",
+                "School XYZ",
                 "Active",
                 "true"
         );
 
-        String jsonResponse = "{\"studentID\":\"123456789\", \"exception\":\"\", \"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecordId\":\"School XYZ\",\"studentStatusCode\":\"Active\", \"graduated\":\"true\"}";
+        String jsonResponse = "{\"studentID\":\"123456789\", \"exception\":\"\", \"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecordId\":\"School XYZ\",\"schoolAtGradId\":\"School XYZ\",\"studentStatusCode\":\"Active\", \"graduated\":\"true\"}";
         byte[] mockResponseData = jsonResponse.getBytes();
 
         io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
