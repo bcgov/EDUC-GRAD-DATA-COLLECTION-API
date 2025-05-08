@@ -291,7 +291,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecordId("03636018");
         gradStudentRecord.setStudentStatusCode("CUR");
-        gradStudentRecord.setProgramCompletionDate("2023-06-30 00:00:00.000");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
