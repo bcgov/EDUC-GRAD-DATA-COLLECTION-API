@@ -178,7 +178,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
 
     private void setLegalSurname(final SummerStudentData summerStudent, final int rowNum, final Cell cell,  final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 25) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 25) {
             throw new FileUnProcessableException(FileError.LEGAL_SURNAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setLegalSurname(fieldValue);
@@ -186,7 +186,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
 
     private void setFirstName(final SummerStudentData summerStudent, final int rowNum, final Cell cell,  final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 25) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 25) {
             throw new FileUnProcessableException(FileError.LEGAL_FIRST_NAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setLegalFirstName(fieldValue);
@@ -194,7 +194,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
 
     private void setCourse(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 8) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 8) {
             throw new FileUnProcessableException(FileError.COURSE_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setCourse(fieldValue);
@@ -222,28 +222,28 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
     }
     private void setFinalPercent(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 3) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 3) {
             throw new FileUnProcessableException(FileError.FINAL_SCH_PERCENT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setFinalPercent(fieldValue);
     }
     private void setFinalLetterGrade(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 2) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 2) {
             throw new FileUnProcessableException(FileError.FINAL_LETTER_GRADE_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setFinalLetterGrade(fieldValue);
     }
     private void setNoOfCredits(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 1) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 1) {
             throw new FileUnProcessableException(FileError.NO_OF_CREDITS_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setNoOfCredits(fieldValue);
     }
     private void setMiddleName(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(fieldValue.length() > 25) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 25) {
             throw new FileUnProcessableException(FileError.LEGAL_MIDDLE_NAME_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setLegalMiddleName(fieldValue);
