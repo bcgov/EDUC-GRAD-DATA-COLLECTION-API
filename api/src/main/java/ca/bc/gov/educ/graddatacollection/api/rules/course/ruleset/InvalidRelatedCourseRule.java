@@ -18,8 +18,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C19 | ERROR    | These fields can only be accepted if the students' course is an       |   C03, C16   |
- *  |      |          | Independent Directed Studies course
+ *  | C19  | ERROR    | A related course code and level can only be applied to an Independent | C03, C16     |
+ *  |      |          | Directed Studies course. This course cannot be updated.               |              |
  */
 @Component
 @Slf4j
@@ -54,7 +54,7 @@ public class InvalidRelatedCourseRule implements CourseValidationBaseRule {
 
         if (StringUtils.isNotBlank(courseStudent.getRelatedCourse()) && StringUtils.isNotBlank(courseStudent.getRelatedLevel())
                 && coursesRecord != null && !"Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
-            log.debug("C19: Error: Invalid entry. A related course code can only be applied to an Independent Directed Studies course. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
+            log.debug("C19: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES.getMessage(), courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES.getMessage()));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_LEVEL, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES, CourseStudentValidationIssueTypeCode.COURSE_NOT_INDEPENDENT_DIRECTED_STUDIES.getMessage()));
         }

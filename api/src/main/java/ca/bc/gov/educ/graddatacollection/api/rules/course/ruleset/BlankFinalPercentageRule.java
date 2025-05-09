@@ -19,9 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C31 | ERROR    | If course session is prior to 199409 no Final percent should be       |C03, C24|
- *                      entered for these courses.  This field should be blank.
- *
+ *  | C31  | ERROR    | If course session is prior to 199409 no Final percent should be       |C03, C24      |
+ *  |      |          | entered for these courses.  This field should be blank.               |              |
  */
 @Component
 @Slf4j
@@ -54,7 +53,7 @@ public class BlankFinalPercentageRule implements CourseValidationBaseRule {
                 YearMonth cutoffDate = YearMonth.of(1994, 9);
 
                 if (courseSession.isBefore(cutoffDate) && !StringUtils.isBlank(student.getFinalPercentage())) {
-                    log.debug("C31: Error: For course session dates prior to 199409 the final percent must be blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                    log.debug("C31: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_PCT_NOT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {

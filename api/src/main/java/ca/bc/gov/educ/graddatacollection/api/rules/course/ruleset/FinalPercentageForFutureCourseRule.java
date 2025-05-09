@@ -19,9 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C24 | ERROR    | Final pct or Final Letter Grade should not be included for future     | C03, C16|
- *  |      |          | courses
- *  |      |          | Future = Course Session > today's date
+ *  | C24  | ERROR    | Final pct or Final Letter Grade should not be included for future     | C03, C16     |
+ *  |      |          | courses                                                               |              |
  */
 @Component
 @Slf4j
@@ -53,7 +52,7 @@ public class FinalPercentageForFutureCourseRule implements CourseValidationBaseR
                 YearMonth currentDate = YearMonth.now();
 
                 if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalLetterGrade()) || StringUtils.isNotBlank(student.getFinalPercentage()))) {
-                    log.debug("C24: Error: Final mark submitted but course session date is in the future. Change the course session date or remove the final mark. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                    log.debug("C24: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {

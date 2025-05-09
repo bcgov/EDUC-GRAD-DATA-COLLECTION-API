@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C38 | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  |C03, C32  |
- *
+ *  | C38  | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | C03, C32     |
  */
 @Component
 @Slf4j
@@ -47,7 +46,7 @@ public class FinalLetterGradeRMRule implements CourseValidationBaseRule {
         List<String> acceptableCourses = List.of("GT", "GTF");
 
         if (StringUtils.equalsIgnoreCase(student.getFinalLetterGrade(), "RM") && acceptableCourses.stream().noneMatch(course -> StringUtils.equalsIgnoreCase(course, student.getCourseCode()))) {
-            log.debug("C38: Error: RM can only be used for course codes GT or GTF. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+            log.debug("C38: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM.getMessage(), student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_RM.getMessage()));
         }
         return errors;

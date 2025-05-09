@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C30 | ERROR    | Final percent cannot be negative or greater than 100                  | C03, C24|
- *
+ *  | C30  | ERROR    | Final percent cannot be negative or greater than 100                  | C03, C24     |
  */
 @Component
 @Slf4j
@@ -46,14 +45,14 @@ public class InvalidFinalPercentageRule implements CourseValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getFinalPercentage())) {
             try {
-                double finalePercentage = Double.parseDouble(student.getFinalPercentage());
+                double finalPercentage = Double.parseDouble(student.getFinalPercentage());
 
-                if (finalePercentage < 0 || finalePercentage > 100) {
-                    log.debug("C30: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                if (finalPercentage < 0 || finalPercentage > 100) {
+                    logDebugStatement(CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
                 }
             } catch (NumberFormatException e) {
-                log.debug("C30: Error: Final percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                logDebugStatement(CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID, CourseStudentValidationIssueTypeCode.FINAL_PCT_INVALID.getMessage()));
             }
 
@@ -61,4 +60,7 @@ public class InvalidFinalPercentageRule implements CourseValidationBaseRule {
         return errors;
     }
 
+    private void logDebugStatement(String errorMessage, java.util.UUID courseStudentID) {
+        log.debug("C30: Error: {} for courseStudentID :: {}", errorMessage, courseStudentID);
+    }
 }

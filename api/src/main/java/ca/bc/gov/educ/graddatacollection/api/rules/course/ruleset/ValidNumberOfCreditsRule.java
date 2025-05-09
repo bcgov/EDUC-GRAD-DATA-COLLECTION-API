@@ -18,8 +18,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C18 | ERROR    | The number of credits must be equal to at least one of the Course     |   C03, C16   |
- *  |      |          | Allowable Credits that were available for the course session.
+ *  | C18  | ERROR    | The number of credits reported for the course is not an allowable     | C03, C16     |
+ *  |      |          | credit value in the Course Registry. This course cannot be updated.   |              |
  */
 @Component
 @Slf4j
@@ -55,7 +55,7 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
         if (coursesRecord != null && StringUtils.isNotBlank(student.getNumberOfCredits())) {
             var creds = StringUtils.stripStart(student.getNumberOfCredits(),"0");
             if (coursesRecord.getCourseAllowableCredit().stream().noneMatch(cac -> cac.getCreditValue().equalsIgnoreCase(creds))) {
-                log.debug("C18: Error: The number of credits reported for the course is not an allowable credit value in the Course Registry. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
             }
         } else {

@@ -17,7 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C08 | ERROR    | Course year cannot be null - must be four characters                  |   C03 |
+ *  | C08  | ERROR    | Course has been submitted with a blank course year. This course can-  | C03          |
+ *  |      |          | not be updated.                                                       |              |
  */
 
 @Component
@@ -45,7 +46,7 @@ public class CourseYearRule implements CourseValidationBaseRule {
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isBlank(student.getCourseYear()) || !student.getCourseYear().matches("\\d{4}")) {
-            log.debug("C08: Error: Course year must be four characters. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+            log.debug("C08: Error: {} for courseStudentID :: {}", student.getCourseStudentID(), CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getMessage());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID, CourseStudentValidationIssueTypeCode.COURSE_YEAR_INVALID.getMessage()));
         }
         return errors;

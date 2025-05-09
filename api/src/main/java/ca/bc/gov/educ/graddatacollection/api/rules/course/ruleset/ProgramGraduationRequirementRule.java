@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C17 | ERROR    | Must be blank for 1986 graduation program	                          |  C03, C10  |
- *
+ *  | C17  | ERROR    | The submitted value <CRS VALUE> is not an allowable value for         | C03, C10     |
+ *  |      |          | students on the 1986 program. This course cannot be updated.          |              |
  */
 @Component
 @Slf4j
@@ -48,8 +49,9 @@ public class ProgramGraduationRequirementRule implements CourseValidationBaseRul
 
         if (demStudent != null && StringUtils.isNotBlank(demStudent.getGradRequirementYear())
                 && demStudent.getGradRequirementYear().equalsIgnoreCase(GradRequirementYearCodes.YEAR_1986.getCode()) && StringUtils.isNotBlank(courseStudent.getCourseGraduationRequirement())) {
-            log.debug("C17: Error: Invalid entry. Values not applicable for students on the 1986 program. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID.getMessage()));
+            String errorMessage = CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(courseStudent.getCourseGraduationRequirement()));
+            log.debug("C17: Error: {} for courseStudentID :: {}", errorMessage, courseStudent.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_INVALID, errorMessage));
         }
         return errors;
     }
