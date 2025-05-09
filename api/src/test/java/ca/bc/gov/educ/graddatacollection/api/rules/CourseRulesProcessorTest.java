@@ -168,6 +168,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage());
     }
 
     @Test
