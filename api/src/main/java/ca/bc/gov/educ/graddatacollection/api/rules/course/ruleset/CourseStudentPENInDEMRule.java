@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C01 | ERROR    | Must match a PEN in the .DEM file along with Student Surname,         | -            |
+ *  | C01  | ERROR    | Must match a PEN in the .DEM file along with Student Surname,         | -            |
  *                      Mincode and Student Local ID
  */
 @Component
@@ -54,7 +54,7 @@ public class CourseStudentPENInDEMRule implements CourseValidationBaseRule {
         var isPresent = courseRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 
         if (!isPresent) {
-            log.debug("V201: This student is missing demographic data based on Student PEN, Surname and Local Id for courseStudentID :: {}", student.getCourseStudentID());
+            log.debug("V201: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
         }
         return errors;

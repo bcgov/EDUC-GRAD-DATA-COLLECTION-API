@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +20,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C09 | ERROR    | Must be a valid code	                                    	      |  C03  |
- *
+ *  | C09  | ERROR    | The submitted value <CRS VALUE> is not an allowable value, per the    | C03          |
+ *  |      |          | current GRAD file specification. This course cannot be updated.       |              |
  */
 @Component
 @Slf4j
@@ -56,8 +57,9 @@ public class InvalidCourseTypeRule implements CourseValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getCourseType()) &&
                 equivalencyChallengeCodesList.stream().noneMatch(equivalencyChallengeCode -> student.getCourseType().equalsIgnoreCase(equivalencyChallengeCode.getEquivalentOrChallengeCode()))) {
-            log.debug("C09: Error: Invalid entry, the reported value will be ignored. Report E or C or leave blank. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_TYPE, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID.getMessage()));
+            String errorMessage = CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCourseType()));
+            log.debug("C09: Error: {} for courseStudentID :: {}", errorMessage, student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_TYPE, CourseStudentValidationIssueTypeCode.EQUIVALENCY_CHALLENGE_CODE_INVALID, errorMessage));
         }
         return errors;
     }

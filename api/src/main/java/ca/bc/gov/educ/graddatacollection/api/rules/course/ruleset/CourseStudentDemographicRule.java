@@ -18,9 +18,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C02 | ERROR    |  Student CRS record will not be processed due to an issue with the    |-----C01-----|
- *                       student's demographics
- *
+ *  | C02  | ERROR    | An error in the DEM file for this student is preventing the process-  | C01          |
+ *  |      |          | ing of their course data.                                             |              |
  */
 @Component
 @Slf4j

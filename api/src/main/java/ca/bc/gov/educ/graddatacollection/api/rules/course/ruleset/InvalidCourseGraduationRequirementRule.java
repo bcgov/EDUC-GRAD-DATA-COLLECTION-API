@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C10 | ERROR    | Must be a valid Fine Arts/Applied Skills code: A, F, B                |   C03       |
+ *  | C10  | ERROR    | The submitted value <CRS VALUE> is not an allowable value, per the    | C03          |
+ *  |      |          | current GRAD file specification. This course cannot be updated.       |              |
  */
 @Component
 @Slf4j
@@ -46,8 +48,9 @@ public class InvalidCourseGraduationRequirementRule implements CourseValidationB
 
         if (StringUtils.isNotBlank(courseStudent.getCourseGraduationRequirement())
             && !FineArtsAppliedSkillsCourseGradReqt.getCodes().contains(courseStudent.getCourseGraduationRequirement())) {
-            log.debug("C10:Error: Invalid Fine Arts/Applied Skills code.  Must be one of A, F or B for courseStudentID :: {}", courseStudent.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.INVALID_FINE_ARTS_APPLIED_SKILLS_CODE, CourseStudentValidationIssueTypeCode.INVALID_FINE_ARTS_APPLIED_SKILLS_CODE.getMessage()));
+            String errorMessage = CourseStudentValidationIssueTypeCode.INVALID_FINE_ARTS_APPLIED_SKILLS_CODE.getMessage().formatted(StringEscapeUtils.escapeHtml4(courseStudent.getCourseGraduationRequirement()));
+            log.debug("C10: Error: {} for courseStudentID :: {}", errorMessage, courseStudent.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.INVALID_FINE_ARTS_APPLIED_SKILLS_CODE, errorMessage));
         }
 
         return errors;

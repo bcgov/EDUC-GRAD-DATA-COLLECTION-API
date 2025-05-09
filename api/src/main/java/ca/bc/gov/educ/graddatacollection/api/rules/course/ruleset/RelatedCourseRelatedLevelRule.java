@@ -17,8 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C20 | ERROR    | If the course is an independent directed studies, there should be     |   C03, C16   |
- *  |      |          | a related course code and related course level.
+ *  | C20  | ERROR    | If the course is an independent directed studies, there should be a   | C03, C16     |
+ *  |      |          | related course code and related course level.
  */
 @Component
 @Slf4j
@@ -52,7 +52,7 @@ public class RelatedCourseRelatedLevelRule implements CourseValidationBaseRule {
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(), courseStudent.getCourseLevel());
 
         if (coursesRecord != null && "Independent Directed Studies".equalsIgnoreCase(coursesRecord.getProgramGuideTitle())) {
-            log.debug("C20: Error: Related course code and level missing for Independent Directed Studies course. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
+            log.debug("C20: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY.getMessage(), courseStudent.getCourseStudentID());
             if (courseStudent.getRelatedCourse() == null) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY.getMessage()));
             }

@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C22 | ERROR    | Interim percent cannot be negative or greater than 100                | C03, C16|
- *
+ *  | C22  | ERROR    | Interim percent range must be 0 to 100. This course cannot be updated.| C03, C16     |
  */
 @Component
 @Slf4j
@@ -49,11 +48,11 @@ public class InvalidInterimPercentageRule implements CourseValidationBaseRule {
                 double interimPercentage = Double.parseDouble(student.getInterimPercentage());
 
                 if (interimPercentage < 0 || interimPercentage > 100) {
-                    log.debug("C22: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                    logDebugStatement(CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
                 }
             } catch (NumberFormatException e) {
-                log.debug("C22: Error: Interim percent range must be 0 to 100. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
+                logDebugStatement(CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_PCT_INVALID.getMessage()));
             }
 
@@ -61,4 +60,7 @@ public class InvalidInterimPercentageRule implements CourseValidationBaseRule {
         return errors;
     }
 
+    private void logDebugStatement(String errorMessage, java.util.UUID courseStudentID) {
+        log.debug("C22: Error: {} for courseStudentID :: {}", errorMessage, courseStudentID);
+    }
 }

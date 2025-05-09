@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C07 | ERROR    | Course month must be between 01 and 12                                |   C03  |
+ *  | C07  | ERROR    | The submitted value <CRS VALUE> is not an allowable value, per the    | C03          |
+ *  |      |          | current GRAD file specification. This course cannot be updated.       |              |
  */
 @Component
 @Slf4j
@@ -42,24 +44,29 @@ public class CourseMonthRule implements CourseValidationBaseRule {
         var student = studentRuleData.getCourseStudentEntity();
         log.debug("In executeValidation of C07 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
+        String errorMessage = CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCourseMonth()));
 
         if (StringUtils.isNotBlank(student.getCourseMonth())) {
             try {
                 int monthValue = Integer.parseInt(student.getCourseMonth());
 
                 if (monthValue > 12 || monthValue < 1) {
-                    log.debug("C07: Error: Course is not blank. Course month must be between 01 and 12 (January to December). This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage()));
+                    logDebugStatement(errorMessage, student.getCourseStudentID());
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, errorMessage));
                 }
             } catch (NumberFormatException e) {
-                log.debug("C07: Skipping validation due to invalid course month for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage()));
+                logDebugStatement(errorMessage, student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, errorMessage));
             }
         } else {
-            log.debug("C07: Error: Course is blank. Course month must be between 01 and 12 (January to December). This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID.getMessage()));
+            logDebugStatement(errorMessage, student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_MONTH_INVALID, errorMessage));
         }
         return errors;
+    }
+
+    private void logDebugStatement(String errorMessage, java.util.UUID courseStudentID) {
+        log.debug("C07: Error: {} for courseStudentID :: {}", errorMessage, courseStudentID);
     }
 
 }

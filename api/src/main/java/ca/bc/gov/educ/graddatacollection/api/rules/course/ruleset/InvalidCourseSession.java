@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C16 | ERROR    | Course session must be no greater than next school year or no less    |C03, C07, C08 |
- *                      than 198401
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C16  | ERROR    | Course session date cannot be beyond the current reporting year or    | C03, C07, C08 |
+ *  |      |          | before 1984/01. This course cannot be updated.                        |               |
  */
 @Component
 @Slf4j
@@ -54,7 +54,7 @@ public class InvalidCourseSession implements CourseValidationBaseRule {
             YearMonth nextSchoolYearEnd = YearMonth.of(currentSchoolYearStart.getYear() + 1, 9);
 
             if (courseSession.isBefore(earliestValidDate) || courseSession.isAfter(nextSchoolYearEnd)) {
-                log.debug("C16: Error: Course session is too far into the future (next year reporting cycle) or too far in the past. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                log.debug("C16: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
             }

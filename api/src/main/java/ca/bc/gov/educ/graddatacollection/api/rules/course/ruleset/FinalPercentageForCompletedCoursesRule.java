@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C25 | ERROR    | Final pct or Final Letter Grade should be included for completed      | C03, C16  |
+ *  | C25  | ERROR    | Final pct or Final Letter Grade should be included for completed      | C03, C16     |
  *  |      |          | courses
  *  |      |          | Future = Course Session < today's date
  */
@@ -54,7 +54,7 @@ public class FinalPercentageForCompletedCoursesRule implements CourseValidationB
                 YearMonth cutoffDate = YearMonth.of(1994, 9);
 
                 if (courseSession.isBefore(currentDate) && (StringUtils.isBlank(student.getFinalLetterGrade()) || (courseSession.isAfter(cutoffDate) && StringUtils.isBlank(student.getFinalPercentage())))) {
-                    log.debug("C25: Error: Course session has passed with no final mark. Report final mark or change the course session date. This course will not be updated / added. for courseStudentID :: {}", student.getCourseStudentID());
+                    log.debug("C25: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()));
                 }
             } catch (NumberFormatException | DateTimeException e) {
