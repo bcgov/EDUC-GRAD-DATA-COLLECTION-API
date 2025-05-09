@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C13 | WARN     | Course session date plus day of 01 should not be before the course    |C03, C07, C08 |
- *  |      |          | start date
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C13  | WARN     | The course was not open for the submitted session date. This course   | C03, C07, C08 |
+ *  |      |          | cannot be updated.                                                    |               |
  */
 @Component
 @Slf4j
@@ -58,7 +58,7 @@ public class CourseSessionBeforeCourseStartRule implements CourseValidationBaseR
             LocalDateTime courseStartDate = LocalDateTime.parse(coursesRecord.getStartDate());
 
             if (courseSessionDate.isBefore(courseStartDate.toLocalDate())) {
-                log.debug("C13: Warning: The school is reporting a student enrolled in a course at time when the course was not open (i.e., course session date is before the course open date). for courseStudentID :: {}", student.getCourseStudentID());
+                log.debug("C13: Warning: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage()));
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.COURSE_YEAR, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_START_DATE_INVALID.getMessage()));
             }

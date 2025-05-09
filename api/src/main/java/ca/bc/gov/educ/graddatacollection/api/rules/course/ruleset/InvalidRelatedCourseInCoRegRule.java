@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C28 | ERROR    | Related Course Code and Related Course Level must be a valid          |C03, C19, C20 |
+ *  | C28  | ERROR    | Related Course Code and Related Course Level must be a valid          |C03, C19, C20 |
  *  |      |          | course/level
  */
 @Component
@@ -53,9 +54,10 @@ public class InvalidRelatedCourseInCoRegRule implements CourseValidationBaseRule
         if (StringUtils.isNotBlank(courseStudent.getRelatedCourse()) && StringUtils.isNotBlank(courseStudent.getRelatedLevel())) {
             var relatedCourseRecord = courseRulesService.getCoregRelatedCoursesRecord(studentRuleData, courseStudent.getRelatedCourse(),  courseStudent.getRelatedLevel());
             if(relatedCourseRecord == null) {
-                log.debug("C28: Error: Invalid related course code used for the Independent Directed Studies course. Please check the Course Registry. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID.getMessage()));
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_LEVEL, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID.getMessage()));
+                String errorMessage = CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(courseStudent.getRelatedCourse()));
+                log.debug("C28: Error: {} for courseStudentID :: {}", errorMessage, courseStudent.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_COURSE, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, errorMessage));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.RELATED_LEVEL, CourseStudentValidationIssueTypeCode.RELATED_COURSE_RELATED_LEVEL_INVALID, errorMessage));
             }
         }
 

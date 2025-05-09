@@ -17,10 +17,9 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C33 | ERROR    | For the 1996 graduation program, check number of credits for Fine     |C03, C18, C26 |
+ *  | C33  | ERROR    | For the 1996 graduation program, check number of credits for Fine     |C03, C18, C26 |
  *  |      |          | Arts/Applied Skills.
  *  |      |          | If B - credits for course must be 4-credits
- *
  */
 @Component
 @Slf4j
@@ -51,7 +50,7 @@ public class FineArtsCreditRule implements CourseValidationBaseRule {
                 GradRequirementYearCodes.YEAR_1996.getCode().equalsIgnoreCase(demStudent.getGradRequirementYear()) &&
                 "B".equalsIgnoreCase(courseStudent.getCourseGraduationRequirement()) &&
                 !"4".equalsIgnoreCase(courseStudent.getNumberOfCredits())) {
-            log.debug("C33: Error: Invalid entry. Number of credits must be 4 where B reported for a Board Authority Authorized or Locally Developed course for a student on the 1996 program. This course will not be updated. for courseStudentID :: {}", courseStudent.getCourseStudentID());
+            log.debug("C33: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage(), courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage()));
         }
         return errors;

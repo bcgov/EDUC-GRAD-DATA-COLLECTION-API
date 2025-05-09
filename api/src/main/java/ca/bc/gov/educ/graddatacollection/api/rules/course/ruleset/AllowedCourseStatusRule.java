@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C04 | ERROR    |  Course status must be A=active or W=withdraw                         |----C03-------|
- *
+ *  | C04  | ERROR    | The submitted value %s is not an allowable value, per the current     | C03          |
+ *  |      |          | GRAD file specification. This course cannot be updated.               |              |
  */
 @Component
 @Slf4j
@@ -46,8 +47,9 @@ public class AllowedCourseStatusRule implements CourseValidationBaseRule {
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isBlank(student.getCourseStatus()) || (!student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.ACTIVE.getCode()) && !student.getCourseStatus().equalsIgnoreCase(CourseStatusCodes.WITHDRAWN.getCode()))) {
-            log.debug("C04: Course status must be A=active or W=withdraw :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage()));
+            String errorMesssage = CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCourseStatus()));
+            log.debug("C04: Error: {} for courseStudentID :: {}", errorMesssage, student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_STATUS_INVALID, errorMesssage));
         }
         return errors;
     }

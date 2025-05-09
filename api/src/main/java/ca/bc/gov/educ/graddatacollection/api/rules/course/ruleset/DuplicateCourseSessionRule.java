@@ -17,8 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C06 | ERROR    | Course session cannot be a duplicate course/level/session within the  |   C03  |
- *  |      |          | same .CRS file                                                        |              |
+ *  | C06 | ERROR     | Duplicate course and session date reported for the same student.      | C03          |
+ *  |     |           | These courses cannot be updated.                                      |              |
  */
 @Component
 @Slf4j
@@ -51,7 +51,7 @@ public class DuplicateCourseSessionRule implements CourseValidationBaseRule {
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         if (courseRulesService.checkIfStudentHasDuplicateInFileset(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear(), student.getCourseLevel())) {
-            log.debug("C06: Error: Duplicate course and session date reported for the same student. These courses will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
+            log.debug("C06: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage(), student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage()));
         }
 

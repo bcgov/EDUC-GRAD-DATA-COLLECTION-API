@@ -11,6 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIs
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +22,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C23 | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C160, C07, C08|
- *
+ *  | C23  | ERROR    | The submitted interim letter grade <INTERIM LETTER GRADE> is not a    | C03, C160,   |
+ *  |      |          | valid letter grade. This course cannot be updated.                    | C07, C08     |
  */
 @Component
 @Slf4j
@@ -58,8 +59,9 @@ public class InvalidInterimGradeRule implements CourseValidationBaseRule {
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
         if (StringUtils.isNotBlank(student.getInterimLetterGrade()) && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getInterimLetterGrade()))) {
-            log.debug("C23: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage()));
+            String errorMessage = CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getInterimLetterGrade()));
+            log.debug("C23: Error: {} for courseStudentID :: {}", errorMessage, student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_GRADE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_INVALID, errorMessage));
         }
         return errors;
     }

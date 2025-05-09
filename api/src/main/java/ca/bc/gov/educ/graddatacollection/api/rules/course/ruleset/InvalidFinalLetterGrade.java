@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C32 | ERROR    | Must be a valid letter grade for the course session provided	          | C03, C07, C08, C24 |
- *
+ *  | C32  | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C07, C08, C24 |
  */
 @Component
 @Slf4j
@@ -57,8 +57,9 @@ public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
         if (student.getFinalLetterGrade() != null && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getFinalLetterGrade()))) {
-            log.debug("C32: Error: Invalid letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage()));
+            String errorMessage = CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getFinalLetterGrade()));
+            log.debug("C32: Error: {} for courseStudentID :: {}", errorMessage, student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, errorMessage));
         }
         return errors;
     }
