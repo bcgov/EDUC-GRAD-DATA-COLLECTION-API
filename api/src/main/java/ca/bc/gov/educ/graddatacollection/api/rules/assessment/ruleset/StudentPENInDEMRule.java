@@ -54,7 +54,7 @@ public class StudentPENInDEMRule implements AssessmentValidationBaseRule {
         var isPresent = assessmentRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 
         if (!isPresent) {
-            log.debug("V01: This student appears in the XAM file but is missing from the DEM file. The student's assessment registrations will not be updated for assessmentStudentID :: {}", student.getAssessmentStudentID());
+            log.debug("V01: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
         }
         return errors;

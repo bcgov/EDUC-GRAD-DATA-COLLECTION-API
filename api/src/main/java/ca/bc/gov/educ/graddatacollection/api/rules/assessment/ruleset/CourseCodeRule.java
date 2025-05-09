@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -55,12 +56,13 @@ public class CourseCodeRule implements AssessmentValidationBaseRule {
         log.info("V03: Assessment Student is valid for session :: {}", assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode()));
 
         if (!assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())) {
-            log.debug("V03: The session date is not a valid ministry assessment session. Must be November, January, April or June. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
+            log.debug("V03: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage()));
         }
         if (!assessmentRulesService.courseIsValidForSession(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode())) {
-            log.debug("V03: The session code is not a valid ministry assessment session code. The student registration will not be updated. :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage()));
+            String errorMessage = AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCourseCode()), StringEscapeUtils.escapeHtml4(student.getCourseYear()), StringEscapeUtils.escapeHtml4(student.getCourseMonth()));
+            log.debug("V03: Error: {} for assessmentStudentID :: {}", errorMessage, student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID, errorMessage));
         }
 
         return errors;

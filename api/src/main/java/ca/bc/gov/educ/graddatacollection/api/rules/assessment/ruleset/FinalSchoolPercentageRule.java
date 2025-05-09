@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V07 | WARNING  | Final school percentage value is ignored and must be blank.           |      V03|
- *
+ *  | V07  | Error    | Final school percentage value is ignored and must be blank.           | V03          |
  */
 @Component
 @Slf4j
@@ -46,7 +45,7 @@ public class FinalSchoolPercentageRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getFinalSchoolPercent())) {
-            log.debug("V07: Final school percentage value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            log.debug("V07: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_SCHOOL_PERCENT, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;

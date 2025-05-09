@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  *  | ID          | Severity | Rule                                                                                              | Dependent On |
  *  |-------------|----------|---------------------------------------------------------------------------------------------------|--------------|
- *  | V19        | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V03, V18   |
+ *  | V19         | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V03, V18     |
  */
 @Component
 @Slf4j
@@ -68,7 +68,7 @@ public class ProficiencyScoreRule implements AssessmentValidationBaseRule {
         }
 
         if (studAssessmentDetail == null || (studAssessmentDetail.isHasPriorRegistration() && studAssessmentDetail.isAlreadyWrittenAssessment())) {
-            log.debug("V19: The student has already received a Proficiency Score or Special Case for this assessment session. :: {}", student.getAssessmentStudentID());
+            log.debug("V19: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage()));
         }
 

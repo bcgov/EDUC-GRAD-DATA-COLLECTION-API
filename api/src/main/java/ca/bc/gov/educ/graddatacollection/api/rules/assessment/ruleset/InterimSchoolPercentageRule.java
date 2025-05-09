@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V05 | ERROR  | Interim school percentage value is ignored and must be blank.         |V03|
- *
+ *  | V05  | ERROR    | Interim school percentage value is ignored and must be blank.         | V03          |
  */
 @Component
 @Slf4j
@@ -46,7 +45,7 @@ public class InterimSchoolPercentageRule implements AssessmentValidationBaseRule
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getInterimSchoolPercent())) {
-            log.debug("V05: Interim school percentage value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            log.debug("V05: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_SCHOOL_PERCENT, AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;

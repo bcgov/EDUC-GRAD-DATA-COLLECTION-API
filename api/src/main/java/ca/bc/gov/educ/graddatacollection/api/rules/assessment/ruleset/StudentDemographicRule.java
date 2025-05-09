@@ -65,7 +65,7 @@ public class StudentDemographicRule implements AssessmentValidationBaseRule {
             !RuleUtil.validateStudentGivenNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentMiddleNameMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent()) ||
             !RuleUtil.validateStudentDOBMatches(demographicStudentEntity, studentRuleData.getStudentApiStudent())){
-            log.debug("V02: Student XAM record will not be processed due to an issue with the student's demographics :: {}", student.getAssessmentStudentID());
+            log.debug("V02: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE, AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage()));
         }
         return errors;

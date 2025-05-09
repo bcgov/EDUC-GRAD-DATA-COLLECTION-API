@@ -8,6 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidati
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V10 | ERROR    | Provincial special case cannot be submitted by the school.            |V03|
- *
+ *  | V10  | ERROR    | Provincial special case cannot be submitted by the school.            | V03          |
  */
 @Component
 @Slf4j
@@ -46,8 +46,9 @@ public class ProvincialSpecialCaseRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getProvincialSpecialCase())) {
-            log.debug("V10: Provincial special case cannot be submitted by the school :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PROVINCIAL_SPECIAL_CASE, AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getMessage()));
+            String errorMessage = AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getProvincialSpecialCase()));
+            log.debug("V10: Error: {} for assessmentStudentID :: {}", errorMessage, student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PROVINCIAL_SPECIAL_CASE, AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK, errorMessage));
         }
         return errors;
     }
