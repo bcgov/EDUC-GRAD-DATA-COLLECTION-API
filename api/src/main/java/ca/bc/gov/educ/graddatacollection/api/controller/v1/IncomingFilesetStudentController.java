@@ -57,7 +57,11 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
                 );
         return this.incomingFilesetSearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(fileset -> fileset.map(mapper::toStructure));
+                .thenApplyAsync(fileset -> fileset.map(mapper::toStructure).map(file -> {
+                    long pos = incomingFilesetSearchService.getCounts(file);
+                    file.setPositionInQueue(String.valueOf(pos));
+                    return file;
+                }));
     }
 
     @Override

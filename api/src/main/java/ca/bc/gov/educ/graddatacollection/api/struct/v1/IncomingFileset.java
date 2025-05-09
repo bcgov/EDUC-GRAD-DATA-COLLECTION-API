@@ -38,5 +38,6 @@ public class IncomingFileset extends BaseRequest implements Serializable {
     String filesetStatusCode;
     String districtID;
     String reportingPeriodID;
+    String positionInQueue;
 
 }
