@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class SCCPCompletionDateAlreadyReportedRule implements DemographicValidat
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         var hasCompletionDate = gradStudent != null && StringUtils.isNotBlank(gradStudent.getProgramCompletionDate());
         var hasSchoolAtGrad = gradStudent != null && StringUtils.isNotBlank(gradStudent.getSchoolAtGradId());
-        var programCompletionDate = hasCompletionDate ? LocalDateTime.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).format(formatter) : null;
+        var programCompletionDate = hasCompletionDate ? LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).format(formatter) : null;
 
         if (hasCompletionDate && hasSchoolAtGrad && StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) &&
                 GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear()) && !student.getSchoolCertificateCompletionDate().equalsIgnoreCase(programCompletionDate)) {

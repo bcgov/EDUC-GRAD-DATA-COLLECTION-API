@@ -154,7 +154,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         gradStudentRecord.setSchoolOfRecordId("03636018");
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setGraduated("false");
-        gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
     }
 
