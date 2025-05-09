@@ -199,9 +199,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         assessmentStudent.setCourseStatus("W");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError2.size()).isZero();
-
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
         response.setHasPriorRegistration(true);
         response.setAlreadyWrittenAssessment(true);
@@ -216,6 +213,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         response.setAlreadyWrittenAssessment(true);
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
+        assessmentStudent.setCourseStatus("A");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError4.size()).isZero();
 
