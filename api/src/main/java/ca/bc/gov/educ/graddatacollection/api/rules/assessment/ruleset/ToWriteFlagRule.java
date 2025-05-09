@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V13 | ERROR  |  To write flag value is ignored and must be blank                     |V03|
- *
+ *  | V13  | ERROR    |  To write flag value is ignored and must be blank                     | V03          |
  */
 @Component
 @Slf4j
@@ -46,7 +45,7 @@ public class ToWriteFlagRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getToWriteFlag())){
-            log.debug("V13: To write flag value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            log.debug("V13: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.TO_WRITE_FLAG, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK.getMessage()));
         }
         return errors;

@@ -46,7 +46,7 @@ public class CourseLevelRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getCourseLevel())) {
-            log.debug("V04: Course level value is ignored and must be blank for assessmentStudentID :: {}", student.getAssessmentStudentID());
+            log.debug("V04: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_LEVEL, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getMessage()));
         }
         return errors;

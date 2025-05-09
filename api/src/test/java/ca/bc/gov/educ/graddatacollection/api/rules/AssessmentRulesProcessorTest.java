@@ -107,6 +107,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage());
     }
 
     @Test
@@ -137,6 +138,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_LEVEL.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_LEVEL_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -158,6 +160,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
+        assessment.setAssessmentTypeCode("LTE10");
         session.setAssessments(Arrays.asList(assessment));
         assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
@@ -169,6 +172,37 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setCourseCode("LTE10");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_MONTH.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage());
+
+        assessmentStudent.setCourseMonth("11");
+        assessmentStudent.setCourseCode("LTE10");
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError3.size()).isZero();
+
+        assessmentStudent.setCourseMonth("11");
+        assessmentStudent.setCourseCode("MA10");
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError4.size()).isNotZero();
+        assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
+        assertThat(validationError4.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(assessmentStudent.getCourseCode(), assessmentStudent.getCourseYear(), assessmentStudent.getCourseMonth()));
+
+        assessmentStudent.setCourseMonth("12");
+        assessmentStudent.setCourseCode("MA10");
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError5.size()).isNotZero();
+        assertThat(validationError5.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage())
+        )).isTrue();
+        assertThat(validationError5.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(assessmentStudent.getCourseCode(), assessmentStudent.getCourseYear(), assessmentStudent.getCourseMonth()))
+        )).isTrue();
     }
 
     @Test
@@ -208,6 +242,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getCode());
+        assertThat(validationError3.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
 
         response.setHasPriorRegistration(false);
         response.setAlreadyWrittenAssessment(true);
@@ -268,6 +303,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.INTERIM_SCHOOL_PERCENT.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -298,6 +334,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.INTERIM_LETTER_GRADE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -328,6 +365,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_SCHOOL_PERCENT.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_SCHOOL_PERCENTAGE_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -358,6 +396,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_PERCENTAGE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -388,6 +427,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -418,6 +458,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROVINCIAL_SPECIAL_CASE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getCode().formatted(assessmentStudent.getProvincialSpecialCase()));
     }
 
     @Test
@@ -443,11 +484,31 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError1.size()).isZero();
 
-        assessmentStudent.setCourseStatus("B");
+        assessmentStudent.setCourseStatus("");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage().formatted(assessmentStudent.getCourseStatus()));
+
+        assessmentStudent.setCourseStatus("B");
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
+        assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode());
+        assertThat(validationError3.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage().formatted(assessmentStudent.getCourseStatus()));
+
+        assessmentStudent.setCourseStatus("A");
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError4.size()).isZero();
+
+        assessmentStudent.setCourseStatus("W");
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
+        assertThat(validationError5.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_STATUS.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_INVALID.getMessage().formatted(assessmentStudent.getCourseStatus()))
+        )).isFalse();
     }
 
     @Test
@@ -478,6 +539,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.NUM_CREDITS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -508,6 +570,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.CRSE_TYPE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_TYPE_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -538,6 +601,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.TO_WRITE_FLAG.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.TO_WRITE_FLAG_NOT_BLANK.getMessage());
     }
 
     @Test
@@ -569,6 +633,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.EXAM_SCHOOL.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID.getMessage());
     }
 
     @Test
@@ -603,6 +668,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_SESSION.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage());
     }
 
     @Test
@@ -643,6 +709,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getMessage());
     }
 
 
@@ -671,21 +738,25 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage());
 
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError3.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+        assertThat(validationError3.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage());
 
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+        assertThat(validationError4.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage());
 
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
         assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getCode());
+        assertThat(validationError5.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_ISSUE.getMessage());
     }
 
     @Test
@@ -772,6 +843,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_ATTEMPTS.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_CODE_ATTEMPTS.getMessage());
     }
 
     @Test

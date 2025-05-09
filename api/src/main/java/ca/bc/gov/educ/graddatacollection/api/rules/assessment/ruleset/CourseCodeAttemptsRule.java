@@ -19,9 +19,8 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V20 | ERROR    |  Error if the course status is not "W" and the student already        |V03, V18|
+ *  | V20  | ERROR    |  Error if the course status is not "W" and the student already        | V03, V18     |
  *                       has three write attempts for the submitted assessment (course code)
- *
  */
 @Component
 @Slf4j
@@ -71,9 +70,8 @@ public class CourseCodeAttemptsRule implements AssessmentValidationBaseRule {
         }
 
         if (numberOfAttempts >= 3 && !studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")){
-            log.debug("V20: Error if the course status is not W and the student already has three write attempts for the submitted assessment (course code). :: {}", student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_ATTEMPTS,
-                    "The student has reached the maximum number of writes for " + studentRuleData.getAssessmentStudentEntity().getCourseCode() + ". The registration will not be updated."));
+            log.debug("V20: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.COURSE_CODE_ATTEMPTS.getMessage(), student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_ATTEMPTS, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_ATTEMPTS.getMessage()));
         }
         return errors;
     }

@@ -17,9 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V15 | ERROR    |  The assessment session is a duplicate of an existing assessment      | V03 |
- *                       session for this student
- *
+ *  | V15  | ERROR    | The assessment session is a duplicate of an existing assessment       | V03          |
+ *                      session for this student
  */
 @Component
 @Slf4j
@@ -53,7 +52,7 @@ public class CourseSessionRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (assessmentRulesService.checkIfStudentHasDuplicatesInFileset(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
-            log.debug("V15: There are more than one CODE/SESSION DATE registrations in the file for the same student. :: {}", student.getAssessmentStudentID());
+            log.debug("V15: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage()));
         }
         return errors;

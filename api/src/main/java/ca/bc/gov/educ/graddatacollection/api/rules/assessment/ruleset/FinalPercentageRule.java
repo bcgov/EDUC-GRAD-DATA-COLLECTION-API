@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V08 | ERROR    | Final percentage result cannot be submitted by the school.            |V03|
- *
+ *  | V08  | ERROR    | Final percentage result cannot be submitted by the school.            | V03          |
  */
 @Component
 @Slf4j
@@ -46,7 +45,7 @@ public class FinalPercentageRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getFinalPercent())) {
-            log.debug("V08: Final percentage result cannot be submitted by the school :: {}", student.getAssessmentStudentID());
+            log.debug("V08: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_PERCENTAGE_NOT_BLANK.getMessage()));
         }
         return errors;

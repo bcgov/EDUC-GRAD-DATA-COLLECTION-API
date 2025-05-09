@@ -20,8 +20,7 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V14 | ERROR    |  Invalid exam school provided.                                        |V03|
- *
+ *  | V14  | ERROR    | Invalid exam school provided.                                         | V03          |
  */
 @Component
 @Slf4j
@@ -55,7 +54,7 @@ public class ExamSchoolRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (student.getExamSchoolID() != null && !isSchoolValid(student.getExamSchoolID())){
-            log.debug("V14: Invalid assessment center provided. :: {}", student.getAssessmentStudentID());
+            log.debug("V14: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.EXAM_SCHOOL, AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID, AssessmentStudentValidationIssueTypeCode.EXAM_SCHOOL_INVALID.getMessage()));
         }
         return errors;

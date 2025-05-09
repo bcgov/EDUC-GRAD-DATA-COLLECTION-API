@@ -17,9 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V16 | ERROR    |  Student is in a Francophone school and cannot register for           | V03   |
- *                       this assessment session for this student
- *
+ *  | V16  | ERROR    | Student is in a Francophone school and cannot register for            | V03          |
+ *                      this assessment session for this student
  */
 @Component
 @Slf4j
@@ -47,7 +46,7 @@ public class CourseCodeCSFRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) && student.getCourseCode().equalsIgnoreCase("LTF12")){
-            log.debug("V16: Student is enrolled in a Programme Francophone school and the registration is for a French Immersion assessment. This registration will not be updated. :: {}", student.getAssessmentStudentID());
+            log.debug("V16: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF, AssessmentStudentValidationIssueTypeCode.COURSE_CODE_CSF.getMessage()));
         }
         return errors;

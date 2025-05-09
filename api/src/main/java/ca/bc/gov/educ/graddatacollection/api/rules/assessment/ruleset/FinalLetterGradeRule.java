@@ -17,8 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V09 | WARNING  | Final letter grade value is ignored and must be blank.                |V03|
- *
+ *  | V09  | ERROR    | Final letter grade value is ignored and must be blank.                | V03          |
  */
 @Component
 @Slf4j
@@ -46,7 +45,7 @@ public class FinalLetterGradeRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isNotBlank(student.getFinalLetterGrade())) {
-            log.debug("V09: Final letter grade value is ignored and must be blank :: {}", student.getAssessmentStudentID());
+            log.debug("V09: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK, AssessmentStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_NOT_BLANK.getMessage()));
         }
         return errors;
