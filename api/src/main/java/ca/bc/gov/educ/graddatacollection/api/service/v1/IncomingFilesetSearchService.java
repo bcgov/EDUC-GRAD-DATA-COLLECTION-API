@@ -4,6 +4,8 @@ import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRunt
 import ca.bc.gov.educ.graddatacollection.api.filter.IncomingFilesetFilterSpecs;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPaginationRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.util.RequestUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -42,6 +45,7 @@ public class IncomingFilesetSearchService extends BaseSearchService {
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  private final IncomingFilesetRepository incomingFilesetRepository;
 
   @Transactional(propagation = Propagation.SUPPORTS)
   public CompletableFuture<Page<IncomingFilesetEntity>> findAll(Specification<IncomingFilesetEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
@@ -78,5 +82,16 @@ public class IncomingFilesetSearchService extends BaseSearchService {
       throw new GradDataCollectionAPIRuntimeException(e.getMessage());
     }
     return schoolSpecs;
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public long getCounts(IncomingFileset fileset) {
+    long positionInQueue = 0;
+    var condition = !fileset.getFilesetStatusCode().equalsIgnoreCase("COMPLETED")
+            && fileset.getDemFileName() != null && fileset.getCrsFileName() != null && fileset.getXamFileName() != null;
+    if(condition) {
+      positionInQueue = incomingFilesetRepository.findPositionInQueueByUpdateDate(LocalDateTime.parse(fileset.getUpdateDate()));
+    }
+    return positionInQueue;
   }
 }

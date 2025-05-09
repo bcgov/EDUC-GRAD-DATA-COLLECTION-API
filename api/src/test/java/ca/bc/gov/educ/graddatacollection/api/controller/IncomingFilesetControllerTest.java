@@ -7,8 +7,8 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
@@ -25,6 +25,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.AND;
@@ -55,6 +56,12 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     CourseStudentService courseStudentService;
     @MockBean
     AssessmentStudentService assessmentStudentService;
+    @Autowired
+    DemographicStudentRepository demographicStudentRepository;
+    @Autowired
+    CourseStudentRepository courseStudentRepository;
+    @Autowired
+    AssessmentStudentRepository assessmentStudentRepository;
 
     @BeforeEach
     public void setUp() {
@@ -103,6 +110,69 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
                         .contentType(APPLICATION_JSON))
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    void testReadIncomingFilesetPaginated_ShouldReturnStatusOk() throws Exception {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var incomingFileset1 = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        incomingFileset1.setSchoolID(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(incomingFileset1);
+
+
+        var assessmentStudentEntity = createMockAssessmentStudent();
+        assessmentStudentEntity.setAssessmentStudentID(null);
+        assessmentStudentEntity.setStudentStatusCode("LOADED");
+        assessmentStudentEntity.setIncomingFileset(incomingFileset1);
+        assessmentStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        assessmentStudentEntity.setUpdateDate(LocalDateTime.now());
+        assessmentStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        assessmentStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        assessmentStudentRepository.save(assessmentStudentEntity);
+
+        var courseStudentEntity = createMockCourseStudent(incomingFileset1);
+        courseStudentEntity.setCourseStudentID(null);
+        courseStudentEntity.setStudentStatusCode("LOADED");
+        courseStudentEntity.setIncomingFileset(incomingFileset1);
+        courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        courseStudentEntity.setUpdateDate(LocalDateTime.now());
+        courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        courseStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        courseStudentRepository.save(courseStudentEntity);
+
+        var demographicStudentEntity = createMockDemographicStudent(incomingFileset1);
+        demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setCitizenship("A");
+        demographicStudentEntity.setStudentStatusCode("LOADED");
+        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
+        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        demographicStudentRepository.save(demographicStudentEntity);
+
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("schoolID").operation(FilterOperation.EQUAL).value(school.getSchoolId()).valueType(ValueType.UUID).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_FILESET + URL.PAGINATED)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].positionInQueue").value("1"));
     }
 
     @Test
