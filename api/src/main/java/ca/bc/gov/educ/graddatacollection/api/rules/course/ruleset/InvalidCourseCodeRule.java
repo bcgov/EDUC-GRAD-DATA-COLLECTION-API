@@ -20,7 +20,7 @@ import java.util.List;
  *  | C03 | ERROR    | Must exist in CoReg - check for both TRAX and MyEdBC                  |   C02       |
  *  |      |          | If it exists in TRAX validation passes                                |              |
  *                      If it does not exist in either use Error msg 1
- *                      If it exists in MyEdBC but not TRAX use Error msg 2
+ *                      If it exists in MyEdBC and external code matches use Error msg 2
  */
 @Component
 @Slf4j
@@ -58,14 +58,16 @@ public class InvalidCourseCodeRule implements CourseValidationBaseRule {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
         } else {
             log.debug("Course record in C03 is: " + coursesRecord.getCourseCode());
+            var externalID =  String.format("%-5s", student.getCourseCode()) + student.getCourseLevel();
             boolean hasTRAX = coursesRecord.getCourseCode().stream().anyMatch(code -> "39".equals(code.getOriginatingSystem()));
             boolean hasMyEdBC = coursesRecord.getCourseCode().stream().anyMatch(code -> "38".equals(code.getOriginatingSystem()));
-            if (!hasTRAX && !hasMyEdBC) {
-                log.debug("C03: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
-            }else if(!hasTRAX && hasMyEdBC) {
+            boolean hasMyEdBCAndMatchesExternalID = coursesRecord.getCourseCode().stream().anyMatch(code -> "38".equals(code.getOriginatingSystem()) && externalID.equals(code.getExternalCode()));
+            if(hasMyEdBCAndMatchesExternalID) {
                 log.debug("C03: Error2: The submitted course code is a local course code, not a ministry code. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getMessage()));
+            } else if (!hasTRAX && !hasMyEdBC) {
+                log.debug("C03: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
             }
         }
 
