@@ -370,6 +370,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudent.setCourseCode("MPH--");
+        courseStudent.setCourseLevel("11");
 
         CoregCoursesRecord myEdBCOnlyRecord = new CoregCoursesRecord();
         myEdBCOnlyRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -400,6 +402,50 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(issues).isNotEmpty();
         assertThat(issues.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(issues.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getCode());
+    }
+
+    @Test
+    void testC03CourseCodeWithOnlyMyEdBCNoMatch() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileset = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileset);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileset);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudent.setCourseCode("MPH");
+        courseStudent.setCourseLevel("11");
+
+        CoregCoursesRecord myEdBCOnlyRecord = new CoregCoursesRecord();
+        myEdBCOnlyRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        myEdBCOnlyRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setExternalCode("MPH--11");
+        myEdBCCode.setOriginatingSystem("38"); // MyEdBC only
+        courseCodes.add(myEdBCCode);
+        myEdBCOnlyRecord.setCourseCode(courseCodes);
+
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        myEdBCOnlyRecord.setCourseAllowableCredit(courseAllowableCredits);
+
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(myEdBCOnlyRecord);
+
+        StudentRuleData ruleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        var issues = rulesProcessor.processRules(ruleData);
+
+        assertThat(issues).isEmpty();
     }
 
     @Test
