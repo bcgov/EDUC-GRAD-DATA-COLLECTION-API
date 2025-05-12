@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.BaseRequest;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,8 @@ public class EASAssessmentStudent extends BaseRequest implements Serializable {
     private String pen;
 
     private String localID;
+
+    private String localCourseID;
 
     private String isElectronicExam;
 
