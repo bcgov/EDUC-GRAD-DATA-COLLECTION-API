@@ -157,7 +157,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                 && StringUtils.isNotEmpty(courseStudentEntity.getCourseYear()) && StringUtils.isNumeric(courseStudentEntity.getCourseYear())) {
 
             ReportingPeriodEntity reportingPeriodEntity = reportingPeriodRepository.findActiveReportingPeriod().orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "currentDate", String.valueOf(LocalDateTime.now())));
-            LocalDate courseSessionStart = LocalDate.now();
+            LocalDate courseSessionStart = LocalDate.now().withDayOfMonth(1);
             LocalDate courseSessionEnd = reportingPeriodEntity.getSummerEnd().toLocalDate();
 
             LocalDate incomingCourseSession = null;
