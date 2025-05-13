@@ -54,6 +54,9 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
     var validationErrors = courseStudentService.validateStudent(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), courseStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
       eventBuilder.eventOutcome(VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR);
+    } else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()))) {
+      courseStudentService.flagErrorOnStudent(courseStudentSagaData.getCourseStudent());
+      eventBuilder.eventOutcome(VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR);
     } else {
       eventBuilder.eventOutcome(VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR);
     }

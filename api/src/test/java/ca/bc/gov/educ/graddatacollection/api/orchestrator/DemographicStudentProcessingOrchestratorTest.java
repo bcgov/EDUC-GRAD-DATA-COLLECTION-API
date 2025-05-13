@@ -61,6 +61,8 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
     DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
+    @Autowired
+    ErrorFilesetStudentRepository errorFilesetStudentRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -73,6 +75,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         demographicStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
         reportingPeriodRepository.deleteAll();
+        errorFilesetStudentRepository.deleteAll();
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();
@@ -205,6 +208,54 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_DEM_STUDENT.toString());
+    }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeInitiated_validateDEMStudentRecordWithWarningAndEventOutCome_VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR() {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
+        incomingFilesetRepository.save(mockFileset);
+
+        var demographicStudentEntity = createMockDemographicStudent(mockFileset);
+        demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setFirstName("JIM");
+        demographicStudentEntity.setLastName("JACKSON");
+        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
+        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        demographicStudentRepository.save(demographicStudentEntity);
+
+        val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
+        val saga = this.createDemMockSaga(demographicStudent);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(EventType.INITIATED)
+                .eventOutcome(EventOutcome.INITIATE_SUCCESS)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.demographicStudentProcessingOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.demographicStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_DEM_STUDENT);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_DEM_STUDENT.toString());
+
+        val errorFilesetRecord = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(mockFileset.getIncomingFilesetID(), demographicStudentEntity.getPen());
+        assertThat(errorFilesetRecord).isPresent();
     }
 
     @SneakyThrows
