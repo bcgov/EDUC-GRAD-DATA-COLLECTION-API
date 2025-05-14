@@ -72,10 +72,11 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         Mockito.reset(restUtils);
         sagaEventRepository.deleteAll();
         sagaRepository.deleteAll();
+        courseStudentRepository.deleteAll();
         demographicStudentRepository.deleteAll();
+        errorFilesetStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
         reportingPeriodRepository.deleteAll();
-        errorFilesetStudentRepository.deleteAll();
         JsonMapper.builder()
                 .findAndAddModules()
                 .build();

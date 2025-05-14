@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
@@ -35,10 +36,13 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     ErrorFilesetStudentService errorFilesetStudentService;
     @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
+    @Autowired
+    DemographicStudentRepository demographicStudentRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        demographicStudentRepository.deleteAll();
         errorFilesetStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
         reportingPeriodRepository.deleteAll();
