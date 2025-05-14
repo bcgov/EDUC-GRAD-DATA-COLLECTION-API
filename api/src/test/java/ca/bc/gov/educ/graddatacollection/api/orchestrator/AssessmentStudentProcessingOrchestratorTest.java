@@ -53,6 +53,8 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
     ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
     AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
+    @Autowired
+    DemographicStudentRepository demographicStudentRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -62,6 +64,7 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         Mockito.reset(restUtils);
         sagaEventRepository.deleteAll();
         sagaRepository.deleteAll();
+        demographicStudentRepository.deleteAll();
         assessmentStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
         reportingPeriodRepository.deleteAll();

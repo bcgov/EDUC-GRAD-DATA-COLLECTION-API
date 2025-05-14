@@ -61,6 +61,9 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     var validationErrors = assessmentStudentService.validateStudent(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), assessmentStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
+    } else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()))) {
+      assessmentStudentService.flagErrorOnStudent(assessmentStudentSagaData.getAssessmentStudent());
+      eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
     } else {
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
     }
