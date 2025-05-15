@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.messaging.jetstream;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.GDCEvent;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ChoreographedEvent;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum.GRAD_EVENTS_TOPIC;
+import static ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum.GDC_EVENTS_TOPIC;
 
 @Component("publisher")
 @Slf4j
@@ -25,7 +26,7 @@ public class Publisher {
 
     private final JetStream jetStream;
 
-    public static final String STREAM_NAME= "SDC_EVENTS";
+    public static final String STREAM_NAME= "GDC_EVENTS";
 
     /**
      * Instantiates a new Publisher.
@@ -37,7 +38,7 @@ public class Publisher {
     @Autowired
     public Publisher(final Connection natsConnection) throws IOException, JetStreamApiException {
         this.jetStream = natsConnection.jetStream();
-        this.createOrUpdateSDCEventStream(natsConnection);
+        this.createOrUpdateGDCEventStream(natsConnection);
     }
 
     /**
@@ -47,8 +48,8 @@ public class Publisher {
      * @throws IOException           the io exception
      * @throws JetStreamApiException the jet stream api exception
      */
-    private void createOrUpdateSDCEventStream(final Connection natsConnection) throws IOException, JetStreamApiException {
-        val streamConfiguration = StreamConfiguration.builder().name(STREAM_NAME).replicas(1).maxMessages(10000).addSubjects(GRAD_EVENTS_TOPIC.toString()).build();
+    private void createOrUpdateGDCEventStream(final Connection natsConnection) throws IOException, JetStreamApiException {
+        val streamConfiguration = StreamConfiguration.builder().name(STREAM_NAME).replicas(1).maxMessages(10000).addSubjects(GDC_EVENTS_TOPIC.toString()).build();
         try {
             natsConnection.jetStreamManagement().updateStream(streamConfiguration);
         } catch (final JetStreamApiException exception) {
@@ -67,18 +68,18 @@ public class Publisher {
      *
      * @param event the event
      */
-    public void dispatchChoreographyEvent(final Event event, GradSagaEntity saga) {
+    public void dispatchChoreographyEvent(final GDCEvent event) {
         if (event != null && event.getSagaId() != null) {
             val choreographedEvent = new ChoreographedEvent();
             choreographedEvent.setEventType(EventType.valueOf(event.getEventType().toString()));
             choreographedEvent.setEventOutcome(EventOutcome.valueOf(event.getEventOutcome().toString()));
             choreographedEvent.setEventPayload(event.getEventPayload());
             choreographedEvent.setEventID(event.getSagaId().toString());
-            choreographedEvent.setCreateUser(saga.getCreateUser());
-            choreographedEvent.setUpdateUser(saga.getUpdateUser());
+            choreographedEvent.setCreateUser(event.getCreateUser());
+            choreographedEvent.setUpdateUser(event.getUpdateUser());
             try {
                 log.info("Broadcasting event :: {}", choreographedEvent);
-                val pub = this.jetStream.publishAsync(GRAD_EVENTS_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(choreographedEvent));
+                val pub = this.jetStream.publishAsync(GDC_EVENTS_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(choreographedEvent));
                 pub.thenAcceptAsync(result -> log.info("Event ID :: {} Published to JetStream :: {}", event.getSagaId(), result.getSeqno()));
             } catch (IOException e) {
                 log.error("exception while broadcasting message to JetStream", e);
