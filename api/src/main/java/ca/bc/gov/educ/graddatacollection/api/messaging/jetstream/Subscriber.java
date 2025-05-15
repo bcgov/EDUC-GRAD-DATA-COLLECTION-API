@@ -60,7 +60,7 @@ public class Subscriber {
         final List<String> gdcEventsTopics = new ArrayList<>();
         gdcEventsTopics.add("GDC_EVENTS_TOPIC");
         this.streamTopicsMap.put("GRAD_SCHOOL_EVENTS", gradSchoolEventsTopics);
-        this.streamTopicsMap.put("GDC_EVENTS_TOPIC", gdcEventsTopics);
+        this.streamTopicsMap.put("GDC_EVENTS", gdcEventsTopics);
     }
 
 
