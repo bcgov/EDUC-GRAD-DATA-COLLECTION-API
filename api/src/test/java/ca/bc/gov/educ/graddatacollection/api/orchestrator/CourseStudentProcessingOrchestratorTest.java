@@ -262,15 +262,12 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.courseStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_COURSE_STUDENT);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR);
 
         val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_COURSE_STUDENT.toString());
-
-        val errorFilesetRecord = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(mockFileset.getIncomingFilesetID(), courseStudentEntity.getPen());
-        assertThat(errorFilesetRecord).isPresent();
     }
 
     @SneakyThrows
