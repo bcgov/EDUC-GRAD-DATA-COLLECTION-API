@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C32  | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C07, C08, C24 |
+ *  | C32  | ERROR    | Must be a valid letter grade for the course session provided	      | C03, C07, C08, C16, C24 |
  */
 @Component
 @Slf4j
@@ -30,7 +30,7 @@ public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public InvalidFinalLetterGrade(RestUtils restUtils, CourseRulesService courseRulesService) {
+    public InvalidFinalLetterGrade(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 
