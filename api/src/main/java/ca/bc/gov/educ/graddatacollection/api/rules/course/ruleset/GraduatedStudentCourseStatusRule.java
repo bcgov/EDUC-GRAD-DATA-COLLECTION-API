@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C12 | ERROR    |  If course status = "W" and student has graduated and the course has  | C03, C04 |
+ *  | C12 | ERROR    |  If course status = "W" and student has graduated and the course has  | C03, C16 |
  *                       been used for graduation
  *
  */

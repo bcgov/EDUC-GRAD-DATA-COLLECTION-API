@@ -21,8 +21,12 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C29 | ERROR    | Interim percent must match interim letter grade if interim letter 	  |C03, C07, C08, C22, C23 |
- *  |      |          | grade provided
+ *  | C29  | ERROR    | Interim percent must match interim letter grade if interim letter 	  |C03, C07, C08 |
+ *  |      |          | grade provided                                                        |C16, C22, C23 |
+ *  updated rule:
+ *  1. If interim letter grade has been submitted and the interim letter grade does not have associated percent range (i.e. low and high percent are 0s) in the letter grade table, an interim percent should not be submitted.
+ *  2. If interim letter grade has been submitted and the interim letter grade has an associated, non-zero, percent range in the letter grade table, an interim percent must be submitted.
+ *  3. If interim letter grade has been submitted and the interim letter grade has an associated, non-zero, percent range in the letter grade table, the submitted interim percent must fall within the percent range associated with the submitted interim letter grade.
  */
 @Component
 @Slf4j
@@ -39,7 +43,7 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C29: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C29", validationErrorsMap) && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getInterimLetterGrade());
+        var shouldExecute = isValidationDependencyResolved("C29", validationErrorsMap);
 
         log.debug("In shouldExecute of C29: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
@@ -57,17 +61,66 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
         LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
-        if (StringUtils.isNotBlank(student.getInterimPercentage())) {
-            int interimPercentage = Integer.parseInt(student.getInterimPercentage());
-            Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream().filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(student.getInterimLetterGrade())).findFirst();
+        String interimLetterGrade = student.getInterimLetterGrade();
+        String interimPercentStr = student.getInterimPercentage();
+        boolean hasInterimLetterGrade = StringUtils.isNotBlank(interimLetterGrade);
+        boolean hasInterimPercent = StringUtils.isNotBlank(interimPercentStr);
 
-            if (optionalStudentLetterGrade.isEmpty() ||
-                    interimPercentage < optionalStudentLetterGrade.get().getPercentRangeLow() ||
-                    interimPercentage > optionalStudentLetterGrade.get().getPercentRangeHigh()) {
-                log.debug("C29: Error: The interim percent does not fall within the required range for the reported letter grade. This course will not be updated for courseStudentID :: {}", student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.INTERIM_PERCENTAGE, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH, CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENTAGE_MISMATCH.getMessage()));
+        if (hasInterimLetterGrade) {
+            Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream()
+                .filter(letterGrade -> letterGrade.getGrade().equalsIgnoreCase(interimLetterGrade))
+                .findFirst();
+
+            if (optionalStudentLetterGrade.isPresent()) {
+                LetterGrade studentLetterGrade = optionalStudentLetterGrade.get();
+                int percentLow = studentLetterGrade.getPercentRangeLow();
+                int percentHigh = studentLetterGrade.getPercentRangeHigh();
+                boolean hasPercentRange = percentLow != 0 || percentHigh != 0;
+
+                // 1. If no percent range, interim percent should NOT be submitted
+                if (!hasPercentRange && hasInterimPercent) {
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.INTERIM_PERCENTAGE,
+                            CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_SHOULD_NOT_BE_PROVIDED,
+                            CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_SHOULD_NOT_BE_PROVIDED.getMessage()
+                    ));
+                }
+
+                // 2. If percent range exists, interim percent MUST be submitted
+                if (hasPercentRange && !hasInterimPercent) {
+                    errors.add(createValidationIssue(
+                            StudentValidationIssueSeverityCode.ERROR,
+                            ValidationFieldCode.INTERIM_PERCENTAGE,
+                            CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_REQUIRED,
+                            CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_REQUIRED.getMessage()
+                    ));
+                }
+
+                // 3. If percent range exists and interim percent is submitted, it must be within range
+                if (hasPercentRange && hasInterimPercent) {
+                    try {
+                        int interimPercentage = Integer.parseInt(interimPercentStr);
+                        if (interimPercentage < percentLow || interimPercentage > percentHigh) {
+                            errors.add(createValidationIssue(
+                                    StudentValidationIssueSeverityCode.ERROR,
+                                    ValidationFieldCode.INTERIM_PERCENTAGE,
+                                    CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE,
+                                    CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage()
+                            ));
+                        }
+                    } catch (NumberFormatException e) {
+                        errors.add(createValidationIssue(
+                                StudentValidationIssueSeverityCode.ERROR,
+                                ValidationFieldCode.INTERIM_PERCENTAGE,
+                                CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE,
+                                CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage()
+                        ));
+                    }
+                }
             }
         }
+
         return errors;
     }
 }
