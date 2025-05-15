@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C25  | ERROR    | Final pct or Final Letter Grade should be included for completed      | C03, C16     |
+ *  | C25  | ERROR    | Final pct or Final Letter Grade should be included for completed      | C03, C16, C31|
  *  |      |          | courses
  *  |      |          | Future = Course Session < today's date
  */
@@ -51,11 +51,19 @@ public class FinalPercentageForCompletedCoursesRule implements CourseValidationB
             try {
                 YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
                 YearMonth currentDate = YearMonth.now();
-                YearMonth cutoffDate = YearMonth.of(1994, 9);
 
-                if (courseSession.isBefore(currentDate) && (StringUtils.isBlank(student.getFinalLetterGrade()) || (courseSession.isAfter(cutoffDate) && StringUtils.isBlank(student.getFinalPercentage())))) {
+                // Only one of final percent or final letter grade is required
+                boolean hasFinalLetterGrade = StringUtils.isNotBlank(student.getFinalLetterGrade());
+                boolean hasFinalPercent = StringUtils.isNotBlank(student.getFinalPercentage());
+
+                if (courseSession.isBefore(currentDate) && !hasFinalLetterGrade && !hasFinalPercent) {
                     log.debug("C25: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage(), student.getCourseStudentID());
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()));
+                    errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.FINAL_PERCENTAGE,
+                        CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK,
+                        CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()
+                    ));
                 }
             } catch (NumberFormatException | DateTimeException e) {
                 log.debug("C25: Skipping validation due to invalid course year or month for courseStudentID :: {}", student.getCourseStudentID());
