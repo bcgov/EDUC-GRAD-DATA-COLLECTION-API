@@ -495,8 +495,14 @@ public class RestUtils {
       log.info("Letter Grade map is empty reloading them");
       this.populateLetterGradeMap();
     }
-    if(sessionDate != null) {
-      return this.letterGradeMap.values().stream().filter(code -> StringUtils.isBlank(code.getExpiryDate()) || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(sessionDate)).toList();
+    if (sessionDate != null) {
+      return this.letterGradeMap.values().stream()
+      .filter(code ->
+        !LocalDateTime.parse(code.getEffectiveDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(sessionDate)
+          && (StringUtils.isBlank(code.getExpiryDate())
+          || LocalDateTime.parse(code.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).isAfter(sessionDate))
+      )
+        .toList();
     }
     return this.letterGradeMap.values().stream().toList();
   }
@@ -963,3 +969,4 @@ public class RestUtils {
     }
   }
 }
+
