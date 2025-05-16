@@ -638,7 +638,7 @@ public class RestUtils {
 
   public Optional<GradSchool> getGradSchoolBySchoolID(final String schoolID) {
     if (this.gradSchoolMap.isEmpty()) {
-      log.info("School map is empty reloading schools");
+      log.info("Grad School map is empty reloading schools");
       this.populateGradSchoolMap();
     }
     return Optional.ofNullable(this.gradSchoolMap.get(schoolID));

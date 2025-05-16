@@ -25,7 +25,7 @@ public interface GDCEventRepository extends JpaRepository<GDCEvent, UUID> {
 
   List<GDCEvent> findByEventStatusAndEventTypeNotIn(String eventStatus, List<String> eventTypes);
 
-  @Query(value = "select event.* from INSTITUTE_EVENT event where event.EVENT_STATUS = :eventStatus " +
+  @Query(value = "select event.* from GDC_EVENT event where event.EVENT_STATUS = :eventStatus " +
           "AND event.CREATE_DATE < :createDate " +
           "AND event.EVENT_TYPE in :eventTypes " +
           "ORDER BY event.CREATE_DATE asc " +
