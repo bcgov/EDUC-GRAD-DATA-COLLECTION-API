@@ -53,10 +53,12 @@ public class JetStreamEventScheduler {
     log.info("Fired jet stream choreography scheduler");
     var gradSchoolEventTypes = Arrays.asList(EventType.UPDATE_GRAD_SCHOOL.toString());
     var results = eventRepository.findByEventStatusAndEventTypeNotIn(DB_COMMITTED.toString(), gradSchoolEventTypes);
+    log.info("In scheduler results {}", results.size());
     if (!results.isEmpty()) {
       results.forEach(el -> {
         if (el.getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(5))) {
           try {
+            log.info("EL {}", el);
             publisher.dispatchChoreographyEvent(el);
           } catch (final Exception ex) {
             log.error("Exception while trying to publish message", ex);
