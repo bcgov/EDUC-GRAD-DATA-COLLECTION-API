@@ -80,7 +80,7 @@ public class Publisher {
             try {
                 log.info("Broadcasting event :: {}", choreographedEvent);
                 val pub = this.jetStream.publishAsync(GDC_EVENTS_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(choreographedEvent));
-                pub.thenAcceptAsync(result -> log.info("Event ID :: {} Published to JetStream :: {}", event.getSagaId(), result.getSeqno()));
+                pub.thenAcceptAsync(result -> log.info("Event ID :: {} Published to JetStream :: {}", event.getEventId(), result.getSeqno()));
             } catch (IOException e) {
                 log.error("exception while broadcasting message to JetStream", e);
             }

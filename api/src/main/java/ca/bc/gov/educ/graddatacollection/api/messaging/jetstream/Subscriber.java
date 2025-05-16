@@ -99,10 +99,13 @@ public class Subscriber {
                 }
                 this.subscriberExecutor.execute(() -> {
                     try {
-                        if(event.getEventType().equals(EventType.UPDATE_GRAD_SCHOOL) || event.getEventType().equals(EventType.REFRESH_GDC_CACHE)) {
-                            this.eventHandlerDelegatorService.handleChoreographyEvent(event, message);
+                        if(event.getEventType().equals(EventType.UPDATE_GRAD_SCHOOL)) {
+                            eventHandlerDelegatorService.handleChoreographyEvent(event, message);
+                        } else if(event.getEventType().equals(EventType.REFRESH_GDC_CACHE)) {
+                            jetStreamEventHandlerService.updateEventStatus(event);
+                            eventHandlerDelegatorService.handleRefreshChoreographyEvent(message);
                         } else{
-                            jetStreamEventHandlerService.updateEventStatus(event); // ???
+                            jetStreamEventHandlerService.updateEventStatus(event);
                             message.ack();
                             log.info("Received event :: {} ", event);
                         }
