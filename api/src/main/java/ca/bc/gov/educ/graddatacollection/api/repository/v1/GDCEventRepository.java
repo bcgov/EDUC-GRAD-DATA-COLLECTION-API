@@ -13,16 +13,6 @@ public interface GDCEventRepository extends JpaRepository<GDCEvent, UUID> {
 
   Optional<GDCEvent> findByEventId(UUID eventId);
 
-  /**
-   * Find by saga id and event type optional.
-   *
-   * @param sagaId    the saga id
-   * @param eventType the event type
-   * @return the optional
-   */
-  Optional<GDCEvent> findBySagaIdAndEventType(UUID sagaId, String eventType);
-
-
   List<GDCEvent> findByEventStatusAndEventTypeNotIn(String eventStatus, List<String> eventTypes);
 
   @Query(value = "select event.* from GDC_EVENT event where event.EVENT_STATUS = :eventStatus " +
