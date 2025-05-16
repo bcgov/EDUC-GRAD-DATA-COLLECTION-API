@@ -39,7 +39,6 @@ public class ChoreographEventHandler {
   private final Map<String, EventService<?>> eventServiceMap;
   private final GDCEventRepository eventRepository;
   private final Publisher publisher;
-  private final RestUtils restUtils;
 
   /**
    * Instantiates a new Choreograph event handler.
@@ -47,9 +46,8 @@ public class ChoreographEventHandler {
    * @param eventServices   the event services
    * @param eventRepository the event repository
    */
-  public ChoreographEventHandler(final List<EventService<?>> eventServices, final GDCEventRepository eventRepository, Publisher publisher, RestUtils restUtils) {
+  public ChoreographEventHandler(final List<EventService<?>> eventServices, final GDCEventRepository eventRepository, Publisher publisher) {
     this.eventRepository = eventRepository;
-      this.restUtils = restUtils;
       this.eventServiceMap = new HashMap<>();
     eventServices.forEach(eventService -> this.eventServiceMap.put(eventService.getEventType(), eventService));
     this.publisher = publisher;
@@ -80,11 +78,6 @@ public class ChoreographEventHandler {
                         );
                 eventRepository.save(gdcEvent);
                 publisher.dispatchChoreographyEvent(gdcEvent);
-                updateEvent(event);
-                break;
-              case "REFRESH_GDC_CACHE":
-                log.info("Processing REFRESH_GDC_CACHE event record :: {} ", event);
-                restUtils.populateGradSchoolMap();
                 updateEvent(event);
                 break;
               default:
