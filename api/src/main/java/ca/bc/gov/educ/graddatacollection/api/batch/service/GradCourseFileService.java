@@ -97,6 +97,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
         long index = 0;
         while (ds.next()) {
+            log.info("In course - validateSchoolIsOpenAndBelongsToDistrict");
             gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
             batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
             index++;

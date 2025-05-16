@@ -182,6 +182,7 @@ public class GradFileValidator {
 
     public void validateSchoolIsTranscriptEligibleAndOpen(@NonNull final String guid, @NonNull final SchoolTombstone school, final String instituteID) throws FileUnProcessableException {
         var gradSchool = restUtils.getGradSchoolBySchoolID(school.getSchoolId());
+        log.info("Is present :: {}",  gradSchool.isPresent());
         if(gradSchool.isPresent() && gradSchool.get().getCanIssueTranscripts().equalsIgnoreCase("N")) {
             throw new FileUnProcessableException(FileError.INVALID_SCHOOL_FOR_UPLOAD, guid, GradCollectionStatus.LOAD_FAIL, instituteID);
         }
