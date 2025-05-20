@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V04 | ERROR  | Invalid Course Level entry, value will be ignored.                    | V03 |
+ *  | V04 | ERROR  | Invalid Course Level entry, value will be ignored.                       |     V03      |
  *                      Value should be blank.
  */
 @Component

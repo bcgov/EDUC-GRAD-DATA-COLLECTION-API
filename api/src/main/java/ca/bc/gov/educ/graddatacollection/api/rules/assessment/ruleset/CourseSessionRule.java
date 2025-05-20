@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V15  | ERROR    | The assessment session is a duplicate of an existing assessment       | V03          |
- *                      session for this student
- */
+*  | ID   | Severity | Rule                                                                                                                        | Dependent On |
+*  |------|----------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
+*  | V15  | ERROR    | Assessment session and code cannot be a duplicate assessment code and session within the .XAM file for the student.         | V03          |
+*  |      |          | Numeracy assessments, NME10, NMF10, NME, and NMF, are all considered the same assessment code.                              |              |
+*/
 @Component
 @Slf4j
 @Order(150)
@@ -51,7 +51,7 @@ public class CourseSessionRule implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V15 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        if (assessmentRulesService.checkIfStudentHasDuplicatesInFileset(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
+        if (assessmentRulesService.checkIfStudentHasDuplicatesInFilesetWithNumeracyCheck(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear())){
             log.debug("V15: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_SESSION, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD, AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage()));
         }

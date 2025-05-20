@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.rules;
 
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.NumeracyAssessmentCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
@@ -24,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -257,7 +259,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError5.size()).isZero();
+        assertThat(validationError5.size()).isOne();
+        assertThat(validationError5.getFirst().getValidationIssueDescription()).isNotEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
 
         response.setHasPriorRegistration(false);
         response.setAlreadyWrittenAssessment(false);
@@ -272,7 +275,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError7.size()).isZero();
+        assertThat(validationError7.size()).isOne();
+        assertThat(validationError7.getFirst().getValidationIssueDescription()).isNotEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
     }
 
     @Test
@@ -652,7 +656,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         Session session = new Session();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
-        session.setAssessments(Arrays.asList(assessment));
+        session.setAssessments(List.of(assessment));
         assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
 
@@ -666,9 +670,68 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_SESSION.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getCode());
-        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage());
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_SESSION.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage());
+
+        Session numeracySession = new Session();
+        var numeracyAssessments = NumeracyAssessmentCodes.getAllCodes().stream().map(code -> {
+            Assessment a = new Assessment();
+            a.setAssessmentID(UUID.randomUUID().toString());
+            a.setAssessmentTypeCode(code);
+            return a;
+        }).toList();
+        numeracySession.setAssessments(numeracyAssessments);
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(), any())).thenReturn(Optional.of(numeracySession));
+
+        var numeracyStudent1 = createMockAssessmentStudent();
+        numeracyStudent1.setPen(demStudent.getPen());
+        numeracyStudent1.setLocalID(demStudent.getLocalID());
+        numeracyStudent1.setLastName(demStudent.getLastName());
+        numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
+        numeracyStudent1.setCourseCode("NME10");
+        numeracyStudent1.setCourseMonth("06");
+        numeracyStudent1.setCourseYear("2024");
+        assessmentStudentRepository.save(numeracyStudent1);
+
+        var numeracyStudent2 = createMockAssessmentStudent();
+        numeracyStudent2.setPen(demStudent.getPen());
+        numeracyStudent2.setLocalID(demStudent.getLocalID());
+        numeracyStudent2.setLastName(demStudent.getLastName());
+        numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
+        numeracyStudent2.setCourseCode("NMF");
+        numeracyStudent2.setCourseMonth("06");
+        numeracyStudent2.setCourseYear("2024");
+        numeracyStudent2.setAssessmentStudentID(null);
+        assessmentStudentRepository.save(numeracyStudent2);
+
+        numeracyStudent2.setAssessmentStudentID(null);
+        val numeracyValidationError = rulesProcessor.processRules(
+            createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), numeracyStudent2, createMockSchool())
+        );
+        assertThat(numeracyValidationError.size()).isNotZero();
+        assertThat(numeracyValidationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_SESSION.getCode());
+        assertThat(numeracyValidationError.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getCode());
+        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage());
+
+        var nonNumeracyStudent = createMockAssessmentStudent();
+        nonNumeracyStudent.setPen(demStudent.getPen());
+        nonNumeracyStudent.setLocalID(demStudent.getLocalID());
+        nonNumeracyStudent.setLastName(demStudent.getLastName());
+        nonNumeracyStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        nonNumeracyStudent.setCourseCode("LTE10");
+        nonNumeracyStudent.setCourseMonth("06");
+        nonNumeracyStudent.setCourseYear("2024");
+        nonNumeracyStudent.setAssessmentStudentID(null);
+        assessmentStudentRepository.save(nonNumeracyStudent);
+
+        val nonNumeracyValidationError = rulesProcessor.processRules(
+            createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), nonNumeracyStudent, createMockSchool())
+        );
+        assertThat(nonNumeracyValidationError.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_SESSION.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getCode())
+        )).isFalse();
     }
 
     @Test
@@ -889,5 +952,65 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
         assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_STATUS_W_INVALID.getCode());
+    }
+
+    @Test
+    void testV22CourseCodeNumeracyRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+
+        Session numeracySession = new Session();
+        var numeracyAssessments = NumeracyAssessmentCodes.getAllCodes().stream().map(code -> {
+            Assessment a = new Assessment();
+            a.setAssessmentID(UUID.randomUUID().toString());
+            a.setAssessmentTypeCode(code);
+            return a;
+        }).toList();
+        numeracySession.setAssessments(numeracyAssessments);
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(), any())).thenReturn(Optional.of(numeracySession));
+
+        var numeracyStudent1 = createMockAssessmentStudent();
+        numeracyStudent1.setPen(demStudent.getPen());
+        numeracyStudent1.setLocalID(demStudent.getLocalID());
+        numeracyStudent1.setLastName(demStudent.getLastName());
+        numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
+        numeracyStudent1.setCourseCode("NME10");
+        numeracyStudent1.setCourseMonth("06");
+        numeracyStudent1.setCourseYear("2024");
+        assessmentStudentRepository.save(numeracyStudent1);
+
+        var numeracyStudent2 = createMockAssessmentStudent();
+        numeracyStudent2.setPen(demStudent.getPen());
+        numeracyStudent2.setLocalID(demStudent.getLocalID());
+        numeracyStudent2.setLastName(demStudent.getLastName());
+        numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
+        numeracyStudent2.setCourseCode("NMF");
+        numeracyStudent2.setCourseMonth("06");
+        numeracyStudent2.setCourseYear("2024");
+        numeracyStudent2.setAssessmentStudentID(null);
+
+        AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
+        response.setHasPriorRegistration(true);
+        when(this.restUtils.getAssessmentStudentDetail(any(), any())).thenReturn(response);
+
+        val ruleData = createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), numeracyStudent2, createMockSchool());
+        ruleData.setAssessmentStudentDetail(response);
+
+        val numeracyValidationError = rulesProcessor.processRules(ruleData);
+        assertThat(numeracyValidationError.size()).isNotZero();
+        assertThat(numeracyValidationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
+        assertThat(numeracyValidationError.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode());
+        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage());
+
+        response.setHasPriorRegistration(false);
+        ruleData.setAssessmentStudentDetail(response);
+        val numeracyValidationError2 = rulesProcessor.processRules(ruleData);
+        assertThat(numeracyValidationError2.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode())
+        )).isFalse();
     }
 }

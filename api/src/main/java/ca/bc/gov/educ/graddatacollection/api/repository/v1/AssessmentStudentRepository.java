@@ -25,4 +25,12 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
             "GROUP BY v.validationIssueSeverityCode")
     List<Object[]> countValidationIssuesBySeverity(@Param("incomingFilesetId") UUID incomingFilesetId);
 
+    @Query("SELECT COUNT(a) FROM AssessmentStudentEntity a " +
+           "WHERE a.incomingFileset.incomingFilesetID = :incomingFilesetID " +
+           "AND a.pen = :pen " +
+           "AND a.courseCode IN :numeracyCodes " +
+           "AND a.courseMonth = :courseMonth " +
+           "AND a.courseYear = :courseYear")
+    long countNumeracyDuplicates(UUID incomingFilesetID, String pen, List<String> numeracyCodes, String courseMonth, String courseYear);
+
 }

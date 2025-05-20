@@ -17,29 +17,31 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *  | ID          | Severity | Rule                                                                                              | Dependent On |
- *  |-------------|----------|---------------------------------------------------------------------------------------------------|--------------|
- *  | V19         | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V03, V18     |
+ *  | ID   | Severity | Rule                                                                                                                        | Dependent On |
+ *  |------|----------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
+ *  | V22  | ERROR    | Assessment session and code cannot be a duplicate numeracy registration within the “assessment register” (assessment        | V03          |
+ *  |      |          | student table in the assessment api) for the student.  Numeracy assessments, NME10, NMF10, NME, and NMF, are all            |              |
+ *  |      |          | considered the same assessment code.                                                                                        |              |
  */
 @Component
 @Slf4j
-@Order(190)
-public class ProficiencyScoreRule implements AssessmentValidationBaseRule {
+@Order(220)
+public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
 
     private final AssessmentRulesService assessmentRulesService;
 
-    public ProficiencyScoreRule(AssessmentRulesService assessmentRulesService) {
+    public CourseCodeNumeracyRule(AssessmentRulesService assessmentRulesService) {
         this.assessmentRulesService = assessmentRulesService;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<AssessmentStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of V19: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
+        log.debug("In shouldExecute of V22: for assessment {} and assessmentStudentID :: {}", studentRuleData.getAssessmentStudentEntity().getAssessmentID() ,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V19", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V22", validationErrorsMap);
 
-        log.debug("In shouldExecute of V19: Condition returned - {} for assessmentStudentID :: {}" ,
+        log.debug("In shouldExecute of V22: Condition returned - {} for assessmentStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getAssessmentStudentEntity().getAssessmentStudentID());
 
@@ -49,16 +51,12 @@ public class ProficiencyScoreRule implements AssessmentValidationBaseRule {
     @Override
     public List<AssessmentStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         var student = studentRuleData.getAssessmentStudentEntity();
-        log.debug("In executeValidation of V19 for assessmentStudentID :: {}", student.getAssessmentStudentID());
+        log.debug("In executeValidation of V22 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
-
-        if (!studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")) {
-            return errors;
-        }
 
         var studentApiStudent = assessmentRulesService.getStudentApiStudent(studentRuleData, student.getPen());
         var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-        log.info("V19: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
+        log.info("V22: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
 
         AssessmentStudentDetailResponse studAssessmentDetail = studentRuleData.getAssessmentStudentDetail();
 
@@ -67,11 +65,10 @@ public class ProficiencyScoreRule implements AssessmentValidationBaseRule {
             studentRuleData.setAssessmentStudentDetail(studAssessmentDetail);
         }
 
-        if (studAssessmentDetail == null || (studAssessmentDetail.isHasPriorRegistration() && studAssessmentDetail.isAlreadyWrittenAssessment())) {
-            log.debug("V19: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage(), student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage()));
+        if (studAssessmentDetail != null && studAssessmentDetail.isHasPriorRegistration()) {
+            log.debug("V22: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage(), student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage()));
         }
-
         return errors;
     }
 
