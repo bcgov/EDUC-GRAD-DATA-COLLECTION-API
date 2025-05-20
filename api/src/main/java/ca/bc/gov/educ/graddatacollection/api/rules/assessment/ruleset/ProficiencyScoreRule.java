@@ -60,9 +60,9 @@ public class ProficiencyScoreRule implements AssessmentValidationBaseRule {
         var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
         log.info("V19: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
 
-        AssessmentStudentDetailResponse studAssessmentDetail = null;
+        AssessmentStudentDetailResponse studAssessmentDetail = studentRuleData.getAssessmentStudentDetail();
 
-        if (studentApiStudent != null) {
+        if (studentApiStudent != null && studAssessmentDetail == null) {
             studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
             studentRuleData.setAssessmentStudentDetail(studAssessmentDetail);
         }

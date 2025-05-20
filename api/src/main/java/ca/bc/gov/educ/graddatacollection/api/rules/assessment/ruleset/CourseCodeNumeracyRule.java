@@ -59,6 +59,7 @@ public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
         log.info("V22: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
 
         AssessmentStudentDetailResponse studAssessmentDetail = studentRuleData.getAssessmentStudentDetail();
+
         if (studentApiStudent != null && studAssessmentDetail == null) {
             studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
             studentRuleData.setAssessmentStudentDetail(studAssessmentDetail);

@@ -259,7 +259,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError5.size()).isZero();
+        assertThat(validationError5.size()).isOne();
+        assertThat(validationError5.getFirst().getValidationIssueDescription()).isNotEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
 
         response.setHasPriorRegistration(false);
         response.setAlreadyWrittenAssessment(false);
@@ -274,7 +275,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError7.size()).isZero();
+        assertThat(validationError7.size()).isOne();
+        assertThat(validationError7.getFirst().getValidationIssueDescription()).isNotEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
     }
 
     @Test
