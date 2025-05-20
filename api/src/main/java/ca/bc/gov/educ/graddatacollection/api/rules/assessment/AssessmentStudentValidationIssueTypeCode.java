@@ -25,6 +25,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
   TO_WRITE_FLAG_NOT_BLANK("TO_WRITE_FLAG_NOT_BLANK", "To write flag must be blank. This registration cannot be updated."),
   EXAM_SCHOOL_INVALID("EXAM_SCHOOL_INVALID", "Invalid assessment centre provided. This registration cannot be updated."),
   DUPLICATE_XAM_RECORD("DUPLICATE_XAM_RECORD", "Duplicate registration and session date reported for the same student in the XAM file. These registrations cannot be updated."),
+  NUMERACY_DUPLICATE("NUMERACY_DUPLICATE", "Student has already been registered for a numeracy assessment for this session: %s. This registration cannot be updated."),
   COURSE_CODE_CSF("COURSE_CODE_CSF", "Student is enrolled in a Programme Francophone school and the registration is for a French Immersion assessment. This registration cannot be updated."),
   COURSE_CODE_NON_CSF("COURSE_CODE_NON_CSF", "LTP12 is a Programme Francophone assessment. Please use LTF12 if student is in French Immersion program."),
   COURSE_CODE_ATTEMPTS("COURSE_CODE_ATTEMPTS", "The student has reached the maximum number of attempts. The registration cannot be updated. For questions, please contact the Ministry at assessments@gov.bc.ca."),

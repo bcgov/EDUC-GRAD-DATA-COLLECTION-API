@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.AssessmentSessionMonths;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.NumeracyAssessmentCodes;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -72,5 +74,16 @@ public class AssessmentRulesService extends BaseRulesService {
 
     public boolean checkIfStudentHasDuplicatesInFileset(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear){
         return assessmentStudentRepository.countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEquals(incomingFilesetID, pen, courseCode, courseMonth, courseYear) > 1;
+    }
+
+    public boolean checkIfStudentHasDuplicatesInFilesetWithNumeracyCheck(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear) {
+        final List<String> numeracyCodes = NumeracyAssessmentCodes.getAllCodes();
+        boolean isNumeracy = numeracyCodes.stream().anyMatch(code -> code.equalsIgnoreCase(courseCode));
+        if (isNumeracy) {
+            long count = assessmentStudentRepository.countNumeracyDuplicates(incomingFilesetID, pen, numeracyCodes, courseMonth, courseYear);
+            return count > 1;
+        } else {
+            return checkIfStudentHasDuplicatesInFileset(incomingFilesetID, pen, courseCode, courseMonth, courseYear);
+        }
     }
 }
