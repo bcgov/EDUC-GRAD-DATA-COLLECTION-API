@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 
 @Slf4j
@@ -34,9 +35,13 @@ public class RuleUtil {
 
   public static boolean validateStudentDOBMatches(DemographicStudentEntity demStudent, Student studentFromAPI) {
     if(StringUtils.isNotBlank(studentFromAPI.getDob()) && StringUtils.isNotBlank(demStudent.getBirthdate())) {
-      var formattedDemBirthdate = LocalDate.parse(demStudent.getBirthdate(), DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT));
-      var formattedStudentApiBirthdate = LocalDate.parse(studentFromAPI.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-      return formattedStudentApiBirthdate.isEqual(formattedDemBirthdate);
+      try {
+        var formattedDemBirthdate = LocalDate.parse(demStudent.getBirthdate(), DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT));
+        var formattedStudentApiBirthdate = LocalDate.parse(studentFromAPI.getDob(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return formattedStudentApiBirthdate.isEqual(formattedDemBirthdate);
+      } catch (DateTimeParseException ex) {
+        return false;
+      }
     }
     return false;
   }
