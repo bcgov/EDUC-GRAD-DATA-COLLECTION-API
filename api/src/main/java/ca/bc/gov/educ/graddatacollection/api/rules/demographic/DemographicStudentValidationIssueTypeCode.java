@@ -26,6 +26,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_STATUS_MERGED("STUDENTSTATUSMERGED", "Student PEN has been merged with a pre-existing PEN. Ensure the valid, pre-existing PEN appears in system data file extracts."),
   STUDENT_STATUS_INVALID("STUDENTSTATUSINVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification."),
   STUDENT_STATUS_PEN_MISMATCH("STUDENTSTATUSPENMISMATCH", "The submitted STUDENT STATUS does not match the ministry database. If the submitted STUDENT STATUS is correct, submit PEN update request through the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login."),
+  STUDENT_STATUS_NOT_CURRENT_IN_GRAD("STUDENTSTATUSNOTCURRENTINGRAD", "This student cannot be withdrawn (submitted with a status of T) as the student is not a current student in the GRAD system."),
   STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH("STUDENTSTATUSSCHOOLOFRECORDMISMATCH", "This student cannot be withdrawn (submitted with a status of T) as the reporting school does not match the student's current school in the GRAD system."),
   STUDENT_STATUS_INCORRECT_NEW_STUDENT("STUDENTSTATUSINCORRECTNEWSTUDENT", "This student cannot be withdrawn (submitted with a status of T) as the student does not yet exist in GRAD."),
   SCCP_INVALID_DATE("SCCPINVALIDDATE", "The submitted SCCP Completion Date %s is not a valid date. The format must be YYYYMMDD."),

@@ -752,7 +752,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatus("T");
         SchoolTombstone schoolTombstone = createMockSchool();
-        schoolTombstone.setMincode("03636012");
+        schoolTombstone.setSchoolId("03636012");
         StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), schoolTombstone);
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
@@ -763,6 +763,49 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(issueCode).isTrue();
         assertThat(errorCode).isTrue();
         assertThat(errorMessage).isTrue();
+
+        var demographicStudent3 = createMockDemographicStudent(savedFileSet);
+        demographicStudent3.setStudentStatus("T");
+        SchoolTombstone schoolTombstone3 = createMockSchool();
+        schoolTombstone3.setSchoolId("03636018");
+
+        GradStudentRecord gradStudentRecord3 = new GradStudentRecord();
+        gradStudentRecord3.setSchoolOfRecordId("03636018");
+        gradStudentRecord3.setStudentStatusCode("ARC");
+        gradStudentRecord3.setGraduated("false");
+        gradStudentRecord3.setStudentID(demographicStudent3.getDemographicStudentID().toString());
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord3);
+
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), schoolTombstone3);
+        val validationError3 = rulesProcessor.processRules(studentRuleData3);
+        assertThat(validationError3.size()).isNotZero();
+
+        var issueCode3 = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()));
+        var errorCode3 = validationError3.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getCode()));
+        var errorMessage3 = validationError3.stream().anyMatch(val -> val.getValidationIssueDescription().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getMessage()));
+        assertThat(issueCode3).isTrue();
+        assertThat(errorCode3).isTrue();
+        assertThat(errorMessage3).isTrue();
+
+        var demographicStudent4 = createMockDemographicStudent(savedFileSet);
+        demographicStudent4.setStudentStatus("T");
+        SchoolTombstone schoolTombstone4 = createMockSchool();
+        schoolTombstone4.setSchoolId("03636018");
+
+        GradStudentRecord gradStudentRecord4 = new GradStudentRecord();
+        gradStudentRecord4.setSchoolOfRecordId("03636018");
+        gradStudentRecord4.setStudentStatusCode("CUR");
+        gradStudentRecord4.setGraduated("false");
+        gradStudentRecord4.setStudentID(demographicStudent4.getDemographicStudentID().toString());
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord4);
+
+        StudentRuleData studentRuleData4 = createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), schoolTombstone4);
+        val validationError4 = rulesProcessor.processRules(studentRuleData4);
+        var d19Error = validationError4.stream().anyMatch(val ->
+            val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getCode()) ||
+            val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getCode())
+        );
+        assertThat(d19Error).isFalse();
     }
 
     @Test
