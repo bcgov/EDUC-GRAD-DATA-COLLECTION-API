@@ -16,12 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | D19 | ERROR    |  If student status = "T" and the mincode provided in the data file    | D03, D06     |
- *  |      |          |  does not match the current School of Record in GRAD and the student  |              |
- *  |      |          |  status on the students' GRAD data is CUR (current)                   |              |
- */
+*  | ID   | Severity | Rule                                                                                                   | Dependent On |
+*  |------|----------|--------------------------------------------------------------------------------------------------------|--------------|
+*  | D19  | ERROR    | 1. If the incoming status is "T", the student’s status in GRAD must be "CUR" or "TER".                 | D03, D06     |
+*  |      |          | 2. If the incoming status is "T" and the student’s status in GRAD is "CUR",                            |              |
+*  |      |          |    the reporting school must be the student’s school of record in GRAD.                                |              |
+*/
 
 @Component
 @Slf4j
@@ -54,12 +54,27 @@ public class CurrentStudentReportedWithIncorrectStatusRule implements Demographi
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-        if (gradStudent != null && student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode()) &&
-            gradStudent.getStudentStatusCode().equalsIgnoreCase("CUR") &&
-            !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())
-            ) {
-            log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()));
+        if (gradStudent != null && student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())) {
+            String gradStatus = gradStudent.getStudentStatusCode();
+            if (!"CUR".equalsIgnoreCase(gradStatus) && !"TER".equalsIgnoreCase(gradStatus)) {
+                log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getMessage(), student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.STUDENT_STATUS,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getMessage()
+                ));
+            }
+            else if ("CUR".equalsIgnoreCase(gradStatus) &&
+                !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())) {
+                log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage(), student.getDemographicStudentID());
+                errors.add(createValidationIssue(
+                    StudentValidationIssueSeverityCode.ERROR,
+                    ValidationFieldCode.STUDENT_STATUS,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH,
+                    DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()
+                ));
+            }
         }
 
         return errors;
