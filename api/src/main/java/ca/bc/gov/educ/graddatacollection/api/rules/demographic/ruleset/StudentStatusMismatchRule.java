@@ -17,10 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | D21 | ERROR    |  Student Status must match PEN student status                         |  D03, D06    |
- *  |      |          |                                     	                              |              |
+ *  | ID   | Severity | Rule                                                                                                           | Dependent On |
+ *  |------|----------|----------------------------------------------------------------------------------------------------------------|--------------|
+ *  | D21  | ERROR    |  If the student is submitted with a status of A or T and the student’s status in the Student API is “Merged”   |  D03, D06    |
+ *  |      |          |  If the student is submitted with a status of A or T and the student’s status in the Student API is “Deceased” |              |
+ *  |      |          |  If the student is submitted with a status of D and the student’s status in the Student API must be “Deceased” |              |
  *
  */
 
@@ -56,12 +57,22 @@ public class StudentStatusMismatchRule implements DemographicValidationBaseRule 
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
-        if (!(demStudent.getStudentStatus().equalsIgnoreCase(student.getStatusCode()) ||
-             ("A".equalsIgnoreCase(student.getStatusCode()) && "T".equalsIgnoreCase(demStudent.getStudentStatus())))
-        ) {
-            log.debug("StudentStatus-D21: Student Status must match PEN.  demographicStudentID :: {}", demStudent.getDemographicStudentID());
-            var demStudentStatus = demStudent.getStudentStatus();
-            var ministryStudentStatus = student.getStatusCode();
+
+        String demStudentStatus = demStudent.getStudentStatus();
+        String ministryStudentStatus = student.getStatusCode();
+
+        if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
+                && "M".equalsIgnoreCase(ministryStudentStatus)) {
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getMessage()
+            ));
+        }
+        else if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
+                && "D".equalsIgnoreCase(ministryStudentStatus)) {
+            String message = "STUDENT STATUS mismatch. School submitted: " + StringEscapeUtils.escapeHtml4(demStudentStatus) + " and the Ministry PEN system has: " + ministryStudentStatus + ". If the submitted STUDENT STATUS is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
+        }
+        else if ("D".equalsIgnoreCase(demStudentStatus)
+                && !"D".equalsIgnoreCase(ministryStudentStatus)) {
             String message = "STUDENT STATUS mismatch. School submitted: " + StringEscapeUtils.escapeHtml4(demStudentStatus) + " and the Ministry PEN system has: " + ministryStudentStatus + ". If the submitted STUDENT STATUS is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
         }

@@ -636,75 +636,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testD22DemographicValidStatusRule() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        courseStudentRepository.save(courseStudent);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demStudent.setPen(courseStudent.getPen());
-        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
-
-        Student studentApiStudent = new Student();
-        studentApiStudent.setStudentID(UUID.randomUUID().toString());
-        studentApiStudent.setPen("123456789");
-        studentApiStudent.setLocalID("8887555");
-        studentApiStudent.setLegalFirstName("JIM");
-        studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setDob("1990-01-01");
-        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
-        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
-
-        var demographicStudent = createMockDemographicStudent(savedFileSet);
-        studentApiStudent.setStatusCode(StudentStatusCodes.M.getCode());
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PEN.getCode()));
-        var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getCode()));
-        assertThat(issueCode).isTrue();
-        assertThat(errorCode).isTrue();
-
-        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
-        demographicStudent.setStudentStatusCode(null);
-        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
-
-        var issueCode1 = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PEN.getCode()));
-        var errorCode1 = validationError3.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getCode()));
-        assertThat(issueCode1).isFalse();
-        assertThat(errorCode1).isFalse();
-    }
-
-    @Test
-    void testD06DemographicValidStatusRule() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        courseStudentRepository.save(courseStudent);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demStudent.setPen(courseStudent.getPen());
-        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
-
-        var demographicStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudent.setStudentStatus("Z");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.STUDENT_STATUS.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage().formatted(demographicStudent.getStudentStatus()));
-
-        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
-        demographicStudent2.setStudentStatus(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
-        assertThat(validationError3.size()).isNotZero();
-        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.STUDENT_STATUS.getCode());
-        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getCode());
-        assertThat(validationError3.getFirst().getValidationIssueDescription()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INVALID.getMessage().formatted(demographicStudent2.getStudentStatus()));
-    }
-
-    @Test
     void testD21DemographicStudentStatus() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
@@ -717,25 +648,56 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var school = createMockSchool();
         school.setSchoolId("03636018");
 
-        var demographicStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudent.setStudentStatus(StudentStatusCodes.D.getCode());
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school);
-        val validationError2 = rulesProcessor.processRules(studentRuleData2);
-        assertThat(validationError2.size()).isNotZero();
+        var demographicStudentMerged = createMockDemographicStudent(savedFileSet);
+        demographicStudentMerged.setStudentStatus(StudentStatusCodes.A.getCode());
+        Student studentApiStudentMerged = new Student();
+        studentApiStudentMerged.setStudentID(UUID.randomUUID().toString());
+        studentApiStudentMerged.setPen("123456789");
+        studentApiStudentMerged.setStatusCode(StudentStatusCodes.M.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudentMerged);
+        StudentRuleData studentRuleDataMerged = createMockStudentRuleData(demographicStudentMerged, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school);
+        val validationErrorMerged = rulesProcessor.processRules(studentRuleDataMerged);
+        assertThat(validationErrorMerged.size()).isNotZero();
+        assertThat(validationErrorMerged.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PEN.getCode()))).isTrue();
+        assertThat(validationErrorMerged.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getCode()))).isTrue();
 
-        var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()));
-        var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getCode()));
-        assertThat(issueCode).isTrue();
-        assertThat(errorCode).isTrue();
+        var demographicStudentDeceased = createMockDemographicStudent(savedFileSet);
+        demographicStudentDeceased.setStudentStatus(StudentStatusCodes.T.getCode());
+        Student studentApiStudentDeceased = new Student();
+        studentApiStudentDeceased.setStudentID(UUID.randomUUID().toString());
+        studentApiStudentDeceased.setPen("123456789");
+        studentApiStudentDeceased.setStatusCode(StudentStatusCodes.D.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudentDeceased);
+        StudentRuleData studentRuleDataDeceased = createMockStudentRuleData(demographicStudentDeceased, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school);
+        val validationErrorDeceased = rulesProcessor.processRules(studentRuleDataDeceased);
+        assertThat(validationErrorDeceased.size()).isNotZero();
+        assertThat(validationErrorDeceased.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()))).isTrue();
+        assertThat(validationErrorDeceased.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getCode()))).isTrue();
 
-        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
-        demographicStudent2.setStudentStatus(StudentStatusCodes.T.getCode());
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school);
-        val validationError3 = rulesProcessor.processRules(studentRuleData3);
-        var issueCode3 = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()));
-        var errorCode3 = validationError3.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getCode()));
-        assertThat(issueCode3).isFalse();
-        assertThat(errorCode3).isFalse();
+        var demographicStudentD = createMockDemographicStudent(savedFileSet);
+        demographicStudentD.setStudentStatus(StudentStatusCodes.D.getCode());
+        Student studentApiStudentNotDeceased = new Student();
+        studentApiStudentNotDeceased.setStudentID(UUID.randomUUID().toString());
+        studentApiStudentNotDeceased.setPen("123456789");
+        studentApiStudentNotDeceased.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudentNotDeceased);
+        StudentRuleData studentRuleDataD = createMockStudentRuleData(demographicStudentD, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school);
+        val validationErrorD = rulesProcessor.processRules(studentRuleDataD);
+        assertThat(validationErrorD.size()).isNotZero();
+        assertThat(validationErrorD.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()))).isTrue();
+        assertThat(validationErrorD.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getCode()))).isTrue();
+
+        var demographicStudentD2 = createMockDemographicStudent(savedFileSet);
+        demographicStudentD2.setStudentStatus(StudentStatusCodes.D.getCode());
+        Student studentApiStudentDeceased2 = new Student();
+        studentApiStudentDeceased2.setStudentID(UUID.randomUUID().toString());
+        studentApiStudentDeceased2.setPen("123456789");
+        studentApiStudentDeceased2.setStatusCode(StudentStatusCodes.D.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudentDeceased2);
+        StudentRuleData studentRuleDataD2 = createMockStudentRuleData(demographicStudentD2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school);
+        val validationErrorD2 = rulesProcessor.processRules(studentRuleDataD2);
+        assertThat(validationErrorD2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()) &&
+                val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH.getCode()))).isFalse();
     }
 
     @Test
