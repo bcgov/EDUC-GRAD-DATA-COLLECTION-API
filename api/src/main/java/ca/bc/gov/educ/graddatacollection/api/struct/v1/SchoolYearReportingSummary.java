@@ -20,5 +20,6 @@ public class SchoolYearReportingSummary implements Serializable {
     private String categoryOrFacilityType;
     private String schoolsExpected;
     private String schoolsWithSubmissions;
+    private String schoolsWitSubmissionsInLast30DaysCount;
     private String isSection;
 }

@@ -48,11 +48,14 @@ public class ReportingSummaryService {
 
     public ReportingCycleSummary getSchoolYearSummary(ReportingPeriodEntity reportingEntity, boolean isSummer) {
         List<SchoolSubmissionCount> submissionCount;
+        List<SchoolSubmissionCount> last30DaysSubmissionCount;
 
         if(isSummer) {
             submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingEntity.getReportingPeriodID(), reportingEntity.getSummerStart(), reportingEntity.getSummerEnd());
+            last30DaysSubmissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSummerStart());
         } else {
-            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID());
+            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
+            last30DaysSubmissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart());
         }
 
         List<SchoolTombstone> schools = getEligibleSchools();
@@ -68,7 +71,17 @@ public class ReportingSummaryService {
 
             var schoolCategoryInSubmission = submissionCount.stream().filter(submission -> filteredBySchoolCategory.contains(submission.getSchoolID())).toList();
             var totalSubmissionByCategory = schoolCategoryInSubmission.stream().map(SchoolSubmissionCount::getSubmissionCount).mapToInt(Integer::valueOf).sum();
-            rowData.add(SchoolYearReportingSummary.builder().categoryOrFacilityType(title.getValue()).isSection("true").schoolsExpected(String.valueOf(totalSchools)).schoolsWithSubmissions(String.valueOf(totalSubmissionByCategory)).build());
+
+            var schoolCategoryInSubmissionLast30Days = last30DaysSubmissionCount.stream().filter(submission -> filteredBySchoolCategory.contains(submission.getSchoolID())).map(SchoolSubmissionCount::getSchoolID).toList();
+            var schoolsWithoutSubmissionLast30Days = totalSchools - schoolCategoryInSubmissionLast30Days.size();
+
+            rowData.add(SchoolYearReportingSummary.builder()
+                .categoryOrFacilityType(title.getValue())
+                .isSection("true")
+                .schoolsExpected(String.valueOf(totalSchools))
+                .schoolsWithSubmissions(String.valueOf(totalSubmissionByCategory))
+                .schoolsWitSubmissionsInLast30DaysCount(String.valueOf(schoolsWithoutSubmissionLast30Days))
+                .build());
 
             for (Map.Entry<String, String> facilityTitle : getFacilityTitles(title.getKey()).entrySet()) {
                 var filteredByCategoryAndFacility = schools.stream().filter(schoolTombstone -> schoolTombstone.getSchoolCategoryCode().equalsIgnoreCase(title.getKey()) && schoolTombstone.getFacilityTypeCode().equalsIgnoreCase(facilityTitle.getKey())).map(SchoolTombstone::getSchoolId).toList();
@@ -77,7 +90,16 @@ public class ReportingSummaryService {
                 var schoolFacilityInSubmission = submissionCount.stream().filter(submission -> filteredByCategoryAndFacility.contains(submission.getSchoolID())).toList();
                 var totalSubmissionByFacility = schoolFacilityInSubmission.stream().map(SchoolSubmissionCount::getSubmissionCount).mapToInt(Integer::valueOf).sum();
 
-                rowData.add(SchoolYearReportingSummary.builder().categoryOrFacilityType(facilityTitle.getValue()).isSection("false").schoolsExpected(String.valueOf(totalFacilityExpected)).schoolsWithSubmissions(String.valueOf(totalSubmissionByFacility)).build());
+                var schoolFacilityInSubmissionLast30Days = last30DaysSubmissionCount.stream().filter(submission -> filteredByCategoryAndFacility.contains(submission.getSchoolID())).map(SchoolSubmissionCount::getSchoolID).toList();
+                var schoolsWithoutSubmissionLast30DaysFacility = totalFacilityExpected - schoolFacilityInSubmissionLast30Days.size();
+
+                rowData.add(SchoolYearReportingSummary.builder()
+                    .categoryOrFacilityType(facilityTitle.getValue())
+                    .isSection("false")
+                    .schoolsExpected(String.valueOf(totalFacilityExpected))
+                    .schoolsWithSubmissions(String.valueOf(totalSubmissionByFacility))
+                    .schoolsWitSubmissionsInLast30DaysCount(String.valueOf(schoolsWithoutSubmissionLast30DaysFacility))
+                    .build());
             }
             rows.addAll(rowData);
         }

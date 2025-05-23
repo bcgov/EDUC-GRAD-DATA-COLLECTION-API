@@ -50,11 +50,11 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     COUNT(inFileset.incoming_fileset_id) as submissionCount
     FROM incoming_fileset inFileset
     WHERE inFileset.fileset_status_code = 'COMPLETED'
-    AND inFileset.create_date >= (current_timestamp - INTERVAL '30' day)
+    AND inFileset.create_date >= GREATEST(:reportingStartDate, (CURRENT_TIMESTAMP - INTERVAL '30' day))
     AND inFileset.reporting_period_id = :reportingPeriodID
     GROUP BY inFileset.school_id
     """, nativeQuery = true)
-    List<SchoolSubmissionCount> findSchoolSubmissionsInLast30Days(UUID reportingPeriodID);
+    List<SchoolSubmissionCount> findSchoolSubmissionsInLast30Days(UUID reportingPeriodID, LocalDateTime reportingStartDate);
 
     @Query(value = """
     SELECT inFileset.schoolID as schoolID,
