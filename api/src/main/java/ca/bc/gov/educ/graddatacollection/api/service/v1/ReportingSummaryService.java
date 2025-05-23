@@ -58,7 +58,7 @@ public class ReportingSummaryService {
             last30DaysSubmissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart());
         }
 
-        List<SchoolTombstone> schools = getEligibleSchools();
+        List<SchoolTombstone> schools = getEligibleSchools(reportingEntity, isSummer);
         ReportingCycleSummary summary = new ReportingCycleSummary();
         summary.setRows(new ArrayList<>());
 
@@ -117,7 +117,7 @@ public class ReportingSummaryService {
             submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodID, reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
         }
 
-        List<SchoolTombstone> schools = getEligibleSchools();
+        List<SchoolTombstone> schools = getEligibleSchools(reportingEntity, isSummer);
         
         if (categoryCode != null && !categoryCode.isEmpty()) {
             Map<String, String> schoolToFacilityTypeMap = schools.stream()
@@ -206,20 +206,35 @@ public class ReportingSummaryService {
         return rowTitles;
     }
 
-    private List<SchoolTombstone> getEligibleSchools() {
-        List<SchoolTombstone> eligibleSchools = restUtils.getAllSchools().stream().filter(schoolTombstone -> {
-            LocalDateTime currentDate = LocalDateTime.now();
-            LocalDateTime openDate = LocalDateTime.parse(schoolTombstone.getOpenedDate());
-            LocalDateTime closeDate = schoolTombstone.getClosedDate() != null ? LocalDateTime.parse(schoolTombstone.getClosedDate()) : null;
-            LocalDateTime endOfCloseDateGraceWindow = closeDate != null ? closeDate.plusMonths(3) : null;
-            return (currentDate.isAfter(openDate) && closeDate == null) //open schools
-                    || (currentDate.isAfter(openDate) && currentDate.isBefore(closeDate)) //closing
-                    || (endOfCloseDateGraceWindow != null && currentDate.isBefore(endOfCloseDateGraceWindow));
-        }).toList();
+    private List<SchoolTombstone> getEligibleSchools(ReportingPeriodEntity reportingPeriodEntity, boolean isSummer) {
+        LocalDateTime cutoffDate;
+        if (isSummer && reportingPeriodEntity.getSummerEnd() != null) {
+            cutoffDate = reportingPeriodEntity.getSummerEnd();
+        } else if (!isSummer && reportingPeriodEntity.getSchYrEnd() != null) {
+            cutoffDate = reportingPeriodEntity.getSchYrEnd();
+        } else {
+            cutoffDate = LocalDateTime.now();
+        }
 
-        return eligibleSchools.stream().filter(school -> {
-            var gradSchool = restUtils.getGradSchoolBySchoolID(school.getSchoolId());
-            return gradSchool.isPresent() && gradSchool.get().getCanIssueTranscripts().equalsIgnoreCase("Y");
-        }).toList();
+        return restUtils.getAllSchools().stream()
+            .filter(school -> school.getOpenedDate() != null)
+            .filter(school -> {
+                var gradSchool = restUtils.getGradSchoolBySchoolID(school.getSchoolId());
+                return gradSchool.isPresent() && "Y".equalsIgnoreCase(gradSchool.get().getCanIssueTranscripts());
+            })
+            .filter(school -> {
+                try {
+                    LocalDateTime openDate = LocalDateTime.parse(school.getOpenedDate());
+                    LocalDateTime endOfCloseDateGraceWindow = null;
+                    if (school.getClosedDate() != null) {
+                        endOfCloseDateGraceWindow = LocalDateTime.parse(school.getClosedDate()).plusMonths(3);
+                    }
+                    if (cutoffDate.isBefore(openDate)) return false;
+                    return endOfCloseDateGraceWindow == null || !cutoffDate.isAfter(endOfCloseDateGraceWindow);
+                } catch (Exception e) {
+                    return false;
+                }
+            })
+            .toList();
     }
 }
