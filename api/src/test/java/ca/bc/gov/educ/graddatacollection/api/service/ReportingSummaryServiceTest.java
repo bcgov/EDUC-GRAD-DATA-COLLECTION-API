@@ -171,7 +171,9 @@ class ReportingSummaryServiceTest {
                 .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
                 .build();
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
-        when(incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingPeriodId))
+        when(incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
+                .thenReturn(Collections.emptyList());
+        when(incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart()))
                 .thenReturn(Collections.emptyList());
 
         var gradSchool = GradSchool.builder()
@@ -186,7 +188,8 @@ class ReportingSummaryServiceTest {
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Other");
         assertNotNull(result);
         assertFalse(result.getRows().isEmpty());
-        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInLast30Days(reportingPeriodId);
+        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd());
+        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart());
     }
 
     @Test
