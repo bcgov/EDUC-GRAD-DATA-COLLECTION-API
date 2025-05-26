@@ -61,11 +61,13 @@ public class InvalidCourseCodeRule implements CourseValidationBaseRule {
             var externalID =  String.format("%-5s", student.getCourseCode()) + student.getCourseLevel();
             boolean hasTRAX = coursesRecord.getCourseCode().stream().anyMatch(code -> "39".equals(code.getOriginatingSystem()));
             boolean hasMyEdBC = coursesRecord.getCourseCode().stream().anyMatch(code -> "38".equals(code.getOriginatingSystem()));
+            boolean hasMyTraxAndMatchesExternalID = coursesRecord.getCourseCode().stream().anyMatch(code -> "39".equals(code.getOriginatingSystem()) && externalID.equals(code.getExternalCode()));
             boolean hasMyEdBCAndMatchesExternalID = coursesRecord.getCourseCode().stream().anyMatch(code -> "38".equals(code.getOriginatingSystem()) && externalID.equals(code.getExternalCode()));
-            if(hasMyEdBCAndMatchesExternalID) {
+
+            if(hasMyEdBCAndMatchesExternalID && !hasMyTraxAndMatchesExternalID) {
                 log.debug("C03: Error2: The submitted course code is a local course code, not a ministry code. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getMessage()));
-            } else if (!hasTRAX && !hasMyEdBC) {
+            } else if (!hasMyEdBC && !hasTRAX) {
                 log.debug("C03: Error1: The submitted course code does not exist in the ministry course registry. This course cannot be updated. for courseStudentID :: {}", student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID, CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage()));
             }
