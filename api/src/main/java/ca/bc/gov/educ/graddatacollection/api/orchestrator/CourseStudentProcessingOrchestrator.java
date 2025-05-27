@@ -7,6 +7,8 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -25,10 +27,14 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 @Slf4j
 public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<CourseStudentSagaData> {
   private final CourseStudentService courseStudentService;
+  private final CourseRulesService courseRulesService;
+  private final RestUtils restUtils;
 
-  protected CourseStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CourseStudentService courseStudentService) {
+  protected CourseStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CourseStudentService courseStudentService, CourseRulesService courseRulesService, RestUtils restUtils) {
     super(sagaService, messagePublisher, CourseStudentSagaData.class, SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_COURSE_STUDENTS_SAGA_TOPIC.toString());
       this.courseStudentService = courseStudentService;
+      this.courseRulesService = courseRulesService;
+      this.restUtils = restUtils;
   }
 
   @Override
@@ -39,6 +45,7 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
             .end(VALIDATE_COURSE_STUDENT, VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
             .or()
             .step(CREATE_COURSE_STUDENT_IN_GRAD, COURSE_STUDENT_CREATED_IN_GRAD, UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
+            .step(CREATE_COURSE_STUDENT_IN_GRAD, COURSE_STUDENT_CREATED_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR, UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION, this::updateCourseStudentStatus)
             .end(UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION, COURSE_STUDENT_STATUS_IN_COLLECTION_UPDATED);
   }
 
@@ -71,12 +78,19 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
     saga.setSagaState(CREATE_COURSE_STUDENT_IN_GRAD.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+    var student = courseStudentSagaData.getCourseStudent();
 
-    //TODO add code here to write downstream
+    var demStudent = courseRulesService.getDemographicDataForStudent(UUID.fromString(student.getIncomingFilesetID()),student.getPen(), student.getLastName(), student.getLocalID());
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(CREATE_COURSE_STUDENT_IN_GRAD);
-    eventBuilder.eventOutcome(COURSE_STUDENT_CREATED_IN_GRAD);
+    if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
+      var crsStudentEntity = courseRulesService.findByID(UUID.fromString(student.getCourseStudentID()));
+      restUtils.writeCRSStudentRecordInGrad(student, courseStudentSagaData.getSchool(), crsStudentEntity.getIncomingFileset().getReportingPeriod());
+      eventBuilder.eventOutcome(COURSE_STUDENT_CREATED_IN_GRAD);
+    }else{
+      eventBuilder.eventOutcome(COURSE_STUDENT_CREATED_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR);
+    }
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());

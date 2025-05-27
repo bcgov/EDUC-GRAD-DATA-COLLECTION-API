@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -21,6 +22,8 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -966,6 +969,107 @@ public class RestUtils {
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public EasEvent writeDEMStudentRecordInGrad(DemographicStudent student, SchoolTombstone schoolTombstone, ReportingPeriodEntity reportingPeriod) {
+    try {
+      final TypeReference<EasEvent> eventResult = new TypeReference<>() {
+      };
+      LocalDateTime now = LocalDateTime.now();
+      var isSummer =  (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
+              && (now.isEqual(reportingPeriod.getSummerEnd()) || now.isBefore(reportingPeriod.getSummerEnd()));
+
+
+      var demStudent = new GradDemographicStudent();
+      demStudent.setMincode(schoolTombstone.getMincode());
+      demStudent.setSchoolID(schoolTombstone.getSchoolId());
+      demStudent.setSchoolReportingRequirementCode(schoolTombstone.getSchoolReportingRequirementCode());
+      demStudent.setBirthdate(student.getBirthdate());
+      demStudent.setPen(student.getPen());
+      demStudent.setCitizenship(student.getCitizenship());
+      demStudent.setGrade(student.getGrade());
+      demStudent.setProgramCode1(student.getProgramCode1());
+      demStudent.setProgramCode2(student.getProgramCode2());
+      demStudent.setProgramCode3(student.getProgramCode3());
+      demStudent.setProgramCode4(student.getProgramCode4());
+      demStudent.setProgramCode5(student.getProgramCode5());
+      demStudent.setGradRequirementYear(student.getGradRequirementYear());
+      demStudent.setSchoolCertificateCompletionDate(student.getSchoolCertificateCompletionDate());
+      demStudent.setStudentStatus(student.getStudentStatus());
+      demStudent.setIsSummerCollection(isSummer ? "Y" : "N");
+      demStudent.setCreateUser(student.getCreateUser());
+      demStudent.setUpdateUser(student.getCreateUser());
+      demStudent.setCreateDate(student.getCreateDate());
+      demStudent.setUpdateDate(student.getUpdateDate());
+
+      log.info("DEM Student Detail:: {}", demStudent);
+
+      Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_DEM_DATA).eventPayload(JsonUtil.getJsonStringFromObject(demStudent)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), eventResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling PROCESS_STUDENT_DEM_DATA service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public EasEvent writeCRSStudentRecordInGrad(CourseStudent student, SchoolTombstone schoolTombstone, ReportingPeriodEntity reportingPeriod) {
+    try {
+      final TypeReference<EasEvent> eventResult = new TypeReference<>() {
+      };
+
+      var gradSchool = getGradSchoolBySchoolID(schoolTombstone.getSchoolId());
+      LocalDateTime now = LocalDateTime.now();
+      var isSummer =  (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
+              && (now.isEqual(reportingPeriod.getSummerEnd()) || now.isBefore(reportingPeriod.getSummerEnd()));
+
+      var courseStudent = new GradCourseStudent();
+      courseStudent.setPen(student.getPen());
+      courseStudent.setIsSummerCollection(isSummer ? "Y" : "N");
+      courseStudent.setSubmissionModeCode(gradSchool.get().getSubmissionModeCode());
+      courseStudent.setCourseCode(student.getCourseCode());
+      courseStudent.setCourseLevel(student.getCourseLevel());
+      courseStudent.setCourseYear(student.getCourseYear());
+      courseStudent.setCourseMonth(student.getCourseMonth());
+      courseStudent.setInterimPercentage(student.getInterimPercentage());
+      courseStudent.setInterimLetterGrade(student.getInterimLetterGrade());
+      courseStudent.setFinalPercentage(student.getFinalPercentage());
+      courseStudent.setFinalLetterGrade(student.getFinalLetterGrade());
+      courseStudent.setCourseStatus(student.getCourseStatus());
+      courseStudent.setNumberOfCredits(student.getNumberOfCredits());
+      courseStudent.setRelatedCourse(student.getRelatedCourse());
+      courseStudent.setRelatedLevel(student.getRelatedLevel());
+      courseStudent.setCourseDescription(student.getCourseDescription());
+      courseStudent.setCourseType(student.getCourseType());
+      courseStudent.setCourseGraduationRequirement(student.getCourseGraduationRequirement());
+      courseStudent.setCreateUser(student.getCreateUser());
+      courseStudent.setUpdateUser(student.getCreateUser());
+      courseStudent.setCreateDate(student.getCreateDate());
+      courseStudent.setUpdateDate(student.getUpdateDate());
+
+      log.info("CRS Student Detail:: {}", courseStudent);
+
+      Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_COURSE_DATA).eventPayload(JsonUtil.getJsonStringFromObject(courseStudent)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), eventResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling PROCESS_STUDENT_COURSE_DATA service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
     }
   }
 }
