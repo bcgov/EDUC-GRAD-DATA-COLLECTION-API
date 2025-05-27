@@ -34,7 +34,7 @@ public class ReportingSummaryService {
     private static final String CONT_ED_TYPE = "Continuing Ed";
     private static final String PROVINCIAL_TYPE = "Provincial Online Learning";
     private static final String DIST_LEARN_TYPE = "District Online Learning";
-    private static final String ALT_PROGS_TYPE = "Alternative Programs";
+    private static final String ALT_PROGS_TYPE = "Alternate Programs";
     private static final String SHORT_PRP_TYPE = "Short Term PRP";
     private static final String LONG_PRP_TYPE = "Long Term PRP";
     private static final String SUMMER_TYPE = "Summer";
