@@ -38,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.CREATE_COURSE_STUDENT_IN_GRAD;
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_COURSE_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,6 +208,65 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_COURSE_STUDENT.toString());
+    }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeVALIDATE_COURSE_STUDENT_validateCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
+        var school = this.createMockSchool();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(mockFileset);
+
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+
+        var courseStudentEntity = createMockCourseStudent(savedFileSet);
+        courseStudentEntity.setPen(demStudent.getPen());
+        courseStudentEntity.setLocalID(demStudent.getLocalID());
+        courseStudentEntity.setLastName(demStudent.getLastName());
+        courseStudentEntity.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudentEntity.setCourseStudentID(null);
+        courseStudentEntity.setStudentStatusCode("LOADED");
+        courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        courseStudentEntity.setUpdateDate(LocalDateTime.now());
+        courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        courseStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        courseStudentRepository.save(courseStudentEntity);
+
+        Student stud1 = new Student();
+        stud1.setStudentID(UUID.randomUUID().toString());
+        stud1.setDob("1990-01-01");
+        stud1.setLegalLastName(demStudent.getLastName());
+        stud1.setLegalFirstName(demStudent.getFirstName());
+        stud1.setPen(demStudent.getPen());
+        when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
+
+        val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
+        val saga = this.createCourseMockSaga(courseStudent);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(EventType.VALIDATE_COURSE_STUDENT)
+                .eventOutcome(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.courseStudentProcessingOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.courseStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(CREATE_COURSE_STUDENT_IN_GRAD);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COURSE_STUDENT_CREATED_IN_GRAD);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CREATE_COURSE_STUDENT_IN_GRAD.toString());
     }
 
     @SneakyThrows
