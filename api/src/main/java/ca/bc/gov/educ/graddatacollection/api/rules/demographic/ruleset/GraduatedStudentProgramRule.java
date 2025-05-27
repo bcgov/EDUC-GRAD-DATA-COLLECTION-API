@@ -53,18 +53,20 @@ public class GraduatedStudentProgramRule implements DemographicValidationBaseRul
         log.debug("In executeValidation of StudentProgram-D17 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
+        boolean isSummer = demographicRulesService.isSummerCollection(student.getIncomingFileset());
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         String studentProgram = student.getGradRequirementYear();
-
 
         // Prog Completion
         // If you have a prog completion date in GRAD, you can't change it unless it's SCCP and there's another one incoming
 
         if (gradStudent != null && StringUtils.isNotBlank(gradStudent.getProgramCompletionDate()) && StringUtils.isNotBlank(gradStudent.getProgram())) {
             var program = gradStudent.getProgram().length() >= 4 ? gradStudent.getProgram().substring(0, 4) : "";
-            if ((!program.equalsIgnoreCase("SCCP") &&
-                    (StringUtils.isBlank(studentProgram) || !studentProgram.equalsIgnoreCase(program))) ||
-                    (program.equalsIgnoreCase("SCCP") && StringUtils.isBlank(studentProgram))) {
+            if (!isSummer &&
+                    (!program.equalsIgnoreCase("SCCP") &&
+                        (StringUtils.isBlank(studentProgram) || !studentProgram.equalsIgnoreCase(program))) ||
+                        (program.equalsIgnoreCase("SCCP") && StringUtils.isBlank(studentProgram)))
+            {
                 String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getMessage().formatted(StringEscapeUtils.escapeHtml4(gradStudent.getProgram()));
                 log.debug("StudentProgram-D17: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, errorMessage));
