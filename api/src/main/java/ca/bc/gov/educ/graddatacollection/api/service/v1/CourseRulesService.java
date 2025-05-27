@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Slf4j
 public class CourseRulesService extends BaseRulesService {
 
+    private static final String COURSE_STUDENT_ID = "courseStudentID";
     private final DemographicStudentRepository demographicStudentRepository;
     private final CourseStudentRepository courseStudentRepository;
 
@@ -37,5 +40,14 @@ public class CourseRulesService extends BaseRulesService {
 
     public boolean checkIfStudentHasDuplicateInFileset(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear, String courseLevel) {
         return courseStudentRepository.countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEqualsAndCourseLevelEquals(incomingFilesetID, pen, courseCode, courseMonth, courseYear, courseLevel) > 1;
+    }
+
+    public CourseStudentEntity findByID(final UUID courseStudentID) {
+        var currentStudentEntity = this.courseStudentRepository.findById(courseStudentID);
+        if(currentStudentEntity.isPresent()) {
+            return currentStudentEntity.get();
+        } else {
+            throw new EntityNotFoundException(DemographicStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
+        }
     }
 }

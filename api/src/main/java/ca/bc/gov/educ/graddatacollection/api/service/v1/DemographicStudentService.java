@@ -86,6 +86,15 @@ public class DemographicStudentService {
         }
     }
 
+    public DemographicStudentEntity findByID(final UUID demographicStudentID) {
+        var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
+        if(currentStudentEntity.isPresent()) {
+            return currentStudentEntity.get();
+        } else {
+            throw new EntityNotFoundException(DemographicStudentEntity.class, DEMOGRAPHIC_STUDENT_ID, demographicStudentID.toString());
+        }
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void setStudentStatus(final UUID demographicStudentID, final SchoolStudentStatus status) {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);

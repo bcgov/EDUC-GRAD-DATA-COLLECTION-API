@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -25,10 +26,12 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 @Slf4j
 public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<DemographicStudentSagaData> {
   private final DemographicStudentService demographicStudentService;
+  private final RestUtils restUtils;
 
-  protected DemographicStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, DemographicStudentService demographicStudentService) {
+  protected DemographicStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, DemographicStudentService demographicStudentService, RestUtils restUtils) {
     super(sagaService, messagePublisher, DemographicStudentSagaData.class, SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_DEM_STUDENTS_SAGA_TOPIC.toString());
       this.demographicStudentService = demographicStudentService;
+      this.restUtils = restUtils;
   }
 
   @Override
@@ -73,7 +76,9 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
+    var demStudentEntity = demographicStudentService.findByID(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()));
     //Write DEM data downstream
+    restUtils.writeDEMStudentRecordInGrad(demographicStudentSagaData.getDemographicStudent(), demographicStudentSagaData.getSchool(), demStudentEntity.getIncomingFileset().getReportingPeriod());
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD);
