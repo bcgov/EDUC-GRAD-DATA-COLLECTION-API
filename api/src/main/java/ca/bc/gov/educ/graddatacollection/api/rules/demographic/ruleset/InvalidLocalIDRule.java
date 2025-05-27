@@ -53,10 +53,13 @@ public class InvalidLocalIDRule implements DemographicValidationBaseRule {
         var demStudent = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of studentLocalD-D09 for demographicStudentID :: {}", demStudent.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
+
+        boolean isSummer = demographicRulesService.isSummerCollection(demStudent.getIncomingFileset());
         var secureMessageUrl = props.getEdxBaseUrl() + "/inbox";
         var student = demographicRulesService.getStudentApiStudent(studentRuleData, demStudent.getPen());
 
-        if (StringUtils.isNotBlank(student.getLocalID()) &&
+        if (!isSummer &&
+            StringUtils.isNotBlank(student.getLocalID()) &&
             !student.getLocalID().equalsIgnoreCase(demStudent.getLocalID())) {
             log.debug("studentLocalD-D09: Warning: The submitted STUDENT LOCAL ID does not match the ministry database. If the submitted STUDENT LOCAL ID is correct, submit PEN update request through Secure Messaging Inbox in EDX. for demographicStudentID :: {}", demStudent.getDemographicStudentID());
             String message = "The submitted STUDENT LOCAL ID does not match the Ministry PEN system. If the submitted data is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
