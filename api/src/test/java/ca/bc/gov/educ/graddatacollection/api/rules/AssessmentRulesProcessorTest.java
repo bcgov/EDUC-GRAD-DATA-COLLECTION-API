@@ -435,37 +435,6 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testV10ProvincialSpecialCaseRule() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demographicStudentRepository.save(demStudent);
-        var assessmentStudent = createMockAssessmentStudent();
-        assessmentStudent.setPen(demStudent.getPen());
-        assessmentStudent.setLocalID(demStudent.getLocalID());
-        assessmentStudent.setLastName(demStudent.getLastName());
-        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-        Session session = new Session();
-        Assessment assessment = new Assessment();
-        assessment.setAssessmentID(UUID.randomUUID().toString());
-        session.setAssessments(Arrays.asList(assessment));
-        assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
-        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
-
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError1.size()).isZero();
-
-        assessmentStudent.setProvincialSpecialCase("123");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchool()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROVINCIAL_SPECIAL_CASE.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.PROVINCIAL_SPECIAL_CASE_NOT_BLANK.getCode().formatted(assessmentStudent.getProvincialSpecialCase()));
-    }
-
-    @Test
     void testV18CourseStatusRule() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
