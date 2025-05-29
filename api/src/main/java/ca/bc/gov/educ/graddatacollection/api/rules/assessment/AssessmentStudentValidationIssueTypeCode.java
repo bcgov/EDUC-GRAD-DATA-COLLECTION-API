@@ -31,7 +31,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
   COURSE_CODE_ATTEMPTS("COURSE_CODE_ATTEMPTS", "The student has reached the maximum number of attempts. The registration cannot be updated. For questions, please contact the Ministry at assessments@gov.bc.ca."),
   COURSE_STATUS_W_INVALID("COURSE_STATUS_W_INVALID", "The registration does not exist in the student record so it cannot be withdrawn."),
   COURSE_ALREADY_WRITTEN("COURSE_ALREADY_WRITTEN", "Assessment has been written by the student, withdrawal is not allowed."),
-  DEM_ISSUE("DEM_ISSUE", "An error in the XAM file for this student is preventing the processing of their course data.");
+  DEM_ISSUE("DEM_ISSUE", "An error in the DEM file for this student is preventing the processing of their assessment data.");
 
   private static final Map<String, AssessmentStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
 

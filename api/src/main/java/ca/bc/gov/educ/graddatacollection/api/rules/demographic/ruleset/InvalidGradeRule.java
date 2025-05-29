@@ -59,7 +59,7 @@ public class InvalidGradeRule implements DemographicValidationBaseRule {
         var activeGradGrades = restUtils.getGradGradeList(true);
         boolean isSummer = demographicRulesService.isSummerCollection(student.getIncomingFileset());
 
-        if ((!isSummer && StringUtils.isBlank(student.getGrade())) || (StringUtils.isNotBlank(student.getGrade()) && activeGradGrades.stream().noneMatch(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())))) {
+        if ((!isSummer && StringUtils.isBlank(student.getGrade())) || (StringUtils.isNotBlank(student.getGrade()) && activeGradGrades.stream().noneMatch(grade -> grade.getStudentGradeCode().equalsIgnoreCase(StringUtils.leftPad(student.getGrade(),2,"0"))))) {
             String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
             log.debug("StudentGrade-D07: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_INVALID, errorMessage));
