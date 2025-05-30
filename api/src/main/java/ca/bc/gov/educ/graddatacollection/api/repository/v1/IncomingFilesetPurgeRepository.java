@@ -23,4 +23,8 @@ public interface IncomingFilesetPurgeRepository extends JpaRepository<IncomingFi
     @Query("DELETE FROM IncomingFilesetPurgeEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileName is null OR crsFileName is null OR xamFileName is null)")
     void deleteStaleWithUpdateDateBefore(LocalDateTime oldestIncomingFilesetTimestamp);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM IncomingFilesetPurgeEntity WHERE createDate <= :deleteDate")
+    void deleteWithCreateDateBefore(LocalDateTime deleteDate);
 }

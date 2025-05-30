@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPurgeRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReportingPeriodService {
     private final ReportingPeriodRepository reportingPeriodRepository;
-    private final IncomingFilesetRepository incomingFilesetRepository;
+    private final IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
 
     public ReportingPeriodEntity getActiveReportingPeriod() {
         Optional<ReportingPeriodEntity> reportingPeriodEntity = reportingPeriodRepository.findActiveReportingPeriod();
@@ -75,7 +76,7 @@ public class ReportingPeriodService {
     public void purgeReportingPeriodFor5YearsAgo(){
         int octoberMonth = Month.OCTOBER.getValue();
         LocalDateTime october1stFiveYearsAgo = LocalDateTime.now().withDayOfMonth(1).withMonth(octoberMonth).minusYears(5);
-        incomingFilesetRepository.deleteWithCreateDateBefore(october1stFiveYearsAgo);
+        incomingFilesetPurgeRepository.deleteWithCreateDateBefore(october1stFiveYearsAgo);
     }
 
     private LocalDateTime getSchoolYearStart(int startYear) {
