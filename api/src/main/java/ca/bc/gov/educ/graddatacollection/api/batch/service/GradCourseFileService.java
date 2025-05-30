@@ -77,6 +77,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         } else {
             var schoolTombstone =  ds.getRowCount() == 0 ? gradFileValidator.getSchoolFromFileName(guid, fileUpload.getFileName()) : gradFileValidator.getSchoolFromFileMincodeField(guid, ds);
             incomingSchoolID = schoolTombstone.getSchoolId();
+            gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
             gradFileValidator.validateFileUploadIsNotInProgress(guid, incomingSchoolID);
             this.populateDistrictBatchFile(guid, ds, batchFile, schoolTombstone, districtID);
         }
