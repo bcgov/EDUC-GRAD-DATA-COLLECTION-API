@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPurgeRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 public class IncomingFilesetService {
     private final ApplicationProperties applicationProperties;
     private final IncomingFilesetRepository incomingFilesetRepository;
+    private final IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public IncomingFilesetEntity saveIncomingFilesetRecord(IncomingFilesetEntity currentFileset) {
@@ -27,7 +29,7 @@ public class IncomingFilesetService {
     public void purgeStaleIncomingFilesetRecords() {
         final LocalDateTime oldestIncomingFilesetTimestamp = LocalDateTime.now().minusHours(this.applicationProperties.getIncomingFilesetStaleInHours());
         log.debug("Purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
-        this.incomingFilesetRepository.deleteStaleWithUpdateDateBefore(oldestIncomingFilesetTimestamp);
+        this.incomingFilesetPurgeRepository.deleteStaleWithUpdateDateBefore(oldestIncomingFilesetTimestamp);
         log.debug("Finished purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
     }
 }
