@@ -12,7 +12,6 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -21,10 +20,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -157,6 +153,33 @@ public class CourseStudentService {
         }
     }
 
+    @Async("publisherExecutor")
+    public void prepareAndSendCourseStudentsForDownstreamProcessing(final List<ICourseStudentUpdate> entities) {
+        final List<CourseStudentUpdate> courseStudentUpdateList = entities.stream()
+                .map(el -> {
+                    val courseStudentUpdate = new CourseStudentUpdate();
+                    courseStudentUpdate.setIncomingFilesetID(el.getIncomingFilesetID());
+                    courseStudentUpdate.setPen(el.getPen());
+                    return courseStudentUpdate;
+                }).toList();
+        courseStudentUpdateList.forEach(this::sendIndividualStudentAsMessageForDownstreamUpdateToTopic);
+    }
+
+    private void sendIndividualStudentAsMessageForDownstreamUpdateToTopic(final CourseStudentUpdate courseStudentUpdate) {
+        final var eventPayload = JsonUtil.getJsonString(courseStudentUpdate);
+        if (eventPayload.isPresent()) {
+            final Event event = Event.builder().eventType(EventType.READ_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE).eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SUCCESS).eventPayload(eventPayload.get()).incomingFilesetID(String.valueOf(courseStudentUpdate.getIncomingFilesetID())).build();
+            final var eventString = JsonUtil.getJsonString(event);
+            if (eventString.isPresent()) {
+                this.messagePublisher.dispatchMessage(TopicsEnum.READ_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_TOPIC.toString(), eventString.get().getBytes());
+            } else {
+                log.error(EVENT_EMPTY_MSG, courseStudentUpdate);
+            }
+        } else {
+            log.error(EVENT_EMPTY_MSG, courseStudentUpdate);
+        }
+    }
+
     public void flagErrorOnStudent(final CourseStudent courseStudent) {
         try{
             var demographicStudentEntity = courseRulesService.getDemographicDataForStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), courseStudent.getLastName(), courseStudent.getLocalID());
@@ -165,6 +188,13 @@ public class CourseStudentService {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateStudentStatus(final CourseStudentUpdate courseStudentUpdate, final SchoolStudentStatus status) {
+        List<CourseStudentEntity> currentStudentEntity = this.courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(UUID.fromString(courseStudentUpdate.getIncomingFilesetID()), courseStudentUpdate.getPen());
+        currentStudentEntity.forEach(courseStudentEntity -> courseStudentEntity.setStudentStatusCode(status.getCode()));
+        courseStudentRepository.saveAll(currentStudentEntity);
     }
 
 }

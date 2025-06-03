@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.CHESEmail;
@@ -43,6 +44,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -973,9 +975,9 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public EasEvent writeDEMStudentRecordInGrad(DemographicStudent student, SchoolTombstone schoolTombstone, ReportingPeriodEntity reportingPeriod) {
+  public GradStatusEvent writeDEMStudentRecordInGrad(DemographicStudent student, SchoolTombstone schoolTombstone, ReportingPeriodEntity reportingPeriod) {
     try {
-      final TypeReference<EasEvent> eventResult = new TypeReference<>() {
+      final TypeReference<GradStatusEvent> eventResult = new TypeReference<>() {
       };
       LocalDateTime now = LocalDateTime.now();
       var isSummer =  (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
@@ -1022,43 +1024,52 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public EasEvent writeCRSStudentRecordInGrad(CourseStudent student, SchoolTombstone schoolTombstone, ReportingPeriodEntity reportingPeriod) {
+  public GradStatusEvent writeCRSStudentRecordInGrad(List<CourseStudentEntity> courseStudentEntities, String pen, String schoolID, ReportingPeriodEntity reportingPeriod) {
     try {
-      final TypeReference<EasEvent> eventResult = new TypeReference<>() {
+      final TypeReference<GradStatusEvent> eventResult = new TypeReference<>() {
       };
 
-      var gradSchool = getGradSchoolBySchoolID(schoolTombstone.getSchoolId());
+      List<GradCourseStudentDetail> studentList = new ArrayList<>();
+      var student = new GradCourseStudent();
+
+      var gradSchool = getGradSchoolBySchoolID(schoolID);
       LocalDateTime now = LocalDateTime.now();
       var isSummer =  (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
               && (now.isEqual(reportingPeriod.getSummerEnd()) || now.isBefore(reportingPeriod.getSummerEnd()));
 
-      var courseStudent = new GradCourseStudent();
-      courseStudent.setPen(student.getPen());
-      courseStudent.setIsSummerCollection(isSummer ? "Y" : "N");
-      courseStudent.setSubmissionModeCode(gradSchool.get().getSubmissionModeCode());
-      courseStudent.setCourseCode(student.getCourseCode());
-      courseStudent.setCourseLevel(student.getCourseLevel());
-      courseStudent.setCourseYear(student.getCourseYear());
-      courseStudent.setCourseMonth(student.getCourseMonth());
-      courseStudent.setInterimPercentage(student.getInterimPercentage());
-      courseStudent.setInterimLetterGrade(student.getInterimLetterGrade());
-      courseStudent.setFinalPercentage(student.getFinalPercentage());
-      courseStudent.setFinalLetterGrade(student.getFinalLetterGrade());
-      courseStudent.setCourseStatus(student.getCourseStatus());
-      courseStudent.setNumberOfCredits(student.getNumberOfCredits());
-      courseStudent.setRelatedCourse(student.getRelatedCourse());
-      courseStudent.setRelatedLevel(student.getRelatedLevel());
-      courseStudent.setCourseDescription(student.getCourseDescription());
-      courseStudent.setCourseType(student.getCourseType());
-      courseStudent.setCourseGraduationRequirement(student.getCourseGraduationRequirement());
-      courseStudent.setCreateUser(student.getCreateUser());
-      courseStudent.setUpdateUser(student.getCreateUser());
-      courseStudent.setCreateDate(student.getCreateDate());
-      courseStudent.setUpdateDate(student.getUpdateDate());
+      student.setPen(pen);
+      student.setIsSummerCollection(isSummer ? "Y" : "N");
+      student.setSubmissionModeCode(gradSchool.get().getSubmissionModeCode());
 
-      log.info("CRS Student Detail:: {}", courseStudent);
+      courseStudentEntities.forEach(courseStudentEntity -> {
+        var courseStudent = new GradCourseStudentDetail();
+        courseStudent.setPen(courseStudentEntity.getPen());
+        courseStudent.setCourseCode(courseStudentEntity.getCourseCode());
+        courseStudent.setCourseLevel(courseStudentEntity.getCourseLevel());
+        courseStudent.setCourseYear(courseStudentEntity.getCourseYear());
+        courseStudent.setCourseMonth(courseStudentEntity.getCourseMonth());
+        courseStudent.setInterimPercentage(courseStudentEntity.getInterimPercentage());
+        courseStudent.setInterimLetterGrade(courseStudentEntity.getInterimLetterGrade());
+        courseStudent.setFinalPercentage(courseStudentEntity.getFinalPercentage());
+        courseStudent.setFinalLetterGrade(courseStudentEntity.getFinalLetterGrade());
+        courseStudent.setCourseStatus(courseStudentEntity.getCourseStatus());
+        courseStudent.setNumberOfCredits(courseStudentEntity.getNumberOfCredits());
+        courseStudent.setRelatedCourse(courseStudentEntity.getRelatedCourse());
+        courseStudent.setRelatedLevel(courseStudentEntity.getRelatedLevel());
+        courseStudent.setCourseDescription(courseStudentEntity.getCourseDescription());
+        courseStudent.setCourseType(courseStudentEntity.getCourseType());
+        courseStudent.setCourseGraduationRequirement(courseStudentEntity.getCourseGraduationRequirement());
+        courseStudent.setCreateUser(courseStudentEntity.getCreateUser());
+        courseStudent.setUpdateUser(courseStudentEntity.getCreateUser());
+        courseStudent.setCreateDate(courseStudentEntity.getCreateDate().toString());
+        courseStudent.setUpdateDate(courseStudentEntity.getUpdateDate().toString());
 
-      Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_COURSE_DATA).eventPayload(JsonUtil.getJsonStringFromObject(courseStudent)).build();
+        studentList.add(courseStudent);
+      });
+      student.getStudentDetails().addAll(studentList);
+
+      Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_COURSE_DATA).eventPayload(
+              this.objectMapper.writeValueAsString(studentList)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), eventResult);

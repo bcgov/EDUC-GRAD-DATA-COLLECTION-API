@@ -180,6 +180,10 @@ public class SagaService {
     return this.getSagaRepository().findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(assessmentStudentID, incomingFilesetID, sagaName, status);
   }
 
+  public Optional<GradSagaEntity> findByIncomingFilesetIDAndSagaNameAndStatusNot(final UUID incomingFilesetID, final String sagaName, final String status) {
+    return this.getSagaRepository().findByIncomingFilesetIDAndSagaNameAndStatusNot(incomingFilesetID, sagaName, status);
+  }
+
   /**
    * Find all completable future.
    *

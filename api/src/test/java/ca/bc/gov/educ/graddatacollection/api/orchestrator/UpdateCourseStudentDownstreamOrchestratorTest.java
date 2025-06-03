@@ -18,7 +18,8 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradCourseR
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentUpdate;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.ICourseStudentUpdate;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
@@ -39,14 +40,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.CREATE_COURSE_STUDENT_IN_GRAD;
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_COURSE_STUDENT;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.UPDATE_COURSE_STUDENT_STATUS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPITest {
+class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollectionAPITest {
 
     @MockBean
     protected RestUtils restUtils;
@@ -61,7 +62,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator;
+    UpdateCourseStudentDownstreamOrchestrator updateCourseStudentDownstreamOrchestrator;
     @Autowired
     DemographicStudentRepository demographicStudentRepository;
     @Autowired
@@ -153,7 +154,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
 
     @SneakyThrows
     @Test
-    void testHandleEvent_givenEventTypeInitiated_validateCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
+    void testHandleEvent_givenEventTypeTypeInitiated_writeCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -170,7 +171,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseStudentEntity.setLastName(demStudent.getLastName());
         courseStudentEntity.setIncomingFileset(demStudent.getIncomingFileset());
         courseStudentEntity.setCourseStudentID(null);
-        courseStudentEntity.setStudentStatusCode("LOADED");
+        courseStudentEntity.setStudentStatusCode("UPDATE_CRS");
         courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         courseStudentEntity.setUpdateDate(LocalDateTime.now());
         courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
@@ -178,6 +179,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
 
         courseStudentRepository.save(courseStudentEntity);
 
+        var sagaData = CourseStudentUpdate.builder().incomingFilesetID(String.valueOf(demStudent.getIncomingFileset().getIncomingFilesetID())).pen(demStudent.getPen()).build();
         Student stud1 = new Student();
         stud1.setStudentID(UUID.randomUUID().toString());
         stud1.setDob("1990-01-01");
@@ -186,33 +188,31 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         stud1.setPen(demStudent.getPen());
         when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
-        val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
-        val saga = this.createCourseMockSaga(courseStudent);
+        val saga = this.createUpdateCourseMockSaga(sagaData);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
                 .eventOutcome(EventOutcome.INITIATE_SUCCESS)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-        this.courseStudentProcessingOrchestrator.handleEvent(event);
+        this.updateCourseStudentDownstreamOrchestrator.handleEvent(event);
 
-        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.courseStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.updateCourseStudentDownstreamOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_COURSE_STUDENT);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR);
+        assertThat(newEvent.getEventType()).isEqualTo(CREATE_COURSE_STUDENT_IN_GRAD);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COURSE_STUDENT_CREATED_IN_GRAD);
 
         val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_COURSE_STUDENT.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CREATE_COURSE_STUDENT_IN_GRAD.toString());
     }
 
     @SneakyThrows
     @Test
-    void testHandleEvent_givenEventTypeInitiated_validateCourseStudentRecordWithWarningAndEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
+    void testHandleEvent_givenEventTypeTypeCREATE_COURSE_STUDENT_IN_GRAD_updateCourseStudentRecordWithEventOutCome_COURSE_STUDENT_STATUS_UPDATED() {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -229,9 +229,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseStudentEntity.setLastName(demStudent.getLastName());
         courseStudentEntity.setIncomingFileset(demStudent.getIncomingFileset());
         courseStudentEntity.setCourseStudentID(null);
-        courseStudentEntity.setStudentStatusCode("LOADED");
-        courseStudentEntity.setFinalLetterGrade("IE");
-        courseStudentEntity.setFinalPercentage("0");
+        courseStudentEntity.setStudentStatusCode("UPDATE_CRS");
         courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         courseStudentEntity.setUpdateDate(LocalDateTime.now());
         courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
@@ -239,6 +237,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
 
         courseStudentRepository.save(courseStudentEntity);
 
+        var sagaData = CourseStudentUpdate.builder().incomingFilesetID(String.valueOf(demStudent.getIncomingFileset().getIncomingFilesetID())).pen(demStudent.getPen()).build();
         Student stud1 = new Student();
         stud1.setStudentID(UUID.randomUUID().toString());
         stud1.setDob("1990-01-01");
@@ -247,76 +246,26 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         stud1.setPen(demStudent.getPen());
         when(this.restUtils.getStudentByPEN(any(),any())).thenReturn(stud1);
 
-        val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
-        val saga = this.createCourseMockSaga(courseStudent);
+        val saga = this.createUpdateCourseMockSaga(sagaData);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(EventType.INITIATED)
-                .eventOutcome(EventOutcome.INITIATE_SUCCESS)
+                .eventType(EventType.CREATE_COURSE_STUDENT_IN_GRAD)
+                .eventOutcome(EventOutcome.COURSE_STUDENT_CREATED_IN_GRAD)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-        this.courseStudentProcessingOrchestrator.handleEvent(event);
+        this.updateCourseStudentDownstreamOrchestrator.handleEvent(event);
 
-        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.courseStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.updateCourseStudentDownstreamOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_COURSE_STUDENT);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR);
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COURSE_STUDENT_STATUS);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COURSE_STUDENT_STATUS_UPDATED);
 
         val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_COURSE_STUDENT.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_COURSE_STUDENT_STATUS.toString());
     }
 
-    @SneakyThrows
-    @Test
-    void testHandleEvent_givenEventTypeInitiated_validateCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR() {
-        var school = this.createMockSchool();
-        school.setMincode("07965039");
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
-        var savedFileset = incomingFilesetRepository.save(mockFileset);
-
-        var demStudent = createMockDemographicStudent(savedFileset);
-        demographicStudentRepository.save(demStudent);
-
-        var courseStudentEntity = createMockCourseStudent(savedFileset);
-        courseStudentEntity.setIncomingFileset(mockFileset);
-        courseStudentEntity.setTransactionID("AB");
-        courseStudentEntity.setCourseStudentID(null);
-        courseStudentEntity.setStudentStatusCode("LOADED");
-        courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-        courseStudentEntity.setUpdateDate(LocalDateTime.now());
-        courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
-        courseStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
-
-        courseStudentRepository.save(courseStudentEntity);
-
-        val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
-        val saga = this.createCourseMockSaga(courseStudent);
-        saga.setSagaId(null);
-        this.sagaRepository.save(saga);
-
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
-        val event = Event.builder()
-                .sagaId(saga.getSagaId())
-                .eventType(EventType.INITIATED)
-                .eventOutcome(EventOutcome.INITIATE_SUCCESS)
-                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-        this.courseStudentProcessingOrchestrator.handleEvent(event);
-
-        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.courseStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
-        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(VALIDATE_COURSE_STUDENT);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR);
-
-        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
-        assertThat(savedSagaInDB).isPresent();
-        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_COURSE_STUDENT.toString());
-    }
 }

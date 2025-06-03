@@ -121,6 +121,12 @@ public class EventTaskSchedulerAsyncService {
     log.info("Found :: {} course records in loaded status", courseStudentEntities.size());
     if (!courseStudentEntities.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities);
+      return;
+    }
+
+    final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(numberOfStudentsToProcess);
+    if (!courseStudentEntities.isEmpty()) {
+      this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate);
     }
   }
 
