@@ -54,8 +54,8 @@ public class EventHandlerService {
   public void handleProcessDemStudentsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_DEM_STUDENTS_FOR_PROCESSING_SUCCESS) {
       final DemographicStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(DemographicStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()), UUID.fromString(sagaData.getDemographicStudent().getIncomingFilesetID()), SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
-      if (sagaOptional.isPresent()) { // possible duplicate message.
+      final var sagaList = this.getSagaService().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()), UUID.fromString(sagaData.getDemographicStudent().getIncomingFilesetID()), SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      if (!sagaList.isEmpty()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
         return;
       }
@@ -75,8 +75,8 @@ public class EventHandlerService {
   public void handleProcessCourseStudentsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS) {
       final CourseStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(CourseStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getCourseStudent().getCourseStudentID()), UUID.fromString(sagaData.getCourseStudent().getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
-      if (sagaOptional.isPresent()) { // possible duplicate message.
+      final var sagaList = this.getSagaService().findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getCourseStudent().getCourseStudentID()), UUID.fromString(sagaData.getCourseStudent().getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      if (!sagaList.isEmpty()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
         return;
       }
@@ -96,8 +96,8 @@ public class EventHandlerService {
   public void handleProcessAssessmentStudentsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS) {
       final AssessmentStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(AssessmentStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getAssessmentStudent().getAssessmentStudentID()), UUID.fromString(sagaData.getAssessmentStudent().getIncomingFilesetID()), SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
-      if (sagaOptional.isPresent()) { // possible duplicate message.
+      final var sagaList = this.getSagaService().findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getAssessmentStudent().getAssessmentStudentID()), UUID.fromString(sagaData.getAssessmentStudent().getIncomingFilesetID()), SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      if (!sagaList.isEmpty()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
         return;
       }
@@ -117,8 +117,8 @@ public class EventHandlerService {
   public void handleProcessCourseStudentsForDownstreamUpdateEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SUCCESS) {
       final CourseStudentUpdate sagaData = JsonUtil.getJsonObjectFromString(CourseStudentUpdate.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
-      if (sagaOptional.isPresent()) { // possible duplicate message.
+      final var sagaList = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      if (!sagaList.isEmpty()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
         return;
       }
