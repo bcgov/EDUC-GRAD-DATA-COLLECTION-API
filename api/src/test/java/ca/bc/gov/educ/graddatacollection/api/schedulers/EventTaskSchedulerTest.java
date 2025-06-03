@@ -157,7 +157,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
 
         LocalDate dateInJuly = LocalDate.of(currentYear + 1, Month.JULY, 1);
         LocalDate thirdJulyFridayDate = dateInJuly.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
-        LocalDateTime schoolYearEnd = thirdJulyFridayDate.atStartOfDay();
+        LocalDateTime schoolYearEnd = thirdJulyFridayDate.atTime(23,59,59,0);
 
         LocalDate dateInAugust = LocalDate.of(currentYear + 1, Month.AUGUST, 1);
         LocalDate firstAugustMondayDate = dateInAugust.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
@@ -165,7 +165,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
 
         LocalDate dateInSeptember = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 1);
         LocalDate thirdSeptemberFridayDate = dateInSeptember.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
-        LocalDateTime summerEnd = thirdSeptemberFridayDate.atStartOfDay();
+        LocalDateTime summerEnd = thirdSeptemberFridayDate.atTime(23,59,59,0);
 
         LocalDate periodStartDate = LocalDate.of(currentYear, Month.OCTOBER, 1);
         LocalDateTime periodStart = periodStartDate.atStartOfDay();

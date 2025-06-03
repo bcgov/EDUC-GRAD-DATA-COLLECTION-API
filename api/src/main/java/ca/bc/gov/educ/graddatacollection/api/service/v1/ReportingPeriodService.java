@@ -88,7 +88,7 @@ public class ReportingPeriodService {
     private LocalDateTime getSchoolYearEnd(int startYear) {
         LocalDate dateInJuly = LocalDate.of(startYear + 1, Month.JULY, 1);
         LocalDate thirdJulyFridayDate = dateInJuly.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
-        return thirdJulyFridayDate.atStartOfDay();
+        return thirdJulyFridayDate.atTime(23,59,59, 0);
     }
 
     private LocalDateTime getSummerStart(int startYear) {
@@ -100,7 +100,7 @@ public class ReportingPeriodService {
     private LocalDateTime getSummerEnd(int startYear) {
         LocalDate dateInSeptember = LocalDate.of(startYear + 1, Month.SEPTEMBER, 1);
         LocalDate thirdSeptemberFridayDate = dateInSeptember.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY));
-        return thirdSeptemberFridayDate.atStartOfDay();
+        return thirdSeptemberFridayDate.atTime(23,59,59, 0);
     }
 
     private LocalDateTime getPeriodStart(int startYear) {
