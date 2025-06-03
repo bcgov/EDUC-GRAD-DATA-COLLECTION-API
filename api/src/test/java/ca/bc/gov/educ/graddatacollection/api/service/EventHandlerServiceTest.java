@@ -110,7 +110,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         eventHandlerService.handleProcessDemStudentsEvent(event);
 
         var sagaEntity = sagaRepository.findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(demographicStudentEntity.getDemographicStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_DEM_STUDENTS_SAGA", "COMPLETED");
-        assertThat(sagaEntity).isPresent();
+        assertThat(sagaEntity).hasSize(1);
     }
 
     @Test
@@ -148,7 +148,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         eventHandlerService.handleProcessCourseStudentsEvent(event);
 
         var sagaEntity = sagaRepository.findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(courseStudentEntity.getCourseStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_COURSE_STUDENTS_SAGA", "COMPLETED");
-        assertThat(sagaEntity).isPresent();
+        assertThat(sagaEntity).hasSize(1);
     }
 
     @Test
@@ -183,6 +183,6 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         eventHandlerService.handleProcessAssessmentStudentsEvent(event);
 
         var sagaEntity = sagaRepository.findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(assessmentStudentEntity.getAssessmentStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_ASSESSMENT_STUDENTS_SAGA", "COMPLETED");
-        assertThat(sagaEntity).isPresent();
+        assertThat(sagaEntity).hasSize(1);
     }
 }
