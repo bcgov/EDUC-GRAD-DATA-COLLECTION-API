@@ -6,12 +6,11 @@ import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.AssessmentStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.CourseStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.DemographicStudentProcessingOrchestrator;
+import ca.bc.gov.educ.graddatacollection.api.orchestrator.UpdateCourseStudentDownstreamOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
@@ -39,14 +38,16 @@ public class EventHandlerService {
   private final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
   private final CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator;
   private final AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
+  private final UpdateCourseStudentDownstreamOrchestrator updateCourseStudentDownstreamOrchestrator;
   public static final String NO_EXECUTION_MSG = "Execution is not required for this message returning EVENT is :: {}";
 
   @Autowired
-  public EventHandlerService(final SagaService sagaService, final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator, CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator, AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator) {
+  public EventHandlerService(final SagaService sagaService, final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator, CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator, AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator, UpdateCourseStudentDownstreamOrchestrator updateCourseStudentDownstreamOrchestrator) {
     this.sagaService = sagaService;
     this.demographicStudentProcessingOrchestrator = demographicStudentProcessingOrchestrator;
     this.courseStudentProcessingOrchestrator = courseStudentProcessingOrchestrator;
-      this.assessmentStudentProcessingOrchestrator = assessmentStudentProcessingOrchestrator;
+    this.assessmentStudentProcessingOrchestrator = assessmentStudentProcessingOrchestrator;
+    this.updateCourseStudentDownstreamOrchestrator = updateCourseStudentDownstreamOrchestrator;
   }
 
   @Transactional(propagation = REQUIRES_NEW)
@@ -109,6 +110,27 @@ public class EventHandlerService {
                       null);
       log.debug("Starting assessment student processing orchestrator :: {}", saga);
       this.assessmentStudentProcessingOrchestrator.startSaga(saga);
+    }
+  }
+
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleProcessCourseStudentsForDownstreamUpdateEvent(final Event event) throws JsonProcessingException {
+    if (event.getEventOutcome() == EventOutcome.READ_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SUCCESS) {
+      final CourseStudentUpdate sagaData = JsonUtil.getJsonObjectFromString(CourseStudentUpdate.class, event.getEventPayload());
+      final var sagaOptional = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getIncomingFilesetID()), SagaEnum.PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      if (sagaOptional.isPresent()) { // possible duplicate message.
+        log.trace(NO_EXECUTION_MSG, event);
+        return;
+      }
+      val saga = this.updateCourseStudentDownstreamOrchestrator
+              .createSaga(event.getEventPayload(),
+                      ApplicationProperties.GRAD_DATA_COLLECTION_API,
+                      UUID.fromString(sagaData.getIncomingFilesetID()),
+                      null,
+                      null,
+                      null);
+      log.debug("Starting course student processing orchestrator :: {}", saga);
+      this.updateCourseStudentDownstreamOrchestrator.startSaga(saga);
     }
   }
 }

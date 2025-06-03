@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -49,5 +50,9 @@ public class CourseRulesService extends BaseRulesService {
         } else {
             throw new EntityNotFoundException(DemographicStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
         }
+    }
+
+    public List<CourseStudentEntity> findByIncomingFilesetIDAndPen(final UUID incomingFilesetID, final String pen) {
+        return this.courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(incomingFilesetID, pen);
     }
 }

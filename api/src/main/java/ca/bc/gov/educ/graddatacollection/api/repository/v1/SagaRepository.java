@@ -32,4 +32,5 @@ public interface SagaRepository extends JpaRepository<GradSagaEntity, UUID>, Jpa
 
   Optional<GradSagaEntity>  findByCourseStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID courseStudentID, UUID incomingFilesetID, String sagaName, String status);
   Optional<GradSagaEntity>  findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID assessmentStudentID, UUID incomingFilesetID, String sagaName, String status);
+  Optional<GradSagaEntity>  findByIncomingFilesetIDAndSagaNameAndStatusNot(UUID incomingFilesetID, String sagaName, String status);
 }
