@@ -84,7 +84,7 @@ public enum FileError {
   FINAL_LETTER_GRADE_EXCEL("Final Letter Grade cannot be more than 2 characters. Review the data on line $?."),
   NO_OF_CREDITS_EXCEL("Number of Credits cannot be more than 1 digit. Review the data on line $?."),
   BIRTHDATE_FORMAT_EXCEL("Birthdate must be in the format YYYYMMDD. Review the data on line $?."),
-  SESSION_DATE_FORMAT_EXCEL("Can only report courses in the $? or $? sessions. Review the data on line $?."),
+  SESSION_DATE_FORMAT_EXCEL("Can only report courses in the current reporting period. Review the data on line $?."),
   GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**

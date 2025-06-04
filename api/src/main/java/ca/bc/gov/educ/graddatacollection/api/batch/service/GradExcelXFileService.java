@@ -6,6 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.processor.BaseExcelProcessor;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -22,8 +23,8 @@ import java.io.IOException;
 @Slf4j
 public class GradExcelXFileService extends BaseExcelProcessor {
 
-    protected GradExcelXFileService(ApplicationProperties applicationProperties, GradFileValidator gradFileValidator) {
-        super(applicationProperties, gradFileValidator);
+    protected GradExcelXFileService(ApplicationProperties applicationProperties, GradFileValidator gradFileValidator, ReportingPeriodService reportingPeriodService) {
+        super(applicationProperties, gradFileValidator, reportingPeriodService);
     }
 
     @Override

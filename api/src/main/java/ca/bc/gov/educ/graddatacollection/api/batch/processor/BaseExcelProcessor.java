@@ -7,7 +7,10 @@ import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableEx
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileExcelProcessor;
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +39,12 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
     private static final String DATE_TYPE = "Date type :: {}";
     private static final String NUMBER_TYPE = "Number type :: {}";
     private final GradFileValidator gradFileValidator;
+    private final ReportingPeriodService reportingPeriodService;
 
-    protected BaseExcelProcessor(ApplicationProperties applicationProperties, GradFileValidator gradFileValidator) {
+    protected BaseExcelProcessor(ApplicationProperties applicationProperties, GradFileValidator gradFileValidator, ReportingPeriodService reportingPeriodService) {
         this.applicationProperties = applicationProperties;
         this.gradFileValidator = gradFileValidator;
+        this.reportingPeriodService = reportingPeriodService;
     }
 
     protected File getFile(final byte[] fileContents, final String code) throws IOException {
@@ -54,6 +59,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         final Map<Integer, String> headersMap = new HashMap<>();
         final int rowEnd = sheet.getLastRowNum();
         final List<SummerStudentData> summerStudents = new ArrayList<>();
+        var reportingPeriod = reportingPeriodService.getActiveReportingPeriod();
         if(sheet.getRow(0) == null) {
             throw new FileUnProcessableException(FileError.EMPTY_EXCEL_NOT_ALLOWED, guid, GradCollectionStatus.LOAD_FAIL);
         }
@@ -68,7 +74,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
             final SummerStudentData summerStudent = SummerStudentData.builder().build();
             final int lastColumn = r.getLastCellNum();
             for (int cn = 0; cn < lastColumn; cn++) {
-                this.processEachColumn(guid, headersMap, rowNum, r, summerStudent, cn, schoolID, districtID);
+                this.processEachColumn(guid, headersMap, rowNum, r, summerStudent, cn, schoolID, districtID, reportingPeriod);
             }
             this.populateRowData(guid, headersMap, summerStudents, rowNum, summerStudent);
         }
@@ -96,11 +102,11 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         }
     }
 
-    private void processEachColumn(final String guid, final Map<Integer, String> headersMap, final int rowNum, final Row r, SummerStudentData summerStudent, final int cn, final String schoolID, final String districtID) throws FileUnProcessableException {
+    private void processEachColumn(final String guid, final Map<Integer, String> headersMap, final int rowNum, final Row r, SummerStudentData summerStudent, final int cn, final String schoolID, final String districtID, final ReportingPeriodEntity reportingPeriod) throws FileUnProcessableException {
         if (rowNum == 0) {
             this.handleHeaderRow(r, cn, guid, headersMap);
         } else if (StringUtils.isNotBlank(headersMap.get(cn))) {
-            this.handleEachCell(r, cn, rowNum, headersMap, summerStudent, schoolID, districtID, guid);
+            this.handleEachCell(r, cn, rowNum, headersMap, summerStudent, schoolID, districtID, guid, reportingPeriod);
         }
     }
 
@@ -114,7 +120,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         headerOptional.ifPresent(header -> headersMap.put(cn, StringUtils.trim(header.getCode())));
     }
 
-    private void handleEachCell(final Row r, final int cn, final int rowNum, final Map<Integer, String> headersMap, final SummerStudentData summerStudent, final String schoolID, final String districtID, final String guid) throws FileUnProcessableException {
+    private void handleEachCell(final Row r, final int cn, final int rowNum, final Map<Integer, String> headersMap, final SummerStudentData summerStudent, final String schoolID, final String districtID, final String guid, final ReportingPeriodEntity reportingPeriod) throws FileUnProcessableException {
         final Cell cell = r.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
         val headerNamesOptional = Headers.fromString(headersMap.get(cn));
         if (headerNamesOptional.isPresent()) {
@@ -142,7 +148,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
                     this.setCourse(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case SESSION_DATE:
-                    this.setSessionDate(summerStudent, rowNum, cell, header.getType(), guid);
+                    this.setSessionDate(summerStudent, rowNum, cell, header.getType(), guid, reportingPeriod);
                     break;
                 case FINAL_PERCENT:
                     this.setFinalPercent(summerStudent, rowNum, cell, header.getType(), guid);
@@ -199,17 +205,13 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         }
         summerStudent.setCourse(fieldValue);
     }
-    private void setSessionDate(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
+    private void setSessionDate(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid, final ReportingPeriodEntity reportingPeriod) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(StringUtils.isNotBlank(fieldValue)) {
             try {
                 var sessionDate = YearMonth.parse(fieldValue, DateTimeFormatter.ofPattern("yyyyMM"));
-                var sessionYear = sessionDate.getYear();
-                var sessionMonth = sessionDate.getMonthValue();
-                if(sessionYear != LocalDate.now().getYear() || (sessionMonth != 8 && sessionMonth != 7)) {
-                    String sub1= LocalDate.now().getYear() +"07";
-                    String sub2= LocalDate.now().getYear() +"08";
-                    throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, sub1, sub2, String.valueOf(rowNum));
+                if(isValidSessionDate(sessionDate, reportingPeriod)) {
+                    throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
                 }
                 summerStudent.setSessionDate(String.valueOf(sessionDate));
             } catch (DateTimeParseException ex) {
@@ -220,6 +222,16 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         }
         summerStudent.setSessionDate(fieldValue);
     }
+
+    private boolean isValidSessionDate(YearMonth sessionDate, final ReportingPeriodEntity reportingPeriod) {
+        var startReportingPeriod = reportingPeriod.getPeriodStart();
+        var endReportingPeriod = reportingPeriod.getPeriodEnd();
+
+        var sessionLocalDate = sessionDate.atDay(1);
+
+        return sessionLocalDate.isBefore(endReportingPeriod.toLocalDate()) && sessionLocalDate.isAfter(startReportingPeriod.toLocalDate());
+    }
+
     private void setFinalPercent(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 3) {
