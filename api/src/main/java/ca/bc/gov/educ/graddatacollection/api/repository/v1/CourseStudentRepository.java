@@ -17,7 +17,7 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudentEnti
     long countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEqualsAndCourseLevelEquals(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear, String courseLevel);
 
     List<CourseStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode, String studentStatusCode);
-
+    List<CourseStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndPenAndStudentStatusCode(UUID incomingFilesetID, String pen, String studentStatusCode);
 
     @Query("SELECT " +
             "   v.validationIssueSeverityCode, COUNT(v) " +
