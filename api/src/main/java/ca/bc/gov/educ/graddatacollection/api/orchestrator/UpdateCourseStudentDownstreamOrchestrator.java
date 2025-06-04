@@ -56,7 +56,7 @@ public class UpdateCourseStudentDownstreamOrchestrator extends BaseOrchestrator<
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(CREATE_COURSE_STUDENT_IN_GRAD);
 
-    List<CourseStudentEntity> entities = courseRulesService.findByIncomingFilesetIDAndPen(UUID.fromString(courseStudentUpdate.getIncomingFilesetID()), courseStudentUpdate.getPen());
+    List<CourseStudentEntity> entities = courseRulesService.findByIncomingFilesetIDAndPenAndStudentStatusCode(UUID.fromString(courseStudentUpdate.getIncomingFilesetID()), courseStudentUpdate.getPen());
     var incomingFileset = entities.getFirst().getIncomingFileset();
     restUtils.writeCRSStudentRecordInGrad(entities, courseStudentUpdate.getPen(), incomingFileset.getSchoolID().toString(), incomingFileset.getReportingPeriod());
     eventBuilder.eventOutcome(COURSE_STUDENT_CREATED_IN_GRAD);
