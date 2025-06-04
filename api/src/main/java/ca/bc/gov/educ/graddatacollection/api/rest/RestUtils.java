@@ -1069,7 +1069,7 @@ public class RestUtils {
       student.getStudentDetails().addAll(studentList);
 
       Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_COURSE_DATA).eventPayload(
-              this.objectMapper.writeValueAsString(studentList)).build();
+              this.objectMapper.writeValueAsString(student)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), eventResult);
