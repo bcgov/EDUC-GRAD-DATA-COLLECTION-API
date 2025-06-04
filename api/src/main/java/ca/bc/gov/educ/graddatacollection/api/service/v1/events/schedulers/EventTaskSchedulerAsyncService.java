@@ -124,7 +124,7 @@ public class EventTaskSchedulerAsyncService {
       return;
     }
 
-    final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(numberOfStudentsToProcess);
+    final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(Integer.parseInt(numberOfStudentsToProcess));
     log.info("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
     if (!courseStudentEntitiesToUpdate.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate);
