@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
@@ -52,7 +53,7 @@ public class CourseRulesService extends BaseRulesService {
         }
     }
 
-    public List<CourseStudentEntity> findByIncomingFilesetIDAndPen(final UUID incomingFilesetID, final String pen) {
-        return this.courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(incomingFilesetID, pen);
+    public List<CourseStudentEntity> findByIncomingFilesetIDAndPenAndStudentStatusCode(final UUID incomingFilesetID, final String pen) {
+        return this.courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndStudentStatusCode(incomingFilesetID, pen, String.valueOf(SchoolStudentStatus.UPDATE_CRS));
     }
 }
