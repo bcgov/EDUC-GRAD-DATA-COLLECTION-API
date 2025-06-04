@@ -26,16 +26,14 @@ public interface CourseStudentLightRepository extends JpaRepository<CourseStuden
     List<CourseStudentLightEntity> findTopLoadedCRSStudentForProcessing(String numberOfStudentsToProcess);
 
     @Query(value="""
-    SELECT cse.incomingFileset.incomingFilesetID as incomingFilesetID,
-    cse.pen as pen
-    FROM CourseStudentLightEntity cse WHERE cse.courseStudentID
-    NOT IN (SELECT saga.incomingFilesetID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.sagaName = 'PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA'
-    AND saga.incomingFilesetID IS NOT NULL)
-    AND cse.studentStatusCode = 'UPDATE_CRS'
-    GROUP BY cse.incomingFileset.incomingFilesetID, cse.pen, cse.createDate
-    order by cse.createDate
-    LIMIT :numberOfStudentsToProcess""")
+    SELECT cse.incoming_fileset_id as incomingFilesetID, cse.pen as pen
+    FROM course_student cse WHERE cse.incoming_fileset_id
+    NOT IN (SELECT saga.incoming_fileset_id FROM grad_saga saga WHERE saga.status != 'COMPLETED'
+    AND saga.saga_name = 'PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA'
+    AND saga.incoming_fileset_id IS NOT NULL)
+    AND cse.student_status_code = 'UPDATE_CRS'
+    GROUP BY cse.incoming_fileset_id, cse.pen
+    LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
     List<ICourseStudentUpdate> findTopLoadedCRSStudentForDownstreamUpdate(String numberOfStudentsToProcess);
 
 }
