@@ -67,8 +67,8 @@ public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
         }
 
         if (studAssessmentDetail != null && studAssessmentDetail.isHasPriorRegistration() && !studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")) {
-            log.debug("V22: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage(), student.getAssessmentStudentID());
             String errorMessage = AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(StringEscapeUtils.escapeHtml4(studAssessmentDetail.getAlreadyRegisteredAssessmentTypeCode()));
+            log.debug("V22: Error: {} for assessmentStudentID :: {}", errorMessage, student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, errorMessage));
         }
         return errors;
