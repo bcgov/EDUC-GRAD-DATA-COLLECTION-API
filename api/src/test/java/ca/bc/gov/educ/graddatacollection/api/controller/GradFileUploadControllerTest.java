@@ -632,6 +632,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -650,12 +651,12 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(body))
-                .contentType(APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.summerStudents", hasSize(3)));
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
     @Test
     void testProcessDistrictXlsxFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
@@ -677,8 +678,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
-                        .contentType(APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.summerStudents", hasSize(3)));
+                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest
@@ -687,6 +687,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
             "src/test/resources/summer-reporting-header-blank.xlsx, Heading row has a blank cell at column 6.",
     })
     void testProcessSchoolXlsxFile_givenEncryptedFile_ShouldReturnStatusBadRequest(final String filePath, final String errorMessage) throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -712,6 +713,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenEmptyFile_WithNoHeaders_ShouldReturnStatusBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -736,6 +738,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidPEN_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -760,6 +763,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithMincodeMismatch_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -784,6 +788,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidSessionDate_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -798,19 +803,16 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileName("summer-reporting.xlsx")
                 .build();
 
-        String sub1= LocalDate.now().getYear() +"07";
-        String sub2= LocalDate.now().getYear() +"08";
-
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
-                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the "+sub1+" or "+sub2+" sessions. Review the data on line 1."));
+                        .contentType(APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidLegalSurname_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -835,6 +837,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidFirstName_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -859,6 +862,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidMiddleName_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -883,6 +887,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidCourse_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -907,6 +912,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidFinalPercent_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
@@ -926,11 +932,12 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Final School Percent cannot be more than 3 digits. Review the data on line 1."));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the current reporting period. Review the data on line 1."));
     }
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidDOB_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchool();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));

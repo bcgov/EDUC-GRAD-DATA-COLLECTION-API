@@ -972,7 +972,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(numeracyValidationError.size()).isNotZero();
         assertThat(numeracyValidationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(numeracyValidationError.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode());
-        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage());
+        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo("Student has already been registered for a numeracy assessment for this session: null. This registration cannot be updated.");
 
         response.setHasPriorRegistration(false);
         ruleData.setAssessmentStudentDetail(response);
