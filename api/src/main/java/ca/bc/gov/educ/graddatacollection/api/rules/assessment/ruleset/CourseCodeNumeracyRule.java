@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessmen
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +68,8 @@ public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
 
         if (studAssessmentDetail != null && studAssessmentDetail.isHasPriorRegistration() && !studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")) {
             log.debug("V22: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DUPLICATE_XAM_RECORD.getMessage(), student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage()));
+            String errorMessage = AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(StringEscapeUtils.escapeHtml4(studAssessmentDetail.getAlreadyRegisteredAssessmentTypeCode()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, errorMessage));
         }
         return errors;
     }
