@@ -55,4 +55,6 @@ public class GradDemographicStudent extends BaseRequest implements Serializable 
 
     private String isSummerCollection;
 
+    private String vendorID;
+
 }

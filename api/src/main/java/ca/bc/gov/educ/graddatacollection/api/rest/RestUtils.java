@@ -1005,6 +1005,7 @@ public class RestUtils {
       demStudent.setUpdateUser(student.getCreateUser());
       demStudent.setCreateDate(student.getCreateDate());
       demStudent.setUpdateDate(student.getUpdateDate());
+      demStudent.setVendorID(student.getVendorID());
 
       log.info("DEM Student Detail:: {}", demStudent);
 
