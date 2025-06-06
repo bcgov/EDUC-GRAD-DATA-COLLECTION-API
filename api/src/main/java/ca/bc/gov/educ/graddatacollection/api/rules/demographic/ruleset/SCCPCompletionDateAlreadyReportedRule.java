@@ -68,14 +68,6 @@ public class SCCPCompletionDateAlreadyReportedRule implements DemographicValidat
         var hasSchoolAtGrad = gradStudent != null && StringUtils.isNotBlank(gradStudent.getSchoolAtGradId());
         var programCompletionDate = hasCompletionDate ? LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).format(formatter) : null;
 
-        log.info("Current GRAD student is: {}", gradStudent);
-        log.info("hasCompletionDate is: {}", hasCompletionDate);
-        log.info("hasSchoolAtGrad is: {}", hasSchoolAtGrad);
-        log.info("programCompletionDate is: {}", programCompletionDate);
-        log.info("StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) is: {}", StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()));
-        log.info("GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear()) is: {}", GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear()));
-        log.info("!student.getSchoolCertificateCompletionDate().equalsIgnoreCase(programCompletionDate) is: {}", !student.getSchoolCertificateCompletionDate().equalsIgnoreCase(programCompletionDate));
-
         if (hasCompletionDate && hasSchoolAtGrad && StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) &&
                 GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear()) && !student.getSchoolCertificateCompletionDate().equalsIgnoreCase(programCompletionDate)) {
             String invalidErrorMessage = DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED.getMessage().formatted(programCompletionDate);
