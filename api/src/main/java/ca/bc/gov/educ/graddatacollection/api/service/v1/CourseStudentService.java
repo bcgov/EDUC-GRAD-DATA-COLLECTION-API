@@ -192,7 +192,7 @@ public class CourseStudentService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateStudentStatus(final CourseStudentUpdate courseStudentUpdate, final SchoolStudentStatus status) {
-        List<CourseStudentEntity> currentStudentEntity = this.courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(UUID.fromString(courseStudentUpdate.getIncomingFilesetID()), courseStudentUpdate.getPen());
+        List<CourseStudentEntity> currentStudentEntity = this.courseRulesService.findByIncomingFilesetIDAndPenAndStudentStatusCode(UUID.fromString(courseStudentUpdate.getIncomingFilesetID()), courseStudentUpdate.getPen());
         currentStudentEntity.forEach(courseStudentEntity -> courseStudentEntity.setStudentStatusCode(status.getCode()));
         courseStudentRepository.saveAll(currentStudentEntity);
     }
