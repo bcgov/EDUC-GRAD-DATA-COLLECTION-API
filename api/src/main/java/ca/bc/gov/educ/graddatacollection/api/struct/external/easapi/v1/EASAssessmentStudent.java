@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.BaseRequest;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -22,12 +25,6 @@ public class EASAssessmentStudent extends BaseRequest implements Serializable {
 
     private String assessmentID;
 
-    private String districtID;
-
-    private String schoolID;
-
-    private String assessmentCenterID;
-
     private String studentID;
 
     private String givenName;
@@ -38,10 +35,6 @@ public class EASAssessmentStudent extends BaseRequest implements Serializable {
 
     private String localID;
 
-    private String localCourseID;
-
-    private String isElectronicExam;
-
     private String proficiencyScore;
 
     private String provincialSpecialCaseCode;
@@ -49,4 +42,32 @@ public class EASAssessmentStudent extends BaseRequest implements Serializable {
     private String courseStatusCode;
 
     private String numberOfAttempts;
+
+    private String schoolAtWriteSchoolID;
+
+    private String assessmentCenterSchoolID;
+
+    private String schoolOfRecordSchoolID;
+
+    private String assessmentFormID;
+
+    private String adaptedAssessmentIndicator;
+
+    private String irtScore;
+
+    private String rawScore;
+
+    private String localAssessmentID;
+
+    private String isElectronicAssessment;
+
+    private String assessmentStudentStatusCode;
+
+    private String markingSession;
+
+    private String mcTotal;
+
+    private String oeTotal;
+
+    private String vendorID;
 }
