@@ -2,15 +2,11 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1.events.schedulers;
 
 
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.*;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -47,8 +43,9 @@ public class EventTaskSchedulerAsyncService {
   private final AssessmentStudentService assessmentStudentService;
   private final CourseStudentService courseStudentService;
   private final ReportingPeriodService reportingPeriodService;
+  private final IncomingFilesetService incomingFilesetService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, DemographicStudentLightRepository demographicStudentLightRepository, AssessmentStudentLightRepository assessmentStudentLightRepository, CourseStudentLightRepository courseStudentLightRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, DemographicStudentLightRepository demographicStudentLightRepository, AssessmentStudentLightRepository assessmentStudentLightRepository, CourseStudentLightRepository courseStudentLightRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService, IncomingFilesetService incomingFilesetService) {
       this.sagaRepository = sagaRepository;
       this.incomingFilesetRepository = incomingFilesetRepository;
       this.demographicStudentLightRepository = demographicStudentLightRepository;
@@ -59,6 +56,7 @@ public class EventTaskSchedulerAsyncService {
       this.assessmentStudentService = assessmentStudentService;
       this.courseStudentService = courseStudentService;
       this.reportingPeriodService = reportingPeriodService;
+      this.incomingFilesetService = incomingFilesetService;
       orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
@@ -100,8 +98,10 @@ public class EventTaskSchedulerAsyncService {
     }
 
     var completedFilesets = this.incomingFilesetRepository.findCompletedCollectionsForStatusUpdate();
-    completedFilesets.forEach(completedFileset -> completedFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode()));
-    incomingFilesetRepository.saveAll(completedFilesets);
+    if (!completedFilesets.isEmpty()) {
+      this.incomingFilesetService.prepareAndSendCompletedFilesetsForFurtherProcessing(completedFilesets);
+      return;
+    }
 
     final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
     log.info("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
