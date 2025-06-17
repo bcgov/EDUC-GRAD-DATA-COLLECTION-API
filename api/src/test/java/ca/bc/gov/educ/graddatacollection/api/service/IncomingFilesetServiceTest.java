@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.graddatacollection.api.service;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
+import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -13,15 +15,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
 class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
     @MockBean
     protected RestUtils restUtils;
+    @MockBean
+    protected MessagePublisher messagePublisher;
     @Autowired
     ApplicationProperties applicationProperties;
     @Autowired
@@ -69,12 +77,45 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
     }
 
+    @Test
+    void testPrepareAndSendCompletedFilesetsForFurtherProcessing() {
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
+
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = this.createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
+
+        incomingFilesetRepository.save(mockFileset);
+
+        mockFileset.getDemographicStudentEntities().add(createMockDemographicStudent(mockFileset));
+        mockFileset.getAssessmentStudentEntities().add(createMockAssessmentStudentFromFileset(mockFileset));
+        mockFileset.getCourseStudentEntities().add(createMockCourseStudent(mockFileset));
+        mockFileset.getErrorFilesetStudentEntities().add(createMockErrorFilesetStudentEntity(mockFileset));
+        
+        incomingFilesetRepository.save(mockFileset);
+
+        incomingFilesetService.prepareAndSendCompletedFilesetsForFurtherProcessing(List.of(mockFileset));
+
+        verify(messagePublisher, times(1)).dispatchMessage(any(String.class), any(byte[].class));
+    }
+
+    @Test
+    void testSetCompletedFilesetStatus() {
+        var mockFileset = this.setupMockIncomingFileset(true, LocalDateTime.now());
+        UUID filesetID = mockFileset.getIncomingFilesetID();
+        incomingFilesetService.setCompletedFilesetStatus(filesetID, FilesetStatus.COMPLETED);
+        var updated = incomingFilesetRepository.findById(filesetID);
+        assertThat(updated).isPresent();
+        assertThat(updated.get().getFilesetStatusCode()).isEqualTo(FilesetStatus.COMPLETED.getCode());
+    }
+
     private IncomingFilesetEntity setupMockIncomingFileset(boolean allFilesUploaded, LocalDateTime timestamp) {
         var school = this.createMockSchool();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
 
-var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = allFilesUploaded ? this.createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod) : this.createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
         mockFileset.setCreateDate(timestamp);

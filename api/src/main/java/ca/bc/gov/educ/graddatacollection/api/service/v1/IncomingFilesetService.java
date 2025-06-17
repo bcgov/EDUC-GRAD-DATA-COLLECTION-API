@@ -57,7 +57,6 @@ public class IncomingFilesetService {
         final List<IncomingFilesetSagaData> incomingFilesetSagaData = incomingFilesetEntities.stream()
                 .map(el -> {
                     val incomingFilesetSagaDataRecord = new IncomingFilesetSagaData();
-                    var school = this.restUtils.getSchoolBySchoolID(el.getSchoolID().toString());
                     incomingFilesetSagaDataRecord.setIncomingFileset(IncomingFilesetMapper.mapper.toStructure(el));
                     incomingFilesetSagaDataRecord.setDemographicStudent(DemographicStudentMapper.mapper.toDemographicStudent(el.getDemographicStudentEntities().stream().findFirst().get()));
                     return incomingFilesetSagaDataRecord;

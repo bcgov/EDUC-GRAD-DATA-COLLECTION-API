@@ -218,6 +218,30 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
+  public AssessmentStudentEntity createMockAssessmentStudentFromFileset(IncomingFilesetEntity fileset) {
+    return AssessmentStudentEntity.builder()
+            .assessmentStudentID(UUID.randomUUID())
+            .incomingFileset(fileset)
+            .assessmentID(UUID.randomUUID())
+            .pen("123456789")
+            .createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now())
+            .createUser("TEST")
+            .updateUser("TEST")
+            .courseMonth("01")
+            .courseYear("2024")
+            .studentStatusCode("LOADED")
+            .courseStatus("A")
+            .lastName("DOE")
+            .localCourseID("123")
+            .isElectronicExam("N")
+            .courseCode("LTE10")
+            .localID("8887555")
+            .transactionID("E06")
+            .examSchoolID(UUID.randomUUID())
+            .build();
+  }
+
   public AssessmentStudentEntity createMockAssessmentStudent() {
     ReportingPeriodEntity reportingPeriod = createMockReportingPeriodEntity();
 
