@@ -1117,12 +1117,7 @@ public class RestUtils {
       final TypeReference<InstituteStatusEvent> ref = new TypeReference<>() {
       };
       School schoolToUpdate = this.getSchoolFromSchoolTombstone(schoolTombstone, UUID.randomUUID());
-        if (vendorCode.equalsIgnoreCase("M")) {
-            schoolToUpdate.setVendorCode("MYED");
-        } else {
-            schoolToUpdate.setVendorCode("OTHER");
-        }
-        val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(schoolToUpdate), StandardCharsets.UTF_8)).build();
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(schoolToUpdate), StandardCharsets.UTF_8)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);

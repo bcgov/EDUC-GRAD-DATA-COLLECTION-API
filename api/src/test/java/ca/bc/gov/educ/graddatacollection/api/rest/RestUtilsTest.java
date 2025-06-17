@@ -14,6 +14,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
+import io.nats.client.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -554,7 +555,7 @@ class RestUtilsTest {
         tombstone.setMincode("M123");
         String jsonResponse = "{\"vendorCode\":\"old\"}";
         byte[] responseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
-        io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
+        Message mockMessage = mock(Message.class);
         when(mockMessage.getData()).thenReturn(responseData);
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
                 .thenReturn(CompletableFuture.completedFuture(mockMessage));
@@ -571,21 +572,33 @@ class RestUtilsTest {
         tombstone.setSchoolId("S123");
         tombstone.setMincode("M123");
 
-        School dummySchool = new School();
-        dummySchool.setVendorCode("old");
+        School schoolBeforeUpdate = new School();
+        schoolBeforeUpdate.setSchoolId("S123");
+        schoolBeforeUpdate.setMincode("M123");
+        schoolBeforeUpdate.setVendorCode("OLD");
 
-        doReturn(dummySchool).when(restUtils).getSchoolFromSchoolTombstone(any(), any());
+        School schoolAfterUpdate = new School();
+        schoolAfterUpdate.setSchoolId("S123");
+        schoolAfterUpdate.setMincode("M123");
+        schoolAfterUpdate.setVendorCode("M");
 
-        String responseJson = "{\"status\":\"SUCCESS\"}";
+        doReturn(schoolBeforeUpdate).when(restUtils).getSchoolFromSchoolTombstone(any(), any());
+
+        String updatedSchoolJson = "{\"schoolId\":\"S123\",\"mincode\":\"M123\",\"vendorCode\":\"MYED\"}";
+        String responseJson = "{\"status\":\"SUCCESS\",\"eventPayload\":\"" + updatedSchoolJson.replace("\"", "\\\"") + "\"}";
         byte[] responseData = responseJson.getBytes(StandardCharsets.UTF_8);
-        io.nats.client.Message mockUpdateMessage = mock(io.nats.client.Message.class);
+        
+        Message mockUpdateMessage = mock(Message.class);
         when(mockUpdateMessage.getData()).thenReturn(responseData);
 
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
                 .thenReturn(CompletableFuture.completedFuture(mockUpdateMessage));
 
         InstituteStatusEvent event = restUtils.updateSchoolVendorCode(tombstone, "M", correlationID);
-        assertEquals("MYED", dummySchool.getVendorCode());
+        
+        verify(messagePublisher).requestMessage(anyString(), any(byte[].class));
+        
         assertNotNull(event);
+        assertTrue(event.getEventPayload().contains("\"vendorCode\":\"MYED\""));
     }
 }
