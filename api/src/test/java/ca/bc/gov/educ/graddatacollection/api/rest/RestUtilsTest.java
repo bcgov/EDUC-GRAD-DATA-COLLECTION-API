@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCode
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
@@ -543,5 +544,48 @@ class RestUtilsTest {
         assertEquals(2, restUtils.getAllSchools().size());
         assertEquals("SCHOOL1", restUtils.getAllSchools().getFirst().getSchoolId());
         assertEquals("SCHOOL2", restUtils.getAllSchools().getLast().getSchoolId());
+    }
+
+    @Test
+    void testGetSchoolFromSchoolTombstone_Success() throws Exception {
+        UUID correlationID = UUID.randomUUID();
+        SchoolTombstone tombstone = new SchoolTombstone();
+        tombstone.setSchoolId("S123");
+        tombstone.setMincode("M123");
+        String jsonResponse = "{\"vendorCode\":\"old\"}";
+        byte[] responseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
+        io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
+        when(mockMessage.getData()).thenReturn(responseData);
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        School result = restUtils.getSchoolFromSchoolTombstone(tombstone, correlationID);
+        assertNotNull(result);
+        assertEquals("old", result.getVendorCode());
+    }
+
+    @Test
+    void testUpdateSchoolVendorCode_WithM_Success() throws Exception {
+        UUID correlationID = UUID.randomUUID();
+        SchoolTombstone tombstone = new SchoolTombstone();
+        tombstone.setSchoolId("S123");
+        tombstone.setMincode("M123");
+
+        School dummySchool = new School();
+        dummySchool.setVendorCode("old");
+
+        doReturn(dummySchool).when(restUtils).getSchoolFromSchoolTombstone(any(), any());
+
+        String responseJson = "{\"status\":\"SUCCESS\"}";
+        byte[] responseData = responseJson.getBytes(StandardCharsets.UTF_8);
+        io.nats.client.Message mockUpdateMessage = mock(io.nats.client.Message.class);
+        when(mockUpdateMessage.getData()).thenReturn(responseData);
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockUpdateMessage));
+
+        InstituteStatusEvent event = restUtils.updateSchoolVendorCode(tombstone, "M", correlationID);
+        assertEquals("MYED", dummySchool.getVendorCode());
+        assertNotNull(event);
     }
 }
