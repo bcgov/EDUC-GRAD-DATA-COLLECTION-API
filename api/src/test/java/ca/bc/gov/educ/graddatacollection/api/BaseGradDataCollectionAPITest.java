@@ -185,6 +185,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .programCode4("FR")
             .programCode5("DD")
             .studentStatus("A")
+            .vendorID("OTHER")
             .build();
   }
 
@@ -333,6 +334,20 @@ public abstract class BaseGradDataCollectionAPITest {
     independentAuthority.setAuthorityTypeCode("INDEPENDNT");
     independentAuthority.setPhoneNumber("123456789");
     return independentAuthority;
+  }
+
+  @SneakyThrows
+  protected GradSagaEntity createCompletedFilesetMockSaga(final IncomingFileset incomingFileset, final DemographicStudent demographicStudent) {
+    return GradSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(IncomingFilesetSagaData.builder().incomingFileset(incomingFileset).demographicStudent(demographicStudent).build()))
+            .build();
   }
 
   @SneakyThrows

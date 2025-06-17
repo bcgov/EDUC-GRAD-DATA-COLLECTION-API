@@ -18,7 +18,7 @@ import static lombok.AccessLevel.PRIVATE;
  */
 @Service
 @Slf4j
-public class ProcessIncomingFilesetsEventDelegatorService implements EventHandler {
+public class ProcessCompletedFilesetsEventDelegatorService implements EventHandler {
     /**
      * The constant PAYLOAD_LOG.
      */
@@ -42,7 +42,7 @@ public class ProcessIncomingFilesetsEventDelegatorService implements EventHandle
      * @param eventPublisherService the message publisher service
      */
     @Autowired
-    public ProcessIncomingFilesetsEventDelegatorService(final EventHandlerService eventHandlerService, final EventPublisherService eventPublisherService) {
+    public ProcessCompletedFilesetsEventDelegatorService(final EventHandlerService eventHandlerService, final EventPublisherService eventPublisherService) {
         this.eventHandlerService = eventHandlerService;
         this.eventPublisherService = eventPublisherService;
     }
