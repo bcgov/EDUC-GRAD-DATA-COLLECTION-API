@@ -59,7 +59,7 @@ public class ProcessCompletedFilesetsEventDelegatorService implements EventHandl
             if(event.getEventType() == EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING) {
                 log.debug("Received read from topic event :: ");
                 log.trace(PAYLOAD_LOG, event.getEventPayload());
-                this.getEventHandlerService().handleProcessIncomingFilesetsEvent(event); // no response in this event.
+                this.getEventHandlerService().handleProcessCompletedFilesetsEvent(event); // no response in this event.
             }
             else {
                 log.debug("Silently ignoring other event :: {}", event);

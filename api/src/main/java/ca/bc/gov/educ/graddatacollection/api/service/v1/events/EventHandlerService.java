@@ -50,7 +50,7 @@ public class EventHandlerService {
   }
 
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleProcessIncomingFilesetsEvent(final Event event) throws JsonProcessingException {
+  public void handleProcessCompletedFilesetsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS) {
       final IncomingFilesetSagaData sagaData = JsonUtil.getJsonObjectFromString(IncomingFilesetSagaData.class, event.getEventPayload());
       final var sagaList = this.getSagaService().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()), UUID.fromString(sagaData.getIncomingFileset().getIncomingFilesetID()), SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());

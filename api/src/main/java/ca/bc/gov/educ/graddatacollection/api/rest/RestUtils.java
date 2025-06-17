@@ -1094,7 +1094,7 @@ public class RestUtils {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_SCHOOL_FROM_SCHOOL_TOMBSTONE).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(schoolTombstone), StandardCharsets.UTF_8)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
-      if (null != responseMessage) {
+      if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
         throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
