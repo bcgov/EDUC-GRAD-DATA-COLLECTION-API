@@ -42,10 +42,10 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
     public void populateStepsToExecuteMap() {
         this.stepBuilder()
                 .begin(UPDATE_COMPLETED_FILESET_STATUS, this::updateCompletedFilesetStatus)
-                .step(UPDATE_COMPLETED_FILESET_STATUS, COMPLETED_FILESET_STATUS_UPDATED, CHECK_VENDOR_CODE_IN_INSTITUE_AND_UPDATE_IF_REQUIRED, this::checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired)
-                .end(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_REQUIRED, COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_UPDATED, this::echoVendorSourceSystemCodeUpdated)
+                .step(UPDATE_COMPLETED_FILESET_STATUS, COMPLETED_FILESET_STATUS_UPDATED, CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, this::checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired)
+                .end(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED, COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED, this::echoVendorSourceSystemCodeUpdated)
                 .or()
-                .end(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_NOT_REQUIRED, COMPLETED_FILESET_STATUS_UPDATED_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
+                .end(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_NOT_REQUIRED, COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
     }
 
     public void updateCompletedFilesetStatus(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
@@ -66,7 +66,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
 
     public void checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
         final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-        saga.setSagaState(CHECK_VENDOR_CODE_IN_INSTITUE_AND_UPDATE_IF_REQUIRED.toString());
+        saga.setSagaState(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED.toString());
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
@@ -86,12 +86,12 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
                 log.error("Update vendor code failed for school {}. Response: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), response);
                 throw new GradDataCollectionAPIRuntimeException("Failed to update vendor code: " + response);
             }
-            eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_REQUIRED);
-            eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_UPDATED);
+            eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
+            eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED);
         } else {
             log.debug("Vendor code does not need to be updated for school ID: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID());
-            eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_REQUIRED);
-            eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
+            eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
+            eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
         }
         val nextEvent = eventBuilder.build();
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
