@@ -96,13 +96,13 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED);
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS);
         assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COMPLETED_FILESET_STATUS_UPDATED);
 
         val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS.toString());
     }
 
     @SneakyThrows
@@ -130,7 +130,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED)
+                .eventType(UPDATE_COMPLETED_FILESET_STATUS)
                 .eventOutcome(EventOutcome.COMPLETED_FILESET_STATUS_UPDATED)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         completedFilesetProcessingOrchestrator.handleEvent(event);

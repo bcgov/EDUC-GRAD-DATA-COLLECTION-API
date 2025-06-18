@@ -42,23 +42,23 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
     @Override
     public void populateStepsToExecuteMap() {
         this.stepBuilder()
-                .begin(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED, this::updateIncomingFilesetStatus)
-                .step(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED, COMPLETED_FILESET_STATUS_UPDATED, CHECK_VENDOR_CODE_IN_INSTITUE_AND_UPDATE_IF_REQUIRED, this::checkVendorCodeInInstituteAndUpdateVendorCodeIfRequired)
+                .begin(UPDATE_COMPLETED_FILESET_STATUS, this::updateCompletedFilesetStatus)
+                .step(UPDATE_COMPLETED_FILESET_STATUS, COMPLETED_FILESET_STATUS_UPDATED, CHECK_VENDOR_CODE_IN_INSTITUE_AND_UPDATE_IF_REQUIRED, this::checkVendorCodeInInstituteAndUpdateVendorCodeIfRequired)
                 .end(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_REQUIRED, COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_UPDATED, this::echoVendorCodeUpdated)
                 .or()
                 .end(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_NOT_REQUIRED, COMPLETED_FILESET_STATUS_UPDATED_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
     }
 
-    public void updateIncomingFilesetStatus(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
+    public void updateCompletedFilesetStatus(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
         final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-        saga.setSagaState(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED.toString());
+        saga.setSagaState(UPDATE_COMPLETED_FILESET_STATUS.toString());
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         incomingFilesetService.setCompletedFilesetStatus(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()), FilesetStatus.COMPLETED);
 
         final Event.EventBuilder eventBuilder = Event.builder();
-        eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_VENDOR_CODE_IF_REQUIRED);
+        eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS);
         eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED);
         val nextEvent = eventBuilder.build();
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
