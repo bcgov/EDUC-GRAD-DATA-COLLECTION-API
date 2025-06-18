@@ -548,41 +548,39 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetSchoolFromSchoolTombstone_Success() throws Exception {
+    void testGetSchoolFromId_Success() throws Exception {
         UUID correlationID = UUID.randomUUID();
-        SchoolTombstone tombstone = new SchoolTombstone();
-        tombstone.setSchoolId("S123");
-        tombstone.setMincode("M123");
-        String jsonResponse = "{\"vendorCode\":\"old\"}";
+        String schoolId = UUID.randomUUID().toString();
+        School school = new School();
+        school.setSchoolId(schoolId);
+        school.setMincode("M123");
+        String jsonResponse = "{\"schoolId\":\"" + schoolId + "\", \"vendorSourceSystemCode\":\"old\"}";
         byte[] responseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
         Message mockMessage = mock(Message.class);
         when(mockMessage.getData()).thenReturn(responseData);
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
                 .thenReturn(CompletableFuture.completedFuture(mockMessage));
 
-        School result = restUtils.getSchoolFromSchoolTombstone(tombstone, correlationID);
+        School result = restUtils.getSchoolFromSchoolID(UUID.fromString(schoolId), correlationID);
         assertNotNull(result);
-        assertEquals("old", result.getVendorCode());
+        assertEquals("old", result.getVendorSourceSystemCode());
     }
 
     @Test
     void testUpdateSchoolVendorCode_WithM_Success() throws Exception {
         UUID correlationID = UUID.randomUUID();
-        SchoolTombstone tombstone = new SchoolTombstone();
-        tombstone.setSchoolId("S123");
-        tombstone.setMincode("M123");
 
         School schoolBeforeUpdate = new School();
         schoolBeforeUpdate.setSchoolId("S123");
         schoolBeforeUpdate.setMincode("M123");
-        schoolBeforeUpdate.setVendorCode("OLD");
+        schoolBeforeUpdate.setVendorSourceSystemCode("OLD");
 
         School schoolAfterUpdate = new School();
         schoolAfterUpdate.setSchoolId("S123");
         schoolAfterUpdate.setMincode("M123");
-        schoolAfterUpdate.setVendorCode("M");
+        schoolAfterUpdate.setVendorSourceSystemCode("M");
 
-        doReturn(schoolBeforeUpdate).when(restUtils).getSchoolFromSchoolTombstone(any(), any());
+        doReturn(schoolBeforeUpdate).when(restUtils).getSchoolFromSchoolID(any(), any());
 
         String updatedSchoolJson = "{\"schoolId\":\"S123\",\"mincode\":\"M123\",\"vendorCode\":\"MYED\"}";
         String responseJson = "{\"status\":\"SUCCESS\",\"eventPayload\":\"" + updatedSchoolJson.replace("\"", "\\\"") + "\"}";
@@ -594,7 +592,7 @@ class RestUtilsTest {
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
                 .thenReturn(CompletableFuture.completedFuture(mockUpdateMessage));
 
-        InstituteStatusEvent event = restUtils.updateSchoolVendorCode(tombstone, "M", correlationID);
+        InstituteStatusEvent event = restUtils.updateSchool(schoolBeforeUpdate, correlationID);
         
         verify(messagePublisher).requestMessage(anyString(), any(byte[].class));
         

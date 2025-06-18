@@ -1082,16 +1082,16 @@ public class RestUtils {
   }
 
   /**
-   * Get school from Institute API from school Tombstone.
+   * Get school from Institute API.
    *
    */
   @Retryable(retryFor = {Exception.class}, noRetryFor = {GradDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public School getSchoolFromSchoolTombstone(SchoolTombstone schoolTombstone, UUID correlationID) {
+  public School getSchoolFromSchoolID(UUID schoolID, UUID correlationID) {
     try {
 
       final TypeReference<School> ref = new TypeReference<>() {
       };
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_SCHOOL_FROM_SCHOOL_TOMBSTONE).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(schoolTombstone), StandardCharsets.UTF_8)).build();
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_SCHOOL).eventPayload(String.valueOf(schoolID)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), ref);
@@ -1106,17 +1106,17 @@ public class RestUtils {
   }
 
   /**
-   * Update school Vendor Code in Institute API.
+   * Update school in Institute API.
    *
    */
   @Retryable(retryFor = {Exception.class}, noRetryFor = {GradDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public InstituteStatusEvent updateSchoolVendorCode(SchoolTombstone schoolTombstone, String vendorCode, UUID correlationID) {
+  public InstituteStatusEvent updateSchool(School school, UUID correlationID) {
     try {
 
       final TypeReference<InstituteStatusEvent> ref = new TypeReference<>() {
       };
-      School schoolToUpdate = this.getSchoolFromSchoolTombstone(schoolTombstone, UUID.randomUUID());
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(schoolToUpdate), StandardCharsets.UTF_8)).build();
+
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(school), StandardCharsets.UTF_8)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);

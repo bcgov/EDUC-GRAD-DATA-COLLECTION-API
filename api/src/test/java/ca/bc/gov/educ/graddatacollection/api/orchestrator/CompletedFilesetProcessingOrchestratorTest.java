@@ -109,7 +109,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
     @Test
     void testHandleEvent_givenEventTypeUpdateVendorCode_updateRequired() {
         var mockSchool = createMockSchool();
-        mockSchool.setVendorCode("MYED");
+        mockSchool.setVendorSourceSystemCode("MYED");
         var mockReportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(mockSchool.getSchoolId()), mockReportingPeriod);
         var mockDemStudent = createMockDemographicStudent(mockFileset);
@@ -125,7 +125,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
 
         var school = createMockSchool();
-        school.setVendorCode(demographicStudent.getVendorID());
+        school.setVendorSourceSystemCode(demographicStudent.getVendorID());
         when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         val event = Event.builder()
@@ -145,6 +145,6 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CHECK_VENDOR_CODE_IN_INSTITUE_AND_UPDATE_IF_REQUIRED.toString());
 
-        assertThat(school.getVendorCode()).isEqualTo(demographicStudent.getVendorID());
+        assertThat(school.getVendorSourceSystemCode()).isEqualTo(demographicStudent.getVendorID());
     }
 }

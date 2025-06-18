@@ -69,7 +69,7 @@ public class SchoolTombstone extends BaseRequest implements Serializable {
   private String schoolReportingRequirementCode;
 
   @Size(max = 10)
-  private String vendorCode;
+  private String vendorSourceSystemCode;
 
   private String openedDate;
 
