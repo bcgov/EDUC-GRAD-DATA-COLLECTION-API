@@ -1116,7 +1116,7 @@ public class RestUtils {
       final TypeReference<InstituteStatusEvent> ref = new TypeReference<>() {
       };
 
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(school), StandardCharsets.UTF_8)).build();
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(this.objectMapper.writeValueAsString(school)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
