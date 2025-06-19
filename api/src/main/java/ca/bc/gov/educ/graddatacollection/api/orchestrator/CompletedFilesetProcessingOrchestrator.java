@@ -73,7 +73,9 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         School school = restUtils.getSchoolFromSchoolID(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getSchoolID()), UUID.randomUUID());
         final Event.EventBuilder eventBuilder = Event.builder();
 
-        if (school != null && !school.getVendorSourceSystemCode().equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID())) {
+        if (school != null && (
+                ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
+                (!"M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())))) {
             log.debug("Vendor code needs to be updated for school ID: {}. Current: {}, New: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), school.getVendorSourceSystemCode(), incomingFilesetSagaData.getDemographicStudent().getVendorID());
             if ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID())) {
                 school.setVendorSourceSystemCode("MYED");
