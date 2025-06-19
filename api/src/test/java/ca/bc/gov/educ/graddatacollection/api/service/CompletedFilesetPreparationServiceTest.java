@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-public class CompletedFilesetPreparationServiceTest extends BaseGradDataCollectionAPITest {
+class CompletedFilesetPreparationServiceTest extends BaseGradDataCollectionAPITest {
     @Mock
     IncomingFilesetRepository incomingFilesetRepository;
 
