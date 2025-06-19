@@ -50,7 +50,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFlagErrorOnStudents_NewStudentError_NoExceptions() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -69,7 +69,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFlagErrorOnStudents_NewStudentError_WithDemographics_NoExceptions() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -102,7 +102,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFlagErrorOnStudents_NewStudentError_isDemLoadedFalse_DemographicsNotSaved() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -130,7 +130,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFlagErrorOnStudents_ExistingStudentError_WithoutDemographics_IsNotUpdated() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -166,7 +166,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFlagErrorOnStudents_ExistingStudentError_WithDemographics_NoExceptions() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());

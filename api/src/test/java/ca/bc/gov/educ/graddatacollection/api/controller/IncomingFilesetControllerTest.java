@@ -74,7 +74,7 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     void testReadIncomingFilesetStudentPaginated_Always_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         final MvcResult result = this.mockMvc
@@ -91,7 +91,7 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     void testReadIncomingFilesetPaginated_withName_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("schoolID").operation(FilterOperation.EQUAL).value(incomingFileset.getSchoolID().toString()).valueType(ValueType.UUID).build();
 
@@ -115,7 +115,7 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadIncomingFilesetPaginated_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var incomingFileset1 = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
@@ -195,7 +195,7 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         when(courseStudentService.getCrsStudents(pen, filesetId, schoolId))
                 .thenReturn(crsStuds);
 
-        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchool()));
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchoolTombstone()));
         when(restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(createMockDistrict()));
 
         // Act & Assert

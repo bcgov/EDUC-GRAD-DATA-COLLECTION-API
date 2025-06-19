@@ -45,7 +45,7 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testGetReportingCycleSummary_ShouldReturnReportData() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         var listOfSchools = new ArrayList<SchoolTombstone>();
         listOfSchools.add(school);
 

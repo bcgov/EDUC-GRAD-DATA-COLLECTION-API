@@ -57,7 +57,7 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     void testGetStudentErrorReport_validUUID_ShouldReturnReportData() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_FILESET_STUDENT_ERROR";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());

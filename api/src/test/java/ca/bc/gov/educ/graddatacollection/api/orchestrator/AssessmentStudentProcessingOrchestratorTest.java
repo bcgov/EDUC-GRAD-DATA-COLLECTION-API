@@ -76,7 +76,7 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateAssessmentStudentRecordWithEventOutCome_VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -99,7 +99,7 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
+        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)

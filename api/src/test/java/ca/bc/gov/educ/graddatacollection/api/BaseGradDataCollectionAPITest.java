@@ -278,22 +278,6 @@ public abstract class BaseGradDataCollectionAPITest {
   }
 
   public SchoolTombstone createMockSchoolTombstone() {
-    return SchoolTombstone.builder()
-            .schoolId(UUID.randomUUID().toString())
-            .mincode("123456")
-            .schoolNumber("01001")
-            .displayName("Mock School Tombstone 01001")
-            .schoolOrganizationCode("QUARTER")
-            .schoolCategoryCode("PUBLIC")
-            .facilityTypeCode("STANDARD")
-            .schoolReportingRequirementCode("REGULAR")
-            .openedDate("2018-07-01 00:00:00.000")
-            .closedDate(null)
-            .build();
-  }
-
-
-  public SchoolTombstone createMockSchool() {
     final SchoolTombstone schoolTombstone = new SchoolTombstone();
     schoolTombstone.setSchoolId(UUID.randomUUID().toString());
     schoolTombstone.setDistrictId(UUID.randomUUID().toString());
@@ -304,6 +288,19 @@ public abstract class BaseGradDataCollectionAPITest {
     schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
     schoolTombstone.setFacilityTypeCode("STANDARD");
     return schoolTombstone;
+  }
+
+  public School createMockSchool() {
+    final School school = new School();
+    school.setSchoolId(UUID.randomUUID().toString());
+    school.setDistrictId(UUID.randomUUID().toString());
+    school.setDisplayName("Marco's school");
+    school.setMincode("03636018");
+    school.setOpenedDate("1964-09-01T00:00:00");
+    school.setSchoolCategoryCode("PUBLIC");
+    school.setSchoolReportingRequirementCode("REGULAR");
+    school.setFacilityTypeCode("STANDARD");
+    return school;
   }
 
   public GradSchool createMockGradSchool() {
@@ -384,7 +381,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build()))
             .build();
   }
 
@@ -398,7 +395,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build()))
             .build();
   }
 
@@ -426,7 +423,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build()))
+            .payload(JsonUtil.getJsonStringFromObject(AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchoolTombstone()).build()))
             .build();
   }
 }

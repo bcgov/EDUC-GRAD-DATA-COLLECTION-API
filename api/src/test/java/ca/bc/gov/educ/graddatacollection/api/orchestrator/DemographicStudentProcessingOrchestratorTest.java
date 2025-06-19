@@ -166,7 +166,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateDEMStudentRecordWithEventOutCome_VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -193,7 +193,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -215,7 +215,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeVALIDATE_DEM_STUDENT_validateDEMStudentRecordWithEventOutCome_VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -242,7 +242,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.VALIDATE_DEM_STUDENT)
@@ -264,7 +264,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateDEMStudentRecordWithWarningAndEventOutCome_VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -287,7 +287,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -312,7 +312,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateDEMStudentRecordWithEventOutCome_VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -335,7 +335,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)

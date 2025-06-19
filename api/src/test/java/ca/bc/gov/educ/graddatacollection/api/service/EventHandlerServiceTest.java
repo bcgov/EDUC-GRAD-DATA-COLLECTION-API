@@ -71,7 +71,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessDemStudentsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -103,7 +103,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
 
-        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_DEM_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_DEM_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -117,7 +117,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessCourseStudentsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -141,7 +141,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -155,7 +155,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessAssessmentStudentsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -176,7 +176,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val assessmentStudent = AssessmentStudentMapper.mapper.toAssessmentStudent(assessmentStudentEntity);
 
-        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
+        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -190,7 +190,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessCompletedFilesetsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);

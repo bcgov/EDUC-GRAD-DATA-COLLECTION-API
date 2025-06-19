@@ -3,7 +3,6 @@ package ca.bc.gov.educ.graddatacollection.api.orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
-import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
@@ -19,7 +18,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudent
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentUpdate;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.ICourseStudentUpdate;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
@@ -155,7 +153,7 @@ class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollecti
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeTypeInitiated_writeCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -213,7 +211,7 @@ class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollecti
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeTypeCREATE_COURSE_STUDENT_IN_GRAD_updateCourseStudentRecordWithEventOutCome_COURSE_STUDENT_STATUS_UPDATED() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());

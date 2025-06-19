@@ -79,7 +79,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testPrepareAndSendCompletedFilesetsForFurtherProcessing() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
 
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -111,7 +111,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     private IncomingFilesetEntity setupMockIncomingFileset(boolean allFilesUploaded, LocalDateTime timestamp) {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
 

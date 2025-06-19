@@ -12,7 +12,6 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.events.schedulers.EventT
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -68,7 +67,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFindAndPublishLoadedStudentRecordsForProcessing_DemographicStudents() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -95,7 +94,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFindAndPublishLoadedStudentRecordsForProcessing_CourseStudents() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -122,7 +121,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFindAndPublishLoadedStudentRecordsForProcessing_AssessmentStudents() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
