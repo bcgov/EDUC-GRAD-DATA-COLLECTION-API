@@ -157,7 +157,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LOCAL_ID.getCode());
@@ -173,7 +173,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError3 = rulesProcessor.processRules(studentRuleData3);
 
         var issueCode = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.LOCAL_ID.getCode()));
@@ -203,7 +203,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
 
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
@@ -226,7 +226,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demStudent2 = createMockDemographicStudent(savedFileSet2);
         var courseStudent2 = createMockCourseStudent(savedFileSet2);
         demStudent2.setIncomingFileset(courseStudent2.getIncomingFileset());
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent2, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent2, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
@@ -246,7 +246,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demStudent2 = createMockDemographicStudent(savedFileSet);
         demStudent2.setLastName("A");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
@@ -255,7 +255,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     "SURNAME mismatch. School submitted: A and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
 
         demStudent2.setLastName("");
-        StudentRuleData studentRuleData5 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData5 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError5 = rulesProcessor.processRules(studentRuleData5);
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
@@ -264,7 +264,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
 
         demStudent2.setLastName(null);
-        StudentRuleData studentRuleDat6 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleDat6 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError6 = rulesProcessor.processRules(studentRuleDat6);
         assertThat(validationError6.size()).isNotZero();
         assertThat(validationError6.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
@@ -274,7 +274,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demStudent3 = createMockDemographicStudent(savedFileSet);
         demStudent3.setMiddleName("A");
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(demStudent3, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(demStudent3, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError3 = rulesProcessor.processRules(studentRuleData3);
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.MIDDLE_NAME.getCode());
@@ -284,7 +284,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demStudent4 = createMockDemographicStudent(savedFileSet);
         demStudent4.setFirstName("A");
-        StudentRuleData studentRuleData4 = createMockStudentRuleData(demStudent4, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData4 = createMockStudentRuleData(demStudent4, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError4 = rulesProcessor.processRules(studentRuleData4);
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FIRST_NAME.getCode());
@@ -306,7 +306,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demStudent2 = createMockDemographicStudent(savedFileSet);
         demStudent2.setLastName("<script>alert('Hello!');</script> and <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">badLink</a>");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
@@ -328,7 +328,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demStudent2 = createMockDemographicStudent(savedFileSet);
         demStudent2.setBirthdate("12341212");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.size()).isNotZero();
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.BIRTHDATE.getCode()));
@@ -367,7 +367,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(null);
 
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.BIRTHDATE.getCode()));
         var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getCode()));
@@ -388,14 +388,14 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setCitizenship("Z");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.CITIZENSHIP.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getCode());
         assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getMessage().formatted(demographicStudent.getCitizenship()));
 
         demographicStudent.setCitizenship(null);
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
 
         var issueCode = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.CITIZENSHIP.getCode()));
         var errorCode = validationError3.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getCode()));
@@ -403,7 +403,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(errorCode).isFalse();
 
         demographicStudent.setCitizenship("");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         var issueCode4 = validationError4.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.CITIZENSHIP.getCode()));
         var errorCode4 = validationError4.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_CITIZENSHIP_CODE_INVALID.getCode()));
         assertThat(issueCode4).isFalse();
@@ -423,7 +423,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGrade("22");
-        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError.size()).isNotZero();
         var issueCode = validationError.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
         var errorCode = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode()));
@@ -434,7 +434,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setGrade(null);
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         var issueCode2 = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
         var errorCode2 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode()));
         var errorMessage2 = validationError2.stream().anyMatch(val -> val.getValidationIssueDescription().equals(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getMessage().formatted(demographicStudent2.getGrade())));
@@ -444,7 +444,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setGrade("02");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError3.size()).isNotZero();
         var issueCode3 = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
         var errorCode3 = validationError3.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.GRADE_INVALID.getCode()));
@@ -467,7 +467,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGrade("KH");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
@@ -492,7 +492,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear("1950");
         demographicStudent.setGrade("08");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
@@ -525,7 +525,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demographicStudent.setGradRequirementYear("SCCP");
         demographicStudent.setGrade("08");
         demographicStudent.setSchoolCertificateCompletionDate("20250116");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
@@ -548,7 +548,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear("SCCP");
         demographicStudent.setGrade("AD");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRADE.getCode()));
@@ -570,7 +570,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setProgramCode1("10ZE");
-        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError.size()).isNotZero();
         assertThat(validationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROGRAM_CODE_1.getCode());
         assertThat(validationError.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
@@ -578,7 +578,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setProgramCode1("1");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROGRAM_CODE_1.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
@@ -586,13 +586,13 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setProgramCode1("10AA");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         var issueCode = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PROGRAM_CODE_1.getCode()));
         assertThat(issueCode).isFalse();
 
         var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setProgramCode2("10ZE");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PROGRAM_CODE_2.getCode());
         assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode());
@@ -602,7 +602,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demographicStudent5.setProgramCode3("10ZE");
         demographicStudent5.setProgramCode4("10ZE");
         demographicStudent5.setProgramCode5("1");
-        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError5.stream().anyMatch(err ->
                 err.getValidationIssueFieldCode().equals(ValidationFieldCode.PROGRAM_CODE_3.getCode()) &&
                 err.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode()) &&
@@ -622,7 +622,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent6 = createMockDemographicStudent(savedFileSet);
         demographicStudent6.setProgramCode3("10ZE");
         demographicStudent6.setProgramCode5("10AA");
-        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError6.stream().anyMatch(err ->
                 err.getValidationIssueFieldCode().equals(ValidationFieldCode.PROGRAM_CODE_3.getCode()) &&
                 err.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_CODE_INVALID.getCode()) &&
@@ -645,7 +645,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demStudent = createMockDemographicStudent(savedFileSet);
         demStudent.setPen(courseStudent.getPen());
         demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
         school.setSchoolId("03636018");
 
         var demographicStudentMerged = createMockDemographicStudent(savedFileSet);
@@ -713,7 +713,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatus("T");
-        SchoolTombstone schoolTombstone = createMockSchool();
+        SchoolTombstone schoolTombstone = createMockSchoolTombstone();
         schoolTombstone.setSchoolId("03636012");
         StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), schoolTombstone);
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
@@ -728,7 +728,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setStudentStatus("T");
-        SchoolTombstone schoolTombstone3 = createMockSchool();
+        SchoolTombstone schoolTombstone3 = createMockSchoolTombstone();
         schoolTombstone3.setSchoolId("03636018");
 
         GradStudentRecord gradStudentRecord3 = new GradStudentRecord();
@@ -751,7 +751,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setStudentStatus("T");
-        SchoolTombstone schoolTombstone4 = createMockSchool();
+        SchoolTombstone schoolTombstone4 = createMockSchoolTombstone();
         schoolTombstone4.setSchoolId("03636018");
 
         GradStudentRecord gradStudentRecord4 = new GradStudentRecord();
@@ -796,7 +796,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setStudentStatus("T");
-        StudentRuleData studentRuleData = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData = createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError = rulesProcessor.processRules(studentRuleData);
         assertThat(validationError.size()).isNotZero();
 
@@ -809,7 +809,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setStudentStatus("A");
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData2 = createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError2 = rulesProcessor.processRules(studentRuleData2);
         assertThat(validationError2.stream().anyMatch(err ->
                 err.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()) &&
@@ -819,7 +819,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setStudentStatus("D");
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool());
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
         val validationError3 = rulesProcessor.processRules(studentRuleData3);
         assertThat(validationError3.stream().anyMatch(err ->
                 err.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode()) &&
@@ -841,7 +841,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear("1332");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID.getCode());
@@ -862,7 +862,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setGradRequirementYear(GradRequirementYearCodes.YEAR_1950.getCode());
         demographicStudent.setGrade("AD");
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
         school.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), school));
         assertThat(validationError2.size()).isNotZero();
@@ -908,7 +908,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         nonExpiredProgram.setProgramCode("2024");
         nonExpiredProgram.setExpiryDate(null);
         when(restUtils.getGraduationProgramCodeList(true)).thenReturn(List.of(nonExpiredProgram));
-        var validationErrors2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchool()));
+        var validationErrors2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationErrors2).isNotEmpty();
 
         var issueCode = validationErrors2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode()));
@@ -937,7 +937,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PEN.getCode()));
@@ -962,7 +962,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setSchoolCertificateCompletionDate("20041312");
-        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError.size()).isNotZero();
         assertThat(validationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode());
         assertThat(validationError.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode());
@@ -970,7 +970,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setSchoolCertificateCompletionDate("20042");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode());
@@ -978,7 +978,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setSchoolCertificateCompletionDate("abc");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode());
         assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode());
@@ -986,7 +986,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setSchoolCertificateCompletionDate("19900101");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode());
         assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY.getCode());
@@ -994,7 +994,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent5 = createMockDemographicStudent(savedFileSet);
         demographicStudent5.setSchoolCertificateCompletionDate(null);
-        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
 
         var issueCode = validationError5.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
         var errorCode = validationError5.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode()) || val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY.getCode()));
@@ -1005,7 +1005,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent6 = createMockDemographicStudent(savedFileSet);
         demographicStudent6.setSchoolCertificateCompletionDate("");
-        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent6, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
 
         var issueCode1 = validationError6.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
         var errorCode1 = validationError6.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode()) || val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY.getCode()));
@@ -1017,7 +1017,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var demographicStudent7 = createMockDemographicStudent(savedFileSet);
         demographicStudent7.setSchoolCertificateCompletionDate("20240425");
         demographicStudent7.setGradRequirementYear(GradRequirementYearCodes.SCCP.getCode());
-        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent7, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent7, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         var issueCode2 = validationError7.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
         var errorCode2 = validationError7.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getCode()) || val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY.getCode()));
         var errorMessage2 = validationError7.stream().anyMatch(val -> val.getValidationIssueDescription().equals(DemographicStudentValidationIssueTypeCode.SCCP_INVALID_DATE.getMessage().formatted(demographicStudent7.getSchoolCertificateCompletionDate())) || val.getValidationIssueDescription().equals(DemographicStudentValidationIssueTypeCode.SCCP_DATE_TOO_EARLY.getMessage().formatted(demographicStudent7.getSchoolCertificateCompletionDate())));
@@ -1043,7 +1043,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setSchoolCertificateCompletionDate("19900701");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
 
         assertThat(validationError3.size()).isNotZero();
         var issueCode = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));
@@ -1067,7 +1067,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent = createMockDemographicStudent(savedFileSet);
         demographicStudent.setBirthdate("");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
@@ -1075,7 +1075,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent2 = createMockDemographicStudent(savedFileSet);
         demographicStudent2.setBirthdate("2222");
-        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError3.size()).isNotZero();
         assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
         assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
@@ -1083,7 +1083,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent3 = createMockDemographicStudent(savedFileSet);
         demographicStudent3.setBirthdate("1990010");
-        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent3, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError4.size()).isNotZero();
         assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
         assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
@@ -1091,7 +1091,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent4 = createMockDemographicStudent(savedFileSet);
         demographicStudent4.setBirthdate("199001011");
-        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent4, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
         assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
@@ -1099,7 +1099,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var demographicStudent5 = createMockDemographicStudent(savedFileSet);
         demographicStudent5.setBirthdate(null);
-        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchool()));
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent5, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError6.size()).isNotZero();
         assertThat(validationError6.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.BIRTHDATE.getCode());
         assertThat(validationError6.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_INVALID.getCode());
@@ -1114,7 +1114,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var courseStudent = createMockCourseStudent(savedFileSet);
         var assessmentStudent = createMockAssessmentStudent();
         var demStudent = createMockDemographicStudent(savedFileSet);
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
 
         var gradStudentRecord = new GradStudentRecord();
         demStudent.setGradRequirementYear("");
@@ -1159,7 +1159,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var courseStudent = createMockCourseStudent(savedFileSet);
         var assessmentStudent = createMockAssessmentStudent();
         var demStudent = createMockDemographicStudent(savedFileSet);
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
 
         var gradStudentRecord = new GradStudentRecord();
         demStudent.setGradRequirementYear("");
@@ -1200,7 +1200,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var courseStudent = createMockCourseStudent(savedFileSet);
         var assessmentStudent = createMockAssessmentStudent();
         var demStudent = createMockDemographicStudent(savedFileSet);
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
         var gradStudentRecord = new GradStudentRecord();
 
         demStudent.setGradRequirementYear("");
@@ -1235,7 +1235,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var courseStudent = createMockCourseStudent(savedFileSet);
         var assessmentStudent = createMockAssessmentStudent();
         var demStudent = createMockDemographicStudent(savedFileSet);
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
         var gradStudentRecord = new GradStudentRecord();
 
         demStudent.setGradRequirementYear("2023");
@@ -1270,7 +1270,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var courseStudent = createMockCourseStudent(savedFileSet);
         var assessmentStudent = createMockAssessmentStudent();
         var demStudent = createMockDemographicStudent(savedFileSet);
-        var school = createMockSchool();
+        var school = createMockSchoolTombstone();
         var gradStudentRecord = new GradStudentRecord();
 
         demStudent.setGradRequirementYear("");

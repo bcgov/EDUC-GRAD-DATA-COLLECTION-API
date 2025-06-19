@@ -69,7 +69,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         final MvcResult result = this.mockMvc
@@ -91,7 +91,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("lastName").operation(FilterOperation.EQUAL).value("PETERS").valueType(ValueType.STRING).build();
 
@@ -121,7 +121,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var mockDem = createMockDemographicStudent(incomingFileSet);
@@ -174,7 +174,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var mockDem = createMockDemographicStudent(incomingFileSet);
@@ -227,7 +227,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var mockDem = createMockDemographicStudent(incomingFileSet);
@@ -289,7 +289,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var mockDem = createMockDemographicStudent(incomingFileSet);

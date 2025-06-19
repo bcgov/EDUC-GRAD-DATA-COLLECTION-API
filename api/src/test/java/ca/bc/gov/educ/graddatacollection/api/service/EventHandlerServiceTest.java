@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.AssessmentStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.DemographicStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -20,6 +21,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.val;
@@ -69,7 +71,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessDemStudentsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -101,7 +103,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
 
-        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchool()).build();
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_DEM_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_DEM_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -115,7 +117,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessCourseStudentsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -139,7 +141,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_COURSE_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_COURSE_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -153,7 +155,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testHandleProcessAssessmentStudentsEvent() throws JsonProcessingException {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -174,7 +176,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         val assessmentStudent = AssessmentStudentMapper.mapper.toAssessmentStudent(assessmentStudentEntity);
 
-        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchool()).build();
+        val sagaData = AssessmentStudentSagaData.builder().assessmentStudent(assessmentStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .eventType(EventType.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING)
                 .eventOutcome(EventOutcome.READ_ASSESSMENT_STUDENTS_FOR_PROCESSING_SUCCESS)
@@ -183,6 +185,46 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         eventHandlerService.handleProcessAssessmentStudentsEvent(event);
 
         var sagaEntity = sagaRepository.findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(assessmentStudentEntity.getAssessmentStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_ASSESSMENT_STUDENTS_SAGA", "COMPLETED");
+        assertThat(sagaEntity).hasSize(1);
+    }
+
+    @Test
+    void testHandleProcessCompletedFilesetsEvent() throws JsonProcessingException {
+        var school = this.createMockSchoolTombstone();
+        school.setMincode("07965039");
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        mockFilesetEntity.setSchoolID(UUID.fromString(school.getSchoolId()));
+        incomingFilesetRepository.save(mockFilesetEntity);
+
+        var demographicStudentEntity = createMockDemographicStudent(mockFilesetEntity);
+        demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setStudentStatusCode("LOADED");
+        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
+        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentRepository.save(demographicStudentEntity);
+        var demographicStudent =  DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
+        var mockFileset =  IncomingFilesetMapper.mapper.toStructure(mockFilesetEntity);
+
+        var sagaData = IncomingFilesetSagaData.builder()
+                .demographicStudent(demographicStudent)
+                .incomingFileset(mockFileset)
+                .build();
+        var event = Event.builder()
+                .eventType(ca.bc.gov.educ.graddatacollection.api.constants.EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING)
+                .eventOutcome(ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS)
+                .eventPayload(ca.bc.gov.educ.graddatacollection.api.util.JsonUtil.getJsonStringFromObject(sagaData))
+                .build();
+
+        eventHandlerService.handleProcessCompletedFilesetsEvent(event);
+
+        var sagaEntity = sagaRepository.findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(
+                demographicStudentEntity.getDemographicStudentID(),
+                UUID.fromString(mockFileset.getIncomingFilesetID()),
+                "PROCESS_COMPLETED_FILESETS_SAGA",
+                "COMPLETED");
         assertThat(sagaEntity).hasSize(1);
     }
 }

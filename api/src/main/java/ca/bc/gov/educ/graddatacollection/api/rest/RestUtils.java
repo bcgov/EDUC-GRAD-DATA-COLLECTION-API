@@ -16,10 +16,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCours
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.District;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
-import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
@@ -1081,6 +1078,55 @@ public class RestUtils {
       log.error("Error occurred calling PROCESS_STUDENT_COURSE_DATA service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
+  }
+
+  /**
+   * Get school from Institute API.
+   *
+   */
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {GradDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public School getSchoolFromSchoolID(UUID schoolID, UUID correlationID) {
+    try {
+
+      final TypeReference<School> ref = new TypeReference<>() {
+      };
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_SCHOOL).eventPayload(String.valueOf(schoolID)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), ref);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
+  /**
+   * Update school in Institute API.
+   *
+   */
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {GradDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public InstituteStatusEvent updateSchool(School school, UUID correlationID) {
+    try {
+
+      final TypeReference<InstituteStatusEvent> ref = new TypeReference<>() {
+      };
+
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.UPDATE_SCHOOL).eventPayload(URLEncoder.encode(this.objectMapper.writeValueAsString(school), StandardCharsets.UTF_8)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      if (null != responseMessage) {
+        return objectMapper.readValue(responseMessage.getData(), ref);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
   }
 }

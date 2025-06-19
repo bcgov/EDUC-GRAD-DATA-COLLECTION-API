@@ -3,10 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1.events;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum;
-import ca.bc.gov.educ.graddatacollection.api.orchestrator.AssessmentStudentProcessingOrchestrator;
-import ca.bc.gov.educ.graddatacollection.api.orchestrator.CourseStudentProcessingOrchestrator;
-import ca.bc.gov.educ.graddatacollection.api.orchestrator.DemographicStudentProcessingOrchestrator;
-import ca.bc.gov.educ.graddatacollection.api.orchestrator.UpdateCourseStudentDownstreamOrchestrator;
+import ca.bc.gov.educ.graddatacollection.api.orchestrator.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -35,6 +32,7 @@ public class EventHandlerService {
   @Getter(PRIVATE)
   private final SagaService sagaService;
 
+  private final CompletedFilesetProcessingOrchestrator completedFilesetProcessingOrchestrator;
   private final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
   private final CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator;
   private final AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator;
@@ -42,12 +40,34 @@ public class EventHandlerService {
   public static final String NO_EXECUTION_MSG = "Execution is not required for this message returning EVENT is :: {}";
 
   @Autowired
-  public EventHandlerService(final SagaService sagaService, final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator, CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator, AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator, UpdateCourseStudentDownstreamOrchestrator updateCourseStudentDownstreamOrchestrator) {
+  public EventHandlerService(final SagaService sagaService, CompletedFilesetProcessingOrchestrator completedFilesetProcessingOrchestrator, final DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator, CourseStudentProcessingOrchestrator courseStudentProcessingOrchestrator, AssessmentStudentProcessingOrchestrator assessmentStudentProcessingOrchestrator, UpdateCourseStudentDownstreamOrchestrator updateCourseStudentDownstreamOrchestrator) {
     this.sagaService = sagaService;
+    this.completedFilesetProcessingOrchestrator = completedFilesetProcessingOrchestrator;
     this.demographicStudentProcessingOrchestrator = demographicStudentProcessingOrchestrator;
     this.courseStudentProcessingOrchestrator = courseStudentProcessingOrchestrator;
     this.assessmentStudentProcessingOrchestrator = assessmentStudentProcessingOrchestrator;
     this.updateCourseStudentDownstreamOrchestrator = updateCourseStudentDownstreamOrchestrator;
+  }
+
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleProcessCompletedFilesetsEvent(final Event event) throws JsonProcessingException {
+    if (event.getEventOutcome() == EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS) {
+      final IncomingFilesetSagaData sagaData = JsonUtil.getJsonObjectFromString(IncomingFilesetSagaData.class, event.getEventPayload());
+      final var sagaList = this.getSagaService().findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()), UUID.fromString(sagaData.getIncomingFileset().getIncomingFilesetID()), SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      if (!sagaList.isEmpty()) { // possible duplicate message.
+        log.trace(NO_EXECUTION_MSG, event);
+        return;
+      }
+      val saga = this.completedFilesetProcessingOrchestrator
+              .createSaga(event.getEventPayload(),
+                      ApplicationProperties.GRAD_DATA_COLLECTION_API,
+                      UUID.fromString(sagaData.getIncomingFileset().getIncomingFilesetID()),
+                      UUID.fromString(sagaData.getDemographicStudent().getDemographicStudentID()),
+                      null,
+                      null);
+      log.debug("Starting incoming fileset processing orchestrator :: {}", saga);
+      this.demographicStudentProcessingOrchestrator.startSaga(saga);
+    }
   }
 
   @Transactional(propagation = REQUIRES_NEW)

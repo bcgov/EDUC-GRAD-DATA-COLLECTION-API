@@ -60,7 +60,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDEMFile_givenIncomingFilesetRecordExists_ShouldUpdateCRSRecord() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -92,7 +92,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDEMFile_givenMissingPEN_ShouldThrowError() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -113,7 +113,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDEMFile_givenDupePEN_ShouldThrowError() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -134,7 +134,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessCRSFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
@@ -168,7 +168,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessXAMFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
@@ -206,7 +206,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessCRSFile_givenFileWithNoCurrentSession_shouldThrowError() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -228,7 +228,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessCRSFile_givenFileWithSessionInTheFuture_shouldSaveFileToDB() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
@@ -268,7 +268,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDistrictBatchFile_givenSchoolOutsideDistrict_ShouldThrowException() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         var districtID = UUID.randomUUID();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -292,7 +292,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDistrictBatchFile_givenSchoolTranscriptInEligible_ShouldThrowException() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         var districtID = UUID.randomUUID();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -322,7 +322,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDistrictBatchFile_givenFileLoadInProgress_ShouldThrowException() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         var districtID = UUID.randomUUID();
         school.setDistrictId(String.valueOf(districtID));
@@ -360,7 +360,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessDistrictBatchFile_givenEmptyCRSFileIsCreatedBySchool_ShouldUpdateTheSameRecord() throws Exception {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         var districtID = UUID.randomUUID();
         school.setDistrictId(String.valueOf(districtID));
@@ -416,7 +416,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_AllConditionsMet() {
         String guid = UUID.randomUUID().toString();
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(null);
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -432,7 +432,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_TranscriptIneligible() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         school.setOpenedDate(LocalDateTime.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
@@ -448,7 +448,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolOpeningInFuture() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         school.setOpenedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         var gradSchool = createMockGradSchool();
@@ -463,7 +463,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolOpenedToday() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         LocalDateTime today = LocalDateTime.now();
         school.setOpenedDate(today.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
@@ -478,7 +478,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInFuture() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         school.setOpenedDate(LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
@@ -493,7 +493,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedInPast() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         school.setOpenedDate(LocalDateTime.now().minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(LocalDateTime.now().minusMonths(4).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
@@ -509,7 +509,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_SchoolClosedToday() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         LocalDateTime today = LocalDateTime.now();
         school.setOpenedDate(today.minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate(today.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -525,7 +525,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_InvalidOpenDateFormat() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         school.setOpenedDate("Invalid Date");
 
         var gradSchool = createMockGradSchool();
@@ -540,7 +540,7 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testValidateSchoolIsTranscriptEligibleAndOpen_InvalidCloseDateFormat() {
         String guid = UUID.randomUUID().toString();
-        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school = createMockSchoolTombstone();
         school.setOpenedDate(LocalDateTime.now().minusMonths(3).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         school.setClosedDate("Invalid Date");
 

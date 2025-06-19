@@ -10,9 +10,11 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCode
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.FacilityTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
+import io.nats.client.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -543,5 +545,58 @@ class RestUtilsTest {
         assertEquals(2, restUtils.getAllSchools().size());
         assertEquals("SCHOOL1", restUtils.getAllSchools().getFirst().getSchoolId());
         assertEquals("SCHOOL2", restUtils.getAllSchools().getLast().getSchoolId());
+    }
+
+    @Test
+    void testGetSchoolFromId_Success() {
+        UUID correlationID = UUID.randomUUID();
+        String schoolId = UUID.randomUUID().toString();
+        School school = new School();
+        school.setSchoolId(schoolId);
+        school.setMincode("M123");
+        String jsonResponse = "{\"schoolId\":\"" + schoolId + "\", \"vendorSourceSystemCode\":\"old\"}";
+        byte[] responseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
+        Message mockMessage = mock(Message.class);
+        when(mockMessage.getData()).thenReturn(responseData);
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        School result = restUtils.getSchoolFromSchoolID(UUID.fromString(schoolId), correlationID);
+        assertNotNull(result);
+        assertEquals("old", result.getVendorSourceSystemCode());
+    }
+
+    @Test
+    void testUpdateSchoolVendorCode_WithM_Success() {
+        UUID correlationID = UUID.randomUUID();
+
+        School schoolBeforeUpdate = new School();
+        schoolBeforeUpdate.setSchoolId("S123");
+        schoolBeforeUpdate.setMincode("M123");
+        schoolBeforeUpdate.setVendorSourceSystemCode("OLD");
+
+        School schoolAfterUpdate = new School();
+        schoolAfterUpdate.setSchoolId("S123");
+        schoolAfterUpdate.setMincode("M123");
+        schoolAfterUpdate.setVendorSourceSystemCode("M");
+
+        doReturn(schoolBeforeUpdate).when(restUtils).getSchoolFromSchoolID(any(), any());
+
+        String updatedSchoolJson = "{\"schoolId\":\"S123\",\"mincode\":\"M123\",\"vendorCode\":\"MYED\"}";
+        String responseJson = "{\"status\":\"SUCCESS\",\"eventPayload\":\"" + updatedSchoolJson.replace("\"", "\\\"") + "\"}";
+        byte[] responseData = responseJson.getBytes(StandardCharsets.UTF_8);
+        
+        Message mockUpdateMessage = mock(Message.class);
+        when(mockUpdateMessage.getData()).thenReturn(responseData);
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockUpdateMessage));
+
+        InstituteStatusEvent event = restUtils.updateSchool(schoolBeforeUpdate, correlationID);
+        
+        verify(messagePublisher).requestMessage(anyString(), any(byte[].class));
+        
+        assertNotNull(event);
+        assertTrue(event.getEventPayload().contains("\"vendorCode\":\"MYED\""));
     }
 }

@@ -38,7 +38,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.CREATE_COURSE_STUDENT_IN_GRAD;
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_COURSE_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -154,7 +153,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -191,7 +190,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -213,7 +212,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateCourseStudentRecordWithWarningAndEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_NO_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -252,7 +251,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -274,7 +273,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateCourseStudentRecordWithEventOutCome_VALIDATE_COURSE_STUDENT_SUCCESS_WITH_ERROR() {
-        var school = this.createMockSchool();
+        var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
@@ -301,7 +300,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
 
-        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchool()).build();
+        val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
