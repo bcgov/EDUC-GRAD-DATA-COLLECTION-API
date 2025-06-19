@@ -548,7 +548,7 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetSchoolFromId_Success() throws Exception {
+    void testGetSchoolFromId_Success() {
         UUID correlationID = UUID.randomUUID();
         String schoolId = UUID.randomUUID().toString();
         School school = new School();
@@ -567,7 +567,7 @@ class RestUtilsTest {
     }
 
     @Test
-    void testUpdateSchoolVendorCode_WithM_Success() throws Exception {
+    void testUpdateSchoolVendorCode_WithM_Success() {
         UUID correlationID = UUID.randomUUID();
 
         School schoolBeforeUpdate = new School();
