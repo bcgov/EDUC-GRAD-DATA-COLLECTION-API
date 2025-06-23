@@ -120,6 +120,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         var mockDemStudent = createMockDemographicStudent(mockFileset);
 
         incomingFilesetRepository.save(mockFileset);
+        demographicStudentRepository.save(mockDemStudent);
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(mockDemStudent);
         val fileset = IncomingFilesetMapper.mapper.toStructure(mockFileset);
@@ -129,9 +130,13 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
 
-        var school = createMockSchoolTombstone();
-        school.setVendorSourceSystemCode(demographicStudent.getVendorID());
-        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var school = createMockSchool();
+        school.setVendorSourceSystemCode("MYED");
+        when(restUtils.getSchoolFromSchoolID(any(), any())).thenReturn(school);
+
+        var mockInstituteStatusEvent = new InstituteStatusEvent();
+        mockInstituteStatusEvent.setEventOutcome(EventOutcome.SCHOOL_UPDATED.toString());
+        when(restUtils.updateSchool(any(School.class), any(UUID.class))).thenReturn(mockInstituteStatusEvent);
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
@@ -143,7 +148,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED);
 
         val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
@@ -182,7 +187,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_NOT_REQUIRED);
         assertThat(newEvent.getEventOutcome()).isEqualTo(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
 
         verify(restUtils, never()).updateSchool(any(School.class), any(UUID.class));
@@ -305,7 +310,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_NOT_REQUIRED);
         assertThat(newEvent.getEventOutcome()).isEqualTo(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
 
         verify(restUtils, never()).updateSchool(any(School.class), any(UUID.class));
@@ -342,7 +347,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_NOT_REQUIRED);
         assertThat(newEvent.getEventOutcome()).isEqualTo(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
 
         verify(restUtils, never()).updateSchool(any(School.class), any(UUID.class));
