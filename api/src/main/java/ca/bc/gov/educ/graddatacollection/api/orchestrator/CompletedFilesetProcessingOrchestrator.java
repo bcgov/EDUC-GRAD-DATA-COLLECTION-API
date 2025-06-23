@@ -74,8 +74,10 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         final Event.EventBuilder eventBuilder = Event.builder();
 
         if (school != null && (
+                (school.getVendorSourceSystemCode() == null && incomingFilesetSagaData.getDemographicStudent().getVendorID() != null) ||
                 ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
-                (!"M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())))) {
+                (!"M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode()))
+            )) {
             log.debug("Vendor code needs to be updated for school ID: {}. Current: {}, New: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), school.getVendorSourceSystemCode(), incomingFilesetSagaData.getDemographicStudent().getVendorID());
             if ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID())) {
                 school.setVendorSourceSystemCode("MYED");
@@ -92,7 +94,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
             eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED);
         } else {
             log.debug("Vendor code does not need to be updated for school ID: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID());
-            eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_REQUIRED);
+            eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_NOT_REQUIRED);
             eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
         }
         val nextEvent = eventBuilder.build();
