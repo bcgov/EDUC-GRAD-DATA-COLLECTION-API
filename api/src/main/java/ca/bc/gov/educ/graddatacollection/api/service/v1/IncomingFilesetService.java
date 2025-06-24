@@ -84,6 +84,7 @@ public class IncomingFilesetService {
         var incomingFilesetEntity = this.incomingFilesetRepository.findById(incomingFilesetID)
                 .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
         incomingFilesetEntity.setFilesetStatusCode(filesetStatus.getCode());
+        incomingFilesetEntity.setUpdateDate(LocalDateTime.now());
         this.incomingFilesetRepository.save(incomingFilesetEntity);
     }
 }
