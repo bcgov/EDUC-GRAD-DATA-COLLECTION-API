@@ -66,7 +66,7 @@ public class EventHandlerService {
                       null,
                       null);
       log.debug("Starting incoming fileset processing orchestrator :: {}", saga);
-      this.demographicStudentProcessingOrchestrator.startSaga(saga);
+      this.completedFilesetProcessingOrchestrator.startSaga(saga);
     }
   }
 
