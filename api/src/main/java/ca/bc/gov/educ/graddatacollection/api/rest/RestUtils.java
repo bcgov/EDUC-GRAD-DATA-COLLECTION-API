@@ -926,7 +926,7 @@ public class RestUtils {
       assessmentStudent.setLocalAssessmentID(student.getLocalCourseID());
       assessmentStudent.setIsElectronicAssessment(StringUtils.isNotBlank(student.getIsElectronicExam()) && student.getIsElectronicExam().equalsIgnoreCase("Y") ? "true" : "false");
       assessmentStudent.setProficiencyScore(null);
-      assessmentStudent.setProvincialSpecialCaseCode(student.getProvincialSpecialCase());
+      assessmentStudent.setProvincialSpecialCaseCode(null);
       assessmentStudent.setCourseStatusCode(student.getCourseStatus());
       assessmentStudent.setNumberOfAttempts(null);
       assessmentStudent.setCreateUser(student.getCreateUser());
