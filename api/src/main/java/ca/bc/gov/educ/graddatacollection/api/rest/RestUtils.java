@@ -874,10 +874,6 @@ public class RestUtils {
   }
 
   public Optional<Session> getAssessmentSessionByCourseMonthAndYear(String courseMonth, String courseYear) {
-    if(sessionMap.isEmpty()) {
-      log.info("Assessment session map is empty reloading schools");
-      populateAssessmentSessionMap();
-    }
     return sessionMap.values().stream().
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
   }
