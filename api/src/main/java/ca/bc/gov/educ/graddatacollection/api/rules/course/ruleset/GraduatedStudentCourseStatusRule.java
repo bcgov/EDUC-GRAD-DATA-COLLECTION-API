@@ -8,7 +8,6 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -49,24 +48,24 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of C12 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var student = courseRulesService.getStudentApiStudent(studentRuleData, courseStudentEntity.getPen());
+        log.debug("In executeValidation of C12 for courseStudentID :: {}", courseStudentEntity.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
-        var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, student.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
+        var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
 
-        if ("W".equalsIgnoreCase(student.getCourseStatus())
+        if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
                 && gradStudent != null
                 && gradStudent.getGraduated().equalsIgnoreCase("true")
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().anyMatch(record ->
-                    record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                    && StringUtils.isNotBlank(record.getGradReqMet())
-                    && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                    && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
+                    record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
+                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
         )) {
-            log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
+            log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));
         }
         return errors;
