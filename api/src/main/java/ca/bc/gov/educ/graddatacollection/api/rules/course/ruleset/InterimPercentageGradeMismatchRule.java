@@ -64,7 +64,7 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
         String interimLetterGrade = student.getInterimLetterGrade();
         String interimPercentStr = student.getInterimPercentage();
         boolean hasInterimLetterGrade = StringUtils.isNotBlank(interimLetterGrade);
-        boolean hasInterimPercent = StringUtils.isNotBlank(interimPercentStr);
+        boolean hasInterimPercent = StringUtils.isNotBlank(interimPercentStr) && !interimPercentStr.equals("0");
 
         if (hasInterimLetterGrade) {
             Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream()
@@ -73,9 +73,9 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
 
             if (optionalStudentLetterGrade.isPresent()) {
                 LetterGrade studentLetterGrade = optionalStudentLetterGrade.get();
-                int percentLow = studentLetterGrade.getPercentRangeLow();
-                int percentHigh = studentLetterGrade.getPercentRangeHigh();
-                boolean hasPercentRange = percentLow != 0 || percentHigh != 0;
+                Integer percentLow = studentLetterGrade.getPercentRangeLow();
+                Integer percentHigh = studentLetterGrade.getPercentRangeHigh();
+                boolean hasPercentRange = percentLow != null && percentHigh != null;
 
                 // 1. If no percent range, interim percent should NOT be submitted
                 if (!hasPercentRange && hasInterimPercent) {
