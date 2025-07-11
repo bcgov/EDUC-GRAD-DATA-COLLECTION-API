@@ -58,13 +58,11 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
 
         if (studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
-                record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                    && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                    && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
-                    && record.getCompletedCourseLetterGrade() != null
-                    && record.getExamPercent() != null) // this might also change there are a few exam values that could be checked
-            // TODO If the course does not already exist, check to see if the course was examinable for the course session provided.  Check the  New GRAD table: Examinable_Courses
-            // pending response - where/when is this new table expected
+                record.getCourseDetails().getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
+                    && record.getCourseSession().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
+                    && record.getFinalLetterGrade() != null
+                    && record.getCourseExam().getExamPercentage() != null)
         ) {
             log.debug("C15: Error: Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form. for course student id :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getMessage()));

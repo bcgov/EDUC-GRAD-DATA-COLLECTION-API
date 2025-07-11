@@ -115,19 +115,19 @@ public class BaseRulesService {
         }
     }
 
-    public List<GradStudentCourseRecord> getStudentCourseRecord(StudentRuleData studentRuleData, String pen) {
+    public List<GradStudentCourseRecord> getStudentCourseRecord(StudentRuleData studentRuleData, String studentID) {
         if (studentRuleData.getGradStudentCourseRecordList() != null) {
             return studentRuleData.getGradStudentCourseRecordList();
         }
 
         try {
-            List<GradStudentCourseRecord> gradStudentCourses = restUtils.getGradStudentCoursesByPEN(UUID.randomUUID(), pen);
+            List<GradStudentCourseRecord> gradStudentCourses = restUtils.getGradStudentCoursesByStudentID(UUID.randomUUID(), studentID);
 
             studentRuleData.setGradStudentCourseRecordList(gradStudentCourses);
 
             return gradStudentCourses;
         } catch (EntityNotFoundException e) {
-            log.debug("No gradStudentCourses found for externalID: {}", pen);
+            log.debug("No gradStudentCourses found for studentID: {}", studentID);
             return null;
         }
     }

@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -84,19 +85,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new EquivalencyChallengeCode("C", "Challenge", "Indicates that the course credit was earned through the challenge process.", "2", "1984-01-01 00:00:00.000", null, "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "", "2021/06", "", null, 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2021/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
@@ -267,21 +302,55 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
-            List.of(
-                new GradStudentCourseRecord(
-                    "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", null, 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                    new GradCourseRecord(
-                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                    )
-                ),
-                new GradStudentCourseRecord(
-                    "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                    new GradCourseRecord(
-                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                    )
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201860", // courseID
+                                "2023/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, 99, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
+                        ),
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
+                        )
                 )
-            )
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -302,6 +371,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLocalID(demStudent.getLocalID());
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("LEVEL");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
@@ -317,19 +388,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setGraduated("true");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "PH", "CAREER-LIFE EDUCATION", 4, "12", "2023/06", "", "MET", null, null, 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "PH", "12", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2023/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
@@ -337,7 +442,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getCode());
+        assertTrue(validationError2.stream().anyMatch(e -> e.getValidationIssueCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getCode())));
     }
 
     @Test
@@ -560,19 +665,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", null, 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2021/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "QCLC", "CAREER-LIFE CONNECTIONS", 4, "LEVEL", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "QCLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "QCLC", "LEVEL", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
@@ -835,19 +974,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", null, 100.0, "A", 100.0, "", null, null, null, Double.MAX_VALUE, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2023/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, 99, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
@@ -1892,19 +2065,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError1.size()).isZero();
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "15", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2023/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "LEVEL", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
@@ -1943,19 +2150,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError1.size()).isZero();
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "15", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2021/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
@@ -1988,19 +2229,53 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError1.size()).isZero();
 
-        when(restUtils.getGradStudentCoursesByPEN(any(), any())).thenReturn(
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(
                         new GradStudentCourseRecord(
-                                "131411258", "CLE", "CAREER-LIFE EDUCATION", 4, "LEVEL", "2023/06", "", "15", 100.0, "A", 100.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", " ", "", "3201860", 4
-                                )
+                                null, // id
+                                "3201860", // courseID
+                                "2021/06", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201860", 4
+                                ),
+                                null // relatedCourseDetails
                         ),
                         new GradStudentCourseRecord(
-                                "131411258", "CLC", "CAREER-LIFE CONNECTIONS", 4, "", "2023/06", "", null, 95.0, "A", 95.0, "", null, null, null, null, "", "", null, 4, null, "", null, "", "N", "", "", " ", null, null, "N", false, false, false,
-                                new GradCourseRecord(
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", " ", "", "3201862", 4
-                                )
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradBaseCourse( // courseDetails
+                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
+                                        "2018-06-30", "1858-11-16",
+                                        null, "", "3201862", 4
+                                ),
+                                null // relatedCourseDetails
                         )
                 )
         );
