@@ -56,19 +56,20 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradRecord = studentRuleData.getGradStudentRecord();
-        var schoolCategory = studentRuleData.getSchool().getSchoolCategoryCode();
 
-        boolean isNotGradeGA = student.getGrade() != null && !student.getGrade().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode());
-        boolean isNotIndependentFNS = schoolCategory != null && !schoolCategory.equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode());
+        boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("Y");
         boolean gradRequirementYearIsBlank = StringUtils.isBlank(student.getGradRequirementYear());
-        boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getProgramCompletionDate());
         boolean isSummer = demographicRulesService.isSummerCollection(student.getIncomingFileset());
 
-        if (gradRequirementYearIsBlank && (!isSummer || isNotGradeGA || isNotIndependentFNS) && isGraduated) {
-            log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage()));
+        if(gradRequirementYearIsBlank && !isSummer) {
+            if (!isGraduated) {
+                log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage(), student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage()));
+            } else {
+                log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage(), student.getDemographicStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage()));
+            }
         }
-
         return errors;
     }
 

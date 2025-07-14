@@ -1151,8 +1151,8 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     @Test
     void testD12BlankGradRequirement_Error_When_BlankYear_NotSummer_NotFNS_IsGraduated() {
         var reportingPeriodEntity = createMockReportingPeriodEntity();
-        reportingPeriodEntity.setSummerStart(LocalDateTime.now().minusDays(2));
-        reportingPeriodEntity.setSummerEnd(LocalDateTime.now().plusDays(2));
+        reportingPeriodEntity.setSchYrStart(LocalDateTime.now().minusDays(2));
+        reportingPeriodEntity.setSchYrEnd(LocalDateTime.now().plusDays(2));
         var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -1203,7 +1203,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var school = createMockSchoolTombstone();
         var gradStudentRecord = new GradStudentRecord();
 
-        demStudent.setGradRequirementYear("");
+        demStudent.setGradRequirementYear("2025");
         demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
@@ -1259,41 +1259,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         assertThat(d12ErrorOptional)
                 .as("Expecting NO D12 error when Grad Requirement Year is NOT blank")
-                .isNotPresent();
-    }
-
-    @Test
-    void testD12BlankGradRequirement_Valid_When_GA_and_FNS() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        var assessmentStudent = createMockAssessmentStudent();
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        var school = createMockSchoolTombstone();
-        var gradStudentRecord = new GradStudentRecord();
-
-        demStudent.setGradRequirementYear("");
-        demStudent.setGrade(SchoolGradeCodes.GRADUATED_ADULT.getCode());
-        school.setSchoolCategoryCode(SchoolCategoryCodes.INDP_FNS.getCode());
-
-        gradStudentRecord.setProgramCompletionDate("2024-01-15");
-        gradStudentRecord.setGraduated("true");
-        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
-
-        when(restUtils.getGradStudentRecordByStudentID(any(UUID.class), any(UUID.class))).thenReturn(gradStudentRecord);
-
-        StudentRuleData studentRuleDataValid = createMockStudentRuleData(demStudent, courseStudent, assessmentStudent, school);
-        val validationErrorsValid = rulesProcessor.processRules(studentRuleDataValid);
-
-        log.info("TEST: Valid GA and FNS scenario. Errors received: {}", validationErrorsValid);
-
-        var d12ErrorOptional = validationErrorsValid.stream()
-                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getCode()))
-                .findFirst();
-
-        assertThat(d12ErrorOptional)
-                .as("Expecting NO D12 error when Grade is GA AND School is FNS, even if graduated")
                 .isNotPresent();
     }
 
