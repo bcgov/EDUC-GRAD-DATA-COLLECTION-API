@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static ca.bc.gov.educ.graddatacollection.api.struct.v1.Condition.AND;
@@ -331,7 +333,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].errorFilesetStudentValidationIssues", hasSize(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].errorFilesetStudentValidationIssues[0].errorContext").value("LTE10 - 2024/01"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].errorFilesetStudentValidationIssues[0].errorContext").value("LTE10 - %s/01".formatted(LocalDate.now().plusYears(1).format(DateTimeFormatter.ofPattern("yyyy")))));
     }
 
 }

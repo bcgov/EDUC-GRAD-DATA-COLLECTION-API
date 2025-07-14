@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +46,14 @@ public class AssessmentRulesService extends BaseRulesService {
         return AssessmentSessionMonths.findByValue(month).isPresent();
     }
 
-    public boolean courseIsValidForSession(String year, String month, String courseCode){
+    public boolean sessionIsInPast(String year, String month) {
+        String dateString = "%s-%s-01".formatted(year, month);
+        LocalDate sessionDate = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
+        LocalDate currentDate = LocalDate.now().withDayOfMonth(1);
+        return sessionDate.isBefore(currentDate);
+    }
+
+    public boolean courseIsValidForSession(String year, String month, String courseCode) {
         if(StringUtils.isEmpty(year) || StringUtils.isEmpty(month) || StringUtils.isEmpty(courseCode)){
             return false;
         }
