@@ -67,7 +67,7 @@ public class GraduatedStudentProgramRule implements DemographicValidationBaseRul
                         (StringUtils.isBlank(studentProgram) || !studentProgram.equalsIgnoreCase(program))) ||
                         (program.equalsIgnoreCase("SCCP") && StringUtils.isBlank(studentProgram)))
             {
-                String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getMessage().formatted(StringEscapeUtils.escapeHtml4(gradStudent.getProgram()));
+                String errorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getMessage().formatted(StringEscapeUtils.escapeHtml4(gradStudent.getProgram().replaceAll("-EN","").replaceAll("-PF","")));
                 log.debug("StudentProgram-D17: {} for demographicStudentID :: {}", errorMessage, student.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED, errorMessage));
             }

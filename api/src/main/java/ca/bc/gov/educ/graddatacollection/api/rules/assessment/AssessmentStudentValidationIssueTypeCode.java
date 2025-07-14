@@ -11,6 +11,7 @@ public enum AssessmentStudentValidationIssueTypeCode {
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level must be blank. This registration cannot be updated."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "%s is not offered in %s%s. Check that a valid assessment code and session date, in the current school year, were reported. This registration cannot be updated."),
   COURSE_SESSION_INVALID_MONTH("COURSE_SESSION_INVALID_MONTH", "Assessments are not offered in the reported session month. Must be Nov, Jan, Apr, or Jun. The registration cannot be updated."),
+  COURSE_SESSION_IN_THE_PAST("COURSE_SESSION_IN_THE_PAST", "The assessment registration is for a past month or year. The registration cannot be updated."),
   COURSE_SESSION_DUP("COURSE_SESSION_DUP", "The student has already received a Proficiency Score or Special Case for this assessment session. The registration cannot be updated."),
   COURSE_SESSION_EXCEED("COURSE_SESSION_EXCEED", "The student has reached the maximum number of writes for %s. The registration will not be updated."),
   INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK("INTERIM_SCHOOL_PERCENTAGE_NOT_BLANK", "Interim school percentage must be blank. This registration cannot be updated."),

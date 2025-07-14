@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -244,6 +245,7 @@ public abstract class BaseGradDataCollectionAPITest {
 
   public AssessmentStudentEntity createMockAssessmentStudent() {
     ReportingPeriodEntity reportingPeriod = createMockReportingPeriodEntity();
+    LocalDate sessionDate = LocalDate.now().plusYears(1).withMonth(1).withDayOfMonth(1);
 
     return AssessmentStudentEntity.builder()
             .assessmentStudentID(UUID.randomUUID())
@@ -254,8 +256,8 @@ public abstract class BaseGradDataCollectionAPITest {
             .updateDate(LocalDateTime.now())
             .createUser("ABC")
             .updateUser("ABC")
-            .courseMonth("01")
-            .courseYear("2024")
+            .courseMonth(sessionDate.format(DateTimeFormatter.ofPattern("MM")))
+            .courseYear(sessionDate.format(DateTimeFormatter.ofPattern("yyyy")))
             .studentStatusCode("LOADED")
             .courseStatus("A")
             .lastName("JACKSON")

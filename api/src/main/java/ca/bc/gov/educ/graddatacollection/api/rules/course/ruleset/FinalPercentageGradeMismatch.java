@@ -72,7 +72,7 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
                     String finalLetterGrade = student.getFinalLetterGrade();
                     String finalPercentStr = student.getFinalPercentage();
                     boolean hasFinalLetterGrade = StringUtils.isNotBlank(finalLetterGrade);
-                    boolean hasFinalPercent = StringUtils.isNotBlank(finalPercentStr);
+                    boolean hasFinalPercent = StringUtils.isNotBlank(finalPercentStr) && !finalPercentStr.equals("0");;
 
                     if (hasFinalLetterGrade) {
                         Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream()
@@ -81,9 +81,9 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
 
                         if (optionalStudentLetterGrade.isPresent()) {
                             LetterGrade studentLetterGrade = optionalStudentLetterGrade.get();
-                            int percentLow = studentLetterGrade.getPercentRangeLow();
-                            int percentHigh = studentLetterGrade.getPercentRangeHigh();
-                            boolean hasPercentRange = percentLow != 0 || percentHigh != 0;
+                            Integer percentLow = studentLetterGrade.getPercentRangeLow();
+                            Integer percentHigh = studentLetterGrade.getPercentRangeHigh();
+                            boolean hasPercentRange = percentLow != null && percentHigh != null;
 
                             // 1. If no percent range, final percent should NOT be submitted
                             if (!hasPercentRange && hasFinalPercent) {
