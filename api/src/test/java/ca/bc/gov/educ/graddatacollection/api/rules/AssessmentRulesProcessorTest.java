@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -173,10 +175,11 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setCourseMonth("12");
         assessmentStudent.setCourseCode("LTE10");
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_MONTH.getCode());
-        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode());
-        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage());
+        assertThat(validationError2.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage())
+        )).isTrue();
 
         assessmentStudent.setCourseMonth("11");
         assessmentStudent.setCourseCode("LTE10");
@@ -186,15 +189,15 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setCourseMonth("11");
         assessmentStudent.setCourseCode("MA10");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError4.size()).isNotZero();
-        assertThat(validationError4.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError4.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
-        assertThat(validationError4.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(assessmentStudent.getCourseCode(), assessmentStudent.getCourseYear(), assessmentStudent.getCourseMonth()));
+        assertThat(validationError4.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(assessmentStudent.getCourseCode(), assessmentStudent.getCourseYear(), assessmentStudent.getCourseMonth()))
+        )).isTrue();
 
         assessmentStudent.setCourseMonth("12");
         assessmentStudent.setCourseCode("MA10");
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.stream().anyMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
             err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()) &&
@@ -204,6 +207,97 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
             err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()) &&
             err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(assessmentStudent.getCourseCode(), assessmentStudent.getCourseYear(), assessmentStudent.getCourseMonth()))
+        )).isTrue();
+
+        LocalDate current = LocalDate.now();
+        assessmentStudent.setCourseYear(current.minusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
+        assessmentStudent.setCourseMonth("12");
+        assessmentStudent.setCourseCode("MA10");
+        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError6.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+        assertThat(validationError6.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+
+        assessmentStudent.setCourseYear(current.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy")));
+        assessmentStudent.setCourseMonth(current.minusMonths(1).format(DateTimeFormatter.ofPattern("MM")));
+        assessmentStudent.setCourseCode("MA10");
+        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError7.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+        assertThat(validationError7.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+
+        assessmentStudent.setCourseYear(current.minusMonths(1).minusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
+        assessmentStudent.setCourseMonth(current.minusMonths(1).minusYears(1).format(DateTimeFormatter.ofPattern("MM")));
+        assessmentStudent.setCourseCode("MA10");
+        val validationError8 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError8.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+        assertThat(validationError8.stream().anyMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+
+        assessmentStudent.setCourseYear(current.plusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
+        assessmentStudent.setCourseMonth(current.plusYears(1).format(DateTimeFormatter.ofPattern("MM")));
+        assessmentStudent.setCourseCode("MA10");
+        val validationError9 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError9.stream().noneMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+        assertThat(validationError9.stream().noneMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+
+        assessmentStudent.setCourseYear(current.plusMonths(1).format(DateTimeFormatter.ofPattern("yyyy")));
+        assessmentStudent.setCourseMonth(current.plusMonths(1).format(DateTimeFormatter.ofPattern("MM")));
+        assessmentStudent.setCourseCode("MA10");
+        val validationError10 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError10.stream().noneMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+        assertThat(validationError10.stream().noneMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+
+        assessmentStudent.setCourseYear(current.plusMonths(1).plusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
+        assessmentStudent.setCourseMonth(current.plusMonths(1).plusYears(1).format(DateTimeFormatter.ofPattern("MM")));
+        assessmentStudent.setCourseCode("MA10");
+        val validationError11 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError11.stream().noneMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+        )).isTrue();
+        assertThat(validationError11.stream().noneMatch(err ->
+            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
         )).isTrue();
     }
 
@@ -611,6 +705,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV15CourseSessionRule() {
+        String futureSessionYear = LocalDate.now().plusYears(1).format(DateTimeFormatter.ofPattern("yyyy"));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -660,7 +755,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
         numeracyStudent1.setCourseCode("NME10");
         numeracyStudent1.setCourseMonth("06");
-        numeracyStudent1.setCourseYear("2024");
+        numeracyStudent1.setCourseYear(futureSessionYear);
         assessmentStudentRepository.save(numeracyStudent1);
 
         var numeracyStudent2 = createMockAssessmentStudent();
@@ -670,7 +765,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
         numeracyStudent2.setCourseCode("NMF");
         numeracyStudent2.setCourseMonth("06");
-        numeracyStudent2.setCourseYear("2024");
+        numeracyStudent2.setCourseYear(futureSessionYear);
         numeracyStudent2.setAssessmentStudentID(null);
         assessmentStudentRepository.save(numeracyStudent2);
 
@@ -690,7 +785,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         nonNumeracyStudent.setIncomingFileset(demStudent.getIncomingFileset());
         nonNumeracyStudent.setCourseCode("LTE10");
         nonNumeracyStudent.setCourseMonth("06");
-        nonNumeracyStudent.setCourseYear("2024");
+        nonNumeracyStudent.setCourseYear(futureSessionYear);
         nonNumeracyStudent.setAssessmentStudentID(null);
         assessmentStudentRepository.save(nonNumeracyStudent);
 
@@ -925,6 +1020,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testV22CourseCodeNumeracyRule() {
+        String futureSessionYear = LocalDate.now().plusYears(1).format(DateTimeFormatter.ofPattern("yyyy"));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -948,7 +1044,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
         numeracyStudent1.setCourseCode("NME10");
         numeracyStudent1.setCourseMonth("06");
-        numeracyStudent1.setCourseYear("2024");
+        numeracyStudent1.setCourseYear(futureSessionYear);
         assessmentStudentRepository.save(numeracyStudent1);
 
         var numeracyStudent2 = createMockAssessmentStudent();
@@ -958,7 +1054,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
         numeracyStudent2.setCourseCode("NMF");
         numeracyStudent2.setCourseMonth("06");
-        numeracyStudent2.setCourseYear("2024");
+        numeracyStudent2.setCourseYear(futureSessionYear);
         numeracyStudent2.setAssessmentStudentID(null);
 
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();

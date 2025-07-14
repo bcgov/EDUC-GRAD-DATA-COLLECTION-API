@@ -202,6 +202,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
+                .courseSessionOverride(true)
                 .fileName("student-crs-file.crs")
                 .fileType("crs")
                 .build();
@@ -472,6 +473,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         GradFileUpload verFile = GradFileUpload.builder()
                 .fileContents(fileContents)
                 .createUser("ABC")
+                .courseSessionOverride(true)
                 .fileName("student-crs-file.crs")
                 .fileType("crs")
                 .build();
