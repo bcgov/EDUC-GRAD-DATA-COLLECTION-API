@@ -20,7 +20,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -41,7 +40,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -777,6 +775,46 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public List<GradStudentCourseRecord> getGradStudentCoursesByStudentID(UUID correlationID, String studentID) {
+    try {
+      final TypeReference<List<GradStudentCourseRecord>> refCourseInformation = new TypeReference<>() {};
+
+      Event event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_COURSE_RECORDS).eventPayload(studentID).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_COURSES_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+
+      if (responseMessage != null) {
+        String responseData = new String(responseMessage.getData(), StandardCharsets.UTF_8);
+
+        final TypeReference<GradStudentCourseRecordsPayload> payloadTypeRef = new TypeReference<>() {};
+        GradStudentCourseRecordsPayload responsePayload = objectMapper.readValue(responseData, payloadTypeRef);
+
+        log.debug("getGradStudentCourseRecordsByStudentID response{}", responsePayload.toString());
+
+        if (responsePayload.getException() != null) {
+          if ("not found".equals(responsePayload.getException())) {
+            throw new EntityNotFoundException(GradStudentRecord.class);
+          } else {
+            log.error("An exception error occurred: {}", responsePayload.getException());
+            throw new GradDataCollectionAPIRuntimeException("Error occurred for correlation ID " + correlationID);
+          }
+        }
+
+        log.debug("Success fetching GradStudentCoursesRecord for Student ID {}", studentID);
+        return responsePayload.getCourses();
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
+      }
+    } catch (EntityNotFoundException ex) {
+      log.error("EntityNotFoundException occurred calling GET_STUDENT_COURSE service :: {}", ex.getMessage());
+      throw new EntityNotFoundException();
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET_STUDENT_COURSE service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public CoregCoursesRecord getCoursesByExternalID(UUID correlationID, String externalID) {
     try {
       final TypeReference<CoregCoursesRecord> refCourseInformation = new TypeReference<>() {};
@@ -811,46 +849,6 @@ public class RestUtils {
       throw new EntityNotFoundException();
     } catch (final Exception ex) {
       log.error("Error occurred calling GET_COURSE_FROM_EXTERNAL_ID service :: {}", ex.getMessage());
-      Thread.currentThread().interrupt();
-      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
-    }
-  }
-
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public List<GradStudentCourseRecord> getGradStudentCoursesByPEN(UUID correlationID, String pen) {
-    try {
-      final TypeReference<List<GradStudentCourseRecord>> refCourseInformation = new TypeReference<>() {};
-
-      Event event = Event.builder()
-              .sagaId(correlationID)
-              .eventType(EventType.GET_STUDENT_COURSE)
-              .eventPayload(pen)
-              .replyTo("grad-course-response-topic")
-              .build();
-
-      val responseMessage = this.messagePublisher
-              .requestMessage(TopicsEnum.GRAD_COURSE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event))
-              .completeOnTimeout(null, 120, TimeUnit.SECONDS)
-              .get();
-
-      if (responseMessage == null) {
-        throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
-      }
-
-      byte[] responseData = responseMessage.getData();
-      if (responseData.length == 0) {
-        log.debug("No course information found for PEN {}", pen);
-        throw new EntityNotFoundException(CoregCoursesRecord.class);
-      }
-
-      log.debug("Received response from NATS: {}", new String(responseData, StandardCharsets.UTF_8));
-      return objectMapper.readValue(responseData, refCourseInformation);
-
-    } catch (EntityNotFoundException ex) {
-      log.error("EntityNotFoundException occurred calling GET_STUDENT_COURSE service :: {}", ex.getMessage());
-      throw new EntityNotFoundException();
-    } catch (final Exception ex) {
-      log.error("Error occurred calling GET_STUDENT_COURSE service :: {}", ex.getMessage());
       Thread.currentThread().interrupt();
       throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
     }

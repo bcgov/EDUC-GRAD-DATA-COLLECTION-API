@@ -48,22 +48,22 @@ public class GraduatedStudentFinalLetterGradeRule implements CourseValidationBas
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of C35 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var student = courseRulesService.getStudentApiStudent(studentRuleData, courseStudentEntity.getPen());
+        log.debug("In executeValidation of C35 for courseStudentID :: {}", courseStudentEntity.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
-        var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, student.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
+        var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
 
         if (studentCourseRecord.stream().anyMatch(record ->
-                        record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                        record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
                                 && gradStudent != null
                                 && gradStudent.getGraduated().equalsIgnoreCase("true")
-                                && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                                && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth())
-                                && StringUtils.isNotBlank(record.getGradReqMet())
-                && StringUtils.isNotBlank(student.getFinalLetterGrade()) && student.getFinalLetterGrade().equalsIgnoreCase("W"))) {
-            log.debug("C35: Error: A student course has been submitted as W (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. :: {}", student.getCourseStudentID());
+                                && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                                && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())
+                && StringUtils.isNotBlank(courseStudentEntity.getFinalLetterGrade()) && courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase("W"))) {
+            log.debug("C35: Error: A student course has been submitted as W (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION.getMessage()));
         }
         return errors;

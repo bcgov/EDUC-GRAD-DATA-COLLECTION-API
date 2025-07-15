@@ -58,9 +58,9 @@ public class QCourseCodeRule implements CourseValidationBaseRule {
                 && "Q".equalsIgnoreCase(student.getCourseCode().substring(0,1))
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().noneMatch(record ->
-                record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                        && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                        && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
+                record.getCourseDetails().getCourseCode().equalsIgnoreCase(student.getCourseCode())
+                        && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
+                        && record.getCourseSession().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
         )) {
             log.debug("C05: Error: Invalid. New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form. for course student id :: {}", student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.Q_CODE_INVALID, CourseStudentValidationIssueTypeCode.Q_CODE_INVALID.getMessage()));

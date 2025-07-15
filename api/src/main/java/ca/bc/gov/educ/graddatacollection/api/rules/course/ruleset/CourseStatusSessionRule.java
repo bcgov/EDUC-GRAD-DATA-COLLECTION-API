@@ -48,18 +48,19 @@ public class CourseStatusSessionRule implements CourseValidationBaseRule {
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of C34 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var student = courseRulesService.getStudentApiStudent(studentRuleData, courseStudentEntity.getPen());
+        log.debug("In executeValidation of C34 for courseStudentID :: {}", courseStudentEntity.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
 
         if (studentCourseRecord.stream().noneMatch(record ->
-                        record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                                && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                                && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()))
-                && StringUtils.isNotBlank(student.getCourseStatus()) && student.getCourseStatus().equalsIgnoreCase("W")) {
-            log.debug("C34: Error: Course Status = W and the course code and session date does not exist in GRAD for the student. :: {}", student.getCourseStudentID());
+                        record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
+                                && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                                && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()))
+                && StringUtils.isNotBlank(courseStudentEntity.getCourseStatus()) && courseStudentEntity.getCourseStatus().equalsIgnoreCase("W")) {
+            log.debug("C34: Error: Course Status = W and the course code and session date does not exist in GRAD for the student. :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_WRONG_SESSION, CourseStudentValidationIssueTypeCode.COURSE_WRONG_SESSION.getMessage()));
         }
         return errors;

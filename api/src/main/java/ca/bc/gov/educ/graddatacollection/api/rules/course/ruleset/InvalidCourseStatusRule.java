@@ -48,21 +48,23 @@ public class InvalidCourseStatusRule implements CourseValidationBaseRule {
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of C11 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var student = courseRulesService.getStudentApiStudent(studentRuleData, courseStudentEntity.getPen());
+
+        log.debug("In executeValidation of C11 for courseStudentID :: {}", courseStudentEntity.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
 
-        if ("W".equalsIgnoreCase(student.getCourseStatus())
+        if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
             && studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
-                    record.getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                    && record.getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                    && record.getSessionDate().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
-                    && (record.getCompletedCoursePercentage() != null || record.getCompletedCourseLetterGrade() != null || record.getExamPercent() != null)
+                    record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
+                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
+                    && record.getCourseExam().getExamPercentage() != null
                     )) {
-            log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", student.getCourseStudentID());
+            log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
         }
         return errors;

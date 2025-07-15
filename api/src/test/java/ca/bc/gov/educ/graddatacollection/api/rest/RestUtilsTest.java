@@ -195,7 +195,7 @@ class RestUtilsTest {
                 {"cacID": "2169729", "creditValue": "3", "courseID": "123456", "startDate": "2009-09-01 00:00:00", "endDate": null}
             ]
         }
-         """;
+        """;
         byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
 
         io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);
@@ -212,14 +212,14 @@ class RestUtilsTest {
     @Test
     void testGetGradStudentCoursesByPEN_WhenRequestTimesOut_ShouldThrowGradDataCollectionAPIRuntimeException() {
         UUID correlationID = UUID.randomUUID();
-        String pen = "131411258";
+        String studentID = "131411258";
 
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
         GradDataCollectionAPIRuntimeException exception = assertThrows(
                 GradDataCollectionAPIRuntimeException.class,
-                () -> restUtils.getGradStudentCoursesByPEN(correlationID, pen)
+                () -> restUtils.getGradStudentCoursesByStudentID(correlationID, studentID)
         );
 
         assertEquals(NATS_TIMEOUT + correlationID, exception.getMessage());
@@ -228,7 +228,7 @@ class RestUtilsTest {
     @Test
     void testGetGradStudentCoursesByPEN_WhenExceptionOccurs_ShouldThrowGradDataCollectionAPIRuntimeException() {
         UUID correlationID = UUID.randomUUID();
-        String pen = "131411258";
+        String studentID = "131411258";
         Exception mockException = new Exception("exception");
 
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
@@ -236,119 +236,70 @@ class RestUtilsTest {
 
         assertThrows(
                 GradDataCollectionAPIRuntimeException.class,
-                () -> restUtils.getGradStudentCoursesByPEN(correlationID, pen)
+                () -> restUtils.getGradStudentCoursesByStudentID(correlationID, studentID)
         );
     }
 
     @Test
     void testGetGradStudentCoursesByPEN_WhenValidPEN_ShouldReturnGradStudentCourseRecords() {
         UUID correlationID = UUID.randomUUID();
-        String pen = "131411258";
+        String studentID = "131411258";
 
         String jsonResponse = """
-        [
-            {"pen":"131411258","courseCode":"CLE","courseName":"CAREER-LIFE EDUCATION","originalCredits":4,"courseLevel":"","sessionDate":"2021/06","customizedCourseName":"","gradReqMet":null,"completedCoursePercentage":100.0,"completedCourseLetterGrade":"A","interimPercent":100.0,"interimLetterGrade":"","bestSchoolPercent":null,"bestExamPercent":null,"schoolPercent":null,"examPercent":null,"equivOrChallenge":"","fineArtsAppliedSkills":"","metLitNumRequirement":null,"credits":4,"creditsUsedForGrad":null,"relatedCourse":"","relatedCourseName":null,"relatedLevel":"","hasRelatedCourse":"N","genericCourseType":"","language":"","workExpFlag":" ","specialCase":null,"toWriteFlag":null,"provExamCourse":"N","courseDetails":{"courseCode":"CLE","courseLevel":"","courseName":"CAREER-LIFE EDUCATION","language":"","startDate":"2018-06-30","endDate":"1858-11-16","workExpFlag":" ","genericCourseType":"","courseID":"3201860","numCredits":4},"failed":false,"duplicate":false,"notCompleted":false},
-            {"pen":"131411258","courseCode":"CLC","courseName":"CAREER-LIFE CONNECTIONS","originalCredits":4,"courseLevel":"","sessionDate":"2023/06","customizedCourseName":"","gradReqMet":null,"completedCoursePercentage":95.0,"completedCourseLetterGrade":"A","interimPercent":95.0,"interimLetterGrade":"","bestSchoolPercent":null,"bestExamPercent":null,"schoolPercent":null,"examPercent":null,"equivOrChallenge":"","fineArtsAppliedSkills":"","metLitNumRequirement":null,"credits":4,"creditsUsedForGrad":null,"relatedCourse":"","relatedCourseName":null,"relatedLevel":"","hasRelatedCourse":"N","genericCourseType":"","language":"","workExpFlag":" ","specialCase":null,"toWriteFlag":null,"provExamCourse":"N","courseDetails":{"courseCode":"CLC","courseLevel":"","courseName":"CAREER-LIFE CONNECTIONS","language":"","startDate":"2018-06-30","endDate":"1858-11-16","workExpFlag":" ","genericCourseType":"","courseID":"3201862","numCredits":4},"failed":false,"duplicate":false,"notCompleted":false}
-        ]
-        """;
+    {
+        "courses": [
+            {
+                "id": null,
+                "courseID": "3201860",
+                "courseSession": "2021/06",
+                "interimPercent": 100,
+                "interimLetterGrade": "",
+                "finalPercent": 100,
+                "finalLetterGrade": "A",
+                "credits": 4,
+                "equivOrChallenge": "",
+                "fineArtsAppliedSkills": "",
+                "customizedCourseName": "",
+                "relatedCourseId": null,
+                "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
+                "courseDetails": { "courseCode": "CLE", "courseLevel": "", "courseName": "CAREER-LIFE EDUCATION", "language": "", "startDate": "2018-06-30", "endDate": "1858-11-16", "completionEndDate": null, "genericCourseType": "", "courseID": "3201860", "numCredits": 4 },
+                "relatedCourseDetails": null
+            },
+            {
+                "id": null,
+                "courseID": "3201862",
+                "courseSession": "2023/06",
+                "interimPercent": 95,
+                "interimLetterGrade": "",
+                "finalPercent": 95,
+                "finalLetterGrade": "A",
+                "credits": 4,
+                "equivOrChallenge": "",
+                "fineArtsAppliedSkills": "",
+                "customizedCourseName": "",
+                "relatedCourseId": null,
+                "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
+                "courseDetails": { "courseCode": "CLC", "courseLevel": "", "courseName": "CAREER-LIFE CONNECTIONS", "language": "", "startDate": "2018-06-30", "endDate": "1858-11-16", "completionEndDate": null, "genericCourseType": "", "courseID": "3201862", "numCredits": 4 },
+                "relatedCourseDetails": null
+            }
+        ],
+        "exception": null
+    }
+    """;
 
         List<GradStudentCourseRecord> expectedRecords = List.of(
-            new GradStudentCourseRecord(
-                "131411258",
-                "CLE",
-                "CAREER-LIFE EDUCATION",
-                4,
-                "",
-                "2021/06",
-                "",
-                null,
-                100.0,
-                "A",
-                100.0,
-                "",
-                null,
-                null,
-                null,
-                null,
-                "",
-                "",
-                null,
-                4,
-                null,
-                "",
-                null,
-                "",
-                "N",
-                "",
-                "",
-                " ",
-                null,
-                null,
-                "N",
-                false,
-                false,
-                false,
-                new GradCourseRecord(
-                    "CLE",
-                    "",
-                    "CAREER-LIFE EDUCATION",
-                    "",
-                   "2018-06-30",
-                   "1858-11-16",
-                    " ",
-                    "",
-                    "3201860",
-                    4
+                new GradStudentCourseRecord(
+                        null, "3201860", "2021/06", 100, "", 100, "A", 4, "", "", "", null,
+                        new GradStudentCourseExam(null, null, null, null, null, null, null, null),
+                        new GradBaseCourse("CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", null, "", "3201860", 4),
+                        null
+                ),
+                new GradStudentCourseRecord(
+                        null, "3201862", "2023/06", 95, "", 95, "A", 4, "", "", "", null,
+                        new GradStudentCourseExam(null, null, null, null, null, null, null, null),
+                        new GradBaseCourse("CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", null, "", "3201862", 4),
+                        null
                 )
-            ),
-            new GradStudentCourseRecord(
-                "131411258",
-                "CLC",
-                "CAREER-LIFE CONNECTIONS",
-                4,
-                "",
-                "2023/06",
-                "",
-                null,
-                95.0,
-                "A",
-                95.0,
-                "",
-                null,
-                null,
-                null,
-                null,
-                "",
-                "",
-                null,
-                4,
-                null,
-                "",
-                null,
-                "",
-                "N",
-                "",
-                "",
-                " ",
-                null,
-                null,
-                "N",
-                false,
-                false,
-                false,
-                new GradCourseRecord(
-                    "CLC",
-                    "",
-                    "CAREER-LIFE CONNECTIONS",
-                    "",
-                    "2018-06-30",
-                    "1858-11-16",
-                    " ",
-                    "",
-                    "3201862",
-                    4
-                )
-            )
         );
 
         byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
@@ -358,11 +309,10 @@ class RestUtilsTest {
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
                 .thenReturn(CompletableFuture.completedFuture(mockMessage));
 
-        List<GradStudentCourseRecord> actualRecords = restUtils.getGradStudentCoursesByPEN(correlationID, pen);
+        List<GradStudentCourseRecord> actualRecords = restUtils.getGradStudentCoursesByStudentID(correlationID, studentID);
 
         assertEquals(expectedRecords, actualRecords);
     }
-
 
     @Test
     void testPopulateEquivalencyChallengeCodeMap() {
