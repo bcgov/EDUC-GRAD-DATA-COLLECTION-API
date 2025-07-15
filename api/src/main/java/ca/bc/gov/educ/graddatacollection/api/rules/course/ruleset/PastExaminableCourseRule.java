@@ -56,7 +56,7 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C15 for courseStudentID :: {}", student.getStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, courseStudentEntity.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
 
         if (studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
