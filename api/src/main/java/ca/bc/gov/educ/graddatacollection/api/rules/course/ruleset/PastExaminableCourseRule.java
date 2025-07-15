@@ -50,21 +50,23 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of C15 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var student = courseRulesService.getStudentApiStudent(studentRuleData, courseStudentEntity.getPen());
+
+        log.debug("In executeValidation of C15 for courseStudentID :: {}", student.getStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, courseStudentEntity.getPen());
 
         if (studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
-                record.getCourseDetails().getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                    && record.getCourseSession().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
+                record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
+                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
                     && record.getFinalLetterGrade() != null
                     && record.getCourseExam().getExamPercentage() != null)
         ) {
-            log.debug("C15: Error: Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form. for course student id :: {}", student.getCourseStudentID());
+            log.debug("C15: Error: Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getMessage()));
         }
         return errors;
