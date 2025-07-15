@@ -777,8 +777,6 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<GradStudentCourseRecord> getGradStudentCoursesByStudentID(UUID correlationID, String studentID) {
     try {
-      final TypeReference<List<GradStudentCourseRecord>> refCourseInformation = new TypeReference<>() {};
-
       Event event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_COURSE_RECORDS).eventPayload(studentID).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_COURSES_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
 
