@@ -48,21 +48,22 @@ public class QCourseCodeRule implements CourseValidationBaseRule {
 
     @Override
     public List<CourseStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getCourseStudentEntity();
-        log.debug("In executeValidation of C05 for courseStudentID :: {}", student.getCourseStudentID());
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var student = courseRulesService.getStudentApiStudent(studentRuleData, courseStudentEntity.getPen());
+        log.debug("In executeValidation of C05 for courseStudentID :: {}", courseStudentEntity.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getPen());
+        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
 
-        if (student.getCourseCode() != null
-                && "Q".equalsIgnoreCase(student.getCourseCode().substring(0,1))
+        if (courseStudentEntity.getCourseCode() != null
+                && "Q".equalsIgnoreCase(courseStudentEntity.getCourseCode().substring(0,1))
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().noneMatch(record ->
-                record.getCourseDetails().getCourseCode().equalsIgnoreCase(student.getCourseCode())
-                        && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(student.getCourseLevel())
-                        && record.getCourseSession().equalsIgnoreCase(student.getCourseYear() + "/" + student.getCourseMonth()) // yyyy/mm
+                record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
+                        && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                        && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
         )) {
-            log.debug("C05: Error: Invalid. New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form. for course student id :: {}", student.getCourseStudentID());
+            log.debug("C05: Error: Invalid. New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.Q_CODE_INVALID, CourseStudentValidationIssueTypeCode.Q_CODE_INVALID.getMessage()));
         }
         return errors;
