@@ -111,28 +111,24 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             entity.setDistrictID(UUID.fromString(districtID));
         }
 
-        var blankLineSet = new TreeSet<>();
         var mincode = batchFile.getCourseData().isEmpty() ? null : batchFile.getCourseData().get(0).getMincode();
 
         for (final var student : batchFile.getCourseData()) {
-            if(StringUtils.isBlank(student.getPen())){
-                blankLineSet.add(Integer.parseInt(student.getLineNumber()));
-            }
             if (mincode != null){
                 gradFileValidator.checkForMincodeMismatch(guid, mincode, student.getMincode(), schoolID, districtID);
             }
         }
 
-        if(!blankLineSet.isEmpty()){
-            String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
-            throw new FileUnProcessableException(BLANK_PEN_IN_CRS_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines.length() == 1 ? "line" : "lines", lines);
-        }
-
         var courseLineSet = new HashMap<String, CourseStudentEntity>();
+        entity.setNumberOfMissingPENs(0);
         for (final var student : batchFile.getCourseData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
-            final var crsStudentEntity = mapper.toCRSStudentEntity(student, entity);
-            courseLineSet.put(student.getLineNumber(), crsStudentEntity);
-            entity.getCourseStudentEntities().add(crsStudentEntity);
+            if(StringUtils.isNotBlank(student.getPen())) {
+                final var crsStudentEntity = mapper.toCRSStudentEntity(student, entity);
+                courseLineSet.put(student.getLineNumber(), crsStudentEntity);
+                entity.getCourseStudentEntities().add(crsStudentEntity);
+            }else{
+                entity.setNumberOfMissingPENs(entity.getNumberOfMissingPENs() + 1);
+            }
         }
 
         boolean foundAnyFutureSessions = false;
@@ -186,7 +182,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             currentFileset.setCrsFileName(incomingFilesetEntity.getCrsFileName());
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
-
+            currentFileset.setNumberOfMissingPENs(incomingFilesetEntity.getNumberOfMissingPENs());
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getCourseStudentEntities().clear();
             currentFileset.getCourseStudentEntities().addAll(pairStudentList);

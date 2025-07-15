@@ -109,30 +109,25 @@ public class GradXamFileService implements GradFileBatchProcessor {
             entity.setDistrictID(UUID.fromString(districtID));
         }
 
-        var blankLineSet = new TreeSet<>();
         var mincode = batchFile.getAssessmentData().isEmpty() ? null : batchFile.getAssessmentData().get(0).getMincode();
         for (final var student : batchFile.getAssessmentData()) {
-            if(StringUtils.isBlank(student.getPen())){
-                blankLineSet.add(Integer.parseInt(student.getLineNumber()));
-            }
-
             if(mincode != null){
                 gradFileValidator.checkForMincodeMismatch(guid, mincode, student.getMincode(), schoolID, districtID);
             }
         }
 
-        if(!blankLineSet.isEmpty()){
-            String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
-            throw new FileUnProcessableException(BLANK_PEN_IN_XAM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines.length() == 1 ? "line" : "lines", lines);
-        }
-
+        entity.setNumberOfMissingPENs(0);
         for (final var student : batchFile.getAssessmentData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
-            final var assessmentStudentEntity = mapper.toXAMStudentEntity(student, entity);
-            if(StringUtils.isNotBlank(student.getExamMincode())) {
-                var school = restUtils.getSchoolByMincode(student.getExamMincode());
-                school.ifPresent(schoolTombstone -> assessmentStudentEntity.setExamSchoolID(UUID.fromString(schoolTombstone.getSchoolId())));
+            if(StringUtils.isNotBlank(student.getPen())) {
+                final var assessmentStudentEntity = mapper.toXAMStudentEntity(student, entity);
+                if (StringUtils.isNotBlank(student.getExamMincode())) {
+                    var school = restUtils.getSchoolByMincode(student.getExamMincode());
+                    school.ifPresent(schoolTombstone -> assessmentStudentEntity.setExamSchoolID(UUID.fromString(schoolTombstone.getSchoolId())));
+                }
+                entity.getAssessmentStudentEntities().add(assessmentStudentEntity);
+            }else{
+                entity.setNumberOfMissingPENs(entity.getNumberOfMissingPENs() + 1);
             }
-            entity.getAssessmentStudentEntities().add(assessmentStudentEntity);
         }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
     }
@@ -147,7 +142,7 @@ public class GradXamFileService implements GradFileBatchProcessor {
             currentFileset.setXamFileName(incomingFilesetEntity.getXamFileName());
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
-
+            currentFileset.setNumberOfMissingPENs(incomingFilesetEntity.getNumberOfMissingPENs());
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getAssessmentStudentEntities().clear();
             currentFileset.getAssessmentStudentEntities().addAll(pairStudentList);

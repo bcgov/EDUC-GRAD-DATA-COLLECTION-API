@@ -73,6 +73,9 @@ public class IncomingFilesetEntity {
     @Column(name = "CSV_FILE_NAME")
     private String csvFileName;
 
+    @Transient
+    private int numberOfMissingPENs; 
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "incomingFileset", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = DemographicStudentEntity.class)

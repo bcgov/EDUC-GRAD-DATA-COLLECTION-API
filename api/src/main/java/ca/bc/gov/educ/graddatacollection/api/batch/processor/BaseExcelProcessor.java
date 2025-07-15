@@ -76,7 +76,9 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
             for (int cn = 0; cn < lastColumn; cn++) {
                 this.processEachColumn(guid, headersMap, rowNum, r, summerStudent, cn, schoolID, districtID, reportingPeriod);
             }
-            this.populateRowData(guid, headersMap, summerStudents, rowNum, summerStudent);
+            if(StringUtils.isNotBlank(summerStudent.getPen())){
+                this.populateRowData(guid, headersMap, summerStudents, rowNum, summerStudent);
+            }
         }
 
         return SummerStudentDataResponse.builder().headers(new ArrayList<>(headersMap.values())).summerStudents(summerStudents).build();
@@ -173,10 +175,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
 
     private void setPen(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(StringUtils.isBlank(fieldValue)) {
-            throw new FileUnProcessableException(FileError.BLANK_PEN_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
-        }
-        if(fieldValue.length() != 9) {
+        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() != 9) {
             throw new FileUnProcessableException(FileError.PEN_LENGTH_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
         }
         summerStudent.setPen(fieldValue);
