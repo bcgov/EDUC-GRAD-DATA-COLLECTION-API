@@ -23,6 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -59,13 +63,17 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
-        reportingPeriodRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
+        Path tempDir = Paths.get("temp");
+        if (!Files.exists(tempDir)) {
+            Files.createDirectories(tempDir);
+        }
     }
 
     @Test
@@ -689,7 +697,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     void testProcessSchoolXlsxFile_givenEncryptedFile_ShouldReturnStatusBadRequest(final String filePath, final String errorMessage) throws Exception {
         reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
-        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream(filePath);
@@ -699,7 +707,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileContents(fileContents)
                 .fileType("xlsx")
                 .createUser("test")
-                .fileName("summer-reporting.xls")
+                .fileName("02496099.xls")
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")

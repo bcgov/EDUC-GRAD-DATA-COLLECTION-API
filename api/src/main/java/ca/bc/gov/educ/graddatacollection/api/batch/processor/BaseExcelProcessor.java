@@ -76,9 +76,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
             for (int cn = 0; cn < lastColumn; cn++) {
                 this.processEachColumn(guid, headersMap, rowNum, r, summerStudent, cn, schoolID, districtID, reportingPeriod);
             }
-            if(StringUtils.isNotBlank(summerStudent.getPen())){
-                this.populateRowData(guid, headersMap, summerStudents, rowNum, summerStudent);
-            }
+            this.populateRowData(guid, headersMap, summerStudents, rowNum, summerStudent);
         }
 
         return SummerStudentDataResponse.builder().headers(new ArrayList<>(headersMap.values())).summerStudents(summerStudents).build();
@@ -90,7 +88,9 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
             this.checkForValidHeaders(guid, headersMap);
         } else {
             if (summerStudent != null && !summerStudent.isEmpty()) {
-                summerStudents.add(summerStudent);
+                if(StringUtils.isNotBlank(summerStudent.getPen())) {
+                    summerStudents.add(summerStudent);
+                }
             }
         }
     }
