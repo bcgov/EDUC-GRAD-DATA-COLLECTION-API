@@ -137,52 +137,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testD09DemographicStudentLocalID() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        courseStudentRepository.save(courseStudent);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demStudent.setPen(courseStudent.getPen());
-        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
-
-        Student studentApiStudent = new Student();
-        studentApiStudent.setStudentID(UUID.randomUUID().toString());
-        studentApiStudent.setPen("123456789");
-        studentApiStudent.setLocalID("8887554");
-        studentApiStudent.setLegalLastName("JACKSON");
-        studentApiStudent.setLegalFirstName("JIM");
-        studentApiStudent.setDob("1990-01-01");
-        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
-        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
-
-        StudentRuleData studentRuleData2 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
-        val validationError2 = rulesProcessor.processRules(studentRuleData2);
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LOCAL_ID.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH.getCode());
-
-        Student studentApiStudent2 = new Student();
-        studentApiStudent2.setStudentID(UUID.randomUUID().toString());
-        studentApiStudent2.setPen("123456789");
-        studentApiStudent2.setLocalID("");
-        studentApiStudent2.setLegalLastName("JACKSON");
-        studentApiStudent2.setLegalFirstName("JIM");
-        studentApiStudent2.setDob("1990-01-01");
-        studentApiStudent2.setStatusCode(StudentStatusCodes.A.getCode());
-        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent2);
-
-        StudentRuleData studentRuleData3 = createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone());
-        val validationError3 = rulesProcessor.processRules(studentRuleData3);
-
-        var issueCode = validationError3.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.LOCAL_ID.getCode()));
-        var errorCode = validationError3.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_LOCAL_ID_MISMATCH.getCode()));
-        assertThat(issueCode).isFalse();
-        assertThat(errorCode).isFalse();
-    }
-
-    @Test
     void testD03DemographicStudentPEN() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
