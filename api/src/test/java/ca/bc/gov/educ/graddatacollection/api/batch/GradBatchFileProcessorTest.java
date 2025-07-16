@@ -108,7 +108,9 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
                 .fileType("dem")
                 .build();
 
-        assertThrows(InvalidPayloadException.class, () ->gradBatchFileProcessor.processSchoolBatchFile(demFile, school.getSchoolId()));
+        var result = gradBatchFileProcessor.processSchoolBatchFile(demFile, school.getSchoolId());
+        assertThat(result).isNotNull();
+        assertThat(result.getNumberOfMissingPENs()).isEqualTo(1);
     }
 
     @Test

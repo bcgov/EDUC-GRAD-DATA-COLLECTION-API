@@ -108,34 +108,29 @@ public class GradDemFileService implements GradFileBatchProcessor {
             entity.setDistrictID(UUID.fromString(districtID));
         }
 
-        var blankLineSet = new TreeSet<>();
         var mincode = batchFile.getDemogData().isEmpty() ? null : batchFile.getDemogData().get(0).getMincode();
         for (final var student : batchFile.getDemogData()) {
-            if(StringUtils.isBlank(student.getPen())){
-                blankLineSet.add(Integer.parseInt(student.getLineNumber()));
-            }
-
             if(mincode != null){
                 gradFileValidator.checkForMincodeMismatch(guid, mincode, student.getMincode(), schoolID, districtID);
             }
         }
 
-        if(!blankLineSet.isEmpty()){
-            String lines = blankLineSet.stream().map(Object::toString).collect(Collectors.joining(","));
-            throw new FileUnProcessableException(BLANK_PEN_IN_DEM_FILE, guid, GradCollectionStatus.LOAD_FAIL, lines.length() == 1 ? "line" : "lines", lines);
-        }
-
         var listOfPENs = new HashSet<>();
         String foundDupePEN = null;
+        entity.setNumberOfMissingPENs(0);
         for (final var student : batchFile.getDemogData()) {
-            if(!listOfPENs.contains(student.getPen())) {
-                listOfPENs.add(student.getPen());
+            if(StringUtils.isNotBlank(student.getPen())) {
+                if (!listOfPENs.contains(student.getPen())) {
+                    listOfPENs.add(student.getPen());
+                } else {
+                    foundDupePEN = student.getPen();
+                    break;
+                }
+                final var demStudentEntity = mapper.toDEMStudentEntity(student, entity);
+                entity.getDemographicStudentEntities().add(demStudentEntity);
             }else{
-                foundDupePEN = student.getPen();
-                break;
+                entity.setNumberOfMissingPENs(entity.getNumberOfMissingPENs() + 1);
             }
-            final var demStudentEntity = mapper.toDEMStudentEntity(student, entity);
-            entity.getDemographicStudentEntities().add(demStudentEntity);
         }
 
         if(StringUtils.isNotBlank(foundDupePEN)){
@@ -162,7 +157,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
             currentFileset.setDemFileName(incomingFilesetEntity.getDemFileName());
             currentFileset.setUpdateUser(incomingFilesetEntity.getUpdateUser());
             currentFileset.setUpdateDate(LocalDateTime.now());
-
+            currentFileset.setNumberOfMissingPENs(incomingFilesetEntity.getNumberOfMissingPENs());
             currentFileset.setFilesetStatusCode(String.valueOf(FilesetStatus.LOADED.getCode()));
             currentFileset.getDemographicStudentEntities().clear();
             currentFileset.getDemographicStudentEntities().addAll(pairStudentList );

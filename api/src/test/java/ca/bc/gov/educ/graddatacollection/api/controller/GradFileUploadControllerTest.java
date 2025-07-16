@@ -23,6 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -59,13 +63,17 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
-        reportingPeriodRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
+        Path tempDir = Paths.get("temp");
+        if (!Files.exists(tempDir)) {
+            Files.createDirectories(tempDir);
+        }
     }
 
     @Test
@@ -689,7 +697,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     void testProcessSchoolXlsxFile_givenEncryptedFile_ShouldReturnStatusBadRequest(final String filePath, final String errorMessage) throws Exception {
         reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
-        schoolTombstone.setMincode("07965039");
+        schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         final FileInputStream fis = new FileInputStream(filePath);
@@ -699,7 +707,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .fileContents(fileContents)
                 .fileType("xlsx")
                 .createUser("test")
-                .fileName("summer-reporting.xls")
+                .fileName("02496099.xls")
                 .build();
 
         this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
@@ -759,6 +767,31 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PENs cannot be more than 10 digits. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolXlsxFile_givenFileWithInvalidPENCheckDigit_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-pen-check-digit.xlsx");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xlsx")
+                .createUser("test")
+                .fileName("summer-reporting.xlsx")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PEN is invalid. Review the data on line 1."));
     }
 
     @Test
