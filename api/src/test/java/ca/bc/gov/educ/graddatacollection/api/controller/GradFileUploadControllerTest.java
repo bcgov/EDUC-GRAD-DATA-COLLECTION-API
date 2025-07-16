@@ -776,7 +776,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
-        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-pen.xlsx");
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-pen-check-digit.xlsx");
         final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
         assertThat(fileContents).isNotEmpty();
         val body = GradFileUpload.builder()
@@ -791,7 +791,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PENs cannot be more than 10 digits. Review the data on line 1."));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PEN is invalid. Review the data on line 1."));
     }
 
     @Test
