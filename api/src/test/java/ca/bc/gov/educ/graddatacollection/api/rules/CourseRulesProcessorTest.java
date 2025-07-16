@@ -1082,6 +1082,40 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testPastExaminableCourseRule_whenNullResponses_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        when(restUtils.getExaminableCourseByExternalID("CLE  12")).thenReturn(
+                Optional.of(new GradExaminableCourse(
+                        UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"
+                ))
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any()))
+                .thenReturn(
+                        List.of()
+                );
+
+        var studentRuleData1 = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
+        var validationError_failure = rulesProcessor.processRules(studentRuleData1);
+
+        assertThat(validationError_failure).hasSize(1);
+        assertThat(validationError_failure.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
     void testC22InterimPercent() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
