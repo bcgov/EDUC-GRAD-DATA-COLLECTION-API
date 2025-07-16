@@ -56,8 +56,7 @@ public class CourseStatusSessionRule implements CourseValidationBaseRule {
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
 
         if (studentCourseRecord.stream().noneMatch(record ->
-                        record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
-                                && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                        record.getGradCourseCode().getExternalCode().equalsIgnoreCase(courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel()))
                                 && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()))
                 && StringUtils.isNotBlank(courseStudentEntity.getCourseStatus()) && courseStudentEntity.getCourseStatus().equalsIgnoreCase("W")) {
             log.debug("C34: Error: Course Status = W and the course code and session date does not exist in GRAD for the student. :: {}", courseStudentEntity.getCourseStudentID());

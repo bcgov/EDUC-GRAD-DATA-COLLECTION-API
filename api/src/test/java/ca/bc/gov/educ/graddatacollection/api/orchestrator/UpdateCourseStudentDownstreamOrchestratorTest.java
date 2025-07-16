@@ -115,12 +115,11 @@ class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollecti
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -138,12 +137,11 @@ class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollecti
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
         );

@@ -57,10 +57,9 @@ public class GraduatedStudentFinalLetterGradeRule implements CourseValidationBas
         var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
 
         if (studentCourseRecord.stream().anyMatch(record ->
-                        record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
-                                && gradStudent != null
+                record.getGradCourseCode().getExternalCode().equalsIgnoreCase(courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel()))
+                        && gradStudent != null
                                 && gradStudent.getGraduated().equalsIgnoreCase("true")
-                                && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
                                 && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())
                 && StringUtils.isNotBlank(courseStudentEntity.getFinalLetterGrade()) && courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase("W"))) {
             log.debug("C35: Error: A student course has been submitted as W (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. :: {}", courseStudentEntity.getCourseStudentID());

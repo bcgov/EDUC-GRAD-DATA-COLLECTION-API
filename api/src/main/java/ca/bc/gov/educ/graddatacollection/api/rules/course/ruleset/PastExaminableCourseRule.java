@@ -60,8 +60,7 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
 
         if (studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
-                record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
-                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
+                record.getGradCourseCode().getExternalCode().equalsIgnoreCase(courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel()))
                     && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
                     && record.getFinalLetterGrade() != null
                     && record.getCourseExam().getExamPercentage() != null)

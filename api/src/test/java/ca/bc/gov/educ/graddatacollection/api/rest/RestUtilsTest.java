@@ -262,8 +262,7 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "courseDetails": { "courseCode": "CLE", "courseLevel": "", "courseName": "CAREER-LIFE EDUCATION", "language": "", "startDate": "2018-06-30", "endDate": "1858-11-16", "completionEndDate": null, "genericCourseType": "", "courseID": "3201860", "numCredits": 4 },
-                "relatedCourseDetails": null
+                "gradCourseCode": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" },
             },
             {
                 "id": null,
@@ -279,8 +278,7 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "courseDetails": { "courseCode": "CLC", "courseLevel": "", "courseName": "CAREER-LIFE CONNECTIONS", "language": "", "startDate": "2018-06-30", "endDate": "1858-11-16", "completionEndDate": null, "genericCourseType": "", "courseID": "3201862", "numCredits": 4 },
-                "relatedCourseDetails": null
+                "gradCourseCode": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" },
             }
         ],
         "exception": null
@@ -291,14 +289,20 @@ class RestUtilsTest {
                 new GradStudentCourseRecord(
                         null, "3201860", "2021/06", 100, "", 100, "A", 4, "", "", "", null,
                         new GradStudentCourseExam(null, null, null, null, null, null, null, null),
-                        new GradBaseCourse("CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", null, "", "3201860", 4),
-                        null
+                        new GradCourseCode(
+                                "3201860", // courseID
+                                "CLC  12", // externalCode
+                                "38" // originatingSystem
+                        )
                 ),
                 new GradStudentCourseRecord(
                         null, "3201862", "2023/06", 95, "", 95, "A", 4, "", "", "", null,
                         new GradStudentCourseExam(null, null, null, null, null, null, null, null),
-                        new GradBaseCourse("CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", null, "", "3201862", 4),
-                        null
+                        new GradCourseCode(
+                                "3201861", // courseID
+                                "CLE  12", // externalCode
+                                "38" // originatingSystem
+                        )
                 )
         );
 

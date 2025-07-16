@@ -57,10 +57,9 @@ public class FinalLetterSessionRule implements CourseValidationBaseRule {
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
 
         if (studentCourseRecord.stream().noneMatch(record ->
-                        record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
-                                && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
-                                && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()))
-                && StringUtils.isNotBlank(courseStudentEntity.getFinalLetterGrade()) && courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase("W")) {
+                record.getGradCourseCode().getExternalCode().equalsIgnoreCase(courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel()))
+                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()))
+                    && StringUtils.isNotBlank(courseStudentEntity.getFinalLetterGrade()) && courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase("W")) {
             log.debug("C36: Error: Final Letter Grad = W and course code and session date does not exist in GRAD for the student. :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_WRONG_SESSION, CourseStudentValidationIssueTypeCode.FINAL_LETTER_WRONG_SESSION.getMessage()));
         }

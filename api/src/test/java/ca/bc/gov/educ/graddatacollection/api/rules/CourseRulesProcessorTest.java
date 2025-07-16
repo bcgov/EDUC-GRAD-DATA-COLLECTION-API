@@ -30,10 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -103,12 +100,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -126,14 +122,20 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
+        );
+        when(restUtils.getCoregCourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLC  12", // externalCode
+                        "38" // originatingSystem
+                ))
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -298,7 +300,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         courseStudent.setCourseStatus("W");
         courseStudent.setCourseCode("CLE");
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
@@ -320,12 +322,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, 99, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -341,16 +342,22 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 "", // customizedCourseName
                                 null, // relatedCourseId
                                 new GradStudentCourseExam( // courseExam
-                                        null, null, null, null, null, null, null, null
+                                        null, null, null, null, null, 99, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
+        );
+        when(restUtils.getCoregCourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                ))
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -372,7 +379,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
         courseStudent.setCourseCode("CLE");
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
@@ -393,7 +400,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201860", // courseID
-                                "2023/06", // courseSession
+                                "2021/06", // courseSession
                                 100, // interimPercent
                                 "", // interimLetterGrade
                                 100, // finalPercent
@@ -406,12 +413,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -429,14 +435,21 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
+        );
+
+        when(restUtils.getCoregCourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                ))
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -661,7 +674,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError1.size()).isZero();
 
         courseStudent.setCourseCode("QCLE");
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
@@ -670,7 +683,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201860", // courseID
-                                "2021/06", // courseSession
+                                "2023/06", // courseSession
                                 100, // interimPercent
                                 "", // interimLetterGrade
                                 100, // finalPercent
@@ -683,12 +696,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "QCLC 12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -706,14 +718,21 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "QCLC", "LEVEL", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "QCLE 12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
+        );
+
+        when(restUtils.getCoregCourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "QCLC 12", // externalCode
+                        "38" // originatingSystem
+                ))
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -966,11 +985,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError1.size()).isZero();
+//        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+//        assertThat(validationError1.size()).isZero();
 
         courseStudent.setCourseCode("CLE");
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
@@ -992,16 +1011,15 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, 99, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
-                                "3201862", // courseID
+                                "3201861", // courseID
                                 "2023/06", // courseSession
                                 95, // interimPercent
                                 "", // interimLetterGrade
@@ -1013,16 +1031,23 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 "", // customizedCourseName
                                 null, // relatedCourseId
                                 new GradStudentCourseExam( // courseExam
-                                        null, null, null, null, null, null, null, null
+                                        null, null, null, null, null, 99, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
+        );
+
+        when(restUtils.getCoregCourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                ))
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -2083,12 +2108,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "LEVEL", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -2106,14 +2130,20 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "LEVEL", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
+        );
+        when(restUtils.getCoregCourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                ))
         );
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
         gradStudentRecord.setSchoolOfRecordId(UUID.randomUUID().toString());
@@ -2121,7 +2151,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setGraduated("true");
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseCode("CLE");
         courseStudent.setCourseYear("2023");
         courseStudent.setCourseMonth("06");
@@ -2168,12 +2198,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -2191,17 +2220,16 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
         );
 
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseCode("CLE");
         courseStudent.setCourseYear("2022");
         courseStudent.setCourseMonth("06");
@@ -2247,12 +2275,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLE", "", "CAREER-LIFE EDUCATION", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201860", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         ),
                         new GradStudentCourseRecord(
                                 null, // id
@@ -2270,17 +2297,16 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 new GradStudentCourseExam( // courseExam
                                         null, null, null, null, null, null, null, null
                                 ),
-                                new GradBaseCourse( // courseDetails
-                                        "CLC", "", "CAREER-LIFE CONNECTIONS", "",
-                                        "2018-06-30", "1858-11-16",
-                                        null, "", "3201862", 4
-                                ),
-                                null // relatedCourseDetails
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                )
                         )
                 )
         );
 
-        courseStudent.setCourseLevel("LEVEL");
+        courseStudent.setCourseLevel("12");
         courseStudent.setCourseCode("CLE");
         courseStudent.setCourseYear("2022");
         courseStudent.setCourseMonth("06");

@@ -78,6 +78,7 @@ public class BaseRulesService {
             return null;
         }
 
+        // todo THIS MY BROTHER MAKE A HELPER
         String externalID = StringUtils.isEmpty(courseLevel) ? courseCode : String.format("%-5s", courseCode) + courseLevel;
 
         if (studentRuleData.getCoregCoursesRecord() != null) {
@@ -123,6 +124,10 @@ public class BaseRulesService {
         try {
             List<GradStudentCourseRecord> gradStudentCourses = restUtils.getGradStudentCoursesByStudentID(UUID.randomUUID(), studentID);
 
+            gradStudentCourses.forEach(sc -> {
+                sc.setGradCourseCode(restUtils.getCoregCourseByID(sc.getCourseID()).orElse(null));
+            });
+
             studentRuleData.setGradStudentCourseRecordList(gradStudentCourses);
 
             return gradStudentCourses;
@@ -137,6 +142,13 @@ public class BaseRulesService {
         LocalDateTime now = LocalDateTime.now();
         return (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
                 && (now.isEqual(reportingPeriod.getSummerEnd()) || now.isBefore(reportingPeriod.getSummerEnd()));
+    }
+
+    public String formatExternalID(String courseCode, String courseLevel) {
+        if (StringUtils.isEmpty(courseCode)) {
+            return null;
+        }
+        return StringUtils.isEmpty(courseLevel) ? courseCode : String.format("%-5s", courseCode) + courseLevel;
     }
 }
 
