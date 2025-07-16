@@ -74,7 +74,8 @@ public class RestUtils {
   private final Map<String, ProgramRequirementCode> programRequirementCodeMap = new ConcurrentHashMap<>();
   private final Map<String, GraduationProgramCode> gradProgramCodeMap = new ConcurrentHashMap<>();
   private final Map<String, EquivalencyChallengeCode> equivalencyChallengeCodeMap = new ConcurrentHashMap<>();
-  private final Map<String, GradCourseCode> coregMap = new ConcurrentHashMap<>();
+  private final Map<String, GradCourseCode> coreg38Map = new ConcurrentHashMap<>();
+  private final Map<String, GradCourseCode> coreg39Map = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -352,21 +353,36 @@ public class RestUtils {
     val writeLock = this.coregLock.writeLock();
     try {
       writeLock.lock();
-      for (val courseCode : this.getCoregCourses()) {
-        this.coregMap.put(courseCode.getCourseID(), courseCode);
+      for (val courseCode : this.getCoreg38Courses()) {
+        this.coreg38Map.put(courseCode.getCourseID(), courseCode);
+      }
+      for (val courseCode : this.getCoreg39Courses()) {
+        this.coreg39Map.put(courseCode.getCourseID(), courseCode);
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache coreg courses ", ex);
     } finally {
       writeLock.unlock();
     }
-    log.info("Loaded  {} coreg courses to memory", this.coregMap.values().size());
+    log.info("Loaded  {} coreg38 courses to memory", this.coreg38Map.values().size());
+    log.info("Loaded  {} coreg39 courses to memory", this.coreg39Map.values().size());
   }
 
-  public List<GradCourseCode> getCoregCourses() {
+  public List<GradCourseCode> getCoreg38Courses() {
     log.info("Calling COREG API to load courses to memory");
     return this.webClient.get()
             .uri(this.props.getCoregApiURL() + "/all/38")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GradCourseCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<GradCourseCode> getCoreg39Courses() {
+    log.info("Calling COREG API to load courses to memory");
+    return this.webClient.get()
+            .uri(this.props.getCoregApiURL() + "/all/39")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(GradCourseCode.class)
@@ -681,12 +697,20 @@ public class RestUtils {
     return Optional.ofNullable(this.schoolMincodeMap.get(mincode));
   }
 
-  public Optional<GradCourseCode> getCoregCourseByID(final String courseID) {
-    if (this.coregMap.isEmpty()) {
-      log.info("Coreg course map is empty reloading courses");
+  public Optional<GradCourseCode> getCoreg38CourseByID(final String courseID) {
+    if (this.coreg38Map.isEmpty()) {
+      log.info("Coreg 38 course map is empty reloading courses");
       this.populateCoregMap();
     }
-    return Optional.ofNullable(this.coregMap.get(courseID));
+    return Optional.ofNullable(this.coreg38Map.get(courseID));
+  }
+
+  public Optional<GradCourseCode> getCoreg39CourseByID(final String courseID) {
+    if (this.coreg39Map.isEmpty()) {
+      log.info("Coreg 39 course map is empty reloading courses");
+      this.populateCoregMap();
+    }
+    return Optional.ofNullable(this.coreg39Map.get(courseID));
   }
 
   public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {

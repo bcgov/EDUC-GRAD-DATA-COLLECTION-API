@@ -263,7 +263,8 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "gradCourseCode": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" }
+                "gradCourseCode": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" },
+                "gradCourseCode": { "courseID": "3201860", "externalCode": "MCLC 12", "originatingSystem": "39" }
             },
             {
                 "id": null,
@@ -279,7 +280,8 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "gradCourseCode": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" }
+                "gradCourseCode": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" },
+                "gradCourseCode": { "courseID": "3201861", "externalCode": "MCLE 12", "originatingSystem": "39" }
             }
         ],
         "exception": null
@@ -294,6 +296,11 @@ class RestUtilsTest {
                                 "3201860", // courseID
                                 "CLC  12", // externalCode
                                 "38" // originatingSystem
+                        ),
+                        new GradCourseCode(
+                                "3201860", // courseID
+                                "MCLC 12", // externalCode
+                                "39" // originatingSystem
                         )
                 ),
                 new GradStudentCourseRecord(
@@ -303,6 +310,11 @@ class RestUtilsTest {
                                 "3201861", // courseID
                                 "CLE  12", // externalCode
                                 "38" // originatingSystem
+                        ),
+                        new GradCourseCode(
+                                "3201861", // courseID
+                                "MCLE 12", // externalCode
+                                "39" // originatingSystem
                         )
                 )
         );
@@ -318,13 +330,32 @@ class RestUtilsTest {
                         "CLE  12", // externalCode
                         "38" // originatingSystem
                 )
-        )).when(restUtils).getCoregCourses();
+        )).when(restUtils).getCoreg38Courses();
 
         doReturn(Optional.of(new GradCourseCode("3201860", "CLC  12", "38")))
-                .when(restUtils).getCoregCourseByID("3201860");
+                .when(restUtils).getCoreg38CourseByID("3201860");
 
         doReturn(Optional.of(new GradCourseCode("3201861", "CLE  12", "38")))
-                .when(restUtils).getCoregCourseByID("3201862");
+                .when(restUtils).getCoreg38CourseByID("3201862");
+
+        doReturn(List.of(
+                new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLC 12", // externalCode
+                        "39" // originatingSystem
+                ),
+                new GradCourseCode(
+                        "3201861", // courseID
+                        "MCLE 12", // externalCode
+                        "39" // originatingSystem
+                )
+        )).when(restUtils).getCoreg39Courses();
+
+        doReturn(Optional.of(new GradCourseCode("3201860", "MCLC 12", "39")))
+                .when(restUtils).getCoreg39CourseByID("3201860");
+
+        doReturn(Optional.of(new GradCourseCode("3201861", "MCLE 12", "39")))
+                .when(restUtils).getCoreg39CourseByID("3201862");
 
         byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
 

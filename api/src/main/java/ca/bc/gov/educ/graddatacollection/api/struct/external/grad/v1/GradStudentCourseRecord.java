@@ -23,8 +23,8 @@ public class GradStudentCourseRecord {
     private String customizedCourseName;
     private String relatedCourseId;
     private GradStudentCourseExam courseExam;
-    private GradCourseCode gradCourseCode;
-    //private GradCourseCode courseCode39;
+    private GradCourseCode gradCourseCode38;
+    private GradCourseCode gradCourseCode39;
 
     // for testing
     public GradStudentCourseRecord() {

@@ -119,6 +119,11 @@ class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollecti
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -141,6 +146,11 @@ class UpdateCourseStudentDownstreamOrchestratorTest extends BaseGradDataCollecti
                                         "3201860", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )

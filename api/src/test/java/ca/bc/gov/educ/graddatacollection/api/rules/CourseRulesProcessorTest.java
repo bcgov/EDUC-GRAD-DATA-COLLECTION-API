@@ -104,6 +104,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -126,15 +131,27 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
         );
-        when(restUtils.getCoregCourseByID(any())).thenReturn(
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
                         "CLC  12", // externalCode
                         "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLC 12", // externalCode
+                        "39" // originatingSystem
                 ))
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
@@ -326,6 +343,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -348,15 +370,27 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201861", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
         );
-        when(restUtils.getCoregCourseByID(any())).thenReturn(
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
                         "CLE  12", // externalCode
                         "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE 12", // externalCode
+                        "39" // originatingSystem
                 ))
         );
 
@@ -417,6 +451,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -439,16 +478,28 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
         );
 
-        when(restUtils.getCoregCourseByID(any())).thenReturn(
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
                         "CLE  12", // externalCode
                         "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE 12", // externalCode
+                        "39" // originatingSystem
                 ))
         );
 
@@ -700,6 +751,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "QCLC 12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "QCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -722,16 +778,28 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201861", // courseID
                                         "QCLE 12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "QCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
         );
 
-        when(restUtils.getCoregCourseByID(any())).thenReturn(
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
                         "QCLC 12", // externalCode
                         "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "QCLC 12", // externalCode
+                        "39" // originatingSystem
                 ))
         );
 
@@ -1015,6 +1083,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -1037,18 +1110,31 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201861", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
         );
 
-        when(restUtils.getCoregCourseByID(any())).thenReturn(
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
                         "CLE  12", // externalCode
                         "38" // originatingSystem
                 ))
         );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE 12", // externalCode
+                        "39" // originatingSystem
+                ))
+        );
+
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
@@ -2112,6 +2198,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -2134,15 +2225,27 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201861", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
         );
-        when(restUtils.getCoregCourseByID(any())).thenReturn(
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
                         "CLE  12", // externalCode
                         "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE 12", // externalCode
+                        "39" // originatingSystem
                 ))
         );
         GradStudentRecord gradStudentRecord = new GradStudentRecord();
@@ -2202,6 +2305,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -2224,6 +2332,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )
@@ -2279,6 +2392,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLE  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         ),
                         new GradStudentCourseRecord(
@@ -2301,6 +2419,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                         "3201860", // courseID
                                         "CLC  12", // externalCode
                                         "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
                                 )
                         )
                 )

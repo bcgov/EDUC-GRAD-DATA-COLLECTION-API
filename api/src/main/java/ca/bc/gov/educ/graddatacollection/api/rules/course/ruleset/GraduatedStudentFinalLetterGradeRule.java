@@ -55,13 +55,14 @@ public class GraduatedStudentFinalLetterGradeRule implements CourseValidationBas
 
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
         var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
+        var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
 
         if (studentCourseRecord.stream().anyMatch(record ->
-                record.getGradCourseCode().getExternalCode().equalsIgnoreCase(courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel()))
-                        && gradStudent != null
-                                && gradStudent.getGraduated().equalsIgnoreCase("true")
-                                && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())
-                && StringUtils.isNotBlank(courseStudentEntity.getFinalLetterGrade()) && courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase("W"))) {
+                (record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) || record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                    && gradStudent != null
+                    && gradStudent.getGraduated().equalsIgnoreCase("true")
+                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())
+                    && StringUtils.isNotBlank(courseStudentEntity.getFinalLetterGrade()) && courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase("W"))) {
             log.debug("C35: Error: A student course has been submitted as W (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION.getMessage()));
         }

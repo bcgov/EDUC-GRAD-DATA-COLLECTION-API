@@ -78,7 +78,6 @@ public class BaseRulesService {
             return null;
         }
 
-        // todo THIS MY BROTHER MAKE A HELPER
         String externalID = StringUtils.isEmpty(courseLevel) ? courseCode : String.format("%-5s", courseCode) + courseLevel;
 
         if (studentRuleData.getCoregCoursesRecord() != null) {
@@ -125,7 +124,8 @@ public class BaseRulesService {
             List<GradStudentCourseRecord> gradStudentCourses = restUtils.getGradStudentCoursesByStudentID(UUID.randomUUID(), studentID);
 
             gradStudentCourses.forEach(sc -> {
-                sc.setGradCourseCode(restUtils.getCoregCourseByID(sc.getCourseID()).orElse(null));
+                sc.setGradCourseCode38(restUtils.getCoreg38CourseByID(sc.getCourseID()).orElse(null));
+                sc.setGradCourseCode39(restUtils.getCoreg39CourseByID(sc.getCourseID()).orElse(null));
             });
 
             studentRuleData.setGradStudentCourseRecordList(gradStudentCourses);
