@@ -18,7 +18,7 @@ import java.util.List;
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | V01 | ERROR    | Must match a PEN in the .DEM file along with Student Surname,         | -            |
- *                      Mincode and Student Local ID
+ *                      Mincode
  */
 @Component
 @Slf4j
@@ -51,7 +51,7 @@ public class StudentPENInDEMRule implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V01 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        var isPresent = assessmentRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+        var isPresent = assessmentRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName());
 
         if (!isPresent) {
             log.debug("V01: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getAssessmentStudentID());
