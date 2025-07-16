@@ -996,7 +996,7 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public EasEvent writeAssessmentStudentDetailInAssessmentService(AssessmentStudent student, String assessmentID, SchoolTombstone schoolTombstone) {
+  public EasEvent writeAssessmentStudentDetailInAssessmentService(AssessmentStudent student, String assessmentID, SchoolTombstone schoolTombstone, String gradeAtRegistration) {
     try {
       final TypeReference<EasEvent> eventResult = new TypeReference<>() {
       };
@@ -1013,6 +1013,7 @@ public class RestUtils {
       assessmentStudent.setSurname(student.getLastName());
       assessmentStudent.setPen(student.getPen());
       assessmentStudent.setLocalID(student.getLocalID());
+      assessmentStudent.setGradeAtRegistration(gradeAtRegistration);
       assessmentStudent.setLocalAssessmentID(student.getLocalCourseID());
       assessmentStudent.setIsElectronicAssessment(StringUtils.isNotBlank(student.getIsElectronicExam()) && student.getIsElectronicExam().equalsIgnoreCase("Y") ? "true" : "false");
       assessmentStudent.setProficiencyScore(null);

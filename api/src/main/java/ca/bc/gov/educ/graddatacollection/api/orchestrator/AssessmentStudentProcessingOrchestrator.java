@@ -87,7 +87,7 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
 
     if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
       var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-      restUtils.writeAssessmentStudentDetailInAssessmentService(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool());
+      restUtils.writeAssessmentStudentDetailInAssessmentService(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool(), demStudent.getGrade());
       eventBuilder.eventOutcome(ASSESSMENT_STUDENT_REGISTRATION_PROCESSED);
     }else{
       eventBuilder.eventOutcome(ASSESSMENT_STUDENT_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR);
