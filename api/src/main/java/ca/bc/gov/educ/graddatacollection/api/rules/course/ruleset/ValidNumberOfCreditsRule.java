@@ -27,6 +27,8 @@ import java.util.List;
 public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
+    private static final List<String> letterGradeWithAllowableCredit = List.of("F", "W");
+    private static final List<String> allowableCredit = List.of("0", "1", "2", "3", "4");
 
     public ValidNumberOfCreditsRule(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
@@ -51,18 +53,27 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
-
-        if (coursesRecord != null && StringUtils.isNotBlank(student.getNumberOfCredits())) {
-            var creds = StringUtils.stripStart(student.getNumberOfCredits(),"0");
-            if (coursesRecord.getCourseAllowableCredit().stream().noneMatch(cac -> cac.getCreditValue().equalsIgnoreCase(creds))) {
-                log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
+        boolean hasError = false;
+        if (coursesRecord != null) {
+            if(StringUtils.isNotBlank(student.getNumberOfCredits())) {
+                var creds = StringUtils.stripStart(student.getNumberOfCredits(),"0");
+                boolean zeroCredWithAllowableLetterGrade = StringUtils.isNumeric(creds) && Integer.parseInt(creds) == 0
+                        && letterGradeWithAllowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade()));
+                boolean locallyDevelopedCourse = coursesRecord.getCourseCategory() != null && coursesRecord.getCourseCategory().getType().equalsIgnoreCase("LD") && allowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(creds));
+                if(zeroCredWithAllowableLetterGrade || locallyDevelopedCourse || coursesRecord.getCourseAllowableCredit().stream().noneMatch(cac -> cac.getCreditValue().equalsIgnoreCase(creds))) {
+                    hasError = true;
+                }
+            } else if(letterGradeWithAllowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade())) || !coursesRecord.getCourseCategory().getType().equalsIgnoreCase("LD")) {
+                hasError = true;
             }
         } else {
-            log.debug("C18: Error: No Coreg course record match. This course will not be updated. for courseStudentID :: {}", student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
+            hasError = true;
         }
 
+        if(hasError) {
+            log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
+        }
         return errors;
     }
 }
