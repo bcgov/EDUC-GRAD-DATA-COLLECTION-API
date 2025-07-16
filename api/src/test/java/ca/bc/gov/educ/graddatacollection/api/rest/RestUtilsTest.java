@@ -27,6 +27,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -262,7 +263,7 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "gradCourseCode": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" },
+                "gradCourseCode": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" }
             },
             {
                 "id": null,
@@ -278,7 +279,7 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "gradCourseCode": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" },
+                "gradCourseCode": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" }
             }
         ],
         "exception": null
@@ -305,6 +306,25 @@ class RestUtilsTest {
                         )
                 )
         );
+
+        doReturn(List.of(
+                new GradCourseCode(
+                        "3201860", // courseID
+                        "CLC  12", // externalCode
+                        "38" // originatingSystem
+                ),
+                new GradCourseCode(
+                        "3201861", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                )
+        )).when(restUtils).getCoregCourses();
+
+        doReturn(Optional.of(new GradCourseCode("3201860", "CLC  12", "38")))
+                .when(restUtils).getCoregCourseByID("3201860");
+
+        doReturn(Optional.of(new GradCourseCode("3201861", "CLE  12", "38")))
+                .when(restUtils).getCoregCourseByID("3201862");
 
         byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
 
