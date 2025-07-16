@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradExaminableCourse;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
@@ -15,7 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -149,6 +152,20 @@ public class BaseRulesService {
             return null;
         }
         return StringUtils.isEmpty(courseLevel) ? courseCode : String.format("%-5s", courseCode) + courseLevel;
+    }
+
+    public Boolean courseExaminableAtCourseSessionDate(StudentRuleData studentRuleData) {
+        var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        String externalID = formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
+        Optional<GradExaminableCourse> examinableCourse = restUtils.getExaminableCourseByExternalID(externalID);
+        if (examinableCourse.isPresent()) {
+            GradExaminableCourse gradExaminableCourse = examinableCourse.get();
+            YearMonth courseSession = YearMonth.of(Integer.parseInt(courseStudentEntity.getCourseYear()), Integer.parseInt(courseStudentEntity.getCourseMonth()));
+            YearMonth examinableCourseStart = YearMonth.parse(gradExaminableCourse.getExaminableStart());
+            YearMonth examinableCourseEnd = YearMonth.parse(gradExaminableCourse.getExaminableEnd());
+            return courseSession.isBefore(examinableCourseEnd) && courseSession.isAfter(examinableCourseStart);
+        }
+        return false;
     }
 }
 

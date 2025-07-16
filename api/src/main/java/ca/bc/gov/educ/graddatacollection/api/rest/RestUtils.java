@@ -76,6 +76,7 @@ public class RestUtils {
   private final Map<String, EquivalencyChallengeCode> equivalencyChallengeCodeMap = new ConcurrentHashMap<>();
   private final Map<String, GradCourseCode> coreg38Map = new ConcurrentHashMap<>();
   private final Map<String, GradCourseCode> coreg39Map = new ConcurrentHashMap<>();
+  private final Map<String, GradExaminableCourse> examinableCourseMap = new ConcurrentHashMap<>();
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -94,6 +95,7 @@ public class RestUtils {
   private final ReadWriteLock gradProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock equivalencyChallengeCodeLock = new ReentrantReadWriteLock();
   private final ReadWriteLock coregLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock examinableCourseLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
   private final ApplicationProperties props;
@@ -137,6 +139,7 @@ public class RestUtils {
     this.populateEquivalencyChallengeCodeMap();
     this.populateGradProgramCodesMap();
     this.populateCoregMap();
+    this.populateExaminableCourseMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -366,6 +369,32 @@ public class RestUtils {
     }
     log.info("Loaded  {} coreg38 courses to memory", this.coreg38Map.values().size());
     log.info("Loaded  {} coreg39 courses to memory", this.coreg39Map.values().size());
+  }
+
+  public void populateExaminableCourseMap() {
+    val writeLock = this.examinableCourseLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val examinableCourse : this.getGradExaminableCourses()) {
+        this.examinableCourseMap.put(String.format("%-5s", examinableCourse.getCourseCode()) + examinableCourse.getCourseLevel(), examinableCourse);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache grad examinable courses ", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} grad examinable courses to memory", this.examinableCourseMap.values().size());
+  }
+
+  public List<GradExaminableCourse> getGradExaminableCourses() {
+    log.info("Calling GRAD COURSE API to load examinable courses to memory");
+    return this.webClient.get()
+            .uri(this.props.getGradCourseApiURL() + "/examinablecourses")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(GradExaminableCourse.class)
+            .collectList()
+            .block();
   }
 
   public List<GradCourseCode> getCoreg38Courses() {
@@ -711,6 +740,14 @@ public class RestUtils {
       this.populateCoregMap();
     }
     return Optional.ofNullable(this.coreg39Map.get(courseID));
+  }
+
+  public Optional<GradExaminableCourse> getExaminableCourseByExternalID(final String externalID) {
+    if (this.examinableCourseMap.isEmpty()) {
+      log.info("Examinable course map is empty reloading courses");
+      this.populateExaminableCourseMap();
+    }
+    return Optional.ofNullable(this.examinableCourseMap.get(externalID));
   }
 
   public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
