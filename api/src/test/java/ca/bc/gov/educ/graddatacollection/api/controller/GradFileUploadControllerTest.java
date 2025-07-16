@@ -770,6 +770,31 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testProcessSchoolXlsxFile_givenFileWithInvalidPENCheckDigit_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-pen.xlsx");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xlsx")
+                .createUser("test")
+                .fileName("summer-reporting.xlsx")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PENs cannot be more than 10 digits. Review the data on line 1."));
+    }
+
+    @Test
     void testProcessSchoolXlsxFile_givenFileWithMincodeMismatch_ShouldReturnBadRequest() throws Exception {
         reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();

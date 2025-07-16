@@ -13,6 +13,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
+import ca.bc.gov.educ.graddatacollection.api.util.PenUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -173,8 +174,12 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
 
     private void setPen(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() != 9) {
-            throw new FileUnProcessableException(FileError.PEN_LENGTH_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
+        if(StringUtils.isNotBlank(fieldValue)) {
+            if(fieldValue.length() != 9) {
+                throw new FileUnProcessableException(FileError.PEN_LENGTH_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
+            }else if(!PenUtil.validCheckDigit(fieldValue)) {
+                throw new FileUnProcessableException(FileError.PEN_INVALID_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
+            }
         }
         summerStudent.setPen(fieldValue);
     }

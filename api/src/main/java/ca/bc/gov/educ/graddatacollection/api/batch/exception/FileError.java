@@ -76,6 +76,7 @@ public enum FileError {
   FILE_ENCRYPTED("File is password protected."),
   BLANK_PEN_IN_EXCEL("The PEN field cannot be blank. Review the data on line $?."),
   PEN_LENGTH_IN_EXCEL("Submitted PENs cannot be more than 10 digits. Review the data on line $?."),
+  PEN_INVALID_IN_EXCEL("Submitted PEN is invalid. Review the data on line $?."),
   LEGAL_SURNAME_IN_EXCEL("Legal Surnames cannot be longer than 25 characters. Review the data on line $?."),
   LEGAL_FIRST_NAME_IN_EXCEL("Legal Given Names cannot be longer than 25 characters. Review the data on line $?."),
   LEGAL_MIDDLE_NAME_IN_EXCEL("Legal Middle Names cannot be longer than 25 characters. Review the data on line $?."),
