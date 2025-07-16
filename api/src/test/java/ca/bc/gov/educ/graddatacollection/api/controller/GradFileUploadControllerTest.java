@@ -63,7 +63,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();

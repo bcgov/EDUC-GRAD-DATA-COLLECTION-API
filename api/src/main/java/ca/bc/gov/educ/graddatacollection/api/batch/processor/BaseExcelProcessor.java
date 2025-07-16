@@ -87,10 +87,8 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
             log.debug("Headers Map is populated as :: {}", headersMap);
             this.checkForValidHeaders(guid, headersMap);
         } else {
-            if (summerStudent != null && !summerStudent.isEmpty()) {
-                if(StringUtils.isNotBlank(summerStudent.getPen())) {
-                    summerStudents.add(summerStudent);
-                }
+            if (summerStudent != null && !summerStudent.isEmpty() && StringUtils.isNotBlank(summerStudent.getPen())) {
+                summerStudents.add(summerStudent);
             }
         }
     }
