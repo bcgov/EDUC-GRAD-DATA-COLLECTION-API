@@ -1041,7 +1041,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testC15CourseCode() {
+    void testPastExaminableCourseRule_c15() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
@@ -1049,97 +1049,36 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demographicStudentRepository.save(demStudent);
         var courseStudent = createMockCourseStudent(savedFileSet);
         courseStudent.setPen(demStudent.getPen());
-        courseStudent.setLocalID(demStudent.getLocalID());
-        courseStudent.setLastName(demStudent.getLastName());
-        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
-
-//        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-//        assertThat(validationError1.size()).isZero();
 
         courseStudent.setCourseCode("CLE");
         courseStudent.setCourseLevel("12");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
 
-        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
-                List.of(
-                        new GradStudentCourseRecord(
-                                null, // id
-                                "3201860", // courseID
-                                "2023/06", // courseSession
-                                100, // interimPercent
-                                "", // interimLetterGrade
-                                100, // finalPercent
-                                "A", // finalLetterGrade
-                                4, // credits
-                                "", // equivOrChallenge
-                                "", // fineArtsAppliedSkills
-                                "", // customizedCourseName
-                                null, // relatedCourseId
-                                new GradStudentCourseExam( // courseExam
-                                        null, null, null, null, null, 99, null, null
-                                ),
-                                new GradCourseCode(
-                                        "3201860", // courseID
-                                        "CLE  12", // externalCode
-                                        "38" // originatingSystem
-                                ),
-                                new GradCourseCode(
-                                        "3201860", // courseID
-                                        "MCLE 12", // externalCode
-                                        "39" // originatingSystem
-                                )
-                        ),
-                        new GradStudentCourseRecord(
-                                null, // id
-                                "3201861", // courseID
-                                "2023/06", // courseSession
-                                95, // interimPercent
-                                "", // interimLetterGrade
-                                95, // finalPercent
-                                "A", // finalLetterGrade
-                                4, // credits
-                                "", // equivOrChallenge
-                                "", // fineArtsAppliedSkills
-                                "", // customizedCourseName
-                                null, // relatedCourseId
-                                new GradStudentCourseExam( // courseExam
-                                        null, null, null, null, null, 99, null, null
-                                ),
-                                new GradCourseCode(
-                                        "3201861", // courseID
-                                        "CLC  12", // externalCode
-                                        "38" // originatingSystem
-                                ),
-                                new GradCourseCode(
-                                        "3201861", // courseID
-                                        "MCLC 12", // externalCode
-                                        "39" // originatingSystem
-                                )
-                        )
+        when(restUtils.getExaminableCourseByExternalID("CLE  12")).thenReturn(
+                Optional.of(new GradExaminableCourse(
+                        UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"
+                ))
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any()))
+                .thenReturn(
+                        List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", 100, "A", 4, "", "", "", null,
+                                new GradStudentCourseExam(null, null, null, null, UUID.randomUUID(), 99, null, "Y"),
+                                new GradCourseCode("3201860", "CLE  12", "38"), null))
                 )
-        );
+                .thenReturn(
+                        List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", 100, "A", 4, "", "", "", null,
+                                new GradStudentCourseExam(null, null, null, null, UUID.randomUUID(), null, "N", "N"),
+                                new GradCourseCode("3201860", "CLE  12", "38"), null))
+                );
 
-        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
-                Optional.of(new GradCourseCode(
-                        "3201860", // courseID
-                        "CLE  12", // externalCode
-                        "38" // originatingSystem
-                ))
-        );
-        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
-                Optional.of(new GradCourseCode(
-                        "3201860", // courseID
-                        "MCLE 12", // externalCode
-                        "39" // originatingSystem
-                ))
-        );
+        var studentRuleData1 = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
+        var validationError_failure = rulesProcessor.processRules(studentRuleData1);
 
-
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+        assertThat(validationError_failure).hasSize(1);
+        assertThat(validationError_failure.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
     }
 
     @Test

@@ -56,18 +56,35 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C15 for courseStudentID :: {}", student.getStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
-        var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
+        boolean isExaminable = courseRulesService.courseExaminableAtCourseSessionDate(studentRuleData);
 
-        if (studentCourseRecord != null
-            && studentCourseRecord.stream().anyMatch(record ->
-                (record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) || record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
-                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
-                    && record.getFinalLetterGrade() != null
-                    && record.getCourseExam().getExamPercentage() != null)
-        ) {
-            log.debug("C15: Error: Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form. for course student id :: {}", courseStudentEntity.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED, CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getMessage()));
+        if (isExaminable) {
+            boolean isExempt = false;
+            var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, courseStudentEntity.getPen());
+
+            if (studentCourseRecords != null && !studentCourseRecords.isEmpty()) {
+                String externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
+                String sessionDate = courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth();
+
+                isExempt = studentCourseRecords.stream().anyMatch(record ->
+                        (record.getGradCourseCode38() != null && record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) ||
+                                record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                                && record.getCourseSession().equalsIgnoreCase(sessionDate)
+                                && record.getFinalLetterGrade() != null
+                                && !record.getFinalLetterGrade().isBlank()
+                                && (record.getCourseExam() == null || record.getCourseExam().getExamPercentage() == null)
+                );
+            }
+
+            if (!isExempt) {
+                log.debug("C15: Error for course student id :: {}", courseStudentEntity.getCourseStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.COURSE_CODE,
+                        CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED,
+                        CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getMessage()
+                ));
+            }
         }
         return errors;
     }
