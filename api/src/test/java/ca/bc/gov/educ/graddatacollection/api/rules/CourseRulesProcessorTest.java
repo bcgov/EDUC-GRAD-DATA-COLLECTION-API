@@ -2325,7 +2325,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 "", // customizedCourseName
                                 null, // relatedCourseId
                                 new GradStudentCourseExam( // courseExam
-                                        null, null, null, null, null, null, null, null
+                                        null, null, null, null, null, 99, null, null
                                 ),
                                 new GradCourseCode(
                                         "3201860", // courseID
@@ -2352,7 +2352,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                                 "", // customizedCourseName
                                 null, // relatedCourseId
                                 new GradStudentCourseExam( // courseExam
-                                        null, null, null, null, null, null, null, null
+                                        null, null, null, null, null, 99, null, null
                                 ),
                                 new GradCourseCode(
                                         "3201860", // courseID
@@ -2368,12 +2368,30 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 )
         );
 
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLC 12", // externalCode
+                        "39" // originatingSystem
+                ))
+        );
+
         courseStudent.setCourseLevel("12");
         courseStudent.setCourseCode("CLE");
-        courseStudent.setCourseYear("2022");
+        courseStudent.setCourseYear("2021");
         courseStudent.setCourseMonth("06");
         courseStudent.setFinalLetterGrade("W");
         courseStudent.setFinalPercentage("0");
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(Optional.empty());
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(List.of());
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
