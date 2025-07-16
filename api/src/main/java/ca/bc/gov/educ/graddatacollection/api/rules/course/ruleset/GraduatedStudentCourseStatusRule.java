@@ -55,15 +55,15 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
 
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
         var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
+        var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
 
         if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
                 && gradStudent != null
                 && gradStudent.getGraduated().equalsIgnoreCase("true")
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().anyMatch(record ->
-                    record.getCourseDetails().getCourseCode().equalsIgnoreCase(courseStudentEntity.getCourseCode())
-                    && record.getCourseDetails().getCourseLevel().equalsIgnoreCase(courseStudentEntity.getCourseLevel())
-                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
+                    (record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) || record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                        && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
         )) {
             log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));

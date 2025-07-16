@@ -27,6 +27,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -262,8 +263,8 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "courseDetails": { "courseCode": "CLE", "courseLevel": "", "courseName": "CAREER-LIFE EDUCATION", "language": "", "startDate": "2018-06-30", "endDate": "1858-11-16", "completionEndDate": null, "genericCourseType": "", "courseID": "3201860", "numCredits": 4 },
-                "relatedCourseDetails": null
+                "gradCourseCode38": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" },
+                "gradCourseCode39": { "courseID": "3201860", "externalCode": "MCLC 12", "originatingSystem": "39" }
             },
             {
                 "id": null,
@@ -279,8 +280,8 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "courseDetails": { "courseCode": "CLC", "courseLevel": "", "courseName": "CAREER-LIFE CONNECTIONS", "language": "", "startDate": "2018-06-30", "endDate": "1858-11-16", "completionEndDate": null, "genericCourseType": "", "courseID": "3201862", "numCredits": 4 },
-                "relatedCourseDetails": null
+                "gradCourseCode38": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" },
+                "gradCourseCode39": { "courseID": "3201861", "externalCode": "MCLE 12", "originatingSystem": "39" }
             }
         ],
         "exception": null
@@ -291,16 +292,70 @@ class RestUtilsTest {
                 new GradStudentCourseRecord(
                         null, "3201860", "2021/06", 100, "", 100, "A", 4, "", "", "", null,
                         new GradStudentCourseExam(null, null, null, null, null, null, null, null),
-                        new GradBaseCourse("CLE", "", "CAREER-LIFE EDUCATION", "", "2018-06-30", "1858-11-16", null, "", "3201860", 4),
-                        null
+                        new GradCourseCode(
+                                "3201860", // courseID
+                                "CLC  12", // externalCode
+                                "38" // originatingSystem
+                        ),
+                        new GradCourseCode(
+                                "3201860", // courseID
+                                "MCLC 12", // externalCode
+                                "39" // originatingSystem
+                        )
                 ),
                 new GradStudentCourseRecord(
                         null, "3201862", "2023/06", 95, "", 95, "A", 4, "", "", "", null,
                         new GradStudentCourseExam(null, null, null, null, null, null, null, null),
-                        new GradBaseCourse("CLC", "", "CAREER-LIFE CONNECTIONS", "", "2018-06-30", "1858-11-16", null, "", "3201862", 4),
-                        null
+                        new GradCourseCode(
+                                "3201861", // courseID
+                                "CLE  12", // externalCode
+                                "38" // originatingSystem
+                        ),
+                        new GradCourseCode(
+                                "3201861", // courseID
+                                "MCLE 12", // externalCode
+                                "39" // originatingSystem
+                        )
                 )
         );
+
+        doReturn(List.of(
+                new GradCourseCode(
+                        "3201860", // courseID
+                        "CLC  12", // externalCode
+                        "38" // originatingSystem
+                ),
+                new GradCourseCode(
+                        "3201861", // courseID
+                        "CLE  12", // externalCode
+                        "38" // originatingSystem
+                )
+        )).when(restUtils).getCoreg38Courses();
+
+        doReturn(Optional.of(new GradCourseCode("3201860", "CLC  12", "38")))
+                .when(restUtils).getCoreg38CourseByID("3201860");
+
+        doReturn(Optional.of(new GradCourseCode("3201861", "CLE  12", "38")))
+                .when(restUtils).getCoreg38CourseByID("3201862");
+
+        doReturn(List.of(
+                new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLC 12", // externalCode
+                        "39" // originatingSystem
+                ),
+                new GradCourseCode(
+                        "3201861", // courseID
+                        "MCLE 12", // externalCode
+                        "39" // originatingSystem
+                )
+        )).when(restUtils).getCoreg39Courses();
+
+        doReturn(Optional.of(new GradCourseCode("3201860", "MCLC 12", "39")))
+                .when(restUtils).getCoreg39CourseByID("3201860");
+
+        doReturn(Optional.of(new GradCourseCode("3201861", "MCLE 12", "39")))
+                .when(restUtils).getCoreg39CourseByID("3201862");
 
         byte[] mockResponseData = jsonResponse.getBytes(StandardCharsets.UTF_8);
 

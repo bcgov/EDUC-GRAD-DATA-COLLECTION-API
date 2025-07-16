@@ -90,6 +90,8 @@ public class ApplicationProperties {
   private String folderBasePath;
   @Value("${url.api.grad.school}")
   private String gradSchoolApiURL;
+  @Value("${url.api.coreg}")
+  private String coregApiURL;
 
   public String getFolderBasePath() {
     return StringUtils.isBlank(this.folderBasePath) ? "/temp" : this.folderBasePath;
