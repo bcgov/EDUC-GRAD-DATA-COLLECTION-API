@@ -263,8 +263,8 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "gradCourseCode": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" },
-                "gradCourseCode": { "courseID": "3201860", "externalCode": "MCLC 12", "originatingSystem": "39" }
+                "gradCourseCode38": { "courseID": "3201860", "externalCode": "CLC  12", "originatingSystem": "38" },
+                "gradCourseCode39": { "courseID": "3201860", "externalCode": "MCLC 12", "originatingSystem": "39" }
             },
             {
                 "id": null,
@@ -280,8 +280,8 @@ class RestUtilsTest {
                 "customizedCourseName": "",
                 "relatedCourseId": null,
                 "courseExam": { "schoolPercentage": null, "bestSchoolPercentage": null, "bestExamPercentage": null, "specialCase": null, "id": null, "examPercentage": null, "toWriteFlag": null, "wroteFlag": null },
-                "gradCourseCode": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" },
-                "gradCourseCode": { "courseID": "3201861", "externalCode": "MCLE 12", "originatingSystem": "39" }
+                "gradCourseCode38": { "courseID": "3201861", "externalCode": "CLE  12", "originatingSystem": "38" },
+                "gradCourseCode39": { "courseID": "3201861", "externalCode": "MCLE 12", "originatingSystem": "39" }
             }
         ],
         "exception": null
