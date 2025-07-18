@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileBatchProcessor
 import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.ConfirmationRequiredException;
+import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.graddatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.sf.flatpack.DataSet;
 import net.sf.flatpack.DefaultParserFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_CRS;
+import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LOCAL_STUDENT_ID;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.PRECONDITION_REQUIRED;
@@ -64,7 +68,8 @@ public class GradBatchFileProcessor {
         try {
             FileType fileDetails = FileType.findByCode(fileUpload.getFileType()).orElseThrow(() -> new FileUnProcessableException(FileError.FILE_NOT_ALLOWED, guid, GradCollectionStatus.LOAD_FAIL));
             final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource(fileDetails.getMapperFileName())).getFile());
-            var byteArrayOutputStream = new ByteArrayInputStream(gradFileValidator.getUploadedFileBytes(guid, fileUpload, fileDetails.getCode()));
+            var fileContent = checkAndFixLineLengths(fileUpload.getFileContents(), fileDetails.getActualFileSize(), guid);
+            var byteArrayOutputStream = new ByteArrayInputStream(gradFileValidator.getUploadedFileBytes(guid, fileContent, fileDetails.getCode()));
             batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
             final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
@@ -95,6 +100,50 @@ public class GradBatchFileProcessor {
             stopwatch.stop();
             log.info("Time taken for batch processed is :: {} milli seconds", stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
+    }
+
+    private String checkAndFixLineLengths(String fileContentInBytes, int expectedLineLength, String guid) throws FileUnProcessableException {
+        var bytes = Base64.getDecoder().decode(fileContentInBytes);
+        var fileContent = new String(bytes);
+        StringBuilder correctedContent = new StringBuilder();
+
+        // Split the string into lines
+        String[] lines = fileContent.split("\\r?\\n");
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            int lineNumber = i + 1;
+            int actualLength = line.length();
+            String correctedLine = line;
+
+            if (actualLength != expectedLineLength) {
+                if (actualLength < expectedLineLength) {
+                    // Pad with spaces
+                    correctedLine = line + " ".repeat(expectedLineLength - actualLength);
+                } else {
+                    if(StringUtils.isNotBlank(line.substring(expectedLineLength, actualLength))) {
+                        var message = "Line " + lineNumber + " has too many characters.";
+                        throw new FileUnProcessableException(
+                                FileError.INVALID_ROW_LENGTH,
+                                guid,
+                                GradCollectionStatus.LOAD_FAIL,
+                                message);
+                    }else{
+                        // Truncate
+                        correctedLine = line.substring(0, expectedLineLength);
+                    }
+                }
+                log.info("Line {} corrected: {} chars -> {} chars", lineNumber, actualLength, correctedLine.length());
+            }
+
+            // Add the corrected line to the StringBuilder
+            correctedContent.append(correctedLine);
+
+            // Add line separator (except for the last line if you prefer)
+            correctedContent.append(System.lineSeparator());
+        }
+
+        return correctedContent.toString();
     }
 
     private void closeBatchFileReader(final Reader reader) {

@@ -161,7 +161,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .header("correlationID", UUID.randomUUID().toString())
                 .content(JsonUtil.getJsonStringFromObject(verFile))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Line 1 is missing characters."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Line 1 has too many characters."));
     }
 
     @Test
