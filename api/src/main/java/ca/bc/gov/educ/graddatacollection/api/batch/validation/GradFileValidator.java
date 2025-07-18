@@ -42,8 +42,8 @@ public class GradFileValidator {
         this.restUtils = restUtils;
     }
 
-    public byte[] getUploadedFileBytes(@NonNull final String guid, final GradFileUpload fileUpload, String fileType) throws FileUnProcessableException {
-        byte[] bytes = Base64.getDecoder().decode(fileUpload.getFileContents());
+    public byte[] getUploadedFileBytes(@NonNull final String guid, final String fileUpload, String fileType) throws FileUnProcessableException {
+        byte[] bytes = fileUpload.getBytes();
         if (fileType.equalsIgnoreCase(FILE_TYPE) && bytes.length == 0) {
             throw new FileUnProcessableException(FileError.EMPTY_FILE, guid, GradCollectionStatus.LOAD_FAIL);
         }
@@ -69,9 +69,8 @@ public class GradFileValidator {
                 .stream()
                 .filter(error -> isMalformedRowError(error, lengthError))
                 .findFirst();
-
-        // Ignore trailer length errors due to inconsistency in flat files
-        if (maybeError.isPresent() && ds.getRowCount() != maybeError.get().getLineNo()) {
+        
+        if (maybeError.isPresent()) {
             DataError error = maybeError.get();
             String message = this.getMalformedRowMessage(error.getErrorDesc(), error, lengthError);
             throw new FileUnProcessableException(
