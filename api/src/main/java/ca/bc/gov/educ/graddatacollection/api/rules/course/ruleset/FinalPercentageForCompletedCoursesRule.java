@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C25  | ERROR    | Final pct or Final Letter Grade should be included for completed      | C03, C16, C31|
+ *  | C25  | WARNING  | Final pct or Final Letter Grade should be included for completed      | C03, C16, C31|
  *  |      |          | courses
  *  |      |          | Future = Course Session < today's date
  */
@@ -59,7 +59,7 @@ public class FinalPercentageForCompletedCoursesRule implements CourseValidationB
                 if (courseSession.isBefore(currentDate) && !hasFinalLetterGrade && !hasFinalPercent) {
                     log.debug("C25: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.ERROR,
+                        StudentValidationIssueSeverityCode.WARNING,
                         ValidationFieldCode.FINAL_PERCENTAGE,
                         CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK,
                         CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage()
