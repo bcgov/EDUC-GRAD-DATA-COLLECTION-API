@@ -85,7 +85,6 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
                     boolean finalPercentMismatch = false;
                     boolean finalLetterGradeMismatch = false;
 
-                    // Compare Final Percent
                     if (courseStudentEntity.getFinalPercentage() != null && record.getFinalPercent() != null) {
                         try {
                             Integer submittedPercent = Integer.valueOf(courseStudentEntity.getFinalPercentage());
