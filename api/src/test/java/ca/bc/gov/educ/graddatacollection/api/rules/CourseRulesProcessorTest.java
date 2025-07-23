@@ -1182,6 +1182,75 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testPastExaminableCourseRule_whenInvalidPercentageFormat_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage("ninety");
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", 90, "A", 4, "", "", "", null, null, new GradCourseCode("3201860", "CLE  12", "38"), null))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors.stream().anyMatch(e -> e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode()))).isTrue();
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenOneValueIsNull_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+        var studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
+
+        courseStudent.setFinalPercentage("90");
+        courseStudent.setFinalLetterGrade("A");
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", null, "A", 4, "", "", "", null, null, new GradCourseCode("3201860", "CLE  12", "38"), null))
+        );
+        var validationErrors_percentNull = rulesProcessor.processRules(studentRuleData);
+        assertThat(validationErrors_percentNull).hasSize(1);
+        assertThat(validationErrors_percentNull.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+
+        courseStudent.setFinalPercentage("90");
+        courseStudent.setFinalLetterGrade("A");
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", 90, null, 4, "", "", "", null, null, new GradCourseCode("3201860", "CLE  12", "38"), null))
+        );
+
+        var studentRuleData2 = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
+        var validationErrors_gradeNull = rulesProcessor.processRules(studentRuleData2);
+        assertThat(validationErrors_gradeNull).hasSize(1);
+        assertThat(validationErrors_gradeNull.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
     void testC22InterimPercent() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
