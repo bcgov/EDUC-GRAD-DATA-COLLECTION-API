@@ -17,11 +17,12 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C15 | ERROR    | Courses that were examinable at the time of the course session date   | C03, C07, C08|
- *                      cannot be submitted through the CRS file unless the record exists for
- *                      the same Course Code/Level/Session in Student Course and the Student
- *                      Course record has no associated Student Exam record and the Student
- *                      Course record has a Final Letter Grade
+ *  | C15 | ERROR    | Error if the course was examinable for the course code, session,       | C03, C07, C08|
+ *                      and grad program submitted AND either of the following are true:
+ *                      1. The course does not exist for the student
+ *                      2. The course exists for the student and there is a mismatch between
+ *                      the submitted course and the existing course on Final Percent or Final Letter Grade
+ *
  */
 @Component
 @Slf4j
@@ -59,24 +60,55 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
         boolean isExaminable = courseRulesService.courseExaminableAtCourseSessionDate(studentRuleData);
 
         if (isExaminable) {
-            boolean isExempt = false;
             var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, courseStudentEntity.getPen());
+            String externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
+            String sessionDate = courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth();
+
+            // Check if course exists for the student
+            boolean courseExists = false;
+            boolean hasMismatch = false;
 
             if (studentCourseRecords != null && !studentCourseRecords.isEmpty()) {
-                String externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
-                String sessionDate = courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth();
-
-                isExempt = studentCourseRecords.stream().anyMatch(record ->
+                var matchingRecord = studentCourseRecords.stream()
+                    .filter(record ->
                         (record.getGradCourseCode38() != null && record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) ||
-                                record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
-                                && record.getCourseSession().equalsIgnoreCase(sessionDate)
-                                && record.getFinalLetterGrade() != null
-                                && !record.getFinalLetterGrade().isBlank()
-                                && (record.getCourseExam() == null || record.getCourseExam().getExamPercentage() == null)
-                );
+                         record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                        && record.getCourseSession().equalsIgnoreCase(sessionDate)
+                    )
+                    .findFirst();
+
+                if (matchingRecord.isPresent()) {
+                    courseExists = true;
+                    var record = matchingRecord.get();
+
+                    // Check for mismatches in Final Percent or Final Letter Grade
+                    boolean finalPercentMismatch = false;
+                    boolean finalLetterGradeMismatch = false;
+
+                    // Compare Final Percent
+                    if (courseStudentEntity.getFinalPercentage() != null && record.getFinalPercent() != null) {
+                        try {
+                            Integer submittedPercent = Integer.valueOf(courseStudentEntity.getFinalPercentage());
+                            finalPercentMismatch = !submittedPercent.equals(record.getFinalPercent());
+                        } catch (NumberFormatException e) {
+                            finalPercentMismatch = true;
+                        }
+                    } else if (courseStudentEntity.getFinalPercentage() != null || record.getFinalPercent() != null) {
+                        finalPercentMismatch = true;
+                    }
+
+                    if (courseStudentEntity.getFinalLetterGrade() != null && record.getFinalLetterGrade() != null) {
+                        finalLetterGradeMismatch = !courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase(record.getFinalLetterGrade());
+                    } else if (courseStudentEntity.getFinalLetterGrade() != null || record.getFinalLetterGrade() != null) {
+                        finalLetterGradeMismatch = true;
+                    }
+
+                    hasMismatch = finalPercentMismatch || finalLetterGradeMismatch;
+                }
             }
 
-            if (!isExempt) {
+            // Error if course doesn't exist OR if there's a mismatch
+            if (!courseExists || hasMismatch) {
                 log.debug("C15: Error for course student id :: {}", courseStudentEntity.getCourseStudentID());
                 errors.add(createValidationIssue(
                         StudentValidationIssueSeverityCode.ERROR,
