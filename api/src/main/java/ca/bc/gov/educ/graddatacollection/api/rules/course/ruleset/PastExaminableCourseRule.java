@@ -60,7 +60,7 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
         boolean isExaminable = courseRulesService.courseExaminableAtCourseSessionDate(studentRuleData);
 
         if (isExaminable) {
-            var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, courseStudentEntity.getPen());
+            var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
             String externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
             String sessionDate = courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth();
 
