@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -56,7 +57,7 @@ public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
         LocalDate sessionStartDate = LocalDate.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()), 1);
         List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(sessionStartDate.atStartOfDay());
 
-        if (student.getFinalLetterGrade() != null && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getFinalLetterGrade()))) {
+        if (StringUtils.isNotBlank(student.getFinalLetterGrade()) && letterGradeList.stream().noneMatch(letterGrade -> letterGrade.getGrade().equals(student.getFinalLetterGrade()))) {
             String errorMessage = CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getFinalLetterGrade()));
             log.debug("C32: Error: {} for courseStudentID :: {}", errorMessage, student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_LETTER_GRADE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_INVALID, errorMessage));

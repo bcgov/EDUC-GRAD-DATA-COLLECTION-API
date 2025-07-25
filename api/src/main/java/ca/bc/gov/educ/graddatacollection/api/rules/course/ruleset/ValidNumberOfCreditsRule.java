@@ -52,28 +52,34 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C18 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
+        
+        //Error if the number of credits is not equal to any of the Course Allowable Credits available for the course session, unless either of the following are true:
+        
+        //The Final Letter Grade is “F” or “W” and the number of credits is blank or 0,
+        //The Course Type in CoReg is “Locally Developed” and the number of credits is blank, 0, 1, 2, 3, or 4.
+        
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
-        boolean hasError = false;
-        if (coursesRecord != null) {
-            if(StringUtils.isNotBlank(student.getNumberOfCredits())) {
-                var creds = StringUtils.stripStart(student.getNumberOfCredits(),"0");
-                boolean zeroCredWithAllowableLetterGrade = StringUtils.isNumeric(creds) && Integer.parseInt(creds) == 0
-                        && letterGradeWithAllowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade()));
-                boolean locallyDevelopedCourse = coursesRecord.getCourseCategory() != null && coursesRecord.getCourseCategory().getType().equalsIgnoreCase("LD") && allowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(creds));
-                if(zeroCredWithAllowableLetterGrade || locallyDevelopedCourse || coursesRecord.getCourseAllowableCredit().stream().noneMatch(cac -> cac.getCreditValue().equalsIgnoreCase(creds))) {
-                    hasError = true;
-                }
-            } else if(letterGradeWithAllowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade())) || !coursesRecord.getCourseCategory().getType().equalsIgnoreCase("LD")) {
-                hasError = true;
-            }
-        } else {
-            hasError = true;
-        }
 
-        if(hasError) {
-            log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
-        }
+        if(StringUtils.isNotBlank(student.getNumberOfCredits())) {
+            var creds = getNumberOfCredits(student.getNumberOfCredits());
+            boolean credsIsBlankOrZero = StringUtils.isBlank(student.getNumberOfCredits()) || (StringUtils.isNumeric(creds) && Integer.parseInt(creds) == 0);
+            boolean zeroCredWithAllowableLetterGrade = credsIsBlankOrZero && StringUtils.isNotBlank(student.getFinalLetterGrade()) && letterGradeWithAllowableCredit.stream().anyMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade()));
+            boolean courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue = coursesRecord.getCourseCategory() != null && coursesRecord.getCourseCategory().getType().equalsIgnoreCase("LD") && (StringUtils.isBlank(creds) || allowableCredit.stream().anyMatch(s -> s.equalsIgnoreCase(creds)));
+            
+            if(!zeroCredWithAllowableLetterGrade && !courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue && coursesRecord.getCourseAllowableCredit().stream().noneMatch(cac -> cac.getCreditValue().equalsIgnoreCase(creds))) {
+                log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
+            }
+        } 
+        
         return errors;
+    }
+    
+    private String getNumberOfCredits(String numberOfCredits) {
+        if (StringUtils.isNotBlank(numberOfCredits) && StringUtils.isNumeric(numberOfCredits) && Integer.parseInt(numberOfCredits) == 0) {
+            return "0";
+        }
+        
+        return StringUtils.stripStart(numberOfCredits, "0");
     }
 }
