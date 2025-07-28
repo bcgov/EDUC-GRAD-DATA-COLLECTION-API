@@ -62,6 +62,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
+        this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
 
@@ -395,6 +396,10 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         "MCLE 12", // externalCode
                         "39" // originatingSystem
                 ))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true")
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -1148,7 +1153,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalPercentage("80");
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2023", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1174,6 +1179,47 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseLevel("12");
         courseStudent.setCourseMonth("06");
         courseStudent.setCourseYear("2023");
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(Collections.emptyList());
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenCourseNotFound_gradStudent_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        var studentID = UUID.randomUUID().toString();
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(studentID);
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(studentID, null, "2018", null, null, null, null, null)
+        );
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
                 List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
