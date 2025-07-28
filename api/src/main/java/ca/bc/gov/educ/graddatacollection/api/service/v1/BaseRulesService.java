@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @Slf4j
@@ -155,17 +155,49 @@ public class BaseRulesService {
     }
 
     public Boolean courseExaminableAtCourseSessionDate(StudentRuleData studentRuleData) {
+        AtomicBoolean returnValue = new AtomicBoolean(false);
         var courseStudentEntity = studentRuleData.getCourseStudentEntity();
+        var demographicStudentEntity = studentRuleData.getDemographicStudentEntity();
+        var gradStudentRecord = getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
         String externalID = formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
-        Optional<GradExaminableCourse> examinableCourse = restUtils.getExaminableCourseByExternalID(externalID);
-        if (examinableCourse.isPresent()) {
-            GradExaminableCourse gradExaminableCourse = examinableCourse.get();
-            YearMonth courseSession = YearMonth.of(Integer.parseInt(courseStudentEntity.getCourseYear()), Integer.parseInt(courseStudentEntity.getCourseMonth()));
-            YearMonth examinableCourseStart = YearMonth.parse(gradExaminableCourse.getExaminableStart());
-            YearMonth examinableCourseEnd = YearMonth.parse(gradExaminableCourse.getExaminableEnd());
-            return courseSession.isBefore(examinableCourseEnd) && courseSession.isAfter(examinableCourseStart);
+        List<GradExaminableCourse> examinableCourse = restUtils.getExaminableCourseByExternalID(externalID);
+        log.debug("ExaminableCourse found for externalID: {}, examinable course: {}", externalID, examinableCourse);
+
+        final String studentGraduationProgram;
+        if (gradStudentRecord != null && gradStudentRecord.getProgram() != null) {
+            studentGraduationProgram = gradStudentRecord.getProgram();
+            log.debug("Using graduation program from GRAD student record: {}", studentGraduationProgram);
+        } else if (demographicStudentEntity != null && demographicStudentEntity.getGradRequirementYear() != null) {
+            studentGraduationProgram = demographicStudentEntity.getGradRequirementYear();
+            log.debug("Using graduation program from DEM file: {}", studentGraduationProgram);
+        } else {
+            studentGraduationProgram = null;
         }
-        return false;
+
+        if (!examinableCourse.isEmpty()) {
+            examinableCourse.forEach(sc -> {
+                YearMonth courseSession = YearMonth.of(Integer.parseInt(courseStudentEntity.getCourseYear()), Integer.parseInt(courseStudentEntity.getCourseMonth()));
+                YearMonth examinableCourseStart = YearMonth.parse(sc.getExaminableStart());
+                YearMonth examinableCourseEnd = YearMonth.parse(sc.getExaminableEnd());
+                log.debug("ExaminableCourseStart :: {}", examinableCourseStart);
+                log.debug("ExaminableCourseEnd :: {}", examinableCourseEnd);
+                log.debug("CourseSession :: {}", courseSession);
+
+                boolean dateRangeValid = (courseSession.equals(examinableCourseStart) || courseSession.isAfter(examinableCourseStart))
+                    && (courseSession.equals(examinableCourseEnd) || courseSession.isBefore(examinableCourseEnd));
+                log.debug("Date range valid :: {}", dateRangeValid);
+
+                boolean programMatches = studentGraduationProgram != null && studentGraduationProgram.equals(sc.getProgramYear());
+                log.debug("Student graduation program: {}, Examinable course program year: {}, Program matches :: {}",
+                    studentGraduationProgram, sc.getProgramYear(), programMatches);
+
+                if (dateRangeValid && programMatches) {
+                    returnValue.set(true);
+                }
+            });
+        }
+        log.debug("courseExaminableAtCourseSessionDate returning : {}", returnValue.get());
+        return returnValue.get();
     }
 }
 

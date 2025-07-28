@@ -58,6 +58,7 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
         boolean isExaminable = courseRulesService.courseExaminableAtCourseSessionDate(studentRuleData);
+        log.debug("in c15 is examinable :: {}", isExaminable);
 
         if (isExaminable) {
             var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
@@ -69,13 +70,24 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
             boolean hasMismatch = false;
 
             if (studentCourseRecords != null && !studentCourseRecords.isEmpty()) {
-                var matchingRecord = studentCourseRecords.stream()
-                    .filter(record ->
-                        (record.getGradCourseCode38() != null && record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) ||
-                         record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
-                        && record.getCourseSession().equalsIgnoreCase(sessionDate)
-                    )
-                    .findFirst();
+                var matchingRecord = studentCourseRecords.stream().filter(record ->
+                        { log.debug("Checking record: courseSession={}, gradCourseCode38={}, gradCourseCode39={}", record.getCourseSession(), record.getGradCourseCode38() != null ? record.getGradCourseCode38().getExternalCode() : "null", record.getGradCourseCode39() != null ? record.getGradCourseCode39().getExternalCode() : "null");
+                            boolean courseCodeMatch = (record.getGradCourseCode38() != null && record.getGradCourseCode38().getExternalCode().replaceAll("-", "").equalsIgnoreCase(externalID)) ||
+                                    (record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID));
+
+                            // Normalize session dates for comparison
+                            String normalizedRecordSession = record.getCourseSession().replaceAll("/", "");
+                            String normalizedSessionDate = sessionDate.replaceAll("/", "");
+                            boolean sessionMatch = normalizedRecordSession.equalsIgnoreCase(normalizedSessionDate);
+
+                            log.debug("Match results: courseCodeMatch={}, sessionMatch={} for externalID={}, sessionDate={}",
+                                    courseCodeMatch, sessionMatch, externalID, sessionDate);
+
+                            return courseCodeMatch && sessionMatch;
+                        })
+                        .findFirst();
+
+                log.debug("Matching record found: {}", matchingRecord.isPresent());
 
                 if (matchingRecord.isPresent()) {
                     courseExists = true;
@@ -89,20 +101,25 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
                         try {
                             Integer submittedPercent = Integer.valueOf(courseStudentEntity.getFinalPercentage());
                             finalPercentMismatch = !submittedPercent.equals(record.getFinalPercent());
+                            log.debug("Final percent mismatch: submitted={}, record={}", submittedPercent, record.getFinalPercent());
                         } catch (NumberFormatException e) {
                             finalPercentMismatch = true;
                         }
                     } else if (courseStudentEntity.getFinalPercentage() != null || record.getFinalPercent() != null) {
                         finalPercentMismatch = true;
+                        log.debug("Final percent mismatch: finalPercent={}", record.getFinalPercent());
                     }
 
                     if (courseStudentEntity.getFinalLetterGrade() != null && record.getFinalLetterGrade() != null) {
                         finalLetterGradeMismatch = !courseStudentEntity.getFinalLetterGrade().equalsIgnoreCase(record.getFinalLetterGrade());
+                        log.debug("Final letter grade mismatch: submitted={}, record={}", courseStudentEntity.getFinalLetterGrade(), record.getFinalLetterGrade());
                     } else if (courseStudentEntity.getFinalLetterGrade() != null || record.getFinalLetterGrade() != null) {
                         finalLetterGradeMismatch = true;
+                        log.debug("Final letter grade mismatch: finalLetterGrade={}", record.getFinalLetterGrade());
                     }
-
+                    log.debug("Final percent mismatch: {}, Final letter grade mismatch: {}", finalPercentMismatch, finalLetterGradeMismatch);
                     hasMismatch = finalPercentMismatch || finalLetterGradeMismatch;
+                    log.debug("Final percent mismatch: hasMismatch={}", hasMismatch);
                 }
             }
 

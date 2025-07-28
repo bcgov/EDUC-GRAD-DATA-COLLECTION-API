@@ -376,7 +376,7 @@ public class RestUtils {
     try {
       writeLock.lock();
       for (val examinableCourse : this.getGradExaminableCourses()) {
-        this.examinableCourseMap.put(String.format("%-5s", examinableCourse.getCourseCode()) + examinableCourse.getCourseLevel(), examinableCourse);
+        this.examinableCourseMap.put(String.valueOf(examinableCourse.getExaminableCourseID()), examinableCourse);
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache grad examinable courses ", ex);
@@ -742,12 +742,18 @@ public class RestUtils {
     return Optional.ofNullable(this.coreg39Map.get(courseID));
   }
 
-  public Optional<GradExaminableCourse> getExaminableCourseByExternalID(final String externalID) {
+  public List<GradExaminableCourse> getExaminableCourseByExternalID(final String externalID) {
     if (this.examinableCourseMap.isEmpty()) {
       log.info("Examinable course map is empty reloading courses");
       this.populateExaminableCourseMap();
     }
-    return Optional.ofNullable(this.examinableCourseMap.get(externalID));
+    List<GradExaminableCourse> examinableCourses = new ArrayList<>();
+    this.examinableCourseMap.forEach((key, value) -> {
+        if (StringUtils.equals(String.format("%-5s", value.getCourseCode()) + value.getCourseLevel(), externalID)) {
+            examinableCourses.add(value);
+        }
+    });
+    return examinableCourses;
   }
 
   public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
