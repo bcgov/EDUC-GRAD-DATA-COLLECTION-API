@@ -220,8 +220,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
 
         eventHandlerService.handleProcessCompletedFilesetsEvent(event);
 
-        var sagaEntity = sagaRepository.findByDemographicStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(
-                demographicStudentEntity.getDemographicStudentID(),
+        var sagaEntity = sagaRepository.findByIncomingFilesetIDAndSagaNameAndStatusNot(
                 UUID.fromString(mockFileset.getIncomingFilesetID()),
                 "PROCESS_COMPLETED_FILESETS_SAGA",
                 "COMPLETED");
