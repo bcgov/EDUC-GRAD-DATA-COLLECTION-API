@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C33  | ERROR    | For the 1996 graduation program, check number of credits for Fine     |C03, C18, C26 |
+ *  | C33  | ERROR    | For the 1996 graduation program, check number of credits for Fine     |C03, C18      |
  *  |      |          | Arts/Applied Skills.
  *  |      |          | If B - credits for course must be 4-credits
  */

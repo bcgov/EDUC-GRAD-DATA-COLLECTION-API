@@ -57,18 +57,6 @@ class CompletedFilesetPreparationServiceTest extends BaseGradDataCollectionAPITe
                 .hasMessageContaining("IncomingFilesetEntity");
     }
 
-    @Test
-    void testPrepareFilesetData_noDemographicStudentThrows() {
-        IncomingFilesetEntity entity = new IncomingFilesetEntity();
-        entity.setIncomingFilesetID(filesetId);
-        entity.setDemographicStudentEntities(Set.of()); // empty
-        when(incomingFilesetRepository.findById(filesetId)).thenReturn(Optional.of(entity));
-
-        assertThatThrownBy(() -> service.prepareFilesetData(List.of(filesetId)))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("DemographicStudent");
-    }
-
     private DemographicStudentEntity createDemoStudentEntity() {
         DemographicStudentEntity d = new DemographicStudentEntity();
         d.setDemographicStudentID(UUID.randomUUID());

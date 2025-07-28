@@ -29,10 +29,12 @@ public class CompletedFilesetPreparationService {
                 .map(el -> {
                     val incomingFilesetSagaDataRecord = new IncomingFilesetSagaData();
                     incomingFilesetSagaDataRecord.setIncomingFileset(IncomingFilesetMapper.mapper.toStructure(el));
-                    val student = el.getDemographicStudentEntities().stream()
-                            .findFirst()
-                            .orElseThrow(() -> new EntityNotFoundException(DemographicStudent.class));
-                    incomingFilesetSagaDataRecord.setDemographicStudent(DemographicStudentMapper.mapper.toDemographicStudent(student));
+                    if(!el.getDemographicStudentEntities().isEmpty()) {
+                        val student = el.getDemographicStudentEntities().stream()
+                                .findFirst()
+                                .orElseThrow(() -> new EntityNotFoundException(DemographicStudent.class));
+                        incomingFilesetSagaDataRecord.setDemographicStudent(DemographicStudentMapper.mapper.toDemographicStudent(student));
+                    }
                     return incomingFilesetSagaDataRecord;
                 })
                 .toList();

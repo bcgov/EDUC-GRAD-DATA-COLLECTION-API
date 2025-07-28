@@ -74,7 +74,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         final Event.EventBuilder eventBuilder = Event.builder();
 
         if (school != null && (
-                (school.getVendorSourceSystemCode() == null && incomingFilesetSagaData.getDemographicStudent().getVendorID() != null) ||
+                (school.getVendorSourceSystemCode() == null && incomingFilesetSagaData.getDemographicStudent() != null && incomingFilesetSagaData.getDemographicStudent().getVendorID() != null) ||
                 ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
                 (!"M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode()))
             )) {
