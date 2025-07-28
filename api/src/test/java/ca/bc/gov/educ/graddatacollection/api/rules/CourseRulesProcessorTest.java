@@ -62,6 +62,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
+        this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
 
@@ -155,7 +156,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 ))
         );
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.empty()
+                List.of()
         );
         CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
         coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -395,6 +396,10 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         "MCLE 12", // externalCode
                         "39" // originatingSystem
                 ))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true")
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -1067,8 +1072,14 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 ))
         );
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
-                        50, 50, null, null, "2020-01", "2024-12"))
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"),
+                        new GradExaminableCourse(UUID.randomUUID(), "2019", "CLE", "12", "Creative Writing 12",
+                                50, 50, null, null, "2020-01", "2024-12"),
+                        new GradExaminableCourse(UUID.randomUUID(), "2018", "CLC", "12", "Creative Writing 12",
+                                50, 50, null, null, "2020-01", "2024-12"),
+                        new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "11", "Creative Writing 12",
+                                50, 50, null, null, "2020-01", "2024-12"))
         );
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
                 List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, null, new GradCourseCode("3201860", "CLE  12", "38"), null))
@@ -1089,7 +1100,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var courseStudent = createMockCourseStudent(savedFileSet);
         courseStudent.setPen(demStudent.getPen());
 
-        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(Optional.empty());
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(List.of());
 
         var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
 
@@ -1112,7 +1123,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalPercentage("90");
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1142,7 +1153,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalPercentage("80");
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2023", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1170,7 +1181,48 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseYear("2023");
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(Collections.emptyList());
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenCourseNotFound_gradStudent_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        var studentID = UUID.randomUUID().toString();
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(studentID);
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(studentID, null, "2018", null, null, null, null, null)
+        );
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(Collections.emptyList());
@@ -1197,7 +1249,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalPercentage("ninety");
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1224,7 +1276,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setCourseYear("2023");
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                Optional.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
         var studentRuleData = createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
@@ -2393,7 +2445,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalLetterGrade("W");
         courseStudent.setFinalPercentage("0");
 
-        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(Optional.empty());
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(List.of());
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(List.of());
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
