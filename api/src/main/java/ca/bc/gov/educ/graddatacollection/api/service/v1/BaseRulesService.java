@@ -187,9 +187,12 @@ public class BaseRulesService {
                     && (courseSession.equals(examinableCourseEnd) || courseSession.isBefore(examinableCourseEnd));
                 log.debug("Date range valid :: {}", dateRangeValid);
 
-                boolean programMatches = studentGraduationProgram != null && studentGraduationProgram.equals(sc.getProgramYear());
-                log.debug("Student graduation program: {}, Examinable course program year: {}, Program matches :: {}",
-                    studentGraduationProgram, sc.getProgramYear(), programMatches);
+                boolean programMatches = false;
+                if (studentGraduationProgram != null) {
+                    String baseGradCode = studentGraduationProgram.contains("-") ? studentGraduationProgram.split("-")[0] : studentGraduationProgram;
+                    programMatches = baseGradCode.equals(sc.getProgramYear());
+                }
+                log.debug("Student graduation program: {}, Examinable course program year: {}, Program matches :: {}", studentGraduationProgram, sc.getProgramYear(), programMatches);
 
                 if (dateRangeValid && programMatches) {
                     returnValue.set(true);
