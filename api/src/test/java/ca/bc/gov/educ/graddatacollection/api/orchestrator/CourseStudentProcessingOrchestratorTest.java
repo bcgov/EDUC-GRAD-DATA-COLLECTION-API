@@ -283,7 +283,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
         courseStudentEntity.setCourseStudentID(null);
         courseStudentEntity.setStudentStatusCode("LOADED");
         courseStudentEntity.setFinalLetterGrade("IE");
-        courseStudentEntity.setFinalPercentage("0");
+        courseStudentEntity.setFinalPercentage("50");
         courseStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         courseStudentEntity.setUpdateDate(LocalDateTime.now());
         courseStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);

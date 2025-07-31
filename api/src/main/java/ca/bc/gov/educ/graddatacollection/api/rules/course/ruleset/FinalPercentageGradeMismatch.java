@@ -26,9 +26,12 @@ import java.util.Optional;
  *  | C37  | ERROR    | Final letter grade must match final pct unless course session is	  |C03,C32,C30,C31  |
  *  |      |          | prior to 199409.
  *  Updated rule:
- *  1. If a final letter grade has been submitted and the final letter grade does not have associated percent range (i.e. low and high percent are 0s) in the letter grade table, an final percent should not be submitted.
- *  2. If a final letter grade has been submitted and the final letter grade has an associated, non-zero, percent range in the letter grade table, an final percent must be submitted.
- *  3. If a final letter grade has been submitted and the final letter grade has an associated, non-zero, percent range in the letter grade table, the submitted final percent must fall within the percent range associated with the submitted final letter grade.
+ *  1. If a final letter grade has been submitted and the final letter grade does not have associated percent range
+ *  (i.e. low and high percent are 0s) in the letter grade table, an final percent should not be submitted.
+ *  2. If a final letter grade has been submitted and the final letter grade has an associated, non-zero, percent range
+ *  in the letter grade table, an final percent must be submitted.
+ *  3. If a final letter grade has been submitted and the final letter grade has an associated, non-zero, percent range
+ *  in the letter grade table, the submitted final percent must fall within the percent range associated with the submitted final letter grade.
  */
 @Component
 @Slf4j
@@ -72,7 +75,7 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
                     String finalLetterGrade = student.getFinalLetterGrade();
                     String finalPercentStr = student.getFinalPercentage();
                     boolean hasFinalLetterGrade = StringUtils.isNotBlank(finalLetterGrade);
-                    boolean hasFinalPercent = StringUtils.isNotBlank(finalPercentStr) && !finalPercentStr.equals("0");;
+                    boolean hasFinalPercent = StringUtils.isNotBlank(finalPercentStr);
 
                     if (hasFinalLetterGrade) {
                         Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream()
