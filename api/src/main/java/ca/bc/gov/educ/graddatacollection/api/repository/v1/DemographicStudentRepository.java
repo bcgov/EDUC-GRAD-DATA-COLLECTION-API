@@ -25,6 +25,4 @@ public interface DemographicStudentRepository extends JpaRepository<DemographicS
             "WHERE d.incomingFileset.incomingFilesetID = :incomingFilesetId " +
             "GROUP BY v.validationIssueSeverityCode")
     List<Object[]> countValidationIssuesBySeverity(@Param("incomingFilesetId") UUID incomingFilesetId);
-
-    List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCase(UUID incomingFilesetID, String lastName, String pen);
 }

@@ -29,8 +29,8 @@ public class AssessmentRulesService extends BaseRulesService {
         this.assessmentStudentRepository = assessmentStudentRepository;
     }
 
-    public boolean containsDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname) {
-        var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCase(incomingFilesetID, surname, pen);
+    public boolean containsDemographicDataForStudent(UUID incomingFilesetID, String pen, String surname , String localID) {
+        var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(incomingFilesetID, surname, pen, localID);
         return !results.isEmpty();
     }
 
