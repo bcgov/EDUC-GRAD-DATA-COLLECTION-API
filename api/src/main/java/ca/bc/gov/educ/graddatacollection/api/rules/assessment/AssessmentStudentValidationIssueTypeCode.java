@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum AssessmentStudentValidationIssueTypeCode {
 
-  DEM_DATA_MISSING("DEM_DATA_MISSING", "The student's registration data cannot be processed because they are either missing from the DEM file or their Surname in the XAM file does not match the DEM file."),
+  DEM_DATA_MISSING("DEM_DATA_MISSING", "The student's registration data cannot be processed because they are either missing from the DEM file or their Surname or Local ID in the XAM file does not match the DEM file."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level must be blank. This registration cannot be updated."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "%s is not offered in %s%s. Check that a valid assessment code and session date, in the current school year, were reported. This registration cannot be updated."),
   COURSE_SESSION_INVALID_MONTH("COURSE_SESSION_INVALID_MONTH", "Assessments are not offered in the reported session month. Must be Nov, Jan, Apr, or Jun. The registration cannot be updated."),

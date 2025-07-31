@@ -51,7 +51,7 @@ public class CourseStudentPENInDEMRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C01 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        var isPresent = courseRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName());
+        var isPresent = courseRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 
         if (!isPresent) {
             log.debug("V201: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getCourseStudentID());
