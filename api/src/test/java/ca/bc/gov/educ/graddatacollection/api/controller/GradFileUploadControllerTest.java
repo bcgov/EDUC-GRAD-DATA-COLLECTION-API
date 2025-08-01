@@ -840,7 +840,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
-                        .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the current reporting period. Review the data on line 1."));
     }
 
     @Test
@@ -965,7 +966,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the current reporting period. Review the data on line 1."));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Final School Percent cannot be more than 3 digits. Review the data on line 1."));
     }
 
     @Test

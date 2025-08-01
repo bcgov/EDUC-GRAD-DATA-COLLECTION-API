@@ -212,7 +212,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         if(StringUtils.isNotBlank(fieldValue)) {
             try {
                 var sessionDate = YearMonth.parse(fieldValue, DateTimeFormatter.ofPattern("yyyyMM"));
-                if(isValidSessionDate(sessionDate, reportingPeriod)) {
+                if(!isValidSessionDate(sessionDate, reportingPeriod)) {
                     throw new FileUnProcessableException(FileError.SESSION_DATE_FORMAT_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
                 }
                 summerStudent.setSessionDate(String.valueOf(sessionDate));
@@ -231,7 +231,8 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
 
         var sessionLocalDate = sessionDate.atDay(1);
 
-        return sessionLocalDate.isBefore(endReportingPeriod.toLocalDate()) && sessionLocalDate.isAfter(startReportingPeriod.toLocalDate());
+        return (sessionLocalDate.isEqual(endReportingPeriod.toLocalDate()) || sessionLocalDate.isBefore(endReportingPeriod.toLocalDate()))
+                && (sessionLocalDate.isEqual(startReportingPeriod.toLocalDate()) || sessionLocalDate.isAfter(startReportingPeriod.toLocalDate()));
     }
 
     private void setFinalPercent(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
