@@ -1076,6 +1076,9 @@ public class RestUtils {
       var isSummer =  (now.isEqual(reportingPeriod.getSummerStart()) || now.isAfter(reportingPeriod.getSummerStart()))
               && (now.isEqual(reportingPeriod.getSummerEnd()) || now.isBefore(reportingPeriod.getSummerEnd()));
 
+      var incomingGrade = StringUtils.isNumeric(student.getGrade())  && student.getGrade().length() == 1
+              ? "0" + student.getGrade()
+              : student.getGrade();
 
       var demStudent = new GradDemographicStudent();
       demStudent.setMincode(schoolTombstone.getMincode());
@@ -1084,7 +1087,7 @@ public class RestUtils {
       demStudent.setBirthdate(student.getBirthdate());
       demStudent.setPen(student.getPen());
       demStudent.setCitizenship(student.getCitizenship());
-      demStudent.setGrade(student.getGrade());
+      demStudent.setGrade(incomingGrade);
       demStudent.setProgramCode1(student.getProgramCode1());
       demStudent.setProgramCode2(student.getProgramCode2());
       demStudent.setProgramCode3(student.getProgramCode3());

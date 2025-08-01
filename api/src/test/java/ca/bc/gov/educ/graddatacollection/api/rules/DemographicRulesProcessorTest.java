@@ -430,6 +430,10 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(issueCode).isTrue();
         assertThat(errorCode).isTrue();
         assertThat(errorMessage).isTrue();
+
+        demographicStudent.setGrade("1");
+        val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError3.size()).isZero();
     }
 
     @Test

@@ -55,7 +55,10 @@ public class EffectiveGradeInGradRule implements DemographicValidationBaseRule {
 
         if(StringUtils.isNotBlank(student.getGrade())) {
             var activeGradGrades = restUtils.getGradGradeList(true);
-            var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(student.getGrade())).findFirst();
+            var incomingGrade = StringUtils.isNumeric(student.getGrade())  && student.getGrade().length() == 1
+                    ? "0" + student.getGrade()
+                    : student.getGrade();
+            var matchedGradGrade = activeGradGrades.stream().filter(grade -> grade.getStudentGradeCode().equalsIgnoreCase(incomingGrade)).findFirst();
 
             if (matchedGradGrade.isPresent() && matchedGradGrade.get().getExpected().equalsIgnoreCase("N")) {
                 String errorMessage = DemographicStudentValidationIssueTypeCode.GRADE_NOT_EXPECTED.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getGrade()));
