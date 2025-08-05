@@ -133,9 +133,9 @@ public class BaseRulesService {
             
             gradStudentCourses.forEach(sc -> {
                 sc.setGradCourseCode38(restUtils.getCoreg38CourseByID(sc.getCourseID()).orElse(null));
-                log.debug("Grad Course Code 38: {}", sc.getGradCourseCode38());
+                log.debug("Grad Course Code for course ID: {} 38 is: {}", sc.getCourseID(), sc.getGradCourseCode38());
                 sc.setGradCourseCode39(restUtils.getCoreg39CourseByID(sc.getCourseID()).orElse(null));
-                log.debug("Grad Course Code 39: {}", sc.getGradCourseCode39());
+                log.debug("Grad Course Code for course ID: {} 39 is: {}", sc.getCourseID(), sc.getGradCourseCode39());
             });
 
             studentRuleData.setGradStudentCourseRecordList(gradStudentCourses);
