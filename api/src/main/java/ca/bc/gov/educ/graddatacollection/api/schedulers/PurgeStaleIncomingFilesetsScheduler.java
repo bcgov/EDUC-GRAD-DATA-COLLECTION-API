@@ -29,8 +29,8 @@ public class PurgeStaleIncomingFilesetsScheduler {
     @Transactional
     public void purgeStaleIncomingFilesetsRecords() {
         LockAssert.assertLocked();
-        log.info("Purging stale Incoming Filesets records from EDUC-STUDENT-DATA-COLLECTION-SAGA-API.");
+        log.info("Purging stale Incoming Filesets records from EDUC-GRAD-DATA-COLLECTION-API.");
         this.incomingFilesetService.purgeStaleIncomingFilesetRecords();
-        log.info("Finished purging stale Incoming Filesets records from EDUC-STUDENT-DATA-COLLECTION-SAGA-API");
+        log.info("Finished purging stale Incoming Filesets records from EDUC-GRAD-DATA-COLLECTION-API");
     }
 }

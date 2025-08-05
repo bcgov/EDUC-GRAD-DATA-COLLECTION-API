@@ -126,9 +126,16 @@ public class BaseRulesService {
         try {
             List<GradStudentCourseRecord> gradStudentCourses = restUtils.getGradStudentCoursesByStudentID(UUID.randomUUID(), studentID);
 
+            log.debug("The following grad students courses found for student ID: {}", studentID);
+            gradStudentCourses.forEach(gradStudentCourseRecord -> {
+               log.debug("Course info: " + gradStudentCourseRecord.toString()); 
+            });
+            
             gradStudentCourses.forEach(sc -> {
                 sc.setGradCourseCode38(restUtils.getCoreg38CourseByID(sc.getCourseID()).orElse(null));
+                log.debug("Grad Course Code 38: {}", sc.getGradCourseCode38());
                 sc.setGradCourseCode39(restUtils.getCoreg39CourseByID(sc.getCourseID()).orElse(null));
+                log.debug("Grad Course Code 39: {}", sc.getGradCourseCode39());
             });
 
             studentRuleData.setGradStudentCourseRecordList(gradStudentCourses);

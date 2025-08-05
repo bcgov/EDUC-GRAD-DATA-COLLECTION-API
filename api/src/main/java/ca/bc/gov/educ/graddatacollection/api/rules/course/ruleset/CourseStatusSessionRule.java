@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C34 | ERROR    | 	Course Status = "W" and the course code and session date does not |C03, C04, C16|
+ *  | C34 | ERROR    | 	Course Status = "W" and the course code and session date does not     |C03, C04, C16|
  *                          exist in GRAD for the student.
  *
  */
