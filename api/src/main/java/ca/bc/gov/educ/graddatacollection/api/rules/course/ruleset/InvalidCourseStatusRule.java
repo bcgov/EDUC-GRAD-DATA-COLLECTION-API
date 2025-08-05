@@ -60,7 +60,7 @@ public class InvalidCourseStatusRule implements CourseValidationBaseRule {
         if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
             && studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
-                (record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) || record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
                     && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
                     && record.getCourseExam().getExamPercentage() != null
                     )) {
