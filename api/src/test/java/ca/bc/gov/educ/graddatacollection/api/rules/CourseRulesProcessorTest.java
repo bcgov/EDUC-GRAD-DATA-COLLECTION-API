@@ -319,6 +319,34 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError1.size()).isZero();
 
+        CoregCoursesRecord traxAndMyEdBdRecord = new CoregCoursesRecord();
+        traxAndMyEdBdRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        traxAndMyEdBdRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setExternalCode("FCLE  12");
+        myEdBCCode.setOriginatingSystem("38");
+        courseCodes.add(myEdBCCode);
+
+        CourseCodeRecord traxCode = new CourseCodeRecord();
+        traxCode.setExternalCode("CLE  12");
+        myEdBCCode.setOriginatingSystem("39");
+        courseCodes.add(traxCode);
+        traxAndMyEdBdRecord.setCourseCode(courseCodes);
+
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        traxAndMyEdBdRecord.setCourseAllowableCredit(courseAllowableCredits);
+
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(traxAndMyEdBdRecord);
+
         courseStudent.setCourseStatus("W");
         courseStudent.setCourseCode("CLE");
         courseStudent.setCourseLevel("12");
@@ -386,14 +414,14 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "CLE  12", // externalCode
+                        "MCLE  12", // externalCode
                         "38" // originatingSystem
                 ))
         );
         when(restUtils.getCoreg39CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "MCLE 12", // externalCode
+                        "CLE  12", // externalCode
                         "39" // originatingSystem
                 ))
         );
@@ -499,14 +527,14 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "CLE  12", // externalCode
+                        "MCLE 12", // externalCode
                         "38" // originatingSystem
                 ))
         );
         when(restUtils.getCoreg39CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "MCLE 12", // externalCode
+                        "CLE  12", // externalCode
                         "39" // originatingSystem
                 ))
         );
@@ -2302,14 +2330,14 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getCoreg38CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "CLE  12", // externalCode
+                        "MCLE 12", // externalCode
                         "38" // originatingSystem
                 ))
         );
         when(restUtils.getCoreg39CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "MCLE 12", // externalCode
+                        "CLE  12", // externalCode
                         "39" // originatingSystem
                 ))
         );

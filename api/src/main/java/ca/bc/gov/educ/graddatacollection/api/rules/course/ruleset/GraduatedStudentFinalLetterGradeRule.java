@@ -58,7 +58,7 @@ public class GraduatedStudentFinalLetterGradeRule implements CourseValidationBas
         var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
 
         if (studentCourseRecord.stream().anyMatch(record ->
-                (record.getGradCourseCode38().getExternalCode().equalsIgnoreCase(externalID) || record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
                     && gradStudent != null
                     && gradStudent.getGraduated().equalsIgnoreCase("true")
                     && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())

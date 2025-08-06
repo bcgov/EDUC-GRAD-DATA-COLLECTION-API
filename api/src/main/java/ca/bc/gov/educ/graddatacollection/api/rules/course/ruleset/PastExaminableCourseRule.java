@@ -71,9 +71,8 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
 
             if (studentCourseRecords != null && !studentCourseRecords.isEmpty()) {
                 var matchingRecord = studentCourseRecords.stream().filter(record ->
-                        { log.debug("Checking record: courseSession={}, gradCourseCode38={}, gradCourseCode39={}", record.getCourseSession(), record.getGradCourseCode38() != null ? record.getGradCourseCode38().getExternalCode() : "null", record.getGradCourseCode39() != null ? record.getGradCourseCode39().getExternalCode() : "null");
-                            boolean courseCodeMatch = (record.getGradCourseCode38() != null && record.getGradCourseCode38().getExternalCode().replaceAll("-", "").equalsIgnoreCase(externalID)) ||
-                                    (record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID));
+                        { log.debug("Checking record: courseSession={}, gradCourseCode39={}", record.getCourseSession(), record.getGradCourseCode39() != null ? record.getGradCourseCode39().getExternalCode() : "null");
+                            boolean courseCodeMatch = (record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID));
 
                             // Normalize session dates for comparison
                             String normalizedRecordSession = record.getCourseSession().replaceAll("/", "");
