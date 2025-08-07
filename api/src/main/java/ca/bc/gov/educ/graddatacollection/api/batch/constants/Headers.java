@@ -10,14 +10,14 @@ public enum Headers {
   SCHOOL_CODE("School Code", ColumnType.STRING),
   PEN("PEN", ColumnType.STRING),
   LEGAL_SURNAME("Legal Surname", ColumnType.STRING),
+  LEGAL_FIRST_NAME("Legal Given Name", ColumnType.STRING),
   LEGAL_MIDDLE_NAME("Legal Middle Name", ColumnType.STRING),
-  LEGAL_FIRST_NAME("Legal Given First Name", ColumnType.STRING),
-  DOB("Birthdate\nyyyymmdd", ColumnType.DATE),
-  COURSE("Course", ColumnType.STRING),
+  DOB("Birthdate", ColumnType.DATE),
+  COURSE("Ministry Course Code and Level", ColumnType.STRING),
   SESSION_DATE("Session Date", ColumnType.STRING),
-  FINAL_PERCENT("Final %", ColumnType.STRING),
+  FINAL_PERCENT("Final Percent", ColumnType.STRING),
   FINAL_LETTER_GRADE("Final Letter Grade", ColumnType.STRING),
-  NO_OF_CREDITS("Number of Credits", ColumnType.STRING);
+  NO_OF_CREDITS("Credits", ColumnType.STRING);
 
   private final String code;
   private final ColumnType type;
