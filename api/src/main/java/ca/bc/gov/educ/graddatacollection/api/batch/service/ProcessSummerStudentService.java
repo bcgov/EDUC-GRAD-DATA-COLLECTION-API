@@ -107,7 +107,7 @@ public class ProcessSummerStudentService {
         ReportingPeriodEntity reportingPeriodEntity = reportingPeriodRepository.findActiveReportingPeriod().orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "currentDate", String.valueOf(LocalDateTime.now())));
         incomingFilesetEntity.setReportingPeriod(reportingPeriodEntity);
         incomingFilesetEntity.setSchoolID(UUID.fromString(schoolID));
-        incomingFilesetEntity.setDistrictID(UUID.fromString(districtID));
+        incomingFilesetEntity.setDistrictID(districtID != null ? UUID.fromString(districtID) : null);
         incomingFilesetEntity.setDemFileName(incomingFileName.split("\\.")[0] + ".DEM");
         incomingFilesetEntity.setCrsFileName(incomingFileName.split("\\.")[0] + ".CRS");
         incomingFilesetEntity.setXamFileName(incomingFileName.split("\\.")[0] + ".XAM");
