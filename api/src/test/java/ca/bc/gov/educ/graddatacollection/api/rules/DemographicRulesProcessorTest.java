@@ -366,7 +366,10 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testD07DemographicValidGradeRule() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockReportingPeriod = createMockReportingPeriodEntity();
+        mockReportingPeriod.setSummerStart(LocalDate.now().minusDays(2).atStartOfDay());
+        mockReportingPeriod.setSummerEnd(LocalDate.now().minusDays(1).atStartOfDay());
+        var reportingPeriod = reportingPeriodRepository.save(mockReportingPeriod);
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -877,7 +880,10 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testD17DemographicStudentProgramRule() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockReportingPeriod = createMockReportingPeriodEntity();
+        mockReportingPeriod.setSummerStart(LocalDate.now().minusDays(2).atStartOfDay());
+        mockReportingPeriod.setSummerEnd(LocalDate.now().minusDays(1).atStartOfDay());
+        var reportingPeriod = reportingPeriodRepository.save(mockReportingPeriod);
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -1066,7 +1072,10 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testD12BlankGradRequirement_Error_When_BlankYear_NotGA_NotFNS_IsGraduated_UsingDirectDataInjection() {
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockReportingPeriod = createMockReportingPeriodEntity();
+        mockReportingPeriod.setSummerStart(LocalDate.now().minusDays(2).atStartOfDay());
+        mockReportingPeriod.setSummerEnd(LocalDate.now().minusDays(1).atStartOfDay());
+        var reportingPeriod = reportingPeriodRepository.save(mockReportingPeriod);
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
         var courseStudent = createMockCourseStudent(savedFileSet);
@@ -1111,6 +1120,9 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var reportingPeriodEntity = createMockReportingPeriodEntity();
         reportingPeriodEntity.setSchYrStart(LocalDateTime.now().minusDays(2));
         reportingPeriodEntity.setSchYrEnd(LocalDateTime.now().plusDays(2));
+        reportingPeriodEntity.setSummerStart(LocalDate.now().minusDays(2).atStartOfDay());
+        reportingPeriodEntity.setSummerEnd(LocalDate.now().minusDays(1).atStartOfDay());
+        
         var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         var savedFileSet = incomingFilesetRepository.save(incomingFileset);
