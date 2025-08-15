@@ -136,7 +136,7 @@ public class GradDemFileService implements GradFileBatchProcessor {
         if(StringUtils.isNotBlank(foundDupePEN)){
             var dupePENLines = new TreeSet<>();
             for (final var student : batchFile.getDemogData()) {
-                if(student.getPen().equals(foundDupePEN)){
+                if(StringUtils.isNotBlank(student.getPen()) && student.getPen().equals(foundDupePEN)){
                     dupePENLines.add(Integer.parseInt(student.getLineNumber()));
                 }
             }
