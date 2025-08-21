@@ -358,7 +358,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201860", // courseID
-                                "2023/06", // courseSession
+                                "202306", // courseSession
                                 100, // interimPercent
                                 "", // interimLetterGrade
                                 100, // finalPercent
@@ -470,7 +470,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201860", // courseID
-                                "2021/06", // courseSession
+                                "202106", // courseSession
                                 100, // interimPercent
                                 "", // interimLetterGrade
                                 100, // finalPercent
@@ -497,7 +497,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201862", // courseID
-                                "2023/06", // courseSession
+                                "202306", // courseSession
                                 95, // interimPercent
                                 "", // interimLetterGrade
                                 95, // finalPercent
@@ -770,7 +770,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201860", // courseID
-                                "2023/06", // courseSession
+                                "202306", // courseSession
                                 100, // interimPercent
                                 "", // interimLetterGrade
                                 100, // finalPercent
@@ -2274,7 +2274,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new GradStudentCourseRecord(
                                 null, // id
                                 "3201860", // courseID
-                                "2023/06", // courseSession
+                                "202306", // courseSession
                                 100, // interimPercent
                                 "", // interimLetterGrade
                                 100, // finalPercent

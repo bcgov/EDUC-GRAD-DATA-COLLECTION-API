@@ -63,7 +63,7 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
                 && studentCourseRecord != null
                 && studentCourseRecord.stream().anyMatch(record ->
                     (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
-                        && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()) // yyyy/mm
+                        && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth()) // yyyymm
         )) {
             log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));

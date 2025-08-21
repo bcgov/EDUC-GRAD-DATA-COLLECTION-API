@@ -18,9 +18,9 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C34 | ERROR    | 	Course Status = "W" and the course code and session date does not     |C03, C04, C16|
- *                          exist in GRAD for the student.
- *
+ *  | C34 | ERROR     | The course code and session date does not exist in the student record |C03, C04, C16|
+*                       so cannot be withdrawn. Check the TVR to see if the course was
+ *                      previously reported with a different session date.
  */
 @Component
 @Slf4j
@@ -60,7 +60,7 @@ public class CourseStatusSessionRule implements CourseValidationBaseRule {
 
         if (studentCourseRecord.stream().noneMatch(record ->
                 (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
-                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth()))
+                    && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth()))
                     && StringUtils.isNotBlank(courseStudentEntity.getCourseStatus()) && courseStudentEntity.getCourseStatus().equalsIgnoreCase("W")) {
             log.debug("C34: Error: Course Status = W and the course code and session date does not exist in GRAD for the student. :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_WRONG_SESSION, CourseStudentValidationIssueTypeCode.COURSE_WRONG_SESSION.getMessage()));
