@@ -62,7 +62,7 @@ public class InvalidCourseStatusRule implements CourseValidationBaseRule {
             && studentCourseRecord.stream().anyMatch(record ->
                 (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
                     && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth()) // yyyymm
-                    && record.getCourseExam().getExamPercentage() != null
+                    && (record.getCourseExam() != null && record.getCourseExam().getExamPercentage() != null)
                     )) {
             log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
