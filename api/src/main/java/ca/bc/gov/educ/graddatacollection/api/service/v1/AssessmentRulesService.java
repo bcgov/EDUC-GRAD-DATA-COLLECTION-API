@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,15 @@ public class AssessmentRulesService extends BaseRulesService {
         return null;
     }
 
+    public boolean sessionYearIsValid(String year) {
+        try{
+            Year.of(Integer.parseInt(year));
+            return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
+    
     public boolean sessionMonthIsValid(String month) {
         return AssessmentSessionMonths.findByValue(month).isPresent();
     }

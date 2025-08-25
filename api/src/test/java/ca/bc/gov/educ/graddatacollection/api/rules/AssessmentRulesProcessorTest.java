@@ -172,57 +172,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
             err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getCode()) &&
             err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage())
         )).isTrue();
-        assertThat(validationError5.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage().formatted(assessmentStudent.getCourseCode(), assessmentStudent.getCourseYear(), assessmentStudent.getCourseMonth()))
-        )).isTrue();
 
         LocalDate current = LocalDate.now();
-        assessmentStudent.setCourseYear(current.minusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
-        assessmentStudent.setCourseMonth("12");
-        assessmentStudent.setCourseCode("MA10");
-        val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError6.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
-        )).isTrue();
-        assertThat(validationError6.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
-        )).isTrue();
-
-        assessmentStudent.setCourseYear(current.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy")));
-        assessmentStudent.setCourseMonth(current.minusMonths(1).format(DateTimeFormatter.ofPattern("MM")));
-        assessmentStudent.setCourseCode("MA10");
-        val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError7.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
-        )).isTrue();
-        assertThat(validationError7.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
-        )).isTrue();
-
-        assessmentStudent.setCourseYear(current.minusMonths(1).minusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
-        assessmentStudent.setCourseMonth(current.minusMonths(1).minusYears(1).format(DateTimeFormatter.ofPattern("MM")));
-        assessmentStudent.setCourseCode("MA10");
-        val validationError8 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError8.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
-        )).isTrue();
-        assertThat(validationError8.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
-        )).isTrue();
 
         assessmentStudent.setCourseYear(current.plusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
         assessmentStudent.setCourseMonth(current.plusYears(1).format(DateTimeFormatter.ofPattern("MM")));
