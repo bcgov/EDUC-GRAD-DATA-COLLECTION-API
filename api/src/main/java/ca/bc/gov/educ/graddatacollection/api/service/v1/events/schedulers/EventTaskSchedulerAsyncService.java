@@ -104,28 +104,28 @@ public class EventTaskSchedulerAsyncService {
     }
 
     final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
-    log.info("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
+    log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
     if (!demographicStudentEntities.isEmpty()) {
       this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities);
       return;
     }
 
     final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(numberOfStudentsToProcess);
-    log.info("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
+    log.debug("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
     if (!assessmentStudentEntities.isEmpty()) {
       this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities);
       return;
     }
 
     final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(numberOfStudentsToProcess);
-    log.info("Found :: {} course records in loaded status", courseStudentEntities.size());
+    log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
     if (!courseStudentEntities.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities);
       return;
     }
 
     final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(Integer.parseInt(numberOfStudentsToProcess));
-    log.info("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
+    log.debug("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
     if (!courseStudentEntitiesToUpdate.isEmpty()) {
       this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate);
     }
