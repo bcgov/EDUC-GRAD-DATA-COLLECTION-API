@@ -74,8 +74,9 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
 
                     String finalLetterGrade = student.getFinalLetterGrade();
                     String finalPercentStr = student.getFinalPercentage();
+                    Optional<Integer> parsedFinalPercentage = parseFinalPercentage(finalPercentStr);
                     boolean hasFinalLetterGrade = StringUtils.isNotBlank(finalLetterGrade);
-                    boolean hasFinalPercent = StringUtils.isNotBlank(finalPercentStr);
+                    boolean hasFinalPercentValue = StringUtils.isNotBlank(finalPercentStr);
 
                     if (hasFinalLetterGrade) {
                         Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream()
@@ -88,8 +89,9 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
                             Integer percentHigh = studentLetterGrade.getPercentRangeHigh();
                             boolean hasPercentRange = percentLow != null && percentHigh != null;
 
+                            boolean finalPercentageIsZero = parsedFinalPercentage.map(integer -> integer.equals(0)).orElse(false);
                             // 1. If no percent range, final percent should NOT be submitted
-                            if (!hasPercentRange && hasFinalPercent) {
+                            if (!hasPercentRange && hasFinalPercentValue && !finalPercentageIsZero) {
                                 errors.add(createValidationIssue(
                                         StudentValidationIssueSeverityCode.ERROR,
                                         ValidationFieldCode.FINAL_PERCENTAGE,
@@ -99,7 +101,7 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
                             }
 
                             // 2. If percent range exists, final percent MUST be submitted
-                            if (hasPercentRange && !hasFinalPercent) {
+                            if (hasPercentRange && !hasFinalPercentValue) {
                                 errors.add(createValidationIssue(
                                         StudentValidationIssueSeverityCode.ERROR,
                                         ValidationFieldCode.FINAL_PERCENTAGE,
@@ -109,18 +111,10 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
                             }
 
                             // 3. If percent range exists and final percent is submitted, it must be within range
-                            if (hasPercentRange && hasFinalPercent) {
-                                try {
-                                    int finalPercentage = Integer.parseInt(finalPercentStr);
-                                    if (finalPercentage < percentLow || finalPercentage > percentHigh) {
-                                        errors.add(createValidationIssue(
-                                                StudentValidationIssueSeverityCode.ERROR,
-                                                ValidationFieldCode.FINAL_PERCENTAGE,
-                                                CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENT_OUT_OF_RANGE,
-                                                CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage()
-                                        ));
-                                    }
-                                } catch (NumberFormatException e) {
+                            if (hasPercentRange && hasFinalPercentValue) {
+                                boolean finalPercentageBelowMinimum = parsedFinalPercentage.map(integer -> integer < percentLow).orElse(false);
+                                boolean finalPercentageBelowMaximum = parsedFinalPercentage.map(integer -> integer > percentHigh).orElse(false);
+                                if (parsedFinalPercentage.isEmpty() || finalPercentageBelowMinimum || finalPercentageBelowMaximum) {
                                     errors.add(createValidationIssue(
                                             StudentValidationIssueSeverityCode.ERROR,
                                             ValidationFieldCode.FINAL_PERCENTAGE,
@@ -138,5 +132,13 @@ public class FinalPercentageGradeMismatch implements CourseValidationBaseRule {
             }
         }
         return errors;
+    }
+
+    private Optional<Integer> parseFinalPercentage(String finalPercentage) {
+        try {
+            return Optional.of(Integer.parseInt(finalPercentage));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }
