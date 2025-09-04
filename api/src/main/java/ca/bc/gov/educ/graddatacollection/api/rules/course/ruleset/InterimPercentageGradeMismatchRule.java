@@ -66,8 +66,9 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
 
         String interimLetterGrade = student.getInterimLetterGrade();
         String interimPercentStr = student.getInterimPercentage();
+        Optional<Integer> parsedInterimPercentage = parseInterimPercentage(interimPercentStr);
         boolean hasInterimLetterGrade = StringUtils.isNotBlank(interimLetterGrade);
-        boolean hasInterimPercent = StringUtils.isNotBlank(interimPercentStr);
+        boolean hasInterimPercentValue = StringUtils.isNotBlank(interimPercentStr);
 
         if (hasInterimLetterGrade) {
             Optional<LetterGrade> optionalStudentLetterGrade = letterGradeList.stream()
@@ -80,8 +81,9 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
                 Integer percentHigh = studentLetterGrade.getPercentRangeHigh();
                 boolean hasPercentRange = percentLow != null && percentHigh != null;
 
+                boolean interimPercentageIsZero = parsedInterimPercentage.map(integer -> integer.equals(0)).orElse(false);
                 // 1. If no percent range, interim percent should NOT be submitted
-                if (!hasPercentRange && hasInterimPercent) {
+                if (!hasPercentRange && hasInterimPercentValue && !interimPercentageIsZero) {
                     errors.add(createValidationIssue(
                             StudentValidationIssueSeverityCode.ERROR,
                             ValidationFieldCode.INTERIM_PERCENTAGE,
@@ -91,7 +93,7 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
                 }
 
                 // 2. If percent range exists, interim percent MUST be submitted
-                if (hasPercentRange && !hasInterimPercent) {
+                if (hasPercentRange && !hasInterimPercentValue) {
                     errors.add(createValidationIssue(
                             StudentValidationIssueSeverityCode.ERROR,
                             ValidationFieldCode.INTERIM_PERCENTAGE,
@@ -101,18 +103,10 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
                 }
 
                 // 3. If percent range exists and interim percent is submitted, it must be within range
-                if (hasPercentRange && hasInterimPercent) {
-                    try {
-                        int interimPercentage = Integer.parseInt(interimPercentStr);
-                        if (interimPercentage < percentLow || interimPercentage > percentHigh) {
-                            errors.add(createValidationIssue(
-                                    StudentValidationIssueSeverityCode.ERROR,
-                                    ValidationFieldCode.INTERIM_PERCENTAGE,
-                                    CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE,
-                                    CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage()
-                            ));
-                        }
-                    } catch (NumberFormatException e) {
+                if (hasPercentRange && hasInterimPercentValue) {
+                    boolean interimPercentageBelowMinimum = parsedInterimPercentage.map(integer -> integer < percentLow).orElse(false);
+                    boolean interimPercentageBelowMaximum = parsedInterimPercentage.map(integer -> integer > percentHigh).orElse(false);
+                    if (parsedInterimPercentage.isEmpty() || interimPercentageBelowMinimum || interimPercentageBelowMaximum) {
                         errors.add(createValidationIssue(
                                 StudentValidationIssueSeverityCode.ERROR,
                                 ValidationFieldCode.INTERIM_PERCENTAGE,
@@ -125,5 +119,13 @@ public class InterimPercentageGradeMismatchRule implements CourseValidationBaseR
         }
 
         return errors;
+    }
+
+    private Optional<Integer> parseInterimPercentage(String interimPercentage) {
+        try {
+            return Optional.of(Integer.parseInt(interimPercentage));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }
