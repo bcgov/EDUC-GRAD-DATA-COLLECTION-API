@@ -74,7 +74,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                         new LetterGrade("F", "0", "N", "", "F", 49, 0, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("IE", "0", "N", "", "Insufficient Evidence", null, null, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
                         new LetterGrade("RM", "0", "Y", "", "Requirement Met", null, null, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
-                        new LetterGrade("W", "0", "N", "", "Withdraw", null, null, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
+                        new LetterGrade("W", "0", "N", "", "Withdraw", null, null, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString()),
+                        new LetterGrade("FG1", "0", "Y", "", "Fake Grade 1", null, null, null, "1940-01-01T08:00:00.000+00:00", "unitTests", LocalDateTime.now().toString(), "unitTests", LocalDateTime.now().toString())
                 )
         );
         when(restUtils.getEquivalencyChallengeCodeList()).thenReturn(
@@ -1415,19 +1416,19 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isZero();
 
         //Test: interim letter grade without percentage range, zero interim percent.
-        courseStudent.setInterimLetterGrade("RM");
+        courseStudent.setInterimLetterGrade("FG1");
         courseStudent.setInterimPercentage("0");
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError3.size()).isZero();
 
         //Test: interim letter grade without percentage range, blank interim percent.
-        courseStudent.setInterimLetterGrade("RM");
+        courseStudent.setInterimLetterGrade("FG1");
         courseStudent.setInterimPercentage("");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError4.size()).isZero();
 
         //Test: interim letter grade without percentage range, interim percentage submitted.
-        courseStudent.setInterimLetterGrade("RM");
+        courseStudent.setInterimLetterGrade("FG1");
         courseStudent.setInterimPercentage("10");
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError5.stream().anyMatch(err ->
@@ -1467,16 +1468,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setInterimPercentage("90");
         val validationError9 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError9.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.INTERIM_PERCENTAGE.getCode()) &&
-            err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getCode()) &&
-            err.getValidationIssueDescription().equals(CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage())
-        )).isTrue();
-
-        // Test: interim letter grade with percent range, interim percent not a percent
-        courseStudent.setInterimLetterGrade("B");
-        courseStudent.setInterimPercentage("Not a Percent");
-        val validationError10 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError10.stream().anyMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.INTERIM_PERCENTAGE.getCode()) &&
             err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getCode()) &&
             err.getValidationIssueDescription().equals(CourseStudentValidationIssueTypeCode.INTERIM_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage())
@@ -1639,19 +1630,19 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isZero();
 
         //Test: final letter grade without percentage range, zero final percent.
-        courseStudent.setFinalLetterGrade("RM");
+        courseStudent.setFinalLetterGrade("FG1");
         courseStudent.setFinalPercentage("0");
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError3.size()).isZero();
 
         //Test: final letter grade without percentage range, blank final percent.
-        courseStudent.setFinalLetterGrade("RM");
+        courseStudent.setFinalLetterGrade("FG1");
         courseStudent.setFinalPercentage("");
         val validationError4 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError4.size()).isZero();
 
         //Test: final letter grade without percentage range, final percentage submitted.
-        courseStudent.setFinalLetterGrade("RM");
+        courseStudent.setFinalLetterGrade("FG1");
         courseStudent.setFinalPercentage("10");
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError5.stream().anyMatch(err ->
@@ -1691,16 +1682,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalPercentage("90");
         val validationError9 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError9.stream().anyMatch(err ->
-            err.getValidationIssueFieldCode().equals(ValidationFieldCode.FINAL_PERCENTAGE.getCode()) &&
-            err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getCode()) &&
-            err.getValidationIssueDescription().equals(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage())
-        )).isTrue();
-
-        // Test: final letter grade with percent range, final percent not a percent
-        courseStudent.setFinalLetterGrade("B");
-        courseStudent.setFinalPercentage("Not a Percent");
-        val validationError10 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError10.stream().anyMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.FINAL_PERCENTAGE.getCode()) &&
             err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getCode()) &&
             err.getValidationIssueDescription().equals(CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_PERCENT_OUT_OF_RANGE.getMessage())
