@@ -1856,8 +1856,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
         CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
         courseCategory.setId("2932");
-        courseCategory.setType("LD");
-        courseCategory.setCode("BA");
+        courseCategory.setType("BA");
+        courseCategory.setCode("LD");
         courseCategory.setDescription("");
         coursesRecord.setCourseCategory(courseCategory);
         coursesRecord.setGenericCourseType("G");

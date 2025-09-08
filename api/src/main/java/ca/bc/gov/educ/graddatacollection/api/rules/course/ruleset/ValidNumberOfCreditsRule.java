@@ -60,7 +60,7 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
 
         if(StringUtils.isBlank(student.getNumberOfCredits()) || (StringUtils.isNumeric(student.getNumberOfCredits()) && Integer.parseInt(student.getNumberOfCredits()) == 0)) {
             boolean zeroCredWithAllowableLetterGrade = StringUtils.isNotBlank(student.getFinalLetterGrade()) && letterGradeWithAllowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade()));
-            boolean courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue = coursesRecord.getCourseCategory() != null && !coursesRecord.getCourseCategory().getType().equalsIgnoreCase("LD");
+            boolean courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue = coursesRecord.getCourseCategory() != null && !coursesRecord.getCourseCategory().getCode().equalsIgnoreCase("LD");
             if(zeroCredWithAllowableLetterGrade || courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue) {
                 log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
