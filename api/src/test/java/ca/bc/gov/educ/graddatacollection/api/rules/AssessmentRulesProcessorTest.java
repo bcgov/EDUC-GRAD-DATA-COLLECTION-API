@@ -13,6 +13,8 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodReposi
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset.CourseCodeNumeracyRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Assessment;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
@@ -32,8 +34,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -273,8 +278,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError5.size()).isOne();
-        assertThat(validationError5.getFirst().getValidationIssueDescription()).isNotEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
+        assertThat(validationError5.size()).isZero();
 
         response.setHasPriorRegistration(false);
         response.setAlreadyWrittenAssessment(false);
@@ -289,8 +293,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getAssessmentStudentDetail(any(),any())).thenReturn(response);
 
         val validationError7 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
-        assertThat(validationError7.size()).isOne();
-        assertThat(validationError7.getFirst().getValidationIssueDescription()).isNotEqualTo(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DUP.getMessage());
+        assertThat(validationError7.size()).isZero();
     }
 
     @Test
@@ -426,7 +429,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent1.setLocalID(demStudent.getLocalID());
         numeracyStudent1.setLastName(demStudent.getLastName());
         numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent1.setCourseCode("NME10");
+        numeracyStudent1.setCourseCode(NumeracyAssessmentCodes.NME10.getCode());
         numeracyStudent1.setCourseMonth("06");
         numeracyStudent1.setCourseYear(futureSessionYear);
         assessmentStudentRepository.save(numeracyStudent1);
@@ -436,7 +439,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent2.setLocalID(demStudent.getLocalID());
         numeracyStudent2.setLastName(demStudent.getLastName());
         numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent2.setCourseCode("NMF");
+        numeracyStudent2.setCourseCode(NumeracyAssessmentCodes.NMF.getCode());
         numeracyStudent2.setCourseMonth("06");
         numeracyStudent2.setCourseYear(futureSessionYear);
         numeracyStudent2.setAssessmentStudentID(null);
@@ -715,7 +718,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent1.setLocalID(demStudent.getLocalID());
         numeracyStudent1.setLastName(demStudent.getLastName());
         numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent1.setCourseCode("NME10");
+        numeracyStudent1.setCourseCode(NumeracyAssessmentCodes.NME10.getCode());
         numeracyStudent1.setCourseMonth("06");
         numeracyStudent1.setCourseYear(futureSessionYear);
         assessmentStudentRepository.save(numeracyStudent1);
@@ -725,13 +728,15 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent2.setLocalID(demStudent.getLocalID());
         numeracyStudent2.setLastName(demStudent.getLastName());
         numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent2.setCourseCode("NMF");
+        numeracyStudent2.setCourseCode(NumeracyAssessmentCodes.NMF.getCode());
         numeracyStudent2.setCourseMonth("06");
         numeracyStudent2.setCourseYear(futureSessionYear);
         numeracyStudent2.setAssessmentStudentID(null);
+        numeracyStudent2.setCourseStatus("A");
 
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
         response.setHasPriorRegistration(true);
+        response.setAlreadyRegisteredAssessmentTypeCode(NumeracyAssessmentCodes.NME10.getCode());
         when(this.restUtils.getAssessmentStudentDetail(any(), any())).thenReturn(response);
 
         val ruleData = createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), numeracyStudent2, createMockSchoolTombstone());
@@ -741,7 +746,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(numeracyValidationError.size()).isNotZero();
         assertThat(numeracyValidationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(numeracyValidationError.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode());
-        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo("Student has already been registered for a numeracy assessment for this session: null. This registration cannot be updated.");
+        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(NumeracyAssessmentCodes.NME10.getCode()));
 
         response.setHasPriorRegistration(false);
         ruleData.setAssessmentStudentDetail(response);
@@ -750,5 +755,33 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
             err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode())
         )).isFalse();
+    }
+
+    @Test
+    void testIsNumeracyConflictVariousCases() throws Exception {
+        AssessmentRulesService svc = mock(AssessmentRulesService.class);
+        CourseCodeNumeracyRule rule = new CourseCodeNumeracyRule(svc);
+
+        var method = CourseCodeNumeracyRule.class.getDeclaredMethod("isNumeracyConflict", String.class, String.class);
+        method.setAccessible(true);
+
+        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), NumeracyAssessmentCodes.NMF.getCode()));
+        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME10.getCode(), NumeracyAssessmentCodes.NMF.getCode()));
+        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), NumeracyAssessmentCodes.NMF10.getCode()));
+        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME10.getCode(), NumeracyAssessmentCodes.NMF10.getCode()));
+
+        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NMF.getCode(), NumeracyAssessmentCodes.NME.getCode()));
+        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NMF10.getCode(), NumeracyAssessmentCodes.NME.getCode()));
+
+        assertTrue((Boolean) method.invoke(rule, " nMe10 ", " nmF "));
+        assertTrue((Boolean) method.invoke(rule, "nme", "NMF10"));
+
+        assertFalse((Boolean) method.invoke(rule, "MA10", "NMF"));
+        assertFalse((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), "MA10"));
+        assertFalse((Boolean) method.invoke(rule, "LTE10", "MA10"));
+
+        assertFalse((Boolean) method.invoke(rule, null, NumeracyAssessmentCodes.NMF.getCode()));
+        assertFalse((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), null));
+        assertFalse((Boolean) method.invoke(rule, null, null));
     }
 }
