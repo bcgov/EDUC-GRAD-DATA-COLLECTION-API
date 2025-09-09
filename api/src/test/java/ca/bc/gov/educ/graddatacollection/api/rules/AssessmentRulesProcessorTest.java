@@ -426,7 +426,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent1.setLocalID(demStudent.getLocalID());
         numeracyStudent1.setLastName(demStudent.getLastName());
         numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent1.setCourseCode("NME10");
+        numeracyStudent1.setCourseCode(NumeracyAssessmentCodes.NME10.getCode());
         numeracyStudent1.setCourseMonth("06");
         numeracyStudent1.setCourseYear(futureSessionYear);
         assessmentStudentRepository.save(numeracyStudent1);
@@ -436,7 +436,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent2.setLocalID(demStudent.getLocalID());
         numeracyStudent2.setLastName(demStudent.getLastName());
         numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent2.setCourseCode("NMF");
+        numeracyStudent2.setCourseCode(NumeracyAssessmentCodes.NMF.getCode());
         numeracyStudent2.setCourseMonth("06");
         numeracyStudent2.setCourseYear(futureSessionYear);
         numeracyStudent2.setAssessmentStudentID(null);
@@ -715,7 +715,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent1.setLocalID(demStudent.getLocalID());
         numeracyStudent1.setLastName(demStudent.getLastName());
         numeracyStudent1.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent1.setCourseCode("NME10");
+        numeracyStudent1.setCourseCode(NumeracyAssessmentCodes.NME10.getCode());
         numeracyStudent1.setCourseMonth("06");
         numeracyStudent1.setCourseYear(futureSessionYear);
         assessmentStudentRepository.save(numeracyStudent1);
@@ -725,13 +725,15 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         numeracyStudent2.setLocalID(demStudent.getLocalID());
         numeracyStudent2.setLastName(demStudent.getLastName());
         numeracyStudent2.setIncomingFileset(demStudent.getIncomingFileset());
-        numeracyStudent2.setCourseCode("NMF");
+        numeracyStudent2.setCourseCode(NumeracyAssessmentCodes.NMF.getCode());
         numeracyStudent2.setCourseMonth("06");
         numeracyStudent2.setCourseYear(futureSessionYear);
         numeracyStudent2.setAssessmentStudentID(null);
+        numeracyStudent2.setCourseStatus("A");
 
         AssessmentStudentDetailResponse response = new AssessmentStudentDetailResponse();
         response.setHasPriorRegistration(true);
+        response.setAlreadyRegisteredAssessmentTypeCode(NumeracyAssessmentCodes.NME10.getCode());
         when(this.restUtils.getAssessmentStudentDetail(any(), any())).thenReturn(response);
 
         val ruleData = createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), numeracyStudent2, createMockSchoolTombstone());
@@ -741,7 +743,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(numeracyValidationError.size()).isNotZero();
         assertThat(numeracyValidationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(numeracyValidationError.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode());
-        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo("Student has already been registered for a numeracy assessment for this session: null. This registration cannot be updated.");
+        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(NumeracyAssessmentCodes.NME10.getCode()));
 
         response.setHasPriorRegistration(false);
         ruleData.setAssessmentStudentDetail(response);
