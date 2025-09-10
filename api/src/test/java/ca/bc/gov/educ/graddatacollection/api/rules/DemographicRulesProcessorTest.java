@@ -880,41 +880,6 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testD17DemographicStudentProgramRule() {
-        var mockReportingPeriod = createMockReportingPeriodEntity();
-        mockReportingPeriod.setSummerStart(LocalDate.now().minusDays(2).atStartOfDay());
-        mockReportingPeriod.setSummerEnd(LocalDate.now().minusDays(1).atStartOfDay());
-        var reportingPeriod = reportingPeriodRepository.save(mockReportingPeriod);
-        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
-        var courseStudent = createMockCourseStudent(savedFileSet);
-        courseStudentRepository.save(courseStudent);
-        var demStudent = createMockDemographicStudent(savedFileSet);
-        demStudent.setPen(courseStudent.getPen());
-        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
-
-        GradStudentRecord gradStudentRecord = new GradStudentRecord();
-        gradStudentRecord.setSchoolOfRecordId(UUID.randomUUID().toString());
-        gradStudentRecord.setStudentStatusCode("CUR");
-        gradStudentRecord.setGraduated("true");
-        gradStudentRecord.setProgramCompletionDate("2023-01-01");
-        gradStudentRecord.setProgram("2018");
-
-        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
-
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(savedFileSet), createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError2.size()).isNotZero();
-
-        var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.PEN.getCode()));
-        var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getCode()));
-        var errorMessage = validationError2.stream().anyMatch(val -> val.getValidationIssueDescription().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_ALREADY_GRADUATED.getMessage().formatted(gradStudentRecord.getProgram())));
-        assertThat(issueCode).isTrue();
-        assertThat(errorCode).isTrue();
-        assertThat(errorMessage).isTrue();
-    }
-
-
-    @Test
     void testD08DemographicSCCPCompletionDate() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);

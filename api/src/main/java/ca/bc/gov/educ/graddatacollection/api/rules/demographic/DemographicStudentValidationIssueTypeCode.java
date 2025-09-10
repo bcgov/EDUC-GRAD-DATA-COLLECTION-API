@@ -41,7 +41,6 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL("STUDENTPROGRAMGRADREQUIREMENTYEARNULL", "The Graduation Program Year was blank. The GRAD System has the %s program for this student."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD("STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD", "The student has a %s completion date so the program code cannot be changed."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED("STUDENTPROGRAMGRADREQUIREMENTYEARPROGRAMCLOSED", "Reported graduation program is closed. Students will not be able to graduate on this program."),
-  STUDENT_PROGRAM_ALREADY_GRADUATED("STUDENTPROGRAMALREADYGRADUATED", "The student has a %s completion date so the program code cannot be blank, changed, or removed.")
   ;
 
   private static final Map<String, DemographicStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
