@@ -17,7 +17,9 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
@@ -34,7 +36,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LOCAL_STUDENT_ID;
@@ -56,8 +57,10 @@ public class GradXamFileService implements GradFileBatchProcessor {
     private final IncomingFilesetService incomingFilesetService;
     @Getter(PRIVATE)
     private final GradFileValidator gradFileValidator;
+    private final ReportingPeriodService reportingPeriodService;
     @Getter(PRIVATE)
     private final RestUtils restUtils;
+    private final AssessmentRulesService assessmentRulesService;
 
     @Override
     public IncomingFilesetEntity populateBatchFileAndLoadData(String guid, DataSet ds, final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
@@ -120,16 +123,31 @@ public class GradXamFileService implements GradFileBatchProcessor {
         for (final var student : batchFile.getAssessmentData()) { // set the object so that PK/FK relationship will be auto established by hibernate.
             if(StringUtils.isNotBlank(student.getPen())) {
                 final var assessmentStudentEntity = mapper.toXAMStudentEntity(student, entity);
-                if (StringUtils.isNotBlank(student.getExamMincode())) {
-                    var school = restUtils.getSchoolByMincode(student.getExamMincode());
-                    school.ifPresent(schoolTombstone -> assessmentStudentEntity.setExamSchoolID(UUID.fromString(schoolTombstone.getSchoolId())));
+                if(isRecordForValidSession(assessmentStudentEntity)) {
+                    if (StringUtils.isNotBlank(student.getExamMincode())) {
+                        var school = restUtils.getSchoolByMincode(student.getExamMincode());
+                        school.ifPresent(schoolTombstone -> assessmentStudentEntity.setExamSchoolID(UUID.fromString(schoolTombstone.getSchoolId())));
+                    }
+                    entity.getAssessmentStudentEntities().add(assessmentStudentEntity);   
                 }
-                entity.getAssessmentStudentEntities().add(assessmentStudentEntity);
             }else{
                 entity.setNumberOfMissingPENs(entity.getNumberOfMissingPENs() + 1);
             }
         }
         return craftStudentSetAndMarkInitialLoadComplete(entity, schoolID);
+    }
+    
+    private boolean isRecordForValidSession(AssessmentStudentEntity student){
+        if(!assessmentRulesService.sessionYearIsValid(student.getCourseYear()) || !assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())){
+            return true;
+        }
+        var sessionValidForReportingPeriod = assessmentRulesService.sessionIsValidForReportingPeriod(student.getCourseYear(), student.getCourseMonth(), reportingPeriodService.getActiveReportingPeriod());
+        
+        if(!sessionValidForReportingPeriod){
+            return false;
+        }
+        
+        return assessmentRulesService.sessionIsValidAndOpen(student.getCourseYear(), student.getCourseMonth());
     }
 
     @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 3, delay = 2000))

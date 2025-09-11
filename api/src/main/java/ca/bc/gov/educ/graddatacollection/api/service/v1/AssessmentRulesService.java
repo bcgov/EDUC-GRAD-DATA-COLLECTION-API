@@ -3,16 +3,20 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.AssessmentSessionMonths;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.NumeracyAssessmentCodes;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -63,7 +67,7 @@ public class AssessmentRulesService extends BaseRulesService {
         return sessionDate.isBefore(currentDate);
     }
 
-    public boolean courseIsValidForSession(String year, String month, String courseCode) {
+    public boolean courseIsValidForOpenSession(String year, String month, String courseCode) {
         if(StringUtils.isEmpty(year) || StringUtils.isEmpty(month) || StringUtils.isEmpty(courseCode)){
             return false;
         }
@@ -72,6 +76,35 @@ public class AssessmentRulesService extends BaseRulesService {
         if(session.isPresent()){
             return session.get().getAssessments().stream().anyMatch(assessment -> assessment.getAssessmentTypeCode().equalsIgnoreCase(courseCode));
         }
+        return false;
+    }
+
+    public boolean sessionIsValidAndOpen(String year, String month) {
+        if(StringUtils.isEmpty(year) || StringUtils.isEmpty(month)){
+            return false;
+        }
+        var session = restUtils.getAssessmentSessionByCourseMonthAndYear(month, year);
+        
+        return session.isPresent() && session.get().getCompletionDate() == null;
+    }
+
+    public boolean sessionIsValidForReportingPeriod(String year, String month, ReportingPeriodEntity reportingPeriod) {
+        if(StringUtils.isEmpty(year) || StringUtils.isEmpty(month)){
+            return false;
+        }
+        
+        try {
+            YearMonth yearMonth = YearMonth.parse(year + "-" + month);
+            var date = yearMonth.atDay(15);
+            var periodOpenDate = reportingPeriod.getPeriodStart();
+            var periodCloseDate = reportingPeriod.getPeriodEnd();
+            if(date.isAfter(periodOpenDate.toLocalDate()) && date.isBefore(periodCloseDate.toLocalDate())){
+                return true;
+            }
+        }catch (Exception e){
+            return false;
+        }
+        
         return false;
     }
 

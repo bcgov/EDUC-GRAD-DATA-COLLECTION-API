@@ -39,5 +39,7 @@ public class Session extends BaseRequest implements Serializable {
     @NotNull(message = "activeUntilDate cannot be null")
     private String activeUntilDate;
 
+    private String completionDate;
+
     private List<Assessment> assessments;
 }
