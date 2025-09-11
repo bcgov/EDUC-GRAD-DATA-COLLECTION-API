@@ -186,13 +186,13 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError9 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
         assertThat(validationError9.stream().noneMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage())
         )).isTrue();
         assertThat(validationError9.stream().noneMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage())
         )).isTrue();
 
         assessmentStudent.setCourseYear(current.plusMonths(1).format(DateTimeFormatter.ofPattern("yyyy")));
@@ -201,13 +201,13 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError10 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
         assertThat(validationError10.stream().noneMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage())
         )).isTrue();
         assertThat(validationError10.stream().noneMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage())
         )).isTrue();
 
         assessmentStudent.setCourseYear(current.plusMonths(1).plusYears(1).format(DateTimeFormatter.ofPattern("yyyy")));
@@ -216,13 +216,13 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         val validationError11 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
         assertThat(validationError11.stream().noneMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_MONTH.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage())
         )).isTrue();
         assertThat(validationError11.stream().noneMatch(err ->
             err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_YEAR.getCode()) &&
-            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getCode()) &&
-            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_IN_THE_PAST.getMessage())
+            err.getValidationIssueCode().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getCode()) &&
+            err.getValidationIssueDescription().equals(AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage())
         )).isTrue();
     }
 

@@ -18,12 +18,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -63,15 +60,15 @@ public abstract class BaseGradDataCollectionAPITest {
   public ReportingPeriodEntity createMockReportingPeriodEntity() {
     LocalDateTime currentDate = LocalDateTime.now();
     int currentMonthValue = currentDate.getMonthValue();
-    int startingSchYear = currentMonthValue < 10 ? currentDate.minusYears(1).getYear() : currentDate.getYear();
+    int startingSchYear = currentMonthValue > 8 ? currentDate.getYear() : currentDate.getYear() - 1;
 
-    LocalDateTime schYearStart = LocalDate.of(startingSchYear, 10, 1).with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)).atStartOfDay();
-    LocalDateTime schYearEnd = LocalDate.of(startingSchYear + 1, 7, 1).with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY)).atTime(LocalTime.MAX);
-    LocalDateTime summerStart =  LocalDate.of(startingSchYear + 1, 8, 1).with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)).atStartOfDay();
-    LocalDateTime summerEnd =  LocalDate.of(startingSchYear + 1, 9, 1).with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.FRIDAY)).atTime(LocalTime.MAX);
-    LocalDateTime periodStart = LocalDate.of(startingSchYear, 10, 1).atStartOfDay();
-    LocalDateTime periodEnd = LocalDate.of(startingSchYear + 1, 9, 30).atTime(LocalTime.MAX);
-
+    LocalDateTime schYearStart = LocalDate.of(startingSchYear, 10, 8).atStartOfDay();
+    LocalDateTime schYearEnd = LocalDate.of(startingSchYear + 1, 7, 20).atStartOfDay();
+    LocalDateTime summerStart =  LocalDate.of(startingSchYear + 1, 8, 8).atStartOfDay();
+    LocalDateTime summerEnd =  LocalDate.of(startingSchYear + 1, 9, 20).atStartOfDay();
+    LocalDateTime periodStart =  LocalDate.now().minusYears(2).atStartOfDay();
+    LocalDateTime periodEnd =  LocalDate.now().plusYears(2).atStartOfDay();
+    
     return ReportingPeriodEntity.builder()
             .reportingPeriodID(UUID.randomUUID())
             .schYrStart(schYearStart)
@@ -80,8 +77,8 @@ public abstract class BaseGradDataCollectionAPITest {
             .summerEnd(summerEnd)
             .periodStart(periodStart)
             .periodEnd(periodEnd)
-            .createDate(currentDate.minusMonths(2))
-            .updateDate(currentDate.minusMonths(2))
+            .createDate(LocalDateTime.now().minusMonths(2))
+            .updateDate(LocalDateTime.now().minusMonths(2))
             .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
             .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
             .build();
