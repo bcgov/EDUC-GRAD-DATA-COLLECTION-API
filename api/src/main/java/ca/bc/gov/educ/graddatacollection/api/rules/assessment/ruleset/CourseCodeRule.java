@@ -63,7 +63,7 @@ public class CourseCodeRule implements AssessmentValidationBaseRule {
         }else if (!assessmentRulesService.sessionMonthIsValid(student.getCourseMonth())) {
             log.debug(logTemplate, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_INVALID_MONTH.getMessage()));
-        }else if (assessmentRulesService.sessionIsValidAndOpen(student.getCourseYear(), student.getCourseMonth())) {
+        }else if (!assessmentRulesService.sessionIsValidAndOpen(student.getCourseYear(), student.getCourseMonth())) {
             String errorMessage = AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCourseYear()), StringEscapeUtils.escapeHtml4(student.getCourseMonth()));
             log.debug(logTemplate, errorMessage, student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_YEAR, AssessmentStudentValidationIssueTypeCode.COURSE_SESSION_DATE_NOT_UNAPPROVED_SESSION, errorMessage));

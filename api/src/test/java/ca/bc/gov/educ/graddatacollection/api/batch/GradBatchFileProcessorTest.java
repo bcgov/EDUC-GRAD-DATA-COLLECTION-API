@@ -179,8 +179,11 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         gradSchool.setSchoolID(school.getSchoolId());
         gradSchool.setCanIssueTranscripts("Y");
         when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
-
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        
+        var reporting = createMockReportingPeriodEntity();
+        reporting.setPeriodStart(LocalDateTime.now().minusMinutes(2));
+        reporting.setPeriodEnd(LocalDateTime.now().plusMinutes(2));
+        var reportingPeriod = reportingPeriodRepository.save(reporting);
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
 
@@ -221,10 +224,10 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         var mockPeriod = createMockReportingPeriodEntity();
         mockPeriod.setPeriodStart(LocalDateTime.now().minusYears(6));
         mockPeriod.setPeriodEnd(LocalDateTime.now().plusYears(6));
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var reportingPeriod = reportingPeriodRepository.save(mockPeriod);
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
-
+        when(restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(createMockSession()));
         final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
         final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
         GradFileUpload xamFile = GradFileUpload.builder()
