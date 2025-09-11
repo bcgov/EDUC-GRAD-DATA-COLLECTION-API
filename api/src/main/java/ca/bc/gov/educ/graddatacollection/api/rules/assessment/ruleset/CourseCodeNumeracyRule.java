@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.NumeracyAssessmentCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
