@@ -66,15 +66,17 @@ public abstract class BaseGradDataCollectionAPITest {
     LocalDateTime schYearEnd = LocalDate.of(startingSchYear + 1, 7, 20).atStartOfDay();
     LocalDateTime summerStart =  LocalDate.of(startingSchYear + 1, 8, 8).atStartOfDay();
     LocalDateTime summerEnd =  LocalDate.of(startingSchYear + 1, 9, 20).atStartOfDay();
-
+    LocalDateTime periodStart =  LocalDate.now().minusYears(2).atStartOfDay();
+    LocalDateTime periodEnd =  LocalDate.now().plusYears(2).atStartOfDay();
+    
     return ReportingPeriodEntity.builder()
             .reportingPeriodID(UUID.randomUUID())
             .schYrStart(schYearStart)
             .schYrEnd(schYearEnd)
             .summerStart(summerStart)
             .summerEnd(summerEnd)
-            .periodStart(schYearStart)
-            .periodEnd(summerEnd)
+            .periodStart(periodStart)
+            .periodEnd(periodEnd)
             .createDate(LocalDateTime.now().minusMonths(2))
             .updateDate(LocalDateTime.now().minusMonths(2))
             .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)

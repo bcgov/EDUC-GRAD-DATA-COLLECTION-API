@@ -170,6 +170,44 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testProcessXAMFile_givenIncomingFilesetRecordExists_ShouldUpdateNoRecord() throws Exception {
+        var school = this.createMockSchoolTombstone();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var gradSchool = createMockGradSchool();
+        gradSchool.setSchoolID(school.getSchoolId());
+        gradSchool.setCanIssueTranscripts("Y");
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
+        incomingFilesetRepository.save(mockFileset);
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload xamFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .createUser("ABC")
+                .fileName("student-xam-file.xam")
+                .fileType("xam")
+                .build();
+
+        gradBatchFileProcessor.processSchoolBatchFile(xamFile, school.getSchoolId());
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+
+        final var entity = result.get(0);
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getDemFileName()).isEqualTo("Test.dem");
+        assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+
+        final var uploadedDEMStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedDEMStudents).hasSize(0);
+    }
+
+    @Test
     void testProcessXAMFile_givenIncomingFilesetRecordExists_ShouldUpdateDEMRecord() throws Exception {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
@@ -180,6 +218,9 @@ class GradBatchFileProcessorTest extends BaseGradDataCollectionAPITest {
         gradSchool.setCanIssueTranscripts("Y");
         when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
+        var mockPeriod = createMockReportingPeriodEntity();
+        mockPeriod.setPeriodStart(LocalDateTime.now().minusYears(6));
+        mockPeriod.setPeriodEnd(LocalDateTime.now().plusYears(6));
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var mockFileset = createMockIncomingFilesetEntityWithDEMFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
         incomingFilesetRepository.save(mockFileset);
