@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -166,11 +167,16 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
-        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var reporting = createMockReportingPeriodEntity();
+        reporting.setPeriodStart(LocalDateTime.now().minusYears(5));
+        reporting.setPeriodEnd(LocalDateTime.now().plusYears(5));
+        reportingPeriodRepository.save(reporting);
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
         schoolTombstone.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
+        when(restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(createMockSession()));
+        
         final FileInputStream fis = new FileInputStream("src/test/resources/student-xam-file.txt");
         final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
         GradFileUpload verFile = GradFileUpload.builder()
@@ -431,7 +437,10 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessGradFile_forDistrict_givenFiletypeXAM_ShouldReturnOk() throws Exception {
-        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var reporting = createMockReportingPeriodEntity();
+        reporting.setPeriodStart(LocalDateTime.now().minusYears(5));
+        reporting.setPeriodEnd(LocalDateTime.now().plusYears(5));
+        reportingPeriodRepository.save(reporting);
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
         var districtID = UUID.randomUUID();
         schoolTombstone.setMincode("07965039");
@@ -821,7 +830,10 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidSessionDate_ShouldReturnBadRequest() throws Exception {
-        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var reporting = createMockReportingPeriodEntity();
+        reporting.setPeriodStart(LocalDateTime.now().minusMinutes(2));
+        reporting.setPeriodEnd(LocalDateTime.now().plusMinutes(2));
+        reportingPeriodRepository.save(reporting);
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));

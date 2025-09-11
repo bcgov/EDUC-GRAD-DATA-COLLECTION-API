@@ -360,13 +360,13 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assessmentStudent.setLastName(demStudent.getLastName());
         assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        Session session = new Session();
+        Session session = createMockSession();
         Assessment assessment = new Assessment();
         assessment.setAssessmentID(UUID.randomUUID().toString());
         session.setAssessments(Arrays.asList(assessment));
         assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
-
+        
         val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(savedFileSet), assessmentStudent, createMockSchoolTombstone()));
         assertThat(validationError1.size()).isZero();
 

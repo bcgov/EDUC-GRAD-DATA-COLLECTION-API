@@ -85,7 +85,7 @@ public class AssessmentRulesService extends BaseRulesService {
         }
         var session = restUtils.getAssessmentSessionByCourseMonthAndYear(month, year);
         
-        return session.isPresent() && session.get().getCompletionDate() != null;
+        return session.isPresent() && session.get().getCompletionDate() == null;
     }
 
     public boolean sessionIsValidForReportingPeriod(String year, String month, ReportingPeriodEntity reportingPeriod) {
