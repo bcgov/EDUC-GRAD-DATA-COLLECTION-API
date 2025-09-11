@@ -75,9 +75,21 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .filter(g -> !g.getProgramCode().equals(GradRequirementYearCodes.YEAR_1950.getCode()))
                     .filter(g -> !g.getProgramCode().equals(GradRequirementYearCodes.SCCP.getCode()))
                     .filter(g -> g.getProgramCode().endsWith("-EN"))
-                    .filter(g -> g.getEffectiveDate() != null && !LocalDate.parse(g.getEffectiveDate()).isAfter(LocalDate.now()))
-                    .filter(g -> g.getExpiryDate() == null || LocalDate.parse(g.getExpiryDate()).isAfter(LocalDate.now()))
-                    .sorted((a, b) -> b.getEffectiveDate().compareTo(a.getEffectiveDate()))
+                    .filter(g -> {
+                        if (g.getEffectiveDate() == null) return false;
+                        String effectiveDate = g.getEffectiveDate().substring(0, 10);
+                        return !LocalDate.parse(effectiveDate).isAfter(LocalDate.now());
+                    })
+                    .filter(g -> {
+                        if (g.getExpiryDate() == null) return true;
+                        String expiryDate = g.getExpiryDate().substring(0, 10);
+                        return LocalDate.parse(expiryDate).isAfter(LocalDate.now());
+                    })
+                    .sorted((a, b) -> {
+                        String dateA = a.getEffectiveDate().substring(0, 10);
+                        String dateB = b.getEffectiveDate().substring(0, 10);
+                        return dateB.compareTo(dateA);
+                    })
                     .map(GraduationProgramCode::getProgramCode)
                     .findFirst()
                     .orElse("");
