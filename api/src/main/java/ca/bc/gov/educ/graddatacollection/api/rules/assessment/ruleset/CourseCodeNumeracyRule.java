@@ -8,7 +8,6 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.easapi.v1.AssessmentStudentDetailResponse;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.NumeracyAssessmentCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.annotation.Order;
@@ -19,11 +18,11 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *  | ID   | Severity | Rule                                                                                                                              | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------------------------------------------------------------------|--------------|
- *  | V22  | ERROR    | Error if the COURSE_STATUS is not "W" and any of the following are true:                                                          | V03          |
- *  |      |          |  - The incoming registration is for NME or NME10 and a registration exists for the student in the same session for NMF or NMF10.  |              |
- *  |      |          |  - The incoming registration is for NMF or NMF10 and a registration exists for the student in the same session for NME or NME10.  |              |
+ *  | ID   | Severity | Rule                                                                                                                        | Dependent On |
+ *  |------|----------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
+ *  | V22  | ERROR    | Assessment session and code cannot be a duplicate numeracy registration within the “assessment register” (assessment        | V03          |
+ *  |      |          | student table in the assessment api) for the student. Numeracy assessments, NME10, NMF10, NME, and NMF, are all             |              |
+ *  |      |          | considered the same assessment code.                                                                                        |              |
  */
 @Component
 @Slf4j
