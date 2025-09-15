@@ -28,6 +28,7 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
     private static final List<String> letterGradeWithAllowableCredit = List.of("F", "W");
+    private static final List<String> allowedCreditForLDCourses = List.of("0", "1", "2", "3", "4");
 
     public ValidNumberOfCreditsRule(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
@@ -57,11 +58,15 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
         //The Final Letter Grade is “F” or “W” and the number of credits is blank or 0,
         //The Course Type in CoReg is “Locally Developed” and the number of credits is blank, 0, 1, 2, 3, or 4.
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
+        boolean courseTypeIsLD = coursesRecord.getCourseCategory() != null && !coursesRecord.getCourseCategory().getCode().equalsIgnoreCase("LD");
 
-        if(StringUtils.isBlank(student.getNumberOfCredits()) || (StringUtils.isNumeric(student.getNumberOfCredits()) && Integer.parseInt(student.getNumberOfCredits()) == 0)) {
+        if(courseTypeIsLD && StringUtils.isNotBlank(student.getNumberOfCredits())
+                && allowedCreditForLDCourses.stream().noneMatch(s -> s.equalsIgnoreCase(student.getNumberOfCredits()))) {
+            log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
+        } else if(StringUtils.isBlank(student.getNumberOfCredits()) || (StringUtils.isNumeric(student.getNumberOfCredits()) && Integer.parseInt(student.getNumberOfCredits()) == 0)) {
             boolean zeroCredWithAllowableLetterGrade = StringUtils.isNotBlank(student.getFinalLetterGrade()) && letterGradeWithAllowableCredit.stream().noneMatch(s -> s.equalsIgnoreCase(student.getFinalLetterGrade()));
-            boolean courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue = coursesRecord.getCourseCategory() != null && !coursesRecord.getCourseCategory().getCode().equalsIgnoreCase("LD");
-            if(zeroCredWithAllowableLetterGrade || courseTypeIsLDAndNumOfCreditsIsBlankOrAcceptedValue) {
+            if(zeroCredWithAllowableLetterGrade) {
                 log.debug("C18: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
             }
@@ -72,7 +77,6 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.NUMBER_OF_CREDITS, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage()));
             }
         }
-        
         return errors;
     }
     
