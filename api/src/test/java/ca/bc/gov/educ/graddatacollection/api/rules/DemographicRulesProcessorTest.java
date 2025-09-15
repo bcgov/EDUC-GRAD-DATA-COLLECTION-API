@@ -1076,7 +1076,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         d12ErrorOptional.ifPresent(err -> {
             assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
-            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.ERROR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
             assertThat(err.getValidationIssueDescription()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted("2023-EN"));
         });
     }
@@ -1124,7 +1124,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         d12ErrorOptional.ifPresent(err -> {
             assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
-            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.ERROR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
         });
     }
 
@@ -1371,7 +1371,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         d12ErrorOptional.ifPresent(err -> {
             assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
-            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.ERROR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
         });
     }
 
