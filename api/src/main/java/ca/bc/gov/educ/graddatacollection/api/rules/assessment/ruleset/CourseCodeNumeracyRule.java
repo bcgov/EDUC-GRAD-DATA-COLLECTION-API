@@ -97,13 +97,13 @@ public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
         
         String code = courseCode.trim().toUpperCase();
         
-        if (code.equals(NumeracyAssessmentCodes.NMF.getCode())) {
+        if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NMF.getCode())) {
             return NumeracyAssessmentCodes.NME.getCode();
-        } else if (code.equals(NumeracyAssessmentCodes.NME.getCode())) {
+        } else if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NME.getCode())) {
             return NumeracyAssessmentCodes.NMF.getCode();
-        } else if (code.equals(NumeracyAssessmentCodes.NMF10.getCode())) {
+        } else if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NMF10.getCode())) {
             return NumeracyAssessmentCodes.NME10.getCode();
-        } else if (code.equals(NumeracyAssessmentCodes.NME10.getCode())) {
+        } else if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NME10.getCode())) {
             return NumeracyAssessmentCodes.NMF10.getCode();
         }
         
