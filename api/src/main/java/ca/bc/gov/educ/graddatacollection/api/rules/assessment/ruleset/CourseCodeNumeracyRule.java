@@ -76,10 +76,9 @@ public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
 
         if (studAssessmentDetail != null && studAssessmentDetail.isHasPriorRegistration() && !studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")) {
             String incomingCode = student.getCourseCode();
-            String existingCode = studAssessmentDetail.getAlreadyRegisteredAssessmentTypeCode();
-            log.debug("V22: Found conflict - incoming code {} has existing opposite registration {} for assessmentStudentID :: {}", incomingCode, existingCode, student.getAssessmentStudentID());
+            log.debug("V22: Found conflict - incoming code {} has existing opposite registration {} for assessmentStudentID :: {}", incomingCode, oppositeCode, student.getAssessmentStudentID());
 
-            String errorMessage = AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(StringEscapeUtils.escapeHtml4(existingCode));
+            String errorMessage = AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(StringEscapeUtils.escapeHtml4(oppositeCode));
             log.debug("V22: Error: {} for assessmentStudentID :: {}", errorMessage, student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, errorMessage));
         }
