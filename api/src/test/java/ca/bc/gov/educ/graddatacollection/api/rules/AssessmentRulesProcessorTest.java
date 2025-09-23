@@ -745,7 +745,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(numeracyValidationError.size()).isNotZero();
         assertThat(numeracyValidationError.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(numeracyValidationError.getFirst().getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getCode());
-        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(NumeracyAssessmentCodes.NME10.getCode()));
+        assertThat(numeracyValidationError.getFirst().getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(NumeracyAssessmentCodes.NME.getCode()));
 
         response.setHasPriorRegistration(false);
         ruleData.setAssessmentStudentDetail(response);
