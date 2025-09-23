@@ -57,40 +57,56 @@ public class CourseCodeNumeracyRule implements AssessmentValidationBaseRule {
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
         var studentApiStudent = assessmentRulesService.getStudentApiStudent(studentRuleData, student.getPen());
-        var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-        log.info("V22: Found assesssment ID is :: {} for assessmentStudentID :: {}", assessmentID, student.getAssessmentStudentID());
+        
+        String oppositeCode = getOppositeNumeracyCode(student.getCourseCode());
+        if (oppositeCode == null) {
+            log.debug("V22: Course code {} is not a numeracy code, skipping validation for assessmentStudentID :: {}", student.getCourseCode(), student.getAssessmentStudentID());
+            return errors;
+        }
+        
+        var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), oppositeCode);
+        log.debug("V22: Found assessment ID is :: {} for opposite code {} and assessmentStudentID :: {}", assessmentID, oppositeCode, student.getAssessmentStudentID());
 
-        AssessmentStudentDetailResponse studAssessmentDetail = studentRuleData.getAssessmentStudentDetail();
 
-        if (studentApiStudent != null && studAssessmentDetail == null) {
+        AssessmentStudentDetailResponse studAssessmentDetail = null;
+
+        if (studentApiStudent != null) {
             studAssessmentDetail = assessmentRulesService.getAssessmentStudentDetail(UUID.fromString(studentApiStudent.getStudentID()), UUID.fromString(assessmentID));
-            studentRuleData.setAssessmentStudentDetail(studAssessmentDetail);
         }
 
         if (studAssessmentDetail != null && studAssessmentDetail.isHasPriorRegistration() && !studentRuleData.getAssessmentStudentEntity().getCourseStatus().equalsIgnoreCase("W")) {
             String incomingCode = student.getCourseCode();
             String existingCode = studAssessmentDetail.getAlreadyRegisteredAssessmentTypeCode();
-            if (isNumeracyConflict(incomingCode, existingCode)) {
-                String errorMessage = AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(StringEscapeUtils.escapeHtml4(existingCode));
-                log.debug("V22: Error: {} for assessmentStudentID :: {}", errorMessage, student.getAssessmentStudentID());
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, errorMessage));
-            }
+            log.debug("V22: Found conflict - incoming code {} has existing opposite registration {} for assessmentStudentID :: {}", incomingCode, existingCode, student.getAssessmentStudentID());
+
+            String errorMessage = AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE.getMessage().formatted(StringEscapeUtils.escapeHtml4(existingCode));
+            log.debug("V22: Error: {} for assessmentStudentID :: {}", errorMessage, student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_CODE, AssessmentStudentValidationIssueTypeCode.NUMERACY_DUPLICATE, errorMessage));
         }
         return errors;
     }
 
-    private boolean isNumeracyConflict(String incomingCode, String existingCode) {
-        if (incomingCode == null || existingCode == null) {
-            return false;
+    /**
+     * Get the opposite numeracy code for conflict checking.
+     * NMF -> NME, NME -> NMF, NMF10 -> NME10, NME10 -> NMF10
+     */
+    private String getOppositeNumeracyCode(String courseCode) {
+        if (courseCode == null) {
+            return null;
         }
-        String incoming = incomingCode.trim().toUpperCase();
-        String existing = existingCode.trim().toUpperCase();
-
-        boolean inIsNME = incoming.equalsIgnoreCase(NumeracyAssessmentCodes.NME.getCode()) || incoming.equalsIgnoreCase(NumeracyAssessmentCodes.NME10.getCode());
-        boolean inIsNMF = incoming.equalsIgnoreCase(NumeracyAssessmentCodes.NMF.getCode()) || incoming.equalsIgnoreCase(NumeracyAssessmentCodes.NMF10.getCode());
-        boolean exIsNME = existing.equalsIgnoreCase(NumeracyAssessmentCodes.NME.getCode()) || existing.equalsIgnoreCase(NumeracyAssessmentCodes.NME10.getCode());
-        boolean exIsNMF = existing.equalsIgnoreCase(NumeracyAssessmentCodes.NMF.getCode()) || existing.equalsIgnoreCase(NumeracyAssessmentCodes.NMF10.getCode());
-
-        return (inIsNME && exIsNMF) || (inIsNMF && exIsNME);
+        
+        String code = courseCode.trim().toUpperCase();
+        
+        if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NMF.getCode())) {
+            return NumeracyAssessmentCodes.NME.getCode();
+        } else if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NME.getCode())) {
+            return NumeracyAssessmentCodes.NMF.getCode();
+        } else if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NMF10.getCode())) {
+            return NumeracyAssessmentCodes.NME10.getCode();
+        } else if (code.equalsIgnoreCase(NumeracyAssessmentCodes.NME10.getCode())) {
+            return NumeracyAssessmentCodes.NMF10.getCode();
+        }
+        
+        return null; // Not a numeracy code
     }
 }

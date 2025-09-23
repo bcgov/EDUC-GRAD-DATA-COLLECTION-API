@@ -34,8 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -758,30 +757,30 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testIsNumeracyConflictVariousCases() throws Exception {
+    void testGetOppositeNumeracyCode() throws Exception {
         AssessmentRulesService svc = mock(AssessmentRulesService.class);
         CourseCodeNumeracyRule rule = new CourseCodeNumeracyRule(svc);
 
-        var method = CourseCodeNumeracyRule.class.getDeclaredMethod("isNumeracyConflict", String.class, String.class);
+        var method = CourseCodeNumeracyRule.class.getDeclaredMethod("getOppositeNumeracyCode", String.class);
         method.setAccessible(true);
 
-        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), NumeracyAssessmentCodes.NMF.getCode()));
-        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME10.getCode(), NumeracyAssessmentCodes.NMF.getCode()));
-        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), NumeracyAssessmentCodes.NMF10.getCode()));
-        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME10.getCode(), NumeracyAssessmentCodes.NMF10.getCode()));
+        assertEquals(NumeracyAssessmentCodes.NME.getCode(), (String) method.invoke(rule, NumeracyAssessmentCodes.NMF.getCode()));
+        assertEquals(NumeracyAssessmentCodes.NMF.getCode(), (String) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode()));
+        assertEquals(NumeracyAssessmentCodes.NME10.getCode(), (String) method.invoke(rule, NumeracyAssessmentCodes.NMF10.getCode()));
+        assertEquals(NumeracyAssessmentCodes.NMF10.getCode(), (String) method.invoke(rule, NumeracyAssessmentCodes.NME10.getCode()));
 
-        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NMF.getCode(), NumeracyAssessmentCodes.NME.getCode()));
-        assertTrue((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NMF10.getCode(), NumeracyAssessmentCodes.NME.getCode()));
+        assertEquals(NumeracyAssessmentCodes.NME.getCode(), (String) method.invoke(rule, " nmf "));
+        assertEquals(NumeracyAssessmentCodes.NMF.getCode(), (String) method.invoke(rule, "nme"));
+        assertEquals(NumeracyAssessmentCodes.NME10.getCode(), (String) method.invoke(rule, "NMF10"));
+        assertEquals(NumeracyAssessmentCodes.NMF10.getCode(), (String) method.invoke(rule, "nme10"));
 
-        assertTrue((Boolean) method.invoke(rule, " nMe10 ", " nmF "));
-        assertTrue((Boolean) method.invoke(rule, "nme", "NMF10"));
+        assertNull((String) method.invoke(rule, "MA10"));
+        assertNull((String) method.invoke(rule, "LTE10"));
+        assertNull((String) method.invoke(rule, "INVALID"));
 
-        assertFalse((Boolean) method.invoke(rule, "MA10", "NMF"));
-        assertFalse((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), "MA10"));
-        assertFalse((Boolean) method.invoke(rule, "LTE10", "MA10"));
+        assertNull((String) method.invoke(rule, (String) null));
 
-        assertFalse((Boolean) method.invoke(rule, null, NumeracyAssessmentCodes.NMF.getCode()));
-        assertFalse((Boolean) method.invoke(rule, NumeracyAssessmentCodes.NME.getCode(), null));
-        assertFalse((Boolean) method.invoke(rule, null, null));
+        assertNull((String) method.invoke(rule, ""));
+        assertNull((String) method.invoke(rule, "   "));
     }
 }
