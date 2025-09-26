@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.controller;
 
 import ca.bc.gov.educ.graddatacollection.api.controller.v1.ReportingPeriodController;
-import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
