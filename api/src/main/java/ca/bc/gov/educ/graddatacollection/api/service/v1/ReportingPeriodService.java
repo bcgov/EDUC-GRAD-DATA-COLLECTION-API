@@ -4,7 +4,6 @@ import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPurgeRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +21,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class ReportingPeriodService {
+    private static final String REPORTING_PERIOD_ID = "reportingPeriodID";
     private final ReportingPeriodRepository reportingPeriodRepository;
     private final IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
 
@@ -45,14 +45,14 @@ public class ReportingPeriodService {
 
     public ReportingPeriodEntity getReportingPeriod(UUID reportingPeriodID) {
         Optional<ReportingPeriodEntity> reportingPeriodEntity = reportingPeriodRepository.findById(reportingPeriodID);
-        return reportingPeriodEntity.orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "reportingPeriodID", reportingPeriodID.toString()));
+        return reportingPeriodEntity.orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, REPORTING_PERIOD_ID, reportingPeriodID.toString()));
     }
 
     public  ReportingPeriodEntity updateReportingPeriod(final ReportingPeriodEntity reportingPeriodEntity) {
         final Optional<ReportingPeriodEntity> curOptionalReportingPeriodEntity = reportingPeriodRepository.findById(reportingPeriodEntity.getReportingPeriodID());
         if (curOptionalReportingPeriodEntity.isPresent()) {
             ReportingPeriodEntity curReportingPeriodEntity = curOptionalReportingPeriodEntity.get();
-            BeanUtils.copyProperties(reportingPeriodEntity, curReportingPeriodEntity, "reportingPeriodID", "createUser", "createDate", "incomingFilesets", "reportingPeriodID", "periodStart", "periodEnd");
+            BeanUtils.copyProperties(reportingPeriodEntity, curReportingPeriodEntity, REPORTING_PERIOD_ID, "createUser", "createDate", "incomingFilesets", "periodStart", "periodEnd");
             return reportingPeriodRepository.save(curReportingPeriodEntity);
         } else {
             throw new EntityNotFoundException(ReportingPeriodEntity.class, "ReportingPeriodEntity", reportingPeriodEntity.getReportingPeriodID().toString());

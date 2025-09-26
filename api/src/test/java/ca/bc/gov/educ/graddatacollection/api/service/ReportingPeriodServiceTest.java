@@ -92,7 +92,8 @@ class ReportingPeriodServiceTest {
     @Test
     void testGetReportingPeriod_ThrowsEntityNotFoundException_WhenEmpty() {
         when(reportingPeriodRepository.findById(any())).thenReturn(Optional.empty());
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reportingPeriodService.getReportingPeriod(UUID.randomUUID()));
+        UUID randomReportingPeriodID = UUID.randomUUID();
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reportingPeriodService.getReportingPeriod(randomReportingPeriodID));
         assertNotNull(exception.getMessage());
         verify(reportingPeriodRepository, times(1)).findById(any());
     }
