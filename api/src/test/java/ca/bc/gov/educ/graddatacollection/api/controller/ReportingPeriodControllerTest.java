@@ -118,6 +118,29 @@ class ReportingPeriodControllerTest {
     }
 
     @Test
+    void testGetReportingPeriod_ReturnsMappedObject() {
+        UUID id = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(id)
+                .schYrStart(LocalDateTime.of(2024, 10, 7, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 7, 18, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 8, 18, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 18, 0, 0))
+                .periodStart(LocalDateTime.of(2022, 8, 18, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 8, 18, 0, 0))
+                .build();
+
+        when(reportingPeriodService.getReportingPeriod(any())).thenReturn(entity);
+
+        ReportingPeriod result = controller.getReportingPeriod(id);
+
+        assertEquals("2024-10-07T00:00:00", result.getSchYrStart());
+        assertEquals("2025-07-18T00:00:00", result.getSchYrEnd());
+        assertEquals("2025-08-18T00:00:00", result.getSummerStart());
+        assertEquals("2025-08-18T00:00:00", result.getSummerEnd());
+    }
+
+    @Test
     void testGetSchoolSubmissionCounts_ReturnsExpectedCounts() {
         UUID reportingPeriodID = UUID.randomUUID();
         String categoryCode = "PUBLIC";

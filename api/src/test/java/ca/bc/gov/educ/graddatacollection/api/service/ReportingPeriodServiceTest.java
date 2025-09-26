@@ -65,6 +65,40 @@ class ReportingPeriodServiceTest {
     }
 
     @Test
+    void testGetReportingPeriod_ReturnsEntity() {
+        UUID reportingPeriodID = UUID.randomUUID();
+        ReportingPeriodEntity testEntity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodID)
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .periodStart(LocalDateTime.of(2024, 9, 1, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 9, 1, 0, 0))
+                .createUser("testUser")
+                .createDate(LocalDateTime.now())
+                .updateUser("testUser")
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        when(reportingPeriodRepository.findById(any())).thenReturn(Optional.of(testEntity));
+
+        ReportingPeriodEntity result = reportingPeriodService.getReportingPeriod(reportingPeriodID);
+
+        assertEquals(testEntity, result);
+        verify(reportingPeriodRepository, times(1)).findById(any());
+    }
+
+    @Test
+    void testGetReportingPeriod_ThrowsEntityNotFoundException_WhenEmpty() {
+        when(reportingPeriodRepository.findById(any())).thenReturn(Optional.empty());
+        UUID randomReportingPeriodID = UUID.randomUUID();
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reportingPeriodService.getReportingPeriod(randomReportingPeriodID));
+        assertNotNull(exception.getMessage());
+        verify(reportingPeriodRepository, times(1)).findById(any());
+    }
+
+    @Test
     void testUpdateReportingPeriod_Success() {
         UUID reportingPeriodId = UUID.randomUUID();
 
