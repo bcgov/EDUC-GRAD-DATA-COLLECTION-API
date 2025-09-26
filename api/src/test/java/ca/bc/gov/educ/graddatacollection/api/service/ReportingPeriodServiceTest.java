@@ -66,8 +66,9 @@ class ReportingPeriodServiceTest {
 
     @Test
     void testGetReportingPeriod_ReturnsEntity() {
+        UUID reportingPeriodID = UUID.randomUUID();
         ReportingPeriodEntity testEntity = ReportingPeriodEntity.builder()
-                .reportingPeriodID(UUID.randomUUID())
+                .reportingPeriodID(reportingPeriodID)
                 .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
                 .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
                 .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
@@ -82,7 +83,7 @@ class ReportingPeriodServiceTest {
 
         when(reportingPeriodRepository.findById(any())).thenReturn(Optional.of(testEntity));
 
-        ReportingPeriodEntity result = reportingPeriodService.getActiveReportingPeriod();
+        ReportingPeriodEntity result = reportingPeriodService.getReportingPeriod(reportingPeriodID);
 
         assertEquals(testEntity, result);
         verify(reportingPeriodRepository, times(1)).findById(any());
@@ -91,7 +92,7 @@ class ReportingPeriodServiceTest {
     @Test
     void testGetReportingPeriod_ThrowsEntityNotFoundException_WhenEmpty() {
         when(reportingPeriodRepository.findById(any())).thenReturn(Optional.empty());
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reportingPeriodService.getActiveReportingPeriod());
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reportingPeriodService.getReportingPeriod(UUID.randomUUID()));
         assertNotNull(exception.getMessage());
         verify(reportingPeriodRepository, times(1)).findById(any());
     }
