@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -40,6 +41,11 @@ public class ReportingPeriodService {
         } else  {
             throw new EntityNotFoundException(ReportingPeriodEntity.class, "currentDate", String.valueOf(LocalDateTime.now()));
         }
+    }
+
+    public ReportingPeriodEntity getReportingPeriod(UUID reportingPeriodID) {
+        Optional<ReportingPeriodEntity> reportingPeriodEntity = reportingPeriodRepository.findById(reportingPeriodID);
+        return reportingPeriodEntity.orElseThrow(() -> new EntityNotFoundException(ReportingPeriodEntity.class, "reportingPeriodID", reportingPeriodID.toString()));
     }
 
     public  ReportingPeriodEntity updateReportingPeriod(final ReportingPeriodEntity reportingPeriodEntity) {

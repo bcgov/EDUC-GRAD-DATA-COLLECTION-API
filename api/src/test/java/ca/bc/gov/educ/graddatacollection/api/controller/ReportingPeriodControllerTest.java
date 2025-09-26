@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.controller;
 
 import ca.bc.gov.educ.graddatacollection.api.controller.v1.ReportingPeriodController;
+import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -115,6 +117,29 @@ class ReportingPeriodControllerTest {
         assertEquals("2024-06-30T00:00:00", result.getSchYrEnd());
         assertEquals("2024-07-01T00:00:00", result.getSummerStart());
         assertEquals("2024-08-31T00:00:00", result.getSummerEnd());
+    }
+
+    @Test
+    void testGetReportingPeriod_ReturnsMappedObject() {
+        UUID id = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(id)
+                .schYrStart(LocalDateTime.of(2024, 10, 7, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 7, 18, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 8, 18, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 18, 0, 0))
+                .periodStart(LocalDateTime.of(2022, 8, 18, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 8, 18, 0, 0))
+                .build();
+
+        when(reportingPeriodService.getReportingPeriod(any())).thenReturn(entity);
+
+        ReportingPeriod result = controller.getReportingPeriod(id);
+
+        assertEquals("2024-10-07T00:00:00", result.getSchYrStart());
+        assertEquals("2025-07-18T00:00:00", result.getSchYrEnd());
+        assertEquals("2025-08-18T00:00:00", result.getSummerStart());
+        assertEquals("2025-08-18T00:00:00", result.getSummerEnd());
     }
 
     @Test
