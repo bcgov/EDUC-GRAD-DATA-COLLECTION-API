@@ -9,7 +9,6 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetReposi
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PSQLException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -31,12 +30,7 @@ public class ErrorFilesetStudentService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
-        if (preexisting.isPresent()) {
-            log.debug("ErrorFilesetStudent already exists for filesetID: {} and pen: {}", incomingFilesetID, pen);
-            return;
-        }
-
-        try {
+        if (!preexisting.isPresent()) {
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
             ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
             newErrorFilesetStudent.setIncomingFileset(fileSet);
@@ -51,20 +45,7 @@ public class ErrorFilesetStudentService {
             newErrorFilesetStudent.setCreateDate(createDate);
             newErrorFilesetStudent.setUpdateUser(updateUser);
             newErrorFilesetStudent.setUpdateDate(updateDate);
-
-            errorFilesetStudentRepository.saveAndFlush(newErrorFilesetStudent);
-            log.debug("Successfully created ErrorFilesetStudent for filesetID: {} and pen: {}", incomingFilesetID, pen);
-
-        } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof PSQLException psqlexception && psqlexception.getSQLState().equals("23505")) {
-                log.debug("ErrorFilesetStudent was created by another thread for filesetID: {} and pen: {} - ignoring duplicate", incomingFilesetID, pen);
-                return;
-            }
-            log.error("Unexpected DataIntegrityViolationException for filesetID: {} and pen: {}", incomingFilesetID, pen, e);
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error creating ErrorFilesetStudent for filesetID: {} and pen: {}", incomingFilesetID, pen, e);
-            throw e;
+            errorFilesetStudentRepository.save(newErrorFilesetStudent);
         }
     }
 }

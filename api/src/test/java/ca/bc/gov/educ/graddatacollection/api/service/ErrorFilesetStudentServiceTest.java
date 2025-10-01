@@ -203,47 +203,4 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
             Assertions.fail("Should not have thrown any exception");
         }
     }
-
-    @Test
-    void testFlagErrorOnStudent_DataIntegrityViolationWithPSQLException23505_HandledGracefully() {
-        var school = this.createMockSchoolTombstone();
-        school.setMincode("07965039");
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
-        var fileset = incomingFilesetRepository.save(mockFileset);
-
-        LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
-        errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", null, "ABC", current, "ABC", current);
-
-        try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "123456789", null, "DEF", current, "DEF", current);
-        } catch(Exception e) {
-            Assertions.fail("Should not have thrown any exception, catch block should handle unique constraint violation");
-        }
-    }
-
-    @Test
-    void testFlagErrorOnStudent_DataIntegrityViolationNonPSQLException_RethrowsException() {
-        var school = this.createMockSchoolTombstone();
-        school.setMincode("07965039");
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        mockFileset.setSchoolID(UUID.fromString(school.getSchoolId()));
-        var fileset = incomingFilesetRepository.save(mockFileset);
-
-        LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
-        try {
-            errorFilesetStudentService.flagErrorOnStudent(fileset.getIncomingFilesetID(), "987654321", null, "ABC", current, "ABC", current);
-            Optional<ErrorFilesetStudentEntity> saved = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(fileset.getIncomingFilesetID(), "987654321");
-            assertThat(saved).isPresent();
-        } catch(Exception e) {
-            Assertions.fail("Should not have thrown any exception for normal operation");
-        }
-    }
-
 }
