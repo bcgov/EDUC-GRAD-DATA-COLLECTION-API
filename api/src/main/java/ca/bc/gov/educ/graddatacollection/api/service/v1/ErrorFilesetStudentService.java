@@ -30,31 +30,40 @@ public class ErrorFilesetStudentService {
     @Retryable(retryFor = {PSQLException.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
+        Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
+        if (preexisting.isPresent()) {
+            log.debug("ErrorFilesetStudent already exists for filesetID: {} and pen: {}", incomingFilesetID, pen);
+            return;
+        }
+
         try {
-            Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
-            if (preexisting.isEmpty()) {
-                var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
-                ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
-                newErrorFilesetStudent.setIncomingFileset(fileSet);
-                newErrorFilesetStudent.setPen(pen);
-                if(demStudent != null) {
-                    newErrorFilesetStudent.setLocalID(demStudent.getLocalID());
-                    newErrorFilesetStudent.setLastName(demStudent.getLastName());
-                    newErrorFilesetStudent.setFirstName(demStudent.getFirstName());
-                    newErrorFilesetStudent.setBirthdate(demStudent.getBirthdate());
-                }
-                newErrorFilesetStudent.setCreateUser(createUser);
-                newErrorFilesetStudent.setCreateDate(createDate);
-                newErrorFilesetStudent.setUpdateUser(updateUser);
-                newErrorFilesetStudent.setUpdateDate(updateDate);
-                errorFilesetStudentRepository.save(newErrorFilesetStudent);
+            var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
+            ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
+            newErrorFilesetStudent.setIncomingFileset(fileSet);
+            newErrorFilesetStudent.setPen(pen);
+            if(demStudent != null) {
+                newErrorFilesetStudent.setLocalID(demStudent.getLocalID());
+                newErrorFilesetStudent.setLastName(demStudent.getLastName());
+                newErrorFilesetStudent.setFirstName(demStudent.getFirstName());
+                newErrorFilesetStudent.setBirthdate(demStudent.getBirthdate());
             }
+            newErrorFilesetStudent.setCreateUser(createUser);
+            newErrorFilesetStudent.setCreateDate(createDate);
+            newErrorFilesetStudent.setUpdateUser(updateUser);
+            newErrorFilesetStudent.setUpdateDate(updateDate);
+
+            errorFilesetStudentRepository.saveAndFlush(newErrorFilesetStudent);
+            log.debug("Successfully created ErrorFilesetStudent for filesetID: {} and pen: {}", incomingFilesetID, pen);
+
         } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof PSQLException psqlexception &&
-                    psqlexception.getSQLState().equals("23505")) {
-                log.debug("ErrorFilesetStudent already created by another thread for filesetID: {} and pen: {}", incomingFilesetID, pen);
+            if (e.getCause() instanceof PSQLException psqlexception && psqlexception.getSQLState().equals("23505")) {
+                log.debug("ErrorFilesetStudent was created by another thread for filesetID: {} and pen: {} - ignoring duplicate", incomingFilesetID, pen);
                 return;
             }
+            log.error("Unexpected DataIntegrityViolationException for filesetID: {} and pen: {}", incomingFilesetID, pen, e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error creating ErrorFilesetStudent for filesetID: {} and pen: {}", incomingFilesetID, pen, e);
             throw e;
         }
     }
