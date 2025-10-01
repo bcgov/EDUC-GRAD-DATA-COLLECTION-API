@@ -32,6 +32,11 @@ public interface CourseStudentLightRepository extends JpaRepository<CourseStuden
     AND saga.saga_name = 'PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA'
     AND saga.incoming_fileset_id IS NOT NULL)
     AND cse.student_status_code = 'UPDATE_CRS'
+    AND cse.incoming_fileset_id NOT IN (
+        SELECT DISTINCT cs2.incoming_fileset_id 
+        FROM course_student cs2 
+        WHERE cs2.student_status_code = 'LOADED'
+    )
     GROUP BY cse.incoming_fileset_id, cse.pen
     LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
     List<ICourseStudentUpdate> findTopLoadedCRSStudentForDownstreamUpdate(int numberOfStudentsToProcess);
