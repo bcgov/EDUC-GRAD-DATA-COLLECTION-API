@@ -1487,7 +1487,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setLastName(demStudent.getLastName());
         courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
 
-        YearMonth validFutureCourseSession = YearMonth.now().plusMonths(6);
+        YearMonth validFutureCourseSession = YearMonth.now().plusMonths(14);
         courseStudent.setCourseYear(String.valueOf(validFutureCourseSession.getYear()));
         courseStudent.setCourseMonth(String.format("%02d", validFutureCourseSession.getMonthValue()));
 
