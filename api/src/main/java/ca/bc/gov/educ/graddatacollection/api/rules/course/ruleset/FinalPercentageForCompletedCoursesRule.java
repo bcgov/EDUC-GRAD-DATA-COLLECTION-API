@@ -57,7 +57,7 @@ public class FinalPercentageForCompletedCoursesRule implements CourseValidationB
                 boolean hasFinalPercent = StringUtils.isNotBlank(student.getFinalPercentage());
 
                 if (courseSession.isBefore(currentDate) && !hasFinalLetterGrade && !hasFinalPercent) {
-                    log.debug("C25: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage(), student.getCourseStudentID());
+                    log.debug("C25: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(
                         StudentValidationIssueSeverityCode.WARNING,
                         ValidationFieldCode.FINAL_PERCENTAGE,

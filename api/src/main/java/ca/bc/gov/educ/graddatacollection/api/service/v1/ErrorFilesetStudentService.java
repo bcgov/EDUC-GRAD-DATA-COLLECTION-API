@@ -50,8 +50,8 @@ public class ErrorFilesetStudentService {
                 errorFilesetStudentRepository.save(newErrorFilesetStudent);
             }
         } catch (DataIntegrityViolationException e) {
-            if (e.getCause() instanceof PSQLException &&
-                    ((PSQLException) e.getCause()).getSQLState().equals("23505")) {
+            if (e.getCause() instanceof PSQLException psqlexception &&
+                    psqlexception.getSQLState().equals("23505")) {
                 log.debug("ErrorFilesetStudent already created by another thread for filesetID: {} and pen: {}", incomingFilesetID, pen);
                 return;
             }
