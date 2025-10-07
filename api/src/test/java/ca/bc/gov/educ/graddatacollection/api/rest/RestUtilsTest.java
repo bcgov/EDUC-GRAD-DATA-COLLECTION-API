@@ -2,6 +2,8 @@ package ca.bc.gov.educ.graddatacollection.api.rest;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CoregCoursesRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseAllowableCreditRecord;
@@ -37,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+
+import org.mockito.ArgumentCaptor;
 
 class RestUtilsTest {
     @Mock
@@ -603,5 +607,93 @@ class RestUtilsTest {
         
         assertNotNull(event);
         assertTrue(event.getEventPayload().contains("\"vendorCode\":\"MYED\""));
+    }
+
+    @Test
+    void testWriteCRSStudentRecordInGrad_WhenNumberOfCreditsIsNull_ShouldDefaultToZero() {
+        String pen = "123456789";
+        String schoolID = UUID.randomUUID().toString();
+
+        CourseStudentEntity courseStudentEntity = CourseStudentEntity.builder()
+                .pen(pen)
+                .courseCode("MATH")
+                .courseLevel("10")
+                .courseYear("2023")
+                .courseMonth("06")
+                .numberOfCredits(null)
+                .createUser("test")
+                .updateUser("test")
+                .createDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        GradSchool gradSchool = new GradSchool(null, schoolID, "O", "Y", "Y");
+        doReturn(Optional.of(gradSchool)).when(restUtils).getGradSchoolBySchoolID(schoolID);
+
+        ReportingPeriodEntity reportingPeriod = ReportingPeriodEntity.builder()
+                .summerStart(LocalDateTime.now().minusDays(10))
+                .summerEnd(LocalDateTime.now().plusDays(10))
+                .build();
+
+        String responseJson = "{\"status\":\"SUCCESS\"}";
+        Message mockMessage = mock(Message.class);
+        when(mockMessage.getData()).thenReturn(responseJson.getBytes(StandardCharsets.UTF_8));
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        GradStatusEvent result = restUtils.writeCRSStudentRecordInGrad(
+                List.of(courseStudentEntity), pen, schoolID, reportingPeriod);
+
+        ArgumentCaptor<byte[]> bytesCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(messagePublisher).requestMessage(anyString(), bytesCaptor.capture());
+        
+        String capturedJson = new String(bytesCaptor.getValue(), StandardCharsets.UTF_8);
+        assertTrue(capturedJson.contains("\\\"numberOfCredits\\\":\\\"0\\\""), 
+                "Expected numberOfCredits to be \"0\" but was: " + capturedJson);
+        assertNotNull(result);
+    }
+
+    @Test
+    void testWriteCRSStudentRecordInGrad_WhenNumberOfCreditsHasValue_ShouldUseActualValue() {
+        String pen = "987654321";
+        String schoolID = UUID.randomUUID().toString();
+
+        CourseStudentEntity courseStudentEntity = CourseStudentEntity.builder()
+                .pen(pen)
+                .courseCode("ENGL")
+                .courseLevel("12")
+                .courseYear("2024")
+                .courseMonth("01")
+                .numberOfCredits("4")
+                .createUser("test")
+                .updateUser("test")
+                .createDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        GradSchool gradSchool = new GradSchool(null, schoolID, "O", "Y", "Y");
+        doReturn(Optional.of(gradSchool)).when(restUtils).getGradSchoolBySchoolID(schoolID);
+
+        ReportingPeriodEntity reportingPeriod = ReportingPeriodEntity.builder()
+                .summerStart(LocalDateTime.now().minusDays(10))
+                .summerEnd(LocalDateTime.now().plusDays(10))
+                .build();
+
+        String responseJson = "{\"status\":\"SUCCESS\"}";
+        Message mockMessage = mock(Message.class);
+        when(mockMessage.getData()).thenReturn(responseJson.getBytes(StandardCharsets.UTF_8));
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        GradStatusEvent result = restUtils.writeCRSStudentRecordInGrad(
+                List.of(courseStudentEntity), pen, schoolID, reportingPeriod);
+
+        ArgumentCaptor<byte[]> bytesCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(messagePublisher).requestMessage(anyString(), bytesCaptor.capture());
+        
+        String capturedJson = new String(bytesCaptor.getValue(), StandardCharsets.UTF_8);
+        assertTrue(capturedJson.contains("\\\"numberOfCredits\\\":\\\"4\\\""), 
+                "Expected numberOfCredits to be \"4\" but was: " + capturedJson);
+        assertNotNull(result);
     }
 }
