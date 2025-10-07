@@ -1150,7 +1150,7 @@ public class RestUtils {
         courseStudent.setFinalPercentage(courseStudentEntity.getFinalPercentage());
         courseStudent.setFinalLetterGrade(courseStudentEntity.getFinalLetterGrade());
         courseStudent.setCourseStatus(courseStudentEntity.getCourseStatus());
-        courseStudent.setNumberOfCredits(courseStudentEntity.getNumberOfCredits());
+        courseStudent.setNumberOfCredits(courseStudentEntity.getNumberOfCredits() != null ? courseStudentEntity.getNumberOfCredits() : "0");
         courseStudent.setRelatedCourse(courseStudentEntity.getRelatedCourse());
         courseStudent.setRelatedLevel(courseStudentEntity.getRelatedLevel());
         courseStudent.setCourseDescription(courseStudentEntity.getCourseDescription());
