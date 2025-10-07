@@ -4,11 +4,13 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(uses = UUIDMapper.class)
+@DecoratedWith(CourseStudentDecorator.class)
 public interface CourseStudentMapper {
 
     CourseStudentMapper mapper = Mappers.getMapper(CourseStudentMapper.class);
