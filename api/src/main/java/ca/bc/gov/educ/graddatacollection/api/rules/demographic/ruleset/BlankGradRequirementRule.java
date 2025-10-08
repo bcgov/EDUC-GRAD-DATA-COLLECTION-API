@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                   | Dependent On |
  *  |------|----------|------------------------------------------------------------------------|--------------|
- *  | D12  | ERROR    | 1. Warning if a null Grad Req Year is reported                         |    D03       |
+ *  | D12  | WARNING  | 1. Warning if a null Grad Req Year is reported                         |    D03       |
  *  |      |          | 2. Warning if all the following are true:                              |              |
  *  |      |          |    - Grad Req Year is not null                                         |              |
  *  |      |          |    - The student has graduated                                         |              |
@@ -64,13 +64,14 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
         var gradRecord = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
 
+        var gradProgramValue = gradRecord != null ? getGradProgramValue(gradRecord.getProgram()) : null;
         boolean gradRequirementYearIsBlank = StringUtils.isBlank(student.getGradRequirementYear());
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
-        boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradRecord.getProgram()) && gradRecord.getProgram().equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
-        boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradRecord.getProgram());
+        boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
+        boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
 
         if(gradRequirementYearIsBlank) {
-            String gradProgramForErrorMessage = (gradRecord != null && gradRecord.getProgram() != null) ? gradRecord.getProgram() : graduationProgramCodes.stream()
+            String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
                     .filter(g -> g.getProgramCode() != null)
                     .filter(g -> !g.getProgramCode().equals(GradRequirementYearCodes.YEAR_1950.getCode()))
                     .filter(g -> !g.getProgramCode().equals(GradRequirementYearCodes.SCCP.getCode()))
@@ -104,6 +105,13 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
         }
         return errors;
+    }
+    
+    private String getGradProgramValue(String gradProgram) {
+        if(!StringUtils.isBlank(gradProgram) && gradProgram.length() > 4) {
+            return gradProgram.substring(0, 4);
+        }
+        return gradProgram;
     }
 
 }

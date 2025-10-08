@@ -70,7 +70,7 @@ public class RestUtils {
   private final Map<String, LetterGrade> letterGradeMap = new ConcurrentHashMap<>();
   private final Map<String, CitizenshipCode> scholarshipsCitizenshipCodesMap = new ConcurrentHashMap<>();
   private final Map<String, CareerProgramCode> careerProgramCodesMap = new ConcurrentHashMap<>();
-  private final Map<String, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
+  private final Map<UUID, OptionalProgramCode> optionalProgramCodesMap = new ConcurrentHashMap<>();
   private final Map<String, ProgramRequirementCode> programRequirementCodeMap = new ConcurrentHashMap<>();
   private final Map<String, GraduationProgramCode> gradProgramCodeMap = new ConcurrentHashMap<>();
   private final Map<String, EquivalencyChallengeCode> equivalencyChallengeCodeMap = new ConcurrentHashMap<>();
@@ -293,7 +293,7 @@ public class RestUtils {
     try {
       writeLock.lock();
       for (val program : this.getOptionalPrograms()) {
-        this.optionalProgramCodesMap.put(program.getOptProgramCode(), program);
+        this.optionalProgramCodesMap.put(program.getOptionalProgramID(), program);
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache optional program {}", ex);
