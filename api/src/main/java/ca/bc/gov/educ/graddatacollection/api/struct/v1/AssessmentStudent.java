@@ -71,5 +71,5 @@ public class AssessmentStudent extends BaseRequest implements Serializable {
 
     private String toWriteFlag;
 
-    private String examMincode;
+    private String examSchoolID;
 }

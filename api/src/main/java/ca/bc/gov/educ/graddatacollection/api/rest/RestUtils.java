@@ -1013,7 +1013,7 @@ public class RestUtils {
       assessmentStudent.setAssessmentStudentID(null);
       assessmentStudent.setAssessmentID(assessmentID);
       assessmentStudent.setSchoolOfRecordSchoolID(schoolTombstone.getSchoolId());
-      assessmentStudent.setAssessmentCenterSchoolID(student.getExamMincode());
+      assessmentStudent.setAssessmentCenterSchoolID(student.getExamSchoolID());
       assessmentStudent.setStudentID(studFromAPI.getStudentID());
       assessmentStudent.setGivenName(studFromAPI.getLegalFirstName());
       assessmentStudent.setSurname(student.getLastName());
