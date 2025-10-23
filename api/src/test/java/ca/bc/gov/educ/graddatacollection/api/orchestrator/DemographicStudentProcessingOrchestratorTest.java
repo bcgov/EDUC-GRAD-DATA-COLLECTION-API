@@ -329,7 +329,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         demographicStudentEntity.setLastName("JACKSON");
         demographicStudentEntity.setAddressLine1("ABCD");
         demographicStudentEntity.setAddressLine2("ABCD");
-        demographicStudentEntity.setGrade("11");
+        demographicStudentEntity.setGrade("12");
         demographicStudentEntity.setCity("ABCD");
         demographicStudentEntity.setProvincialCode("AB");
         demographicStudentEntity.setCountryCode("CA");
