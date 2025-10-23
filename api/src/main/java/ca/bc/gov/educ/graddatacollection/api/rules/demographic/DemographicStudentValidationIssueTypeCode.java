@@ -20,6 +20,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_COUNTRY_CODE_INVALID("STUDENTCOUNTRYCODEINVALID", "Invalid Country code."),
   STUDENT_CITIZENSHIP_CODE_INVALID("STUDENTCITIZENSHIPCODEINVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification."),
   GRADE_INVALID("GRADEINVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification."),
+  COUNTRY_INVALID("COUNTRYINVALID", "The submitted value %s is not an expected country code. Country codes must be two characters."),
   GRADE_NOT_EXPECTED("GRADENOTEXPECTED", "The submitted value %s is not an expected grade level."),
   GRADE_AG_INVALID("GRADEAGINVALID", "Grade and program mismatch. Student cannot be reported on the Adult Graduation program (1950) unless grade level is AD or AN."),
   GRADE_OG_INVALID("GRADEOGINVALID", "Grade and program mismatch. Student cannot be reported in grade level AD or AN unless they are on the Adult Graduation program (1950)."),

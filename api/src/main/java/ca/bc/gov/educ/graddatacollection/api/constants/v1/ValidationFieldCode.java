@@ -8,6 +8,7 @@ import java.util.Optional;
 @Getter
 public enum ValidationFieldCode {
   PEN("PEN", "PEN"),
+  COUNTRY_CODE("COUNTRY_CODE", "Country Code"),
   COURSE_LEVEL("COURSE_LEVEL", "Course Level"),
   COURSE_CODE("COURSE_CODE", "Course Code"),
   COURSE_TYPE("COURSE_TYPE", "Course Type"),
@@ -41,7 +42,6 @@ public enum ValidationFieldCode {
   ADDRESS2("ADDRESS2", "Address 2"),
   CITY("CITY", "City"),
   PROVINCIAL_CODE("PROVINCIAL_CODE", "Provincial Code"),
-  COUNTRY_CODE("COUNTRY_CODE", "Country Code"),
   POSTAL_CODE("POSTAL_CODE", "Postal Code"),
   BIRTHDATE("BIRTHDATE", "Birthdate"),
   CITIZENSHIP("CITIZENSHIP", "Citizenship"),
