@@ -2,6 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.constants;
 
 
 public enum TopicsEnum {
+  SCHOLARSHIPS_API_TOPIC,
   INSTITUTE_API_TOPIC,
   STUDENT_API_TOPIC,
   GDC_EVENTS_TOPIC,

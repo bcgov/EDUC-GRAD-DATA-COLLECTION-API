@@ -11,9 +11,12 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -41,7 +44,9 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
             .step(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR, CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD, this::createOrUpdateDEMStudentRecordInGrad)
             .end(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
             .or()
-            .step(CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD, DEM_STUDENT_CREATED_IN_GRAD, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
+            .step(CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD, DEM_STUDENT_CREATED_IN_GRAD, SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, this::sendStudentAddressToScholarships)
+            .step(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, STUDENT_ADDRESS_UPDATED, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
+            .step(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, NO_STUDENT_ADDRESS_UPDATE_REQUIRED, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
             .end(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, DEM_STUDENT_STATUS_IN_COLLECTION_UPDATED);
   }
 
@@ -102,6 +107,41 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+  }
+
+  public void sendStudentAddressToScholarships(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    final Event.EventBuilder eventBuilder = Event.builder();
+    eventBuilder.sagaId(saga.getSagaId()).eventType(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS);
+    
+    if(isValidAddress(demographicStudentSagaData.getDemographicStudent()) && studentInGrade11or12(demographicStudentSagaData.getDemographicStudent())) {
+      Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), demographicStudentSagaData.getDemographicStudent().getPen());
+      restUtils.writeStudentAddressToScholarships(demographicStudentSagaData.getDemographicStudent(), studentApiStudent.getStudentID());
+      eventBuilder.eventOutcome(STUDENT_ADDRESS_UPDATED);
+    }else{
+      eventBuilder.eventOutcome(NO_STUDENT_ADDRESS_UPDATE_REQUIRED);
+    }
+    
+    val nextEvent = eventBuilder.build();
+    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+  }
+  
+  private boolean studentInGrade11or12(DemographicStudent student){
+    return StringUtils.isNotBlank(student.getGrade()) && (student.getGrade().equals("11") || student.getGrade().equals("12"));
+  }
+  
+  private boolean isValidAddress(DemographicStudent student){
+    return (((StringUtils.isNotBlank(student.getAddressLine1()) && !student.getAddressLine1().equalsIgnoreCase("UNKNOWN")) 
+            || (StringUtils.isNotBlank(student.getAddressLine2()) && !student.getAddressLine2().equalsIgnoreCase("UNKNOWN"))) &&
+            StringUtils.isNotBlank(student.getCity()) && !student.getCity().equalsIgnoreCase("UNKNOWN") &&
+            StringUtils.isNotBlank(student.getProvincialCode()) &&
+            StringUtils.isNotBlank(student.getCountryCode()) && 
+            StringUtils.isNotBlank(student.getPostalCode()) && !student.getPostalCode().equalsIgnoreCase("UNKNOWN"));
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
