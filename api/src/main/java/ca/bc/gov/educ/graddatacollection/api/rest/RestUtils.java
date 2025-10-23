@@ -18,6 +18,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.GradSchool;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.StudentAddress;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
@@ -1120,6 +1121,44 @@ public class RestUtils {
     }
   }
 
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public Event writeStudentAddressToScholarships(DemographicStudent student, String studentID) {
+    try {
+      final TypeReference<Event> eventResult = new TypeReference<>() {
+      };
+
+      StudentAddress address = new StudentAddress();
+      address.setStudentID(studentID);
+      address.setAddressLine1(student.getAddressLine1());
+      address.setAddressLine2(student.getAddressLine2());
+      address.setCity(student.getCity());
+      address.setPostalZip(student.getPostalCode());
+      address.setProvinceStateCode(student.getProvincialCode());
+      address.setCountryCode(student.getCountryCode());
+      address.setCreateUser(student.getCreateUser());
+      address.setUpdateUser(student.getUpdateUser());
+      
+      log.info("DEM Student Detail:: {}", address);
+
+      Object event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).eventPayload(JsonUtil.getJsonStringFromObject(address)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.SCHOLARSHIPS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        var returnedEvent = objectMapper.readValue(responseMessage.getData(), eventResult);
+        if(returnedEvent.getEventOutcome().equals(EventOutcome.STUDENT_ADDRESS_VALIDATION_ERRORS)){
+          throw new GradDataCollectionAPIRuntimeException("Unexpected validation error occurred while processing student with ID: " + studentID + " Validation Errors: " + returnedEvent.getEventPayload());
+        }
+        return returnedEvent;
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
+  }
+  
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public GradStatusEvent writeCRSStudentRecordInGrad(List<CourseStudentEntity> courseStudentEntities, String pen, String schoolID, ReportingPeriodEntity reportingPeriod) {
     try {

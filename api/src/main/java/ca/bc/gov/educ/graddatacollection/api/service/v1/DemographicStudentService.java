@@ -12,7 +12,6 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -26,9 +25,11 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaDat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
+import ca.bc.gov.educ.graddatacollection.api.util.PenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -79,7 +80,7 @@ public class DemographicStudentService {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
         if(currentStudentEntity.isPresent()) {
             var validationErrors = runValidationRules(currentStudentEntity.get(), schoolTombstone);
-            saveSdcStudent(currentStudentEntity.get());
+            saveDemographicStudent(currentStudentEntity.get());
             return validationErrors;
         } else {
             throw new EntityNotFoundException(DemographicStudentEntity.class, DEMOGRAPHIC_STUDENT_ID, demographicStudentID.toString());
@@ -100,7 +101,7 @@ public class DemographicStudentService {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
         if(currentStudentEntity.isPresent()) {
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
-            saveSdcStudent(currentStudentEntity.get());
+            saveDemographicStudent(currentStudentEntity.get());
         } else {
             throw new EntityNotFoundException(DemographicStudentEntity.class, DEMOGRAPHIC_STUDENT_ID, demographicStudentID.toString());
         }
@@ -139,7 +140,7 @@ public class DemographicStudentService {
         return validationErrors;
     }
 
-    public void saveSdcStudent(DemographicStudentEntity studentEntity) {
+    public void saveDemographicStudent(DemographicStudentEntity studentEntity) {
         studentEntity.setUpdateDate(LocalDateTime.now());
         this.demographicStudentRepository.save(studentEntity);
     }

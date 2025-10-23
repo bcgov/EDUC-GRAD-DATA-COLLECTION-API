@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD;
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_DEM_STUDENT;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -261,6 +260,111 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD.toString());
     }
 
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeSEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS_validateDEMStudentRecordWithEventOutCome_NO_STUDENT_ADDRESS_UPDATE_REQUIRED() {
+        var school = this.createMockSchoolTombstone();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
+        incomingFilesetRepository.save(mockFileset);
+
+        var courseStudent = createMockCourseStudent(mockFileset);
+        courseStudentRepository.save(courseStudent);
+
+        var demographicStudentEntity = createMockDemographicStudent(mockFileset);
+        demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setPen(courseStudent.getPen());
+        demographicStudentEntity.setFirstName("JIM");
+        demographicStudentEntity.setLastName("JACKSON");
+        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
+        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        demographicStudentRepository.save(demographicStudentEntity);
+
+        val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
+        val saga = this.createDemMockSaga(demographicStudent);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(EventType.CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD)
+                .eventOutcome(EventOutcome.DEM_STUDENT_CREATED_IN_GRAD)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.demographicStudentProcessingOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.demographicStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(EventType.SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.NO_STUDENT_ADDRESS_UPDATE_REQUIRED);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS.toString());
+    }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeSEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS_validateDEMStudentRecordWithEventOutCome_STUDENT_ADDRESS_UPDATED() {
+        var school = this.createMockSchoolTombstone();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
+        incomingFilesetRepository.save(mockFileset);
+
+        var courseStudent = createMockCourseStudent(mockFileset);
+        courseStudentRepository.save(courseStudent);
+
+        var demographicStudentEntity = createMockDemographicStudent(mockFileset);
+        demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setPen(courseStudent.getPen());
+        demographicStudentEntity.setFirstName("JIM");
+        demographicStudentEntity.setLastName("JACKSON");
+        demographicStudentEntity.setAddressLine1("ABCD");
+        demographicStudentEntity.setAddressLine2("ABCD");
+        demographicStudentEntity.setGrade("11");
+        demographicStudentEntity.setCity("ABCD");
+        demographicStudentEntity.setProvincialCode("AB");
+        demographicStudentEntity.setCountryCode("CA");
+        demographicStudentEntity.setPostalCode("ABCD");
+        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
+        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        demographicStudentRepository.save(demographicStudentEntity);
+
+        val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
+        val saga = this.createDemMockSaga(demographicStudent);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(EventType.CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD)
+                .eventOutcome(EventOutcome.DEM_STUDENT_CREATED_IN_GRAD)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.demographicStudentProcessingOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.demographicStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(EventType.SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_ADDRESS_UPDATED);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS.toString());
+    }
+    
     @SneakyThrows
     @Test
     void testHandleEvent_givenEventTypeInitiated_validateDEMStudentRecordWithWarningAndEventOutCome_VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR() {
