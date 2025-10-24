@@ -1143,11 +1143,7 @@ public class RestUtils {
       Object event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).eventPayload(JsonUtil.getJsonStringFromObject(address)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.SCHOLARSHIPS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
-        var returnedEvent = objectMapper.readValue(responseMessage.getData(), eventResult);
-        if(returnedEvent.getEventOutcome().equals(EventOutcome.STUDENT_ADDRESS_VALIDATION_ERRORS)){
-          throw new GradDataCollectionAPIRuntimeException("Unexpected validation error occurred while processing student with ID: " + studentID + " Validation Errors: " + returnedEvent.getEventPayload());
-        }
-        return returnedEvent;
+        return objectMapper.readValue(responseMessage.getData(), eventResult);
       } else {
         throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
       }
