@@ -120,6 +120,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     
     if(isValidAddress(demographicStudentSagaData.getDemographicStudent()) && studentInGrade12orAD(demographicStudentSagaData.getDemographicStudent())) {
       Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), demographicStudentSagaData.getDemographicStudent().getPen());
+      updateAddressFieldsIfNeeded(demographicStudentSagaData.getDemographicStudent());
       restUtils.writeStudentAddressToScholarships(demographicStudentSagaData.getDemographicStudent(), studentApiStudent.getStudentID());
       eventBuilder.eventOutcome(STUDENT_ADDRESS_UPDATED);
     }else{
@@ -142,6 +143,13 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
             StringUtils.isNotBlank(student.getProvincialCode()) &&
             StringUtils.isNotBlank(student.getCountryCode()) && 
             StringUtils.isNotBlank(student.getPostalCode()) && !student.getPostalCode().equalsIgnoreCase("UNKNOWN"));
+  }
+
+  private void updateAddressFieldsIfNeeded(DemographicStudent student) {
+    if(StringUtils.isBlank(student.getAddressLine1()) &&  StringUtils.isNotBlank(student.getAddressLine2())) {
+      student.setAddressLine1(student.getAddressLine2());
+      student.setAddressLine2(null);
+    }
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
