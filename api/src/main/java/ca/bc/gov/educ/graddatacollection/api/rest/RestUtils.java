@@ -152,6 +152,7 @@ public class RestUtils {
     val writeLock = this.scholarshipsCitizenshipLock.writeLock();
     try {
       writeLock.lock();
+      this.scholarshipsCitizenshipCodesMap.clear();
       for (val citizenshipCode : this.getScholarshipsCitizenshipCodes()) {
         this.scholarshipsCitizenshipCodesMap.put(citizenshipCode.getCitizenshipCode(), citizenshipCode);
       }
@@ -167,6 +168,7 @@ public class RestUtils {
     val writeLock = this.schoolCategoriesLock.writeLock();
     try {
       writeLock.lock();
+      this.schoolCategoryCodesMap.clear();
       for (val categoryCode : this.getSchoolCategoryCodes()) {
         this.schoolCategoryCodesMap.put(categoryCode.getSchoolCategoryCode(), categoryCode);
       }
@@ -182,6 +184,7 @@ public class RestUtils {
     val writeLock = this.facilityTypesLock.writeLock();
     try {
       writeLock.lock();
+      this.facilityTypeCodesMap.clear();
       for (val categoryCode : this.getFacilityTypeCodes()) {
         this.facilityTypeCodesMap.put(categoryCode.getFacilityTypeCode(), categoryCode);
       }
@@ -197,6 +200,7 @@ public class RestUtils {
     val writeLock = this.schoolLock.writeLock();
     try {
       writeLock.lock();
+      this.schoolMap.clear();
       for (val school : this.getSchools()) {
         this.schoolMap.put(school.getSchoolId(), school);
         if (StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
@@ -215,6 +219,7 @@ public class RestUtils {
     val writeLock = this.gradSchoolLock.writeLock();
     try {
       writeLock.lock();
+      this.gradSchoolMap.clear();
       for (val school : this.getGradSchools()) {
         this.gradSchoolMap.put(school.getSchoolID(), school);
       }
@@ -230,6 +235,8 @@ public class RestUtils {
     val writeLock = this.schoolLock.writeLock();
     try {
       writeLock.lock();
+      this.schoolMincodeMap.clear();
+      this.independentAuthorityToSchoolIDMap.clear();
       for (val school : this.getSchools()) {
         this.schoolMincodeMap.put(school.getMincode(), school);
         if (StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
@@ -248,6 +255,7 @@ public class RestUtils {
     val writeLock = this.letterGradeLock.writeLock();
     try {
       writeLock.lock();
+      this.letterGradeMap.clear();
       for (val grade : this.getLetterGrades()) {
         this.letterGradeMap.put(grade.getGrade(), grade);
       }
@@ -263,6 +271,7 @@ public class RestUtils {
     val writeLock = this.gradGradeLock.writeLock();
     try {
       writeLock.lock();
+      this.gradGradeMap.clear();
       for (val grade : this.getGradGrades()) {
         this.gradGradeMap.put(grade.getStudentGradeCode(), grade);
       }
@@ -278,6 +287,7 @@ public class RestUtils {
     val writeLock = this.careerProgramLock.writeLock();
     try {
       writeLock.lock();
+      this.careerProgramCodesMap.clear();
       for (val program : this.getCareerPrograms()) {
         this.careerProgramCodesMap.put(program.getCode(), program);
       }
@@ -293,6 +303,7 @@ public class RestUtils {
     val writeLock = this.optionalProgramLock.writeLock();
     try {
       writeLock.lock();
+      this.optionalProgramCodesMap.clear();
       for (val program : this.getOptionalPrograms()) {
         this.optionalProgramCodesMap.put(program.getOptionalProgramID(), program);
       }
@@ -308,6 +319,7 @@ public class RestUtils {
     val writeLock = this.programRequirementLock.writeLock();
     try {
       writeLock.lock();
+      this.programRequirementCodeMap.clear();
       for (val program : this.getProgramRequirementCodes()) {
         this.programRequirementCodeMap.put(program.getProReqCode(), program);
       }
@@ -324,6 +336,7 @@ public class RestUtils {
     val writeLock = this.gradProgramLock.writeLock();
     try {
       writeLock.lock();
+      this.gradProgramCodeMap.clear();
       for (val program : this.getGraduationProgramCodes()) {
         program.setEffectiveDate(!StringUtils.isBlank(program.getEffectiveDate()) ? LocalDateTime.parse(program.getEffectiveDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString() : null);
         program.setExpiryDate(!StringUtils.isBlank(program.getExpiryDate()) ? LocalDateTime.parse(program.getExpiryDate(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString() : null);
@@ -342,6 +355,7 @@ public class RestUtils {
     val writeLock = this.equivalencyChallengeCodeLock.writeLock();
     try {
       writeLock.lock();
+      this.equivalencyChallengeCodeMap.clear();
       for (val equivalencyCode : this.getEquivalencyChallengeCodes()) {
         this.equivalencyChallengeCodeMap.put(equivalencyCode.getEquivalentOrChallengeCode(), equivalencyCode);
       }
@@ -357,9 +371,11 @@ public class RestUtils {
     val writeLock = this.coregLock.writeLock();
     try {
       writeLock.lock();
+      this.coreg38Map.clear();
       for (val courseCode : this.getCoreg38Courses()) {
         this.coreg38Map.put(courseCode.getCourseID(), courseCode);
       }
+      this.coreg39Map.clear();
       for (val courseCode : this.getCoreg39Courses()) {
         this.coreg39Map.put(courseCode.getCourseID(), courseCode);
       }
@@ -376,6 +392,7 @@ public class RestUtils {
     val writeLock = this.examinableCourseLock.writeLock();
     try {
       writeLock.lock();
+      this.examinableCourseMap.clear();
       for (val examinableCourse : this.getGradExaminableCourses()) {
         this.examinableCourseMap.put(String.valueOf(examinableCourse.getExaminableCourseID()), examinableCourse);
       }
@@ -657,6 +674,7 @@ public class RestUtils {
     val writeLock = this.districtLock.writeLock();
     try {
       writeLock.lock();
+      this.districtMap.clear();
       for (val district : this.getDistricts()) {
         this.districtMap.put(district.getDistrictId(), district);
       }
@@ -961,6 +979,7 @@ public class RestUtils {
     val writeLock = this.assessmentSessionLock.writeLock();
     try {
       writeLock.lock();
+      this.sessionMap.clear();
       List<Session> sessions = this.getAssessmentSessions();
 
       for (val session : sessions) {
