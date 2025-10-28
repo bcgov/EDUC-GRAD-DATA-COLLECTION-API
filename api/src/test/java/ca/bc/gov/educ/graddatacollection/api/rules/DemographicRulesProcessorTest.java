@@ -513,7 +513,15 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         demographicStudent.setGradRequirementYear("SCCP");
         demographicStudent.setGrade("08");
         demographicStudent.setSchoolCertificateCompletionDate("20250116");
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError.size()).isZero();
+
+
+        var demographicStudent2 = createMockDemographicStudent(savedFileSet);
+        demographicStudent2.setGradRequirementYear("SCCP");
+        demographicStudent2.setGrade("08");
+        demographicStudent2.setSchoolCertificateCompletionDate("20250216");
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent2, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
 
         var issueCode = validationError2.stream().anyMatch(val -> val.getValidationIssueFieldCode().equals(ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE.getCode()));

@@ -69,7 +69,11 @@ public class SCCPCompletionDateAlreadyReportedRule implements DemographicValidat
         var programCompletionDate = hasCompletionDate ? LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).format(formatter) : null;
 
         if (hasCompletionDate && hasSchoolAtGrad && StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) &&
-                GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear()) && !student.getSchoolCertificateCompletionDate().equalsIgnoreCase(programCompletionDate)) {
+                GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear())
+                && (LocalDate.parse(student.getSchoolCertificateCompletionDate(), DateTimeFormatter.ofPattern("yyyyMMdd")).getMonth().getValue()
+                != LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).getMonth().getValue()
+                || LocalDate.parse(student.getSchoolCertificateCompletionDate(), DateTimeFormatter.ofPattern("yyyyMMdd")).getYear()
+                != LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).getYear())) {
             String invalidErrorMessage = DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED.getMessage().formatted(programCompletionDate);
             logDebugStatement(invalidErrorMessage, student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.SCHOOL_CERTIFICATE_COMPLETION_DATE, DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED, invalidErrorMessage));
