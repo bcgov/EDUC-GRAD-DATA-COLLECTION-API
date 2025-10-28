@@ -70,9 +70,9 @@ public class SCCPCompletionDateAlreadyReportedRule implements DemographicValidat
 
         if (hasCompletionDate && hasSchoolAtGrad && StringUtils.isNotBlank(student.getSchoolCertificateCompletionDate()) &&
                 GradRequirementYearCodes.SCCP.getCode().equalsIgnoreCase(student.getGradRequirementYear())
-                && (LocalDate.parse(student.getSchoolCertificateCompletionDate(), DateTimeFormatter.ofPattern("yyyyMMdd")).getMonth().getValue()
+                && (LocalDate.parse(student.getSchoolCertificateCompletionDate(), formatter).getMonth().getValue()
                 != LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).getMonth().getValue()
-                || LocalDate.parse(student.getSchoolCertificateCompletionDate(), DateTimeFormatter.ofPattern("yyyyMMdd")).getYear()
+                || LocalDate.parse(student.getSchoolCertificateCompletionDate(), formatter).getYear()
                 != LocalDate.parse(gradStudent.getProgramCompletionDate(), DateTimeFormatter.ISO_LOCAL_DATE).getYear())) {
             String invalidErrorMessage = DemographicStudentValidationIssueTypeCode.SCCP_INVALID_STUDENT_PROGRAM_ALREADY_REPORTED.getMessage().formatted(programCompletionDate);
             logDebugStatement(invalidErrorMessage, student.getDemographicStudentID());
