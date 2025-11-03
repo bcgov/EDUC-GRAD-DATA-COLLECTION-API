@@ -28,7 +28,7 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
     private static final List<String> letterGradeWithAllowableCredit = List.of("F", "W");
-    private static final List<String> allowedCreditForLDCourses = List.of("0", "1", "2", "3", "4");
+    private static final List<String> allowedCreditForLDCourses = List.of("0", "1", "2", "3", "4","00", "01", "02", "03", "04");
 
     public ValidNumberOfCreditsRule(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;

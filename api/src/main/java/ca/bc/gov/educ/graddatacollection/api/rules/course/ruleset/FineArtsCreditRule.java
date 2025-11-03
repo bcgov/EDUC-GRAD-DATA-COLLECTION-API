@@ -60,7 +60,7 @@ public class FineArtsCreditRule implements CourseValidationBaseRule {
                 GradRequirementYearCodes.YEAR_1996.getCode().equalsIgnoreCase(demStudent.getGradRequirementYear()) &&
                 Arrays.stream(BOARD_AUTHORITY_OR_LOCALLY_DEVELOPED).anyMatch(boardAuthorityOrLocallyDeveloped -> boardAuthorityOrLocallyDeveloped.equalsIgnoreCase(coursesRecord.getCourseCategory().getCode())) &&
                 "B".equalsIgnoreCase(courseStudent.getCourseGraduationRequirement()) &&
-                !"4".equalsIgnoreCase(courseStudent.getNumberOfCredits())) {
+                !"4".equalsIgnoreCase(courseStudent.getNumberOfCredits()) && !"04".equalsIgnoreCase(courseStudent.getNumberOfCredits())) {
             log.debug("C33: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage(), courseStudent.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_GRADUATION_REQUIREMENT, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID, CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage()));
         }
