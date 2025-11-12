@@ -61,7 +61,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
 
         if (!RuleUtil.validateStudentSurnameMatches(demStudent, student)) {
                 String schoolSurname =  StringEscapeUtils.escapeHtml4(demStudent.getLastName());
-                String ministrySurname = student.getLegalLastName();
+                String ministrySurname = StringEscapeUtils.escapeHtml4(student.getLegalLastName());
                 String message = StringUtils.isBlank(schoolSurname)
                         ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + " If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>"
                         : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + " If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
@@ -70,7 +70,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
                 String schoolMiddleName = StringEscapeUtils.escapeHtml4(demStudent.getMiddleName());
-                String ministryMiddleNames = student.getLegalMiddleNames();
+                String ministryMiddleNames = StringEscapeUtils.escapeHtml4(student.getLegalMiddleNames());
                 String message;
                 if (StringUtils.isBlank(schoolMiddleName)) {
                     message = "MIDDLE NAME mismatch. School submitted a blank MIDDLE NAME and the Ministry PEN system has: " + ministryMiddleNames
@@ -87,7 +87,7 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
                 String schoolGiven = StringEscapeUtils.escapeHtml4(demStudent.getFirstName());
-                String ministryGiven = student.getLegalFirstName();
+                String ministryGiven = StringEscapeUtils.escapeHtml4(student.getLegalFirstName());
                 String message;
                 if (StringUtils.isBlank(schoolGiven)) {
                     message = "FIRST NAME mismatch. School submitted a blank FIRST NAME and the Ministry PEN system has: " + ministryGiven
