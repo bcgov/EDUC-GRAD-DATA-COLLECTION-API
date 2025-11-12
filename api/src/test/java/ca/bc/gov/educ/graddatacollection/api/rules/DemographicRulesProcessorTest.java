@@ -271,6 +271,39 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testD10DemographicStudentName_withNotAllowedHtmlChars_In_StudentApi() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("<script>alert('Bye!');</script> and <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">badLink</a>");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+
+        var demStudent3 = createMockDemographicStudent(savedFileSet);
+        demStudent3.setLastName("JACKSON");
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(demStudent3, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
+        val validationError3 = rulesProcessor.processRules(studentRuleData3);
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueDescription()).isEqualTo(
+                "SURNAME mismatch. School submitted: JACKSON and the Ministry PEN system has: &lt;script&gt;alert('Bye!');&lt;/script&gt; and &lt;a href=&quot;https://dev.educationdataexchange.gov.bc.ca/inbox&quot;&gt;badLink&lt;/a&gt; If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+
+    }
+
+    @Test
     void testD16DemographicStudentBirthdate() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
