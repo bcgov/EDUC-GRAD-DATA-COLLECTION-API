@@ -847,7 +847,10 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         courseStudent.setCourseCode("QCLC");
         val validationError3 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError3.size()).isZero();
+        assertThat(validationError3.stream().anyMatch(err ->
+                err.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
+                err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.Q_CODE_INVALID.getCode())
+        )).isFalse();
     }
 
 
@@ -1075,6 +1078,43 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError8.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_MONTH.getCode());
         assertThat(validationError8.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getCode());
         assertThat(validationError8.getFirst().getValidationIssueDescription()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_INVALID.getMessage());
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenCourseExistsWithExam_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage("95");
+        courseStudent.setFinalLetterGrade("A");
+
+        var exam = new GradStudentCourseExam(95, 95, 95, null, UUID.randomUUID(), 95, "N", "Y");
+
+        // Mock the Coreg39 course lookup
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860",
+                        "CLE  12",
+                        "39"
+                ))
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, exam, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
     }
 
     @Test
@@ -2428,8 +2468,10 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
-        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FINAL_LETTER_GRADE.getCode());
-        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION.getCode());
+        assertThat(validationError2.stream().anyMatch(err ->
+                err.getValidationIssueFieldCode().equals(ValidationFieldCode.FINAL_LETTER_GRADE.getCode()) &&
+                err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION.getCode())
+        )).isTrue();
     }
 }
 

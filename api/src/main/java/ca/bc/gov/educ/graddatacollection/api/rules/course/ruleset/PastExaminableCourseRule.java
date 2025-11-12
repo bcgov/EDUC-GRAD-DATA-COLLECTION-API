@@ -17,7 +17,9 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C15 | ERROR    | Error if the course was examinable for the course code, session,       | C03, C07, C08|
+ *  | C15 | ERROR    | Error if the course code, level, and session exists for the student,   | C03, C07, C08|
+ *                      and the course has an associated exam.
+ *                      Else, error if the course was examinable for the course code, session,
  *                      and grad program submitted AND either of the following are true:
  *                      1. The course does not exist for the student
  *                      2. The course exists for the student and there is a mismatch between
@@ -57,14 +59,45 @@ public class PastExaminableCourseRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C15 for courseStudentID :: {}", student.getStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
+        var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
+        String externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
+        String sessionDate = courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth();
+
+        // First check: Error if course exists with an associated exam
+        if (studentCourseRecords != null && !studentCourseRecords.isEmpty()) {
+            var matchingRecordWithExam = studentCourseRecords.stream().filter(record ->
+                    { log.debug("Checking record for exam: courseSession={}, gradCourseCode39={}", record.getCourseSession(), record.getGradCourseCode39() != null ? record.getGradCourseCode39().getExternalCode() : "null");
+                        boolean courseCodeMatch = (record.getGradCourseCode39() != null && record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID));
+
+                        // Normalize session dates for comparison
+                        String normalizedRecordSession = record.getCourseSession().replaceAll("/", "");
+                        String normalizedSessionDate = sessionDate.replaceAll("/", "");
+                        boolean sessionMatch = normalizedRecordSession.equalsIgnoreCase(normalizedSessionDate);
+
+                        log.debug("Match results for exam check: courseCodeMatch={}, sessionMatch={}, hasExam={} for externalID={}, sessionDate={}",
+                                courseCodeMatch, sessionMatch, record.getCourseExam() != null, externalID, sessionDate);
+
+                        return courseCodeMatch && sessionMatch && record.getCourseExam() != null;
+                    })
+                    .findFirst();
+
+            if (matchingRecordWithExam.isPresent()) {
+                log.debug("C15: Error - course exists with exam for course student id :: {}", courseStudentEntity.getCourseStudentID());
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.ERROR,
+                        ValidationFieldCode.COURSE_CODE,
+                        CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED,
+                        CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getMessage()
+                ));
+                return errors;
+            }
+        }
+
+        // Second check: Check if course is examinable and sub validations
         boolean isExaminable = courseRulesService.courseExaminableAtCourseSessionDate(studentRuleData);
         log.debug("in c15 is examinable :: {}", isExaminable);
 
         if (isExaminable) {
-            var studentCourseRecords = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
-            String externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
-            String sessionDate = courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth();
-
             // Check if course exists for the student
             boolean courseExists = false;
             boolean hasMismatch = false;
