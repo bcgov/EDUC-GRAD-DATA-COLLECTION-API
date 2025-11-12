@@ -207,7 +207,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
         assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(
-    "SURNAME mismatch. School submitted: A and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+    "SURNAME mismatch. School submitted: A and the Ministry PEN system has: JACKSON If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
 
         demStudent2.setLastName("");
         StudentRuleData studentRuleData5 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
@@ -216,7 +216,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
         assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
         assertThat(validationError5.getFirst().getValidationIssueDescription()).isEqualTo(
-                "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+                "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
 
         demStudent2.setLastName(null);
         StudentRuleData studentRuleDat6 = createMockStudentRuleData(demStudent2, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
@@ -225,7 +225,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError6.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
         assertThat(validationError6.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
         assertThat(validationError6.getFirst().getValidationIssueDescription()).isEqualTo(
-                "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+                "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: JACKSON If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
 
         var demStudent3 = createMockDemographicStudent(savedFileSet);
         demStudent3.setMiddleName("A");
@@ -245,7 +245,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError4.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.FIRST_NAME.getCode());
         assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH.getCode());
         assertThat(validationError4.getFirst().getValidationIssueDescription()).isEqualTo(
-    "FIRST NAME mismatch. School submitted: A and the Ministry PEN system has: JIM. If the submitted FIRST NAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+    "FIRST NAME mismatch. School submitted: A and the Ministry PEN system has: JIM If the submitted FIRST NAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
     }
 
     @Test
@@ -267,7 +267,40 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
         assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
         assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(
-                "SURNAME mismatch. School submitted: &lt;script&gt;alert('Hello!');&lt;/script&gt; and &lt;a href=&quot;https://dev.educationdataexchange.gov.bc.ca/inbox&quot;&gt;badLink&lt;/a&gt; and the Ministry PEN system has: JACKSON. If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+                "SURNAME mismatch. School submitted: &lt;script&gt;alert('Hello!');&lt;/script&gt; and &lt;a href=&quot;https://dev.educationdataexchange.gov.bc.ca/inbox&quot;&gt;badLink&lt;/a&gt; and the Ministry PEN system has: JACKSON If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+    }
+
+    @Test
+    void testD10DemographicStudentName_withNotAllowedHtmlChars_In_StudentApi() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudentRepository.save(courseStudent);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setPen(courseStudent.getPen());
+        demStudent.setIncomingFileset(courseStudent.getIncomingFileset());
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("<script>alert('Bye!');</script> and <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">badLink</a>");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+
+        var demStudent3 = createMockDemographicStudent(savedFileSet);
+        demStudent3.setLastName("JACKSON");
+        StudentRuleData studentRuleData3 = createMockStudentRuleData(demStudent3, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone());
+        val validationError3 = rulesProcessor.processRules(studentRuleData3);
+        assertThat(validationError3.size()).isNotZero();
+        assertThat(validationError3.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueCode()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH.getCode());
+        assertThat(validationError3.getFirst().getValidationIssueDescription()).isEqualTo(
+                "SURNAME mismatch. School submitted: JACKSON and the Ministry PEN system has: &lt;script&gt;alert('Bye!');&lt;/script&gt; and &lt;a href=&quot;https://dev.educationdataexchange.gov.bc.ca/inbox&quot;&gt;badLink&lt;/a&gt; If the submitted SURNAME is correct, request a PEN update through <a href=\"https://dev.educationdataexchange.gov.bc.ca/inbox\">EDX Secure Messaging </a>");
+
     }
 
     @Test

@@ -61,43 +61,43 @@ public class InvalidStudentNameRule implements DemographicValidationBaseRule {
 
         if (!RuleUtil.validateStudentSurnameMatches(demStudent, student)) {
                 String schoolSurname =  StringEscapeUtils.escapeHtml4(demStudent.getLastName());
-                String ministrySurname = student.getLegalLastName();
+                String ministrySurname = StringEscapeUtils.escapeHtml4(student.getLegalLastName());
                 String message = StringUtils.isBlank(schoolSurname)
-                        ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>"
-                        : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + ". If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+                        ? "SURNAME mismatch. School submitted a blank surname and the Ministry PEN system has: " + ministrySurname + " If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>"
+                        : "SURNAME mismatch. School submitted: " + schoolSurname + " and the Ministry PEN system has: " + ministrySurname + " If the submitted SURNAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 log.debug("studentSurName-D10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_SURNAME_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentMiddleNameMatches(demStudent, student)) {
                 String schoolMiddleName = StringEscapeUtils.escapeHtml4(demStudent.getMiddleName());
-                String ministryMiddleNames = student.getLegalMiddleNames();
+                String ministryMiddleNames = StringEscapeUtils.escapeHtml4(student.getLegalMiddleNames());
                 String message;
                 if (StringUtils.isBlank(schoolMiddleName)) {
                     message = "MIDDLE NAME mismatch. School submitted a blank MIDDLE NAME and the Ministry PEN system has: " + ministryMiddleNames
-                            + ". If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+                            + " If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else if (StringUtils.isBlank(ministryMiddleNames)) {
                     message = "MIDDLE NAME mismatch. School submitted: " + schoolMiddleName + " but the Ministry PEN system is blank. "
                             + "If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else {
                     message = "MIDDLE NAME mismatch. School submitted: " + schoolMiddleName + " and the Ministry PEN system has: " + ministryMiddleNames
-                            + ". If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+                            + " If the submitted MIDDLE NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 }
                 log.debug("studentMiddleNames-D10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.MIDDLE_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_MIDDLE_MISMATCH, message));
             }
             if (!RuleUtil.validateStudentGivenNameMatches(demStudent, student)) {
                 String schoolGiven = StringEscapeUtils.escapeHtml4(demStudent.getFirstName());
-                String ministryGiven = student.getLegalFirstName();
+                String ministryGiven = StringEscapeUtils.escapeHtml4(student.getLegalFirstName());
                 String message;
                 if (StringUtils.isBlank(schoolGiven)) {
                     message = "FIRST NAME mismatch. School submitted a blank FIRST NAME and the Ministry PEN system has: " + ministryGiven
-                            + ". If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+                            + " If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else if (StringUtils.isBlank(ministryGiven)) {
                     message = "FIRST NAME mismatch. School submitted: " + schoolGiven + " but the Ministry PEN system is blank. "
                             + "If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 } else {
                     message = "FIRST NAME mismatch. School submitted: " + schoolGiven + " and the Ministry PEN system has: " + ministryGiven
-                            + ". If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
+                            + " If the submitted FIRST NAME is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
                 }
                 log.debug("studentGivenName-D10: Error: " + message + " for demographicStudentID :: {}", demStudent.getDemographicStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FIRST_NAME, DemographicStudentValidationIssueTypeCode.STUDENT_GIVEN_MISMATCH, message));
