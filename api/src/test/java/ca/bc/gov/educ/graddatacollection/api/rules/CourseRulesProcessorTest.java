@@ -548,6 +548,114 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testC12CourseStatus_WithNullCoursesRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setCourseStatus("W");
+
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecordId("03636018");
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
+        gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setCourseList(null);
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201860", // courseID
+                                "202106", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201862", // courseID
+                                "202306", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
+                                )
+                        )
+                )
+        );
+
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE 12", // externalCode
+                        "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "39" // originatingSystem
+                ))
+        );
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError2.size()).isZero();
+    }
+
+    @Test
     void testCourseCodeDefaultPasses() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
