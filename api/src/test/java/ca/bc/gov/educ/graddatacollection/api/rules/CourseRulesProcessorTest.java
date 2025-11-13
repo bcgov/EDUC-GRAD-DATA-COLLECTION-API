@@ -428,7 +428,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true", Collections.emptyList())
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -464,6 +464,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setCourseList(List.of(new GradStudentRecordCourses("CLE", "12", "202306", "12")));
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1179,7 +1180,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1253,7 +1254,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1292,7 +1293,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1331,7 +1332,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1458,7 +1459,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1523,7 +1524,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(studentID, null, "2018", null, null, null, null, null)
+                new GradStudentRecord(studentID, null, "2018", null, null, null, null, null, Collections.emptyList())
         );
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(

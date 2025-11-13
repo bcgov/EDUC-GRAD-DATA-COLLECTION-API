@@ -28,10 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static ca.bc.gov.educ.graddatacollection.api.rest.RestUtils.NATS_TIMEOUT;
@@ -100,6 +97,8 @@ class RestUtilsTest {
         UUID correlationID = UUID.randomUUID();
         UUID studentID = UUID.randomUUID();
 
+        var courseList = List.of(new GradStudentRecordCourses("XBE", "10", "201801", "12"));
+
         GradStudentRecord expectedRecord = new GradStudentRecord(
                 "123456789",
                 "",
@@ -108,10 +107,29 @@ class RestUtilsTest {
                 "School XYZ",
                 "School XYZ",
                 "Active",
-                "true"
+                "true",
+                courseList
         );
 
-        String jsonResponse = "{\"studentID\":\"123456789\", \"exception\":\"\", \"program\":\"Program A\",\"programCompletionDate\":\"20230615\",\"schoolOfRecordId\":\"School XYZ\",\"schoolAtGradId\":\"School XYZ\",\"studentStatusCode\":\"Active\", \"graduated\":\"true\"}";
+        String jsonResponse = """
+            {
+                "studentID": "123456789",
+                "exception":"",
+                "program":"Program A",
+                "programCompletionDate":"20230615",
+                "schoolOfRecordId":"School XYZ",
+                "schoolAtGradId":"School XYZ",
+                "studentStatusCode":"Active",
+                "graduated":"true",
+                "courseList": [
+                    {
+                        "courseCode": "XBE",
+                        "courseLevel" : "10",
+                        "courseSession": "201801",
+                        "gradReqMet": "12"
+                    }
+                 ]
+            }""";
         byte[] mockResponseData = jsonResponse.getBytes();
 
         io.nats.client.Message mockMessage = mock(io.nats.client.Message.class);

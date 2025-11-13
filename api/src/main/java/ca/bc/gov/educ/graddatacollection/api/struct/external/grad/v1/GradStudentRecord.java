@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -23,5 +23,5 @@ public class GradStudentRecord {
     private String schoolAtGradId;
     private String studentStatusCode;
     private String graduated;
-
+    private List<GradStudentRecordCourses> courseList;
 }

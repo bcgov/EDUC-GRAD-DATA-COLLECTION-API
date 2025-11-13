@@ -862,27 +862,27 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class, EntityNotFoundException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public GradStudentRecord getGradStudentRecordByStudentID(UUID correlationID, UUID studentID) {
     try {
-      final TypeReference<GradStudentRecord> refGradStudentRecordResult = new TypeReference<>() {
-      };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_GRAD_STUDENT_RECORD).eventPayload(studentID.toString()).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_FETCH_GRAD_STUDENT_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
         String responseData = new String(responseMessage.getData(), StandardCharsets.UTF_8);
 
-        Map<String, String> response = objectMapper.readValue(responseData, new TypeReference<>() {});
+        final TypeReference<GradStudentRecord> refGradStudentRecordResult = new TypeReference<>() {
+        };
+        GradStudentRecord response = objectMapper.readValue(responseData, refGradStudentRecordResult);
 
         log.debug("getGradStudentRecordByStudentID response{}", response.toString());
 
-        if ("not found".equals(response.get(EXCEPTION))) {
+        if ("not found".equals(response.getException())) {
           log.debug("A not found error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new EntityNotFoundException(GradStudentRecord.class);
-        } else if ("error".equals(response.get(EXCEPTION))) {
+        } else if ("error".equals(response.getException())) {
           log.error("An exception error occurred while fetching GradStudentRecord for Student ID {}", studentID);
           throw new GradDataCollectionAPIRuntimeException("Error occurred while processing the request for correlation ID " + correlationID);
         }
 
         log.debug("Success fetching GradStudentRecord for Student ID {}", studentID);
-        return objectMapper.readValue(responseData, refGradStudentRecordResult);
+        return response;
       } else {
         throw new GradDataCollectionAPIRuntimeException(NO_RESPONSE_RECEIVED_WITHIN_TIMEOUT_FOR_CORRELATION_ID + correlationID);
       }
