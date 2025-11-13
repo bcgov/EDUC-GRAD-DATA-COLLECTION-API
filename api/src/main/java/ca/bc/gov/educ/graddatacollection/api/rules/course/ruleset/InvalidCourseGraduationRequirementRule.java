@@ -31,7 +31,9 @@ public class InvalidCourseGraduationRequirementRule implements CourseValidationB
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C10: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C10", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C10", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C10: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

@@ -37,7 +37,9 @@ public class CourseSessionAfterCompletionDateRule implements CourseValidationBas
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C14: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C14", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C14", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C14: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
