@@ -7,6 +7,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRu
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,9 @@ public class InvalidCourseSession implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C16: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C16", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C16", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C16: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

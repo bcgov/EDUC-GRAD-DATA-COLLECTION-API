@@ -35,7 +35,9 @@ public class RelatedCourseRelatedLevelRule implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C20: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C20", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C20", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C20: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

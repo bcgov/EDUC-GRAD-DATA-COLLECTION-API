@@ -35,7 +35,9 @@ public class InvalidRelatedCourseRule implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C19: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C19", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C19", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C19: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

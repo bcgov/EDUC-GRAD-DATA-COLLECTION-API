@@ -39,7 +39,9 @@ public class InvalidFinalLetterGrade implements CourseValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C32: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C32", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C32", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C32: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

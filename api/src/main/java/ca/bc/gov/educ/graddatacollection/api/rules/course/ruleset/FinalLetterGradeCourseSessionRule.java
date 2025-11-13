@@ -32,7 +32,9 @@ public class FinalLetterGradeCourseSessionRule implements CourseValidationBaseRu
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C40: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C40", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C40", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C40: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,

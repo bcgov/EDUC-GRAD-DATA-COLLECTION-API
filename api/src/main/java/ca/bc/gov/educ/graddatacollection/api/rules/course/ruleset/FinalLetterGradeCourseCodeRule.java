@@ -28,7 +28,9 @@ public class FinalLetterGradeCourseCodeRule implements CourseValidationBaseRule 
     public boolean shouldExecute(StudentRuleData studentRuleData, List<CourseStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of C39: for courseStudentID :: {}", studentRuleData.getCourseStudentEntity().getCourseStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("C39", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("C39", validationErrorsMap)
+                && StringUtils.isNotBlank(studentRuleData.getCourseStudentEntity().getCourseStatus())
+                && !studentRuleData.getCourseStudentEntity().getCourseStatus().equalsIgnoreCase("W");
 
         log.debug("In shouldExecute of C39: Condition returned - {} for courseStudentID :: {}" ,
                 shouldExecute,
