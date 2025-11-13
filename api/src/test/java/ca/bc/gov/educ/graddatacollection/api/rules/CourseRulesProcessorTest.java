@@ -1118,6 +1118,233 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testPastExaminableCourseRule_whenCourseExistsWithoutExam_andExaminable_thenChecksMismatch_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage("95");
+        courseStudent.setFinalLetterGrade("A");
+
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+
+        // Course exists but no exam attached - should proceed to examinable check
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        // Should pass because grades match and no exam
+        assertThat(validationErrors).isEmpty();
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenSubmittedPercentNullButRecordHasPercent_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage(null); // null percentage
+        courseStudent.setFinalLetterGrade("A");
+
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        // May have multiple errors (e.g., missing percent for letter grade), so check C15 is present
+        assertThat(validationErrors.stream().anyMatch(e -> e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode()))).isTrue();
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenRecordPercentNullButSubmittedHasPercent_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage("95");
+        courseStudent.setFinalLetterGrade("A");
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", null, "A", 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenSubmittedGradeNullButRecordHasGrade_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage("95");
+        courseStudent.setFinalLetterGrade(null); // null grade
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenRecordGradeNullButSubmittedHasGrade_thenFails_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage("95");
+        courseStudent.setFinalLetterGrade("A");
+
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", 95, null, 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        assertThat(validationErrors).hasSize(1);
+        assertThat(validationErrors.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode());
+    }
+
+    @Test
+    void testPastExaminableCourseRule_whenBothPercentAndGradeNull_thenSucceeds_c15() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+        courseStudent.setFinalPercentage(null);
+        courseStudent.setFinalLetterGrade(null);
+
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
+        when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
+                        50, 50, null, null, "2020-01", "2024-12"))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+        );
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(new GradStudentCourseRecord("12345", "3201860", "2023/06", 100, "", null, null, 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
+        );
+
+        var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+
+        // Should pass C15 check because both are null (no mismatch) - may have other warnings
+        assertThat(validationErrors.stream().noneMatch(e -> e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.EXAMINABLE_COURSES_DISCONTINUED.getCode()))).isTrue();
+    }
+
+    @Test
     void testPastExaminableCourseRule_whenDataMatches_thenSucceeds_c15() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
@@ -1221,12 +1448,21 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         courseStudent.setFinalLetterGrade("B");
         courseStudent.setFinalPercentage("80");
 
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode("3201860", "CLE  12", "39"))
+        );
+
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
-                List.of(new GradExaminableCourse(UUID.randomUUID(), "2023", "CLE", "12", "Creative Writing 12",
+                List.of(new GradExaminableCourse(UUID.randomUUID(), "2018", "CLE", "12", "Creative Writing 12",
                         50, 50, null, null, "2020-01", "2024-12"))
         );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+        );
+
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
-                List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, null, new GradCourseCode("3201860", "CLE  12", "38"), null))
+                List.of(new GradStudentCourseRecord(null, "3201860", "2023/06", 100, "", 95, "A", 4, "", "", "", null, null, null, new GradCourseCode("3201860", "CLE  12", "39")))
         );
 
         var validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
