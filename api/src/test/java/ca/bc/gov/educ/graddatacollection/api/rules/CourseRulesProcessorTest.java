@@ -2250,16 +2250,12 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         courseStudent.setNumberOfCredits(null);
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
-        assertThat(validationError5.size()).isNotZero();
-        assertThat(validationError5.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.NUMBER_OF_CREDITS.getCode());
-        assertThat(validationError5.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getCode());
-        assertThat(validationError5.getFirst().getValidationIssueDescription()).isEqualTo(CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage());
+        assertThat(validationError5.size()).isZero();
 
-        courseStudent.setNumberOfCredits(null);
+        courseStudent.setNumberOfCredits("00");
         courseStudent.setFinalLetterGrade("F");
         val validationError6 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError6.size()).isNotZero();
-
     }
 
     @Test
