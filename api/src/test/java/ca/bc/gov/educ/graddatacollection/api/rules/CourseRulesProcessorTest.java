@@ -428,7 +428,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true", Collections.emptyList())
         );
 
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
@@ -464,6 +464,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setCourseList(List.of(new GradStudentRecordCourses("CLE", "12", "202306", "12")));
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -544,6 +545,114 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
         assertTrue(validationError2.stream().anyMatch(e -> e.getValidationIssueCode().equalsIgnoreCase(CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getCode())));
+    }
+
+    @Test
+    void testC12CourseStatus_WithNullCoursesRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+        courseStudent.setCourseCode("CLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudent.setCourseStatus("W");
+
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setSchoolOfRecordId("03636018");
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
+        gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setCourseList(null);
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201860", // courseID
+                                "202106", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201862", // courseID
+                                "202306", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                new GradStudentCourseExam( // courseExam
+                                        null, null, null, null, null, null, null, null
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLC  12", // externalCode
+                                        "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLC 12", // externalCode
+                                        "39" // originatingSystem
+                                )
+                        )
+                )
+        );
+
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE 12", // externalCode
+                        "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "39" // originatingSystem
+                ))
+        );
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError2.size()).isZero();
     }
 
     @Test
@@ -1179,7 +1288,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1253,7 +1362,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1292,7 +1401,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1331,7 +1440,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1458,7 +1567,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         );
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N")
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "N", Collections.emptyList())
         );
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
@@ -1523,7 +1632,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
 
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
-                new GradStudentRecord(studentID, null, "2018", null, null, null, null, null)
+                new GradStudentRecord(studentID, null, "2018", null, null, null, null, null, Collections.emptyList())
         );
 
         when(restUtils.getExaminableCourseByExternalID(any())).thenReturn(
