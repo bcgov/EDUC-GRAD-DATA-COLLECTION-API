@@ -141,20 +141,10 @@ public class ProcessSummerStudentService {
     }
 
     private GradStudentCourseDetails getStudentCourseDetailRecordFromFile(final SummerStudentData student) {
-        String course = student.getCourse();
         String session = student.getSessionDate();
 
-        String courseCode = null;
-        String courseLevel = null;
         String courseYear = null;
         String courseMonth = null;
-
-        if(StringUtils.isNotBlank(course) && course.length() < 6) {
-            courseCode = course;
-        }else if(StringUtils.isNotBlank(course) && course.length() > 5) {
-            courseCode = course.substring(0, 4);
-            courseLevel = course.substring(5);
-        }
 
         if(StringUtils.isNotBlank(session)) {
             courseYear = session.substring(0, 4);
@@ -166,8 +156,8 @@ public class ProcessSummerStudentService {
                 .vendorID("W")
                 .mincode(student.getSchoolCode())
                 .pen(student.getPen())
-                .courseCode(courseCode)
-                .courseLevel(courseLevel)
+                .courseCode(student.getCourseCode())
+                .courseLevel(student.getCourseLevel())
                 .courseYear(courseYear)
                 .courseMonth(courseMonth)
                 .finalPercentage(student.getFinalPercent())
