@@ -10,7 +10,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingPeriodService;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingPeriod;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
 import ca.bc.gov.educ.graddatacollection.api.util.PenUtil;
@@ -145,8 +144,11 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
                 case DOB:
                     this.setDOB(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
-                case COURSE:
-                    this.setCourse(summerStudent, rowNum, cell, header.getType(), guid);
+                case COURSE_CODE:
+                    this.setCourseCode(summerStudent, rowNum, cell, header.getType(), guid);
+                    break;
+                case COURSE_LEVEL:
+                    this.setCourseLevel(summerStudent, rowNum, cell, header.getType(), guid);
                     break;
                 case SESSION_DATE:
                     this.setSessionDate(summerStudent, rowNum, cell, header.getType(), guid, reportingPeriod);
@@ -200,13 +202,28 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         summerStudent.setLegalFirstName(fieldValue);
     }
 
-    private void setCourse(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
+    private void setCourseCode(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
-        if(StringUtils.isNotBlank(fieldValue) && fieldValue.length() > 8) {
-            throw new FileUnProcessableException(FileError.COURSE_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
+        if(StringUtils.isNotBlank(fieldValue)) {
+            String trimmedValue = fieldValue.trim();
+            if(trimmedValue.length() > 5) {
+                throw new FileUnProcessableException(FileError.COURSE_CODE_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
+            }
+            summerStudent.setCourseCode(trimmedValue);
         }
-        summerStudent.setCourse(fieldValue);
     }
+
+    private void setCourseLevel(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid) throws FileUnProcessableException {
+        val fieldValue = this.getCellValueString(cell, columnType);
+        if(StringUtils.isNotBlank(fieldValue)) {
+            String trimmedValue = fieldValue.trim();
+            if(trimmedValue.length() > 3) {
+                throw new FileUnProcessableException(FileError.COURSE_LEVEL_IN_EXCEL, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(rowNum));
+            }
+            summerStudent.setCourseLevel(trimmedValue);
+        }
+    }
+
     private void setSessionDate(final SummerStudentData summerStudent, final int rowNum, final Cell cell, final ColumnType columnType, final String guid, final ReportingPeriodEntity reportingPeriod) throws FileUnProcessableException {
         val fieldValue = this.getCellValueString(cell, columnType);
         if(StringUtils.isNotBlank(fieldValue)) {

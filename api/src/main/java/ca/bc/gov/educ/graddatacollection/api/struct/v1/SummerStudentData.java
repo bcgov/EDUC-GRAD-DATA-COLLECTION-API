@@ -22,7 +22,8 @@ public class SummerStudentData extends BaseRequest implements Serializable {
     String legalFirstName;
     String dob;
     String studentGrade;
-    String course;
+    String courseCode;
+    String courseLevel;
     String sessionDate;
     String finalPercent;
     String finalLetterGrade;

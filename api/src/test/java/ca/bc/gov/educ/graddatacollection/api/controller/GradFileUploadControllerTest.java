@@ -194,7 +194,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -229,7 +229,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -303,7 +303,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -338,7 +338,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -374,7 +374,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("empty-file.crs");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -406,7 +406,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("empty-file.xam");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -465,7 +465,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("student-xam-file.xam");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -503,7 +503,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file.crs");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -541,7 +541,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getDemFileName()).isEqualTo("student-dem-file.dem");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -580,7 +580,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("empty-file.crs");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -615,7 +615,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getXamFileName()).isEqualTo("empty-file.xam");
         assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
@@ -932,13 +932,13 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testProcessSchoolXlsxFile_givenFileWithInvalidCourse_ShouldReturnBadRequest() throws Exception {
+    void testProcessSchoolXlsxFile_givenFileWithInvalidCourseCode_ShouldReturnBadRequest() throws Exception {
         reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
         schoolTombstone.setMincode("02496099");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
-        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-course.xlsx");
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-course-code.xlsx");
         final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
         assertThat(fileContents).isNotEmpty();
         val body = GradFileUpload.builder()
@@ -953,8 +953,34 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                         .header("correlationID", UUID.randomUUID().toString())
                         .content(JsonUtil.getJsonStringFromObject(body))
                         .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.subErrors[0].message").value("Course code and level cannot be longer than 8 characters. Review the data on line 1."));
+                .andExpect(jsonPath("$.subErrors[0].message").value("Course code cannot be longer than 5 characters. Review the data on line 1."));
     }
+
+    @Test
+    void testProcessSchoolXlsxFile_givenFileWithInvalidCourseLevel_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-course-level.xlsx");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("xlsx")
+                .createUser("test")
+                .fileName("summer-reporting.xlsx")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" +schoolTombstone.getSchoolId() +"/excel-upload")
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                        .header("correlationID", UUID.randomUUID().toString())
+                        .content(JsonUtil.getJsonStringFromObject(body))
+                        .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Course level cannot be longer than 3 characters. Review the data on line 1."));
+    }
+
 
     @Test
     void testProcessSchoolXlsxFile_givenFileWithInvalidFinalPercent_ShouldReturnBadRequest() throws Exception {
@@ -1016,7 +1042,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         SummerStudentData summerData = SummerStudentData.builder()
                 .dob("20030516")
                 .pen("123456789")
-                .course("ENST 12")
+                .courseCode("ENST")
+                .courseLevel("12")
                 .finalPercent("72")
                 .legalFirstName("firstName")
                 .legalSurname("surname")
@@ -1038,7 +1065,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
         assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
@@ -1065,7 +1092,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         SummerStudentData summerData = SummerStudentData.builder()
                 .dob("20030516")
                 .pen("123456789")
-                .course("ENST 12")
+                .courseCode("ENST")
+                .courseLevel("12")
                 .finalPercent("72")
                 .legalFirstName("firstName")
                 .legalSurname("surname")
@@ -1087,7 +1115,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
         assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
@@ -1115,7 +1143,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         SummerStudentData summerData1 = SummerStudentData.builder()
                 .dob("20030516")
                 .pen("123456789")
-                .course("ENST 12")
+                .courseCode("ENST")
+                .courseLevel("12")
                 .finalPercent("72")
                 .legalFirstName("firstName")
                 .legalSurname("surname")
@@ -1126,7 +1155,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         SummerStudentData summerData2 = SummerStudentData.builder()
                 .dob("20030516")
                 .pen("123456789")
-                .course("CNST 12")
+                .courseCode("CNST")
+                .courseLevel("12")
                 .finalPercent("62")
                 .legalFirstName("firstName")
                 .legalSurname("surname")
@@ -1149,7 +1179,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var result =  incomingFilesetRepository.findAll();
         assertThat(result).hasSize(1);
-        final var entity = result.get(0);
+        final var entity = result.getFirst();
         assertThat(entity.getIncomingFilesetID()).isNotNull();
         assertThat(entity.getCrsFileName()).isEqualTo("summer-reporting.CRS");
         assertThat(entity.getDemFileName()).isEqualTo("summer-reporting.DEM");
