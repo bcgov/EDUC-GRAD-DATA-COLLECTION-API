@@ -52,8 +52,13 @@ public class FinalPercentageForFutureCourseRule implements CourseValidationBaseR
             try {
                 YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
                 YearMonth currentDate = YearMonth.now();
+                
+                String finalPercentage = student.getFinalPercentage();
+                if(StringUtils.isNotBlank(finalPercentage) && finalPercentage.equalsIgnoreCase("0")){
+                    finalPercentage = null;
+                }
 
-                if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalLetterGrade()) || StringUtils.isNotBlank(student.getFinalPercentage()))) {
+                if (courseSession.isAfter(currentDate) && (StringUtils.isNotBlank(student.getFinalLetterGrade()) || StringUtils.isNotBlank(finalPercentage))) {
                     log.debug("C24: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage(), student.getCourseStudentID());
                     errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.FINAL_PERCENTAGE, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK, CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_NOT_BLANK.getMessage()));
                 }
