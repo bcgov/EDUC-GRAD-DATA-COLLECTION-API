@@ -54,9 +54,14 @@ public class FinalPercentageForCompletedCoursesRule implements CourseValidationB
                 YearMonth courseSession = YearMonth.of(Integer.parseInt(student.getCourseYear()), Integer.parseInt(student.getCourseMonth()));
                 YearMonth currentDate = YearMonth.now();
 
+                String finalPercentage = student.getFinalPercentage();
+                if(StringUtils.isNotBlank(finalPercentage) && finalPercentage.equalsIgnoreCase("0")){
+                    finalPercentage = null;
+                }
+
                 // Only one of final percent or final letter grade is required
                 boolean hasFinalLetterGrade = StringUtils.isNotBlank(student.getFinalLetterGrade());
-                boolean hasFinalPercent = StringUtils.isNotBlank(student.getFinalPercentage());
+                boolean hasFinalPercent = StringUtils.isNotBlank(finalPercentage);
 
                 if (courseSession.isBefore(currentDate) && !hasFinalLetterGrade && !hasFinalPercent) {
                     log.debug("C25: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.FINAL_LETTER_GRADE_OR_PERCENT_BLANK.getMessage(), student.getCourseStudentID());
