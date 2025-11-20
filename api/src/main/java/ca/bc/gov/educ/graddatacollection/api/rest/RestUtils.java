@@ -95,7 +95,8 @@ public class RestUtils {
   private final ReadWriteLock programRequirementLock = new ReentrantReadWriteLock();
   private final ReadWriteLock gradProgramLock = new ReentrantReadWriteLock();
   private final ReadWriteLock equivalencyChallengeCodeLock = new ReentrantReadWriteLock();
-  private final ReadWriteLock coregLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock coreg38Lock = new ReentrantReadWriteLock();
+  private final ReadWriteLock coreg39Lock = new ReentrantReadWriteLock();
   private final ReadWriteLock examinableCourseLock = new ReentrantReadWriteLock();
   private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
   @Getter
@@ -139,7 +140,8 @@ public class RestUtils {
     this.populateProgramRequirementCodesMap();
     this.populateEquivalencyChallengeCodeMap();
     this.populateGradProgramCodesMap();
-    this.populateCoregMap();
+    this.populateCoreg38Map();
+    this.populateCoreg39Map();
     this.populateExaminableCourseMap();
   }
 
@@ -367,8 +369,8 @@ public class RestUtils {
     log.info("Loaded  {} equivalent or challenge codes to memory", this.equivalencyChallengeCodeMap.values().size());
   }
 
-  public void populateCoregMap() {
-    val writeLock = this.coregLock.writeLock();
+  public void populateCoreg38Map() {
+    val writeLock = this.coreg38Lock.writeLock();
     try {
       writeLock.lock();
       if (this.coreg38Map.isEmpty()) {
@@ -382,7 +384,17 @@ public class RestUtils {
       } else {
         log.debug("Coreg38 map already populated by another thread, skipping reload");
       }
+    } catch (Exception ex) {
+      log.error("Unable to load coreg38 courses to map cache ", ex);
+    } finally {
+      writeLock.unlock();
+    }
+  }
 
+  public void populateCoreg39Map() {
+    val writeLock = this.coreg39Lock.writeLock();
+    try {
+      writeLock.lock();
       if (this.coreg39Map.isEmpty()) {
         log.info("Calling COREG API to load coreg39 courses to memory");
         this.coreg39Map.clear();
@@ -395,7 +407,7 @@ public class RestUtils {
         log.debug("Coreg39 map already populated by another thread, skipping reload");
       }
     } catch (Exception ex) {
-      log.error("Unable to load map cache coreg courses ", ex);
+      log.error("Unable to load coreg39 courses to map cache ", ex);
     } finally {
       writeLock.unlock();
     }
@@ -761,7 +773,7 @@ public class RestUtils {
   public Optional<GradCourseCode> getCoreg38CourseByID(final String courseID) {
     if (this.coreg38Map.isEmpty()) {
       log.info("Coreg 38 course map is empty reloading courses");
-      this.populateCoregMap();
+      this.populateCoreg38Map();
     }
     return Optional.ofNullable(this.coreg38Map.get(courseID));
   }
@@ -769,7 +781,7 @@ public class RestUtils {
   public Optional<GradCourseCode> getCoreg39CourseByID(final String courseID) {
     if (this.coreg39Map.isEmpty()) {
       log.info("Coreg 39 course map is empty reloading courses");
-      this.populateCoregMap();
+      this.populateCoreg39Map();
     }
     return Optional.ofNullable(this.coreg39Map.get(courseID));
   }
