@@ -371,21 +371,34 @@ public class RestUtils {
     val writeLock = this.coregLock.writeLock();
     try {
       writeLock.lock();
-      this.coreg38Map.clear();
-      for (val courseCode : this.getCoreg38Courses()) {
-        this.coreg38Map.put(courseCode.getCourseID(), courseCode);
+      if (this.coreg38Map.isEmpty()) {
+        log.info("Calling COREG API to load coreg38 courses to memory");
+        this.coreg38Map.clear();
+        var coreg38Courses = this.getCoreg38Courses();
+        for (val courseCode : coreg38Courses) {
+          this.coreg38Map.put(courseCode.getCourseID(), courseCode);
+        }
+        log.info("Loaded  {} coreg38 courses to memory", coreg38Courses.size());
+      } else {
+        log.debug("Coreg38 map already populated by another thread, skipping reload");
       }
-      this.coreg39Map.clear();
-      for (val courseCode : this.getCoreg39Courses()) {
-        this.coreg39Map.put(courseCode.getCourseID(), courseCode);
+
+      if (this.coreg39Map.isEmpty()) {
+        log.info("Calling COREG API to load coreg39 courses to memory");
+        this.coreg39Map.clear();
+        var coreg39Courses = this.getCoreg39Courses();
+        for (val courseCode : coreg39Courses) {
+          this.coreg39Map.put(courseCode.getCourseID(), courseCode);
+        }
+        log.info("Loaded  {} coreg39 courses to memory", coreg39Courses.size());
+      } else {
+        log.debug("Coreg39 map already populated by another thread, skipping reload");
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache coreg courses ", ex);
     } finally {
       writeLock.unlock();
     }
-    log.info("Loaded  {} coreg38 courses to memory", this.coreg38Map.values().size());
-    log.info("Loaded  {} coreg39 courses to memory", this.coreg39Map.values().size());
   }
 
   public void populateExaminableCourseMap() {
@@ -746,17 +759,37 @@ public class RestUtils {
   }
 
   public Optional<GradCourseCode> getCoreg38CourseByID(final String courseID) {
+    // First check without lock (fast path)
     if (this.coreg38Map.isEmpty()) {
-      log.info("Coreg 38 course map is empty reloading courses");
-      this.populateCoregMap();
+      val writeLock = this.coregLock.writeLock();
+      try {
+        writeLock.lock();
+        // Double-check after acquiring lock to prevent multiple threads from reloading
+        if (this.coreg38Map.isEmpty()) {
+          log.info("Coreg 38 course map is empty reloading courses");
+          this.populateCoregMap();
+        }
+      } finally {
+        writeLock.unlock();
+      }
     }
     return Optional.ofNullable(this.coreg38Map.get(courseID));
   }
 
   public Optional<GradCourseCode> getCoreg39CourseByID(final String courseID) {
+    // First check without lock (fast path)
     if (this.coreg39Map.isEmpty()) {
-      log.info("Coreg 39 course map is empty reloading courses");
-      this.populateCoregMap();
+      val writeLock = this.coregLock.writeLock();
+      try {
+        writeLock.lock();
+        // Double-check after acquiring lock to prevent multiple threads from reloading
+        if (this.coreg39Map.isEmpty()) {
+          log.info("Coreg 39 course map is empty reloading courses");
+          this.populateCoregMap();
+        }
+      } finally {
+        writeLock.unlock();
+      }
     }
     return Optional.ofNullable(this.coreg39Map.get(courseID));
   }
