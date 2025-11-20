@@ -759,37 +759,17 @@ public class RestUtils {
   }
 
   public Optional<GradCourseCode> getCoreg38CourseByID(final String courseID) {
-    // First check without lock (fast path)
     if (this.coreg38Map.isEmpty()) {
-      val writeLock = this.coregLock.writeLock();
-      try {
-        writeLock.lock();
-        // Double-check after acquiring lock to prevent multiple threads from reloading
-        if (this.coreg38Map.isEmpty()) {
-          log.info("Coreg 38 course map is empty reloading courses");
-          this.populateCoregMap();
-        }
-      } finally {
-        writeLock.unlock();
-      }
+      log.info("Coreg 38 course map is empty reloading courses");
+      this.populateCoregMap();
     }
     return Optional.ofNullable(this.coreg38Map.get(courseID));
   }
 
   public Optional<GradCourseCode> getCoreg39CourseByID(final String courseID) {
-    // First check without lock (fast path)
     if (this.coreg39Map.isEmpty()) {
-      val writeLock = this.coregLock.writeLock();
-      try {
-        writeLock.lock();
-        // Double-check after acquiring lock to prevent multiple threads from reloading
-        if (this.coreg39Map.isEmpty()) {
-          log.info("Coreg 39 course map is empty reloading courses");
-          this.populateCoregMap();
-        }
-      } finally {
-        writeLock.unlock();
-      }
+      log.info("Coreg 39 course map is empty reloading courses");
+      this.populateCoregMap();
     }
     return Optional.ofNullable(this.coreg39Map.get(courseID));
   }
