@@ -1123,7 +1123,7 @@ public class RestUtils {
       demStudent.setUpdateDate(student.getUpdateDate());
       demStudent.setVendorID(student.getVendorID());
 
-      log.info("DEM Student Detail:: {}", demStudent);
+      log.debug("DEM Student Detail:: {}", demStudent);
 
       Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_DEM_DATA).eventPayload(JsonUtil.getJsonStringFromObject(demStudent)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
@@ -1157,7 +1157,7 @@ public class RestUtils {
       address.setCreateUser(student.getCreateUser());
       address.setUpdateUser(student.getUpdateUser());
       
-      log.info("DEM Student Detail:: {}", address);
+      log.debug("DEM address detail:: {}", address);
 
       Object event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).eventPayload(JsonUtil.getJsonStringFromObject(address)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.SCHOLARSHIPS_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
