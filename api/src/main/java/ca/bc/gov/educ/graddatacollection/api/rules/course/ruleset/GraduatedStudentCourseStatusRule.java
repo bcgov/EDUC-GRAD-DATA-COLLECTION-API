@@ -56,8 +56,6 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
         var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
         var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
 
-        log.info("C12- Graduated flag: {}", gradStudent);
-
         if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
                 && gradStudent != null
                 && gradStudent.getGraduated().equalsIgnoreCase("true")
