@@ -1051,7 +1051,7 @@ public class RestUtils {
       assessmentStudent.setCreateDate(null);
       assessmentStudent.setUpdateDate(null);
 
-      log.info("Assessment Student Detail: " + assessmentStudent);
+      log.debug("Assessment Student Detail: " + assessmentStudent);
 
       Object event = Event.builder().eventType(EventType.PROCESS_STUDENT_REGISTRATION).eventPayload(JsonUtil.getJsonStringFromObject(assessmentStudent)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_ASSESSMENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
