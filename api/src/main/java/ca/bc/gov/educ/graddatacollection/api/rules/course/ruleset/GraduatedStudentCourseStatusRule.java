@@ -62,13 +62,20 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
                 && gradStudent != null
                 && gradStudent.getGraduated().equalsIgnoreCase("true")
                 && gradStudent.getCourseList()!= null && !gradStudent.getCourseList().isEmpty()
-                && gradStudent.getCourseList().stream().anyMatch(course ->
-                    (courseRulesService.formatExternalID(course.getCourseCode(), course.getCourseLevel()).equalsIgnoreCase(externalID))
-                        && course.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth())
-                            && StringUtils.isNotBlank(course.getGradReqMet())
-        )) {
-            log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));
+                ) {
+            boolean hasWithDrawnCourse = gradStudent.getCourseList().stream().anyMatch(course -> {
+                var incomingCourseCode = courseRulesService.formatExternalID(course.getCourseCode(), course.getCourseLevel());
+                log.info("C12- course {} {}", course.getCourseCode(), course.getCourseLevel());
+                log.info("C12- incomingCourseCode: {}, externalID {}", incomingCourseCode, externalID);
+                       return incomingCourseCode.equalsIgnoreCase(externalID)
+                                && course.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth())
+                                && StringUtils.isNotBlank(course.getGradReqMet());
+                    });
+
+            if (hasWithDrawnCourse) {
+                log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));
+            }
         }
         return errors;
     }
