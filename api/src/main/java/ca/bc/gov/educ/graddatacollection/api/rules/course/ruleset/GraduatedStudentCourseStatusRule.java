@@ -68,7 +68,7 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
                 log.info("C12- course {} {}", course.getCourseCode(), course.getCourseLevel());
                 log.info("C12- incomingCourseCode: {}, externalID {}", incomingCourseCode, externalID);
                        return incomingCourseCode.equalsIgnoreCase(externalID)
-                                && course.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth())
+                                && course.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())
                                 && StringUtils.isNotBlank(course.getGradReqMet());
                     });
 
