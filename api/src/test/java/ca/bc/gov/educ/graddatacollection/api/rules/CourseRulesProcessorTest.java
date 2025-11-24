@@ -464,7 +464,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         gradStudentRecord.setStudentStatusCode("CUR");
         gradStudentRecord.setProgramCompletionDate("2023-06-30T00:00:00+01:00");
         gradStudentRecord.setGraduated("true");
-        gradStudentRecord.setCourseList(List.of(new GradStudentRecordCourses("CLE", "12", "202306", "12")));
+        gradStudentRecord.setCourseList(List.of(new GradStudentRecordCourses("CLE", "12", "2023/06", "12")));
         when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
 
         when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
