@@ -56,8 +56,6 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
         var gradStudent = courseRulesService.getGradStudentRecord(studentRuleData, courseStudentEntity.getPen());
         var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
 
-        log.info("C12- Graduated flag: {}", gradStudent);
-
         if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
                 && gradStudent != null
                 && gradStudent.getGraduated().equalsIgnoreCase("true")
@@ -65,13 +63,10 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
                 ) {
             boolean hasWithDrawnCourse = gradStudent.getCourseList().stream().anyMatch(course -> {
                 var incomingCourseCode = courseRulesService.formatExternalID(course.getCourseCode(), course.getCourseLevel());
-                log.info("C12- course {} {}", course.getCourseCode(), course.getCourseLevel());
-                log.info("C12- incomingCourseCode: {}, externalID {}", incomingCourseCode, externalID);
                        return incomingCourseCode.equalsIgnoreCase(externalID)
                                 && course.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + "/" + courseStudentEntity.getCourseMonth())
                                 && StringUtils.isNotBlank(course.getGradReqMet());
                     });
-
             if (hasWithDrawnCourse) {
                 log.debug("C12: Error: A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION, CourseStudentValidationIssueTypeCode.COURSE_USED_FOR_GRADUATION.getMessage()));
