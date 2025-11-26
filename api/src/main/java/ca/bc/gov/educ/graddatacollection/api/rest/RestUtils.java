@@ -143,6 +143,7 @@ public class RestUtils {
     this.populateCoreg38Map();
     this.populateCoreg39Map();
     this.populateExaminableCourseMap();
+    log.info("RestUtils cache load complete");
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
