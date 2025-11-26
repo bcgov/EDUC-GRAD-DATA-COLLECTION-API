@@ -160,6 +160,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache citizenship codes {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache citizenship codes: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -176,6 +177,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache school categories {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache school categories: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -192,6 +194,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache facility types {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache facility types: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -210,7 +213,8 @@ public class RestUtils {
         }
       }
     } catch (Exception ex) {
-      log.error("Unable to load map cache school {}", ex);
+      log.error("Unable to load map cache schools {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache schools: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -227,6 +231,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache grad-school {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache grad-schools: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -247,6 +252,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache school mincodes {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache school mincodes: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -263,6 +269,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache letter grade {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache letter grades: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -278,7 +285,8 @@ public class RestUtils {
         this.gradGradeMap.put(grade.getStudentGradeCode(), grade);
       }
     } catch (Exception ex) {
-      log.error("Unable to load map cache grad grade {}", ex);
+      log.error("Unable to load map cache GRAD grade {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache GRAD grades: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -295,6 +303,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache career program {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache career programs: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -311,6 +320,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache optional program {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache optional programs: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -327,6 +337,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache program requirement codes {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache program requirement codes: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -345,7 +356,8 @@ public class RestUtils {
         this.gradProgramCodeMap.put(program.getProgramCode(), program);
       }
     } catch (Exception ex) {
-      log.error("Unable to load map cache grad program codes {}", ex);
+      log.error("Unable to load map cache GRAD program codes {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache GRAD program codes: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -363,6 +375,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache equivalent or challenge codes {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache equivalent or challenge codes: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -386,6 +399,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load coreg38 courses to map cache ", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load coreg38 courses to map cache: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -408,6 +422,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load coreg39 courses to map cache ", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load coreg39 courses to map cache: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -422,7 +437,8 @@ public class RestUtils {
         this.examinableCourseMap.put(String.valueOf(examinableCourse.getExaminableCourseID()), examinableCourse);
       }
     } catch (Exception ex) {
-      log.error("Unable to load map cache grad examinable courses ", ex);
+      log.error("Unable to load map cache GRAD examinable courses ", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache GRAD examinable courses: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -705,6 +721,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache district {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache district: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
@@ -1012,6 +1029,7 @@ public class RestUtils {
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache for Assessment session map {}", ex);
+      throw new GradDataCollectionAPIRuntimeException("Unable to load map cache for Assessment session map: " + ex.getMessage());
     } finally {
       writeLock.unlock();
     }
