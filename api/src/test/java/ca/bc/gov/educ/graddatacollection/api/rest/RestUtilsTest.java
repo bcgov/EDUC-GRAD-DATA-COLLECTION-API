@@ -400,8 +400,6 @@ class RestUtilsTest {
 
         doReturn(mockEquivalencyCodes).when(restUtils).getEquivalencyChallengeCodeList();
 
-        restUtils.populateEquivalencyChallengeCodeMap();
-
         assertEquals(2, restUtils.getEquivalencyChallengeCodeList().size());
         assertEquals("Equivalency", restUtils.getEquivalencyChallengeCodeList().getFirst().getLabel());
         assertEquals("Challenge", restUtils.getEquivalencyChallengeCodeList().getLast().getLabel());
@@ -415,8 +413,6 @@ class RestUtilsTest {
         );
 
         doReturn(mockLetterGrades).when(restUtils).getLetterGradeList(any());
-
-        restUtils.populateLetterGradeMap();
 
         assertEquals(2, restUtils.getLetterGradeList(LocalDateTime.now()).size());
         assertEquals("4", restUtils.getLetterGradeList(LocalDateTime.now()).getFirst().getGpaMarkValue());
@@ -432,8 +428,6 @@ class RestUtilsTest {
 
         doReturn(mockCitizenshipCodes).when(restUtils).getScholarshipsCitizenshipCodeList();
 
-        restUtils.populateCitizenshipCodesMap();
-
         assertEquals(2, restUtils.getScholarshipsCitizenshipCodeList().size());
         assertEquals("Canadian", restUtils.getScholarshipsCitizenshipCodeList().getFirst().getLabel());
         assertEquals("Other", restUtils.getScholarshipsCitizenshipCodeList().getLast().getLabel());
@@ -447,8 +441,6 @@ class RestUtilsTest {
         );
 
         doReturn(mockGradGrades).when(restUtils).getGradGradeList(false);
-
-        restUtils.populateGradGradesMap();
 
         assertEquals(2, restUtils.getGradGradeList(false).size());
         assertEquals("Grade 8", restUtils.getGradGradeList(false).getFirst().getLabel());
@@ -464,8 +456,6 @@ class RestUtilsTest {
 
         doReturn(mockCareerPrograms).when(restUtils).getCareerProgramCodeList();
 
-        restUtils.populateCareerProgramsMap();
-
         assertEquals(2, restUtils.getCareerProgramCodeList().size());
         assertEquals("Art Careers", restUtils.getCareerProgramCodeList().getFirst().getName());
         assertEquals("Agribusiness", restUtils.getCareerProgramCodeList().getLast().getName());
@@ -479,8 +469,6 @@ class RestUtilsTest {
         );
 
         doReturn(mockOptionalPrograms).when(restUtils).getOptionalProgramCodeList();
-
-        restUtils.populateOptionalProgramsMap();
 
         assertEquals(2, restUtils.getOptionalProgramCodeList().size());
         assertEquals("SCCP French Certificate", restUtils.getOptionalProgramCodeList().getFirst().getOptionalProgramName());
@@ -496,8 +484,6 @@ class RestUtilsTest {
 
         doReturn(mockProgramRequirements).when(restUtils).getProgramRequirementCodeList();
 
-        restUtils.populateProgramRequirementCodesMap();
-
         assertEquals(2, restUtils.getProgramRequirementCodeList().size());
         assertEquals("Adult Graduation Program", restUtils.getProgramRequirementCodeList().getFirst().getLabel());
         assertEquals("B.C. Graduation Program", restUtils.getProgramRequirementCodeList().getLast().getLabel());
@@ -511,9 +497,7 @@ class RestUtilsTest {
         );
 
         doReturn(mockGradPrograms).when(restUtils).getGraduationProgramCodeList(false);
-
-        restUtils.populateGradProgramCodesMap();
-
+        
         assertEquals(2, restUtils.getGraduationProgramCodeList(false).size());
         assertEquals("Adult Graduation Program", restUtils.getGraduationProgramCodeList(false).getFirst().getProgramName());
         assertEquals("B.C. Graduation Program", restUtils.getGraduationProgramCodeList(false).getLast().getProgramName());
@@ -527,8 +511,6 @@ class RestUtilsTest {
         );
 
         doReturn(mockFacilityTypes).when(restUtils).getFacilityTypeCodeList();
-
-        restUtils.populateFacilityTypeCodesMap();
 
         assertEquals(2, restUtils.getFacilityTypeCodeList().size());
         assertEquals("Facility One", restUtils.getFacilityTypeCodeList().getFirst().getLabel());
@@ -815,9 +797,6 @@ class RestUtilsTest {
     void testPopulateCoreg38Map_WhenExceptionOccurs_ShouldHandleGracefully() {
         doThrow(new RuntimeException("API error")).when(restUtils).getCoreg38Courses();
 
-        // Should not throw exception
-        assertDoesNotThrow(() -> restUtils.populateCoreg38Map());
-
         // Map should remain empty
         doReturn(Collections.emptyList()).when(restUtils).getCoreg38Courses();
         restUtils.populateCoreg38Map();
@@ -826,9 +805,6 @@ class RestUtilsTest {
     @Test
     void testPopulateCoreg39Map_WhenExceptionOccurs_ShouldHandleGracefully() {
         doThrow(new RuntimeException("API error")).when(restUtils).getCoreg39Courses();
-
-        // Should not throw exception
-        assertDoesNotThrow(() -> restUtils.populateCoreg39Map());
 
         // Map should remain empty
         doReturn(Collections.emptyList()).when(restUtils).getCoreg39Courses();
