@@ -57,7 +57,11 @@ public class CourseSessionBeforeCourseStartRule implements CourseValidationBaseR
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
 
         if (coursesRecord != null) {
-            LocalDate courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
+            LocalDate courseSessionDate = LocalDate.parse(
+                    student.getCourseYear() + "-" +
+                            String.format("%02d", Integer.parseInt(student.getCourseMonth())) +
+                            "-01"
+            );
             LocalDateTime courseStartDate = LocalDateTime.parse(coursesRecord.getStartDate());
 
             if (courseSessionDate.isBefore(courseStartDate.toLocalDate())) {

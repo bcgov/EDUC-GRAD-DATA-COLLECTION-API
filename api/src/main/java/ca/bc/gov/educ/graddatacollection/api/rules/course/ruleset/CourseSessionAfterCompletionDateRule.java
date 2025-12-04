@@ -60,7 +60,11 @@ public class CourseSessionAfterCompletionDateRule implements CourseValidationBas
             LocalDate courseSessionDate = null;
 
             try {
-                courseSessionDate = LocalDate.parse(student.getCourseYear() + "-" + student.getCourseMonth() + "-01");
+                courseSessionDate = LocalDate.parse(
+                        student.getCourseYear() + "-" +
+                                String.format("%02d", Integer.parseInt(student.getCourseMonth())) +
+                                "-01"
+                );
             } catch (DateTimeParseException ex) {
                 logDebugStatement(CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID.getMessage(), student.getCourseStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_MONTH, CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID, CourseStudentValidationIssueTypeCode.COURSE_SESSION_COMPLETION_END_DATE_INVALID.getMessage()));

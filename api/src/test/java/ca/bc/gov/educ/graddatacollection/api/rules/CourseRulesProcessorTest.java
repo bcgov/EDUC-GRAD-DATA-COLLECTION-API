@@ -962,6 +962,33 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         )).isFalse();
     }
 
+    @Test
+    void testC06CourseSessionValidDate() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setCourseMonth("1");
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError1.size()).isZero();
+
+        courseStudentRepository.save(courseStudent);
+        courseStudent.setCourseStudentID(null);
+        courseStudentRepository.save(courseStudent);
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.PEN.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueDescription()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage());
+    }
 
     @Test
     void testC06CourseSession() {
