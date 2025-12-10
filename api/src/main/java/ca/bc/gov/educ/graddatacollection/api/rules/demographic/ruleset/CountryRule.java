@@ -55,6 +55,10 @@ public class CountryRule implements DemographicValidationBaseRule {
         var student = studentRuleData.getDemographicStudentEntity();
         log.debug("In executeValidation of CountryRule-D28 for demographicStudentID :: {}", student.getDemographicStudentID());
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
+        
+        if(StringUtils.isNotBlank(student.getCountryCode()) && student.getCountryCode().length() == 3 && student.getCountryCode().equalsIgnoreCase("CAN")){
+            student.setCountryCode("CA");
+        }
 
         if (StringUtils.isNotBlank(student.getCountryCode()) && student.getCountryCode().length() != 2) {
             String errorMessage = DemographicStudentValidationIssueTypeCode.COUNTRY_INVALID.getMessage().formatted(StringEscapeUtils.escapeHtml4(student.getCountryCode()));
