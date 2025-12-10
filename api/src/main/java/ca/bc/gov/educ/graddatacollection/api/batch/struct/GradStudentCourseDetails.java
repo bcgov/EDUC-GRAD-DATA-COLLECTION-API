@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -33,6 +35,10 @@ public class GradStudentCourseDetails {
     private String courseDesc;//    CRSE_DESC CHARACTER 40 100
     private String courseType;//    CRSE_TYPE CHARACTER 1 140
     private String courseGradReqt;//    CRSE_GRAD_REQT CHARACTER 1 141
-
     private String lineNumber;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transactionCode, vendorID, verificationFlag, filler1, mincode, localId, pen, courseCode, courseLevel, courseYear, courseMonth, interimPercentage, interimLetterGrade, finalPercentage, finalLetterGrade, courseStatus, legalSurname, numCredits, relatedCourse, relatedCourseLevel, courseDesc, courseType, courseGradReqt);
+    }
 }
