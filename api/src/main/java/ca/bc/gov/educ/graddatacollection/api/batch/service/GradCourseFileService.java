@@ -86,20 +86,30 @@ public class GradCourseFileService implements GradFileBatchProcessor {
 
     public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String schoolID) throws FileUnProcessableException {
         long index = 0;
+        gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
+        var studentSet = new HashSet<>();
         while (ds.next()) {
-            gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
             final var mincode = ds.getString(DEMBatchFile.MINCODE.getName());
             gradFileValidator.validateMincode(guid, schoolID, mincode);
-            batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
+            var courseRecord = this.getStudentCourseDetailRecordFromFile(ds, guid, index);
+            if(!studentSet.contains(courseRecord.hashCode())) {
+                batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
+                studentSet.add(courseRecord.hashCode());
+            }
             index++;
         }
     }
 
     public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
         long index = 0;
+        gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
+        var studentSet = new HashSet<>();
         while (ds.next()) {
-            gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
-            batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
+            var courseRecord = this.getStudentCourseDetailRecordFromFile(ds, guid, index);
+            if(!studentSet.contains(courseRecord.hashCode())) {
+                batchFile.getCourseData().add(courseRecord);
+                studentSet.add(courseRecord.hashCode());
+            }
             index++;
         }
     }

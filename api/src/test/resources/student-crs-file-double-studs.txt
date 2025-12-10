@@ -1,0 +1,95 @@
+E08M      079650391001520     131406902         202406          ALeGear                   0         ADVISORY BLOCK                            
+E08M      079650391001520     131406902 ACLV 12 202306          ALeGear                   4         ACTIVE LIVING 12 - SOCCER                 
+E08M      079650391001520     131406902 ACLV 12 202409          ALeGear                   4         ACTIVE LIVING 12 - SOCCER                 
+E08M      079650391001520     131406902 CLC     20230614        ALeGear                   4         CAREER LIFE CONNECTIONS                   
+E08M      079650391001520     131406902 ENST 12 20230125   25 F ALeGear                   0         ENGLISH STUDIES 12                        
+E08M      079650391001520     131406902 ENST 12 202306          ALeGear                   4         ENGLISH STUDIES 12                        
+E08M      079650391001520     131406902 EVSC 12 20230258   58 C-ALeGear                   4         ENVIRONMENTAL SCIENCE 12                  
+E08M      079650391001520     131406902 FOM  12 202306          ALeGear                   4         FOUNDATIONS OF MATHEMATICS 12             
+E08M      079650391001520     131406902 IMG  12 20230179   79 B ALeGear                   4         INSTRUMENTAL MUSIC 12: GUITAR            B
+E08M      079650391001520     131406902 PHIL 12 202306          ALeGear                   4         PHILOSOPHY 12                             
+E08M      079650391001520     131406902 WRK  11A202211100  100A ALeGear                   4         Youth Work in Trades 11A                 B
+E08M      079650391001520     131406902 WRK  11B202211100  100A ALeGear                   4         Youth Work in Trades 11B                 B
+E08M      079650391001520     131406902 WRK  12A202211100  100A ALeGear                   4         Youth Work in Trades 12A                 B
+E08M      079650391001520     131406902 WRK  12B202211100  100A ALeGear                   4         Youth Work in Trades 12B                 B
+E08M      079650391002490     131463218 SC   10 20210499   99 A ALewis                    4         SCIENCE 10                                
+E08M      079650391001520     131406902 ADEM 10 20210250   50 C-ALeGear                   4         ADST  ENTREPRENEURSHIP AND MARKETING 10  B
+E08M      079650391001520     131406902 CLE     20210290   90 A ALeGear                   4         CAREER LIFE EDUCATION                     
+E08M      079650391001520     131406902 CMPS 10 20210455   55 C-ALeGear                   2         COMPOSITION 10                            
+E08M      079650391001520     131406902 EPSS 11 20210673   73 B ALeGear                   4         EXPLORATIONS IN SOCIAL STUDIES 11 (OED)   
+E08M      079650391001520     131406902 EVSC 11 20220259   59 C-ALeGear                   4         ENVIRONMENTAL SCIENCE 11                  
+E08M      079650391001520     131406902 FMP  10 202102        W WLeGear                   0         FOUNDATIONS OF MATH AND PRE-CALCULUS 10   
+E08M      079650391001520     131406902 FOM  11 2022060    0  F ALeGear                   0         FOUNDATIONS OF MATHEMATICS 11             
+E08M      079650391001520     131406902 IMG  11 20220699   99 A ALeGear                   4         INSTRUMENTAL MUSIC 11: GUITAR            B
+E08M      079650391001520     131406902 LTST 10 20210455   55 C-ALeGear                   2         LITERARY STUDIES 10                       
+E08M      079650391001520     131406902 LTST 11 20220663   63 C ALeGear                   4         LITERARY STUDIES 11                       
+E08M      079650391001520     131406902 LTST 11 202201        W WLeGear                   0         LITERARY STUDIES 11                       
+E08M      079650391001520     131406902 PHED 10 20210673   73 B ALeGear                   4         PHYSICAL AND HEALTH EDUCATION 10 OUTDOOR  
+E08M      079650391001520     131406902 SC   10 20201165   65 C ALeGear                   4         SCIENCE 10                                
+E08M      079650391001520     131406902 SS   10 20210262   62 C ALeGear                   4         SOCIAL STUDIES 10                         
+E08M      079650391001520     131406902 STX  10A20210463   63 C ALeGear                   4         FOODS 10                                 B
+E08M      079650391001520     131406902 TELE 11 20220669      W WLeGear                   0         ELECTRONICS 11                            
+E08M      079650391001520     131406902 VAPH 11 202201        W WLeGear                   0         PHOTOGRAPHY 11                            
+E08M      079650391001520     131406902 WPM  11 20220150   50 C-ALeGear                   4         WORKPLACE MATHEMATICS 11                  
+E08M      079650391001520     131406902 WPM  10 20211072   72 C+ALeGear                   4         WORKPLACE MATHEMATICS 10                  
+E08M      079650391001520     131406902 YCPA 11A20220693   93 A ALeGear                   4         BA LEADERSHIP 11                         B
+E08M      079650391001520     131406902 YPR  10B20210686   86 A ALeGear                   1         BA DISCOVERING SELF IN NATURE 10          
+E08M      079650391002046     131411258         202306          AMuller                   0         ADVISORY BLOCK                            
+E08M      079650391002046     131411258 CH   12 202301          AMuller                   4         CHEMISTRY 12                              
+E08M      079650391002046     131411258 CLC     20230693        AMuller                   4         CAREER LIFE CONNECTIONS                   
+E08M      079650391002046     131411258 ENST 12 20230178   78 B AMuller                   4         ENGLISH STUDIES 12                        
+E08M      079650391002046     131411258 PH   11 20230153   53 C-AMuller                   4         PHYSICS 11                                
+E08M      079650391002046     131411258 PH   12 202306          AMuller                   4         PHYSICS 12                                
+E08M      079650391002046     131411258 PREC 12 202306          AMuller                   4         PRE-CALCULUS 12                           
+E08M      079650391002046     131411258 ACLV 11 20220192   92 A AMuller                   4         ACTIVE LIVING 11                          
+E08M      079650391002046     131411258 ATPH 12 20220278   78 B AMuller                   4         ANATOMY AND PHYSIOLOGY 12                 
+E08M      079650391002046     131411258 CH   11 20220182   82 B AMuller                   4         CHEMISTRY 11                              
+E08M      079650391002046     131411258 CLE     202106100  100A AMuller                   4         CAREER LIFE EDUCATION                     
+E08M      079650391002046     131411258 CMPS 10 20210681   81 B AMuller                   2         COMPOSITION 10                            
+E08M      079650391002046     131411258 EPSS 11 20201188   88 A AMuller                   4         EXPLORATIONS IN SOCIAL STUDIES 11 (OED)   
+E08M      079650391002046     131411258 FMP  10 20210173   73 B AMuller                   4         FOUNDATIONS OF MATH AND PRE-CALCULUS 10   
+E08M      079650391002046     131411258 FTCD 11 20220187   87 A AMuller                   4         FITNESS AND CONDITIONING 11               
+E08M      079650391002046     131411258 LTST 10 20210681   81 B AMuller                   2         LITERARY STUDIES 10                       
+E08M      079650391002046     131411258 LTST 11 20220674   74 B AMuller                   4         LITERARY STUDIES 11                       
+E08M      079650391002046     131411258 PHED 10 20201188   88 A AMuller                   4         PHYSICAL AND HEALTH EDUCATION 10 OUTDOOR  
+E08M      079650391002046     131411258 PREC 11 20220675   75 B AMuller                   4         PRE-CALCULUS 11                           
+E08M      079650391002046     131411258 SC   10 20210475   75 B AMuller                   4         SCIENCE 10                                
+E08M      079650391002046     131411258 SS   10 20210453   53 C-AMuller                   4         SOCIAL STUDIES 10                         
+E08M      079650391002046     131411258 STX  11A20220674   74 B AMuller                   4         FOOD STUDIES 11                          B
+E08M      079650391002046     131411258 TELE 11 20220675   75 B AMuller                   4         ELECTRONICS 11                           B
+E08M      079650391002046     131411258 TXT  10 20210158   58 C-AMuller                   4         TEXTILES 10                              B
+E08M      079650391002046     131411258 YCPA 11A20220693   93 A AMuller                   4         BA LEADERSHIP 11                         B
+E08M      079650391002046     131411258 YPR  10B20201192   92 A AMuller                   1         BA DISCOVERING SELF IN NATURE 10          
+E08M      079650391002046     131411258 YVPA 10B20210682   82 B AMuller                   4         BA COMPOSITION & PRODUCTION 10            
+E08M      079650391002490     131463218         202306          ALewis                    0         ADVISORY BLOCK                            
+E08M      079650391002490     131463218 CH   11 20230290   90 A ALewis                    4         CHEMISTRY 11                              
+E08M      079650391002490     131463218 CH   12 202306          ALewis                    4         CHEMISTRY 12                              
+E08M      079650391002490     131463218 CLC     20230684        ALewis                    4         CAREER LIFE CONNECTIONS                   
+E08M      079650391002490     131463218 FTCD 12 20230198   98 A ALewis                    4         FITNESS AND CONDITIONING 12               
+E08M      079650391002490     131463218 PH   12 20230188   88 A ALewis                    4         PHYSICS 12                                
+E08M      079650391002490     131463218 VAGA 12 202306          ALewis                    4         GRAPHIC ARTS 12                          B
+E08M      079650391002490     131463218 ADEM 10 20210288   88 A ALewis                    4         ADST  ENTREPRENEURSHIP AND MARKETING 10  B
+E08M      079650391002490     131463218 ATPH 12 20220292   92 A ALewis                    4         ANATOMY AND PHYSIOLOGY 12                 
+E08M      079650391002490     131463218 CALC 12 20220695   95 A ALewis                    4         CALCULUS 12                               
+E08M      079650391002490     131463218 CLE     202101100  100A ALewis                    4         CAREER LIFE EDUCATION                     
+E08M      079650391002490     131463218 CMPS 10 20210288   88 A ALewis                    2         COMPOSITION 10                            
+E08M      079650391002490     131463218 ENST 12 20220689   89 A ALewis                    4         ENGLISH STUDIES 12                        
+E08M      079650391002490     131463218 EPSS 11 20201199   99 A ALewis                    4         EXPLORATIONS IN SOCIAL STUDIES 11 (OED)   
+E08M      079650391002490     131463218 FMP  10 20200689   89 A ALewis                    4         FOUNDATIONS OF MATH AND PRE-CALCULUS 10   
+E08M      079650391002490     131463218 FTCD 11 20220293   93 A ALewis                    4         FITNESS AND CONDITIONING 11               
+E08M      079650391002490     131463218 LTST 10 20210288   88 A ALewis                    2         LITERARY STUDIES 10                       
+E08M      079650391002490     131463218 LTST 11 20220194   94 A ALewis                    4         LITERARY STUDIES 11                       
+E08M      079650391002490     131463218 ODED 11 20220693   93 A ALewis                    4         OUTDOOR EDUCATION 11                      
+E08M      079650391002490     131463218 PH   11 20210694   94 A ALewis                    4         PHYSICS 11                                
+E08M      079650391002490     131463218 PHED 10 20201199   99 A ALewis                    4         PHYSICAL AND HEALTH EDUCATION 10 OUTDOOR  
+E08M      079650391001520     131406902 IMG  12 20230179   79 B ALeGear                   4         INSTRUMENTAL MUSIC 12: GUITAR            B
+E08M      079650391002490     131463218 PREC 11 20210693   93 A ALewis                    4         PRE-CALCULUS 11                           
+E08M      079650391002490     131463218 PREC 12 20220193   93 A ALewis                    4         PRE-CALCULUS 12                           
+E08M      079650391002490     131463218 RBST 12 20220693   93 A ALewis                    4         URBAN STUDIES 12                          
+E08M      079650391002490     131463218 SC   10 20210499   99 A ALewis                    4         SCIENCE 10                                
+E08M      079650391002490     131463218 SS   10 20290497   97 A ALewis                    4         SOCIAL STUDIES 10                         
+E08M      079650391002490     131463218 YCPA 11A20280686   86 A ALewis                    4         BA LEADERSHIP 11                         B
+E08M      079650391002490     131463218 YPR  10B202711100  100A ALewis                    1         BA DISCOVERING SELF IN NATURE 10          
+E08M      079650391002490     131463218 YPR  11B20240290   90 A ALewis                    1         BA DISCOVERING SELF IN NATURE 11          
+E08M      07965039            106201916         202506          AVANDERLEEK               0         ADVISORY BLOCK                            
+E08M      079650391002840     131455412         202606          AZeeuw                    0         ADVISORY BLOCK                            

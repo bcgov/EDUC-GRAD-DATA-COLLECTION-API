@@ -315,6 +315,42 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testProcessGradFile_givenFiletypeCRSDoubleStud_OldDatesWithOverride_ShouldReturnOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/student-crs-file-double-studs.txt");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .courseSessionOverride(true)
+                .createUser("ABC")
+                .fileName("student-crs-file-double-studs.crs")
+                .fileType("crs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result =  incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.getFirst();
+        assertThat(entity.getIncomingFilesetID()).isNotNull();
+        assertThat(entity.getCrsFileName()).isEqualTo("student-crs-file-double-studs.crs");
+        assertThat(entity.getFilesetStatusCode()).isEqualTo("LOADED");
+        assertThat(entity.getDemFileName()).isNull();
+        assertThat(entity.getXamFileName()).isNull();
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(93);
+    }
+
+    @Test
     void testProcessGradFile_givenFiletypeDEM_ShouldReturnOk() throws Exception {
         reportingPeriodRepository.save(createMockReportingPeriodEntity());
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
