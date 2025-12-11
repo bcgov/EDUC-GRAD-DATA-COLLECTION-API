@@ -39,6 +39,6 @@ public class GradStudentCourseDetails {
 
     @Override
     public int hashCode() {
-        return Objects.hash(transactionCode, vendorID, verificationFlag, filler1, mincode, localId, pen, courseCode, courseLevel, courseYear, courseMonth, interimPercentage, interimLetterGrade, finalPercentage, finalLetterGrade, courseStatus, legalSurname, numCredits, relatedCourse, relatedCourseLevel, courseDesc, courseType, courseGradReqt);
+        return Objects.hash(transactionCode, vendorID, verificationFlag, filler1, mincode, localId, pen, courseCode, courseLevel, courseYear, courseMonth, interimPercentage, interimLetterGrade, finalPercentage, finalLetterGrade, courseStatus, legalSurname, numCredits, relatedCourse, relatedCourseLevel, courseType, courseGradReqt);
     }
 }
