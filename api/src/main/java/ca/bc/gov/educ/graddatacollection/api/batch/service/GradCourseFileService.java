@@ -98,6 +98,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             }
             index++;
         }
+        batchFile.setCourseData(filterOutDupeWithdrawals(batchFile.getCourseData()));
     }
 
     public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
@@ -112,6 +113,43 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             }
             index++;
         }
+        batchFile.setCourseData(filterOutDupeWithdrawals(batchFile.getCourseData()));
+    }
+
+    public static List<GradStudentCourseDetails> filterOutDupeWithdrawals(List<GradStudentCourseDetails> courses) {
+        Map<String, List<GradStudentCourseDetails>> groupedByKey = courses.stream()
+                .collect(Collectors.groupingBy(course ->
+                        course.getPen() + "|" +
+                                course.getCourseCode() + "|" +
+                                course.getCourseLevel() + "|" +
+                                course.getCourseYear() + "|" +
+                                course.getCourseMonth()));
+
+        return groupedByKey.values().stream()
+                .flatMap(group -> {
+                    // If group has only 1 record, keep it regardless of status
+                    if (group.size() == 1) {
+                        return group.stream();
+                    }
+
+                    // For groups with multiple records, check if mixed statuses exist
+                    long countA = group.stream()
+                            .filter(course -> "A".equals(course.getCourseStatus()))
+                            .count();
+                    long countW = group.stream()
+                            .filter(course -> "W".equals(course.getCourseStatus()))
+                            .count();
+
+                    // If mixed (both A and W exist), keep only A records
+                    if (countA > 0 && countW > 0) {
+                        return group.stream()
+                                .filter(course -> "A".equals(course.getCourseStatus()));
+                    } else {
+                        // If all same status (all A or all W), keep all records
+                        return group.stream();
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
