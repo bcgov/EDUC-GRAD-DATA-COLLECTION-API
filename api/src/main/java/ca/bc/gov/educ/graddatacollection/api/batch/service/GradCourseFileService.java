@@ -149,7 +149,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                         return group.stream();
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public IncomingFilesetEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final GradStudentCourseFile batchFile, @NonNull final GradFileUpload fileUpload, final String schoolID, final String districtID) throws FileUnProcessableException {
