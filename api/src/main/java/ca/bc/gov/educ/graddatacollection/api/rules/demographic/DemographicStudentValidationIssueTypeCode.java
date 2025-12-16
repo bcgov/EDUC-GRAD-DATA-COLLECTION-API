@@ -24,7 +24,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   GRADE_NOT_EXPECTED("GRADENOTEXPECTED", "The submitted value %s is not an expected grade level."),
   GRADE_AG_INVALID("GRADEAGINVALID", "Grade and program mismatch. Student cannot be reported on the Adult Graduation program (1950) unless grade level is AD or AN."),
   GRADE_OG_INVALID("GRADEOGINVALID", "Grade and program mismatch. Student cannot be reported in grade level AD or AN unless they are on the Adult Graduation program (1950)."),
-  STUDENT_STATUS_MERGED("STUDENTSTATUSMERGED", "Student PEN has been merged with a pre-existing PEN. Ensure the valid, pre-existing PEN appears in system data file extracts."),
+  STUDENT_STATUS_MERGED("STUDENTSTATUSMERGED", "Student PEN has been merged with a pre-existing PEN. Ensure the valid, pre-existing PEN appears in system data file extracts. If needed, request PEN support through EDX Secure Messaging."),
   STUDENT_STATUS_INVALID("STUDENTSTATUSINVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification."),
   STUDENT_STATUS_PEN_MISMATCH("STUDENTSTATUSPENMISMATCH", "The submitted STUDENT STATUS does not match the ministry database. If the submitted STUDENT STATUS is correct, submit PEN update request through the Secure Messaging Inbox in the Education Data Exchange (EDX) https://educationdataexchange.gov.bc.ca/login."),
   STUDENT_STATUS_NOT_CURRENT_IN_GRAD("STUDENTSTATUSNOTCURRENTINGRAD", "This student cannot be withdrawn (submitted with a status of T) as the student is not a current student in the GRAD system."),
