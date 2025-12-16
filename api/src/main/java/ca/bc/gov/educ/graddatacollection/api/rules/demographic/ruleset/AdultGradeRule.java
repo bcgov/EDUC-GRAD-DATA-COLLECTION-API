@@ -49,7 +49,7 @@ public class AdultGradeRule implements DemographicValidationBaseRule {
 
         if (StringUtils.isNotBlank(student.getGrade()) && StringUtils.isNotBlank(student.getGradRequirementYear())
             && GradRequirementYearCodes.getAdultGraduationProgramYearCodes().stream().anyMatch(adultGradYear -> adultGradYear.equalsIgnoreCase(student.getGradRequirementYear()))
-            && SchoolGradeCodes.getGradAdultGrades().stream().noneMatch(validGrade -> validGrade.equalsIgnoreCase(student.getGrade()))) {
+            && SchoolGradeCodes.getGradAdultGradesWithGA().stream().noneMatch(validGrade -> validGrade.equalsIgnoreCase(student.getGrade()))) {
             log.debug("StudentGrade-D26: Student reported on the Adult Graduation program (1950) must be grade AD or AN for demographicStudentID :: {}", student.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.GRADE, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID, DemographicStudentValidationIssueTypeCode.GRADE_AG_INVALID.getMessage()));
         }

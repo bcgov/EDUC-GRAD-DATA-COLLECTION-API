@@ -321,6 +321,14 @@ public enum SchoolGradeCodes {
         return codes;
     }
 
+    public static List<String> getGradAdultGradesWithGA() {
+        List<String> codes = new ArrayList<>();
+        codes.add(AD.getCode());
+        codes.add(AN.getCode());
+        codes.add(GRADUATED_ADULT.getCode());
+        return codes;
+    }
+
     public static List<String> getGrades12AndAD() {
         List<String> codes = new ArrayList<>();
         codes.add(GRADE12.getCode());
