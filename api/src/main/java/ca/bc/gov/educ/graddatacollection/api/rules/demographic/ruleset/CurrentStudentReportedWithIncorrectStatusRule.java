@@ -54,29 +54,18 @@ public class CurrentStudentReportedWithIncorrectStatusRule implements Demographi
         final List<DemographicStudentValidationIssue> errors = new ArrayList<>();
 
         var gradStudent = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
-        if (gradStudent != null && student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())) {
-            String gradStatus = gradStudent.getStudentStatusCode();
-            if (!"CUR".equalsIgnoreCase(gradStatus) && !"TER".equalsIgnoreCase(gradStatus)) {
-                log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getMessage(), student.getDemographicStudentID());
-                errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    ValidationFieldCode.STUDENT_STATUS,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD,
-                    DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_NOT_CURRENT_IN_GRAD.getMessage()
-                ));
-            }
-            else if ("CUR".equalsIgnoreCase(gradStatus) &&
-                !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())) {
-                log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage(), student.getDemographicStudentID());
-                errors.add(createValidationIssue(
+        if (gradStudent != null
+                && student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())
+                && "CUR".equalsIgnoreCase(gradStudent.getStudentStatusCode())
+                && !gradStudent.getSchoolOfRecordId().equalsIgnoreCase(studentRuleData.getSchool().getSchoolId())) {
+            log.debug("StudentStatus-D19: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage(), student.getDemographicStudentID());
+            errors.add(createValidationIssue(
                     StudentValidationIssueSeverityCode.ERROR,
                     ValidationFieldCode.STUDENT_STATUS,
                     DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH,
                     DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getMessage()
-                ));
-            }
+            ));
         }
-
         return errors;
     }
 }
