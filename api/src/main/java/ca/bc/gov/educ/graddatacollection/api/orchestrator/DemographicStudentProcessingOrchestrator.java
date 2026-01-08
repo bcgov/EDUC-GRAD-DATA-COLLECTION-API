@@ -118,7 +118,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS);
     
-    if(isValidAddress(demographicStudentSagaData.getDemographicStudent()) && studentInGrade12orAD(demographicStudentSagaData.getDemographicStudent())) {
+    if(isValidAddress(demographicStudentSagaData.getDemographicStudent())) {
       Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), demographicStudentSagaData.getDemographicStudent().getPen());
       updateAddressFieldsIfNeeded(demographicStudentSagaData.getDemographicStudent());
       restUtils.writeStudentAddressToScholarships(demographicStudentSagaData.getDemographicStudent(), studentApiStudent.getStudentID());
@@ -130,10 +130,6 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
-  }
-  
-  private boolean studentInGrade12orAD(DemographicStudent student){
-    return StringUtils.isNotBlank(student.getGrade()) && (student.getGrade().equals("12") || student.getGrade().equals("AD"));
   }
   
   private boolean isValidAddress(DemographicStudent student){
