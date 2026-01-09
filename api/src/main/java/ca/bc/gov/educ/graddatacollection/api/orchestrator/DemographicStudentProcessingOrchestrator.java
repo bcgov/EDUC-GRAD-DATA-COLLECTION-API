@@ -118,7 +118,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS);
     
-    if(isValidAddress(demographicStudentSagaData.getDemographicStudent())) {
+    if(isValidAddress(demographicStudentSagaData.getDemographicStudent()) && isCanadianCitizen(demographicStudentSagaData.getDemographicStudent())) {
       Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), demographicStudentSagaData.getDemographicStudent().getPen());
       updateAddressFieldsIfNeeded(demographicStudentSagaData.getDemographicStudent());
       restUtils.writeStudentAddressToScholarships(demographicStudentSagaData.getDemographicStudent(), studentApiStudent.getStudentID());
@@ -132,13 +132,27 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
   
+  private boolean isCanadianCitizen(DemographicStudent student) {
+    return StringUtils.isNotBlank(student.getCitizenship()) && student.getCitizenship().equalsIgnoreCase("C");
+  }
+
+  private boolean isCanadianAddress(DemographicStudent student) {
+    return StringUtils.isNotBlank(student.getCountryCode()) && student.getCitizenship().equalsIgnoreCase("CA");
+  }
+  
   private boolean isValidAddress(DemographicStudent student){
-    return (((StringUtils.isNotBlank(student.getAddressLine1()) && !student.getAddressLine1().equalsIgnoreCase("UNKNOWN")) 
-            || (StringUtils.isNotBlank(student.getAddressLine2()) && !student.getAddressLine2().equalsIgnoreCase("UNKNOWN"))) &&
-            StringUtils.isNotBlank(student.getCity()) && !student.getCity().equalsIgnoreCase("UNKNOWN") &&
-            StringUtils.isNotBlank(student.getProvincialCode()) &&
-            StringUtils.isNotBlank(student.getCountryCode()) && 
-            StringUtils.isNotBlank(student.getPostalCode()) && !student.getPostalCode().equalsIgnoreCase("UNKNOWN"));
+    if(isCanadianAddress(student)){
+      return (((StringUtils.isNotBlank(student.getAddressLine1()) && !student.getAddressLine1().equalsIgnoreCase("UNKNOWN"))
+              || (StringUtils.isNotBlank(student.getAddressLine2()) && !student.getAddressLine2().equalsIgnoreCase("UNKNOWN"))) &&
+              StringUtils.isNotBlank(student.getCity()) && !student.getCity().equalsIgnoreCase("UNKNOWN") &&
+              StringUtils.isNotBlank(student.getProvincialCode()) &&
+              StringUtils.isNotBlank(student.getCountryCode()) &&
+              StringUtils.isNotBlank(student.getPostalCode()) && !student.getPostalCode().equalsIgnoreCase("UNKNOWN"));
+    }else{
+      return (((StringUtils.isNotBlank(student.getAddressLine1()) && !student.getAddressLine1().equalsIgnoreCase("UNKNOWN"))
+              || (StringUtils.isNotBlank(student.getAddressLine2()) && !student.getAddressLine2().equalsIgnoreCase("UNKNOWN"))) &&
+              StringUtils.isNotBlank(student.getCountryCode()));
+    }
   }
 
   private void updateAddressFieldsIfNeeded(DemographicStudent student) {
