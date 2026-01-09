@@ -8,7 +8,7 @@ RUN mvn package -DskipTests \
 
 FROM artifacts.developer.gov.bc.ca/docker-remote/eclipse-temurin:21.0.9_10-jdk-alpine-3.23
 
-RUN useradd -ms /bin/bash spring \
+RUN adduser -D -s /bin/sh spring \
 && mkdir -p /logs && mkdir -p /temp \
 && chown -R spring:spring /logs && chown -R spring:spring /temp \
 && chmod 755 /logs && chmod 755 /temp
