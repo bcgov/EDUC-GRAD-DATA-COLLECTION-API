@@ -19,6 +19,7 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
@@ -137,7 +138,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
   }
 
   private boolean isCanadianAddress(DemographicStudent student) {
-    return StringUtils.isNotBlank(student.getCountryCode()) && student.getCitizenship().equalsIgnoreCase("CA");
+    return StringUtils.isNotBlank(student.getCountryCode()) && List.of("CA","CN").contains(student.getCountryCode());
   }
   
   private boolean isValidAddress(DemographicStudent student){
