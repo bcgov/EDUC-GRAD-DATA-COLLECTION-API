@@ -72,16 +72,8 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION.toString());
     saga.setStatus(IN_PROGRESS.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    var student = courseStudentSagaData.getCourseStudent();
 
-    //dem check here
-    var demStudent = courseRulesService.getDemographicDataForStudent(UUID.fromString(student.getIncomingFilesetID()),student.getPen(), student.getLastName(), student.getLocalID());
-    if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
-      courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.UPDATE_CRS);
-    } else {
-      courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.VERIFIED);
-    }
+    courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.UPDATE_CRS);
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COURSE_STUDENT_STATUS_IN_COLLECTION);

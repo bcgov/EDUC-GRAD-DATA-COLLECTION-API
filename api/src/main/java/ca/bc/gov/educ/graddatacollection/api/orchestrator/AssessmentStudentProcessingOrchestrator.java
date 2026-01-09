@@ -85,14 +85,10 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE);
 
-    if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
-      var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
-      restUtils.writeAssessmentStudentDetailInAssessmentService(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool(), demStudent.getGrade());
-      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_REGISTRATION_PROCESSED);
-    }else{
-      eventBuilder.eventOutcome(ASSESSMENT_STUDENT_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR);
-    }
-
+    var assessmentID = assessmentRulesService.getAssessmentID(student.getCourseYear(), student.getCourseMonth(), student.getCourseCode());
+    restUtils.writeAssessmentStudentDetailInAssessmentService(assessmentStudentSagaData.getAssessmentStudent(), assessmentID, assessmentStudentSagaData.getSchool(), demStudent.getGrade());
+    eventBuilder.eventOutcome(ASSESSMENT_STUDENT_REGISTRATION_PROCESSED);
+    
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
