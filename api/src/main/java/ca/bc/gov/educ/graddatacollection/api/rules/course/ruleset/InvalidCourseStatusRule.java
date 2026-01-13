@@ -66,6 +66,9 @@ public class InvalidCourseStatusRule implements CourseValidationBaseRule {
                     )) {
             log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
+        } else if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus()) && "Q".equalsIgnoreCase(courseStudentEntity.getCourseCode().substring(0,1))){
+            log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but is trying to remove a Q-coded course. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_Q_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_Q_EXISTS.getMessage()));
         }
         return errors;
     }

@@ -438,6 +438,136 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testC11CourseStatusQRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError1.size()).isZero();
+
+        CoregCoursesRecord traxAndMyEdBdRecord = new CoregCoursesRecord();
+        traxAndMyEdBdRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        traxAndMyEdBdRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+        Set<CourseCodeRecord> courseCodes = new HashSet<>();
+        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
+        myEdBCCode.setExternalCode("QCLE  12");
+        myEdBCCode.setOriginatingSystem("38");
+        courseCodes.add(myEdBCCode);
+
+        CourseCodeRecord traxCode = new CourseCodeRecord();
+        traxCode.setExternalCode("QLE  12");
+        myEdBCCode.setOriginatingSystem("39");
+        courseCodes.add(traxCode);
+        traxAndMyEdBdRecord.setCourseCode(courseCodes);
+
+        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
+        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
+        courseAllowableCreditRecord.setCourseID("856787");
+        courseAllowableCreditRecord.setCreditValue("3");
+        courseAllowableCreditRecord.setCacID("2145166");
+        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
+        courseAllowableCreditRecord.setEndDate(null);
+        courseAllowableCredits.add(courseAllowableCreditRecord);
+        traxAndMyEdBdRecord.setCourseAllowableCredit(courseAllowableCredits);
+
+        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(traxAndMyEdBdRecord);
+
+        courseStudent.setCourseStatus("W");
+        courseStudent.setCourseCode("QLE");
+        courseStudent.setCourseLevel("12");
+        courseStudent.setCourseMonth("06");
+        courseStudent.setCourseYear("2023");
+
+        when(restUtils.getGradStudentCoursesByStudentID(any(), any())).thenReturn(
+                List.of(
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201860", // courseID
+                                "202306", // courseSession
+                                100, // interimPercent
+                                "", // interimLetterGrade
+                                100, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                null,
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "CLE  12", // externalCode
+                                        "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201860", // courseID
+                                        "MCLE 12", // externalCode
+                                        "39" // originatingSystem
+                                )
+                        ),
+                        new GradStudentCourseRecord(
+                                null, // id
+                                "3201862", // courseID
+                                "2023/06", // courseSession
+                                95, // interimPercent
+                                "", // interimLetterGrade
+                                95, // finalPercent
+                                "A", // finalLetterGrade
+                                4, // credits
+                                "", // equivOrChallenge
+                                "", // fineArtsAppliedSkills
+                                "", // customizedCourseName
+                                null, // relatedCourseId
+                                null,
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "QLC  12", // externalCode
+                                        "38" // originatingSystem
+                                ),
+                                new GradCourseCode(
+                                        "3201861", // courseID
+                                        "QCLC 12", // externalCode
+                                        "39" // originatingSystem
+                                )
+                        )
+                )
+        );
+        when(restUtils.getCoreg38CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "MCLE  12", // externalCode
+                        "38" // originatingSystem
+                ))
+        );
+        when(restUtils.getCoreg39CourseByID(any())).thenReturn(
+                Optional.of(new GradCourseCode(
+                        "3201860", // courseID
+                        "CLE  12", // externalCode
+                        "39" // originatingSystem
+                ))
+        );
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true", Collections.emptyList())
+        );
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
+        assertThat(validationError2.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_RECORD_Q_EXISTS.getCode());
+    }
+
+
+    @Test
     void testC12CourseStatusRule() {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
