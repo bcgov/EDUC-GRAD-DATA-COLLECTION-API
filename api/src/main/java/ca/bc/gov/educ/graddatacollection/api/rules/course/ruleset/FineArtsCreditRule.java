@@ -30,7 +30,6 @@ import java.util.List;
 public class FineArtsCreditRule implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
-    private static final String [] BOARD_AUTHORITY_OR_LOCALLY_DEVELOPED = new String[]{"BA", "LD"};
 
     public FineArtsCreditRule(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
@@ -58,10 +57,11 @@ public class FineArtsCreditRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C33 for courseStudentID :: {}", courseStudent.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, courseStudent.getCourseCode(), courseStudent.getCourseLevel());
+        boolean isBAorLD = coursesRecord.getCourseCategory() != null && coursesRecord.getCourseCategory().getCode().equalsIgnoreCase("BA") || courseStudent.getCourseCode().startsWith("X");
 
         if (demStudent != null &&
                 GradRequirementYearCodes.YEAR_1996.getCode().equalsIgnoreCase(demStudent.getGradRequirementYear()) &&
-                Arrays.stream(BOARD_AUTHORITY_OR_LOCALLY_DEVELOPED).anyMatch(boardAuthorityOrLocallyDeveloped -> boardAuthorityOrLocallyDeveloped.equalsIgnoreCase(coursesRecord.getCourseCategory().getCode())) &&
+                isBAorLD &&
                 "B".equalsIgnoreCase(courseStudent.getCourseGraduationRequirement()) &&
                 !"4".equalsIgnoreCase(courseStudent.getNumberOfCredits()) && !"04".equalsIgnoreCase(courseStudent.getNumberOfCredits())) {
             log.debug("C33: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.GRADUATION_REQUIREMENT_NUMBER_CREDITS_INVALID.getMessage(), courseStudent.getCourseStudentID());

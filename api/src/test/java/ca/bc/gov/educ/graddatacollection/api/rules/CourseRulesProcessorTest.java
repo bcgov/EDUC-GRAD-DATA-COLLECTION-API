@@ -2372,40 +2372,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError4.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getCode());
         assertThat(validationError4.getFirst().getValidationIssueDescription()).isEqualTo(CourseStudentValidationIssueTypeCode.NUMBER_OF_CREDITS_INVALID.getMessage());
 
-        CoregCoursesRecord coursesRecord = new CoregCoursesRecord();
-        coursesRecord.setStartDate(LocalDateTime.of(1983, 2, 1,0,0,0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        coursesRecord.setCompletionEndDate(LocalDate.of(9999, 5, 1).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        Set<CourseCodeRecord> courseCodes = new HashSet<>();
-        CourseCodeRecord traxCode = new CourseCodeRecord();
-        traxCode.setCourseID("856787");
-        traxCode.setExternalCode("PH   11");
-        traxCode.setOriginatingSystem("39"); // TRAX
-        courseCodes.add(traxCode);
-        CourseCodeRecord myEdBCCode = new CourseCodeRecord();
-        myEdBCCode.setCourseID("856787");
-        myEdBCCode.setExternalCode("MPH--11");
-        myEdBCCode.setOriginatingSystem("38"); // MyEdBC
-        courseCodes.add(myEdBCCode);
-        coursesRecord.setCourseCode(courseCodes);
-        Set<CourseAllowableCreditRecord> courseAllowableCredits = new HashSet<>();
-        CourseAllowableCreditRecord courseAllowableCreditRecord = new CourseAllowableCreditRecord();
-        courseAllowableCreditRecord.setCourseID("856787");
-        courseAllowableCreditRecord.setCreditValue("3");
-        courseAllowableCreditRecord.setCacID("2145166");
-        courseAllowableCreditRecord.setStartDate("1970-01-01 00:00:00");
-        courseAllowableCreditRecord.setEndDate(null);
-        courseAllowableCredits.add(courseAllowableCreditRecord);
-        coursesRecord.setCourseAllowableCredit(courseAllowableCredits);
-        CourseCharacteristicsRecord courseCategory = new CourseCharacteristicsRecord();
-        courseCategory.setId("2932");
-        courseCategory.setType("BA");
-        courseCategory.setCode("LD");
-        courseCategory.setDescription("");
-        coursesRecord.setCourseCategory(courseCategory);
-        coursesRecord.setGenericCourseType("G");
-        when(restUtils.getCoursesByExternalID(any(), any())).thenReturn(coursesRecord);
-
         courseStudent.setNumberOfCredits(null);
+        courseStudent.setCourseCode("XENFF");
         val validationError5 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError5.size()).isZero();
 
