@@ -63,7 +63,7 @@ public class ValidNumberOfCreditsRule implements CourseValidationBaseRule {
         //The Final Letter Grade is “F” or “W” and the number of credits is blank or 0,
         //The Course Type in CoReg is “Locally Developed” and the number of credits is blank, 0, 1, 2, 3, or 4.
         var coursesRecord = courseRulesService.getCoregCoursesRecord(studentRuleData, student.getCourseCode(), student.getCourseLevel());
-        boolean courseTypeIsLD = coursesRecord.getCourseCategory() != null && coursesRecord.getCourseCategory().getCode().equalsIgnoreCase("LD");
+        boolean courseTypeIsLD = coursesRecord != null && student.getCourseCode().startsWith("X");
 
         if(courseTypeIsLD) {
             if(StringUtils.isNotBlank(student.getNumberOfCredits())
