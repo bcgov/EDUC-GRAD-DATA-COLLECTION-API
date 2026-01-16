@@ -55,6 +55,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
@@ -67,6 +69,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
