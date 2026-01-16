@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 import ca.bc.gov.educ.graddatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentLightEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalCourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,6 +16,9 @@ public interface CourseStudentMapper {
 
     @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
     CourseStudent toCourseStudent(CourseStudentEntity courseStudentEntity);
+
+    @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
+    CourseStudent toCourseStudent(FinalCourseStudentEntity courseStudentEntity);
 
     @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
     CourseStudent toCourseStudent(CourseStudentLightEntity courseStudentEntity);

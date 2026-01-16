@@ -9,12 +9,10 @@ import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentLightEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalAssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
@@ -46,16 +44,17 @@ public class AssessmentStudentService {
     private final RestUtils restUtils;
     private final AssessmentRulesService assessmentRulesService;
     private final AssessmentStudentRepository assessmentStudentRepository;
+    private final FinalAssessmentStudentRepository finalAssessmentStudentRepository;
     private final AssessmentStudentRulesProcessor assessmentStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String ASSESSMENT_STUDENT_ID = "assessmentStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
-    public List<AssessmentStudentEntity> getXamStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
-        List<AssessmentStudentEntity> assessmentStudentList;
+    public List<FinalAssessmentStudentEntity> getXamStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
+        List<FinalAssessmentStudentEntity> assessmentStudentList;
 
         if (schoolID != null) {
-            assessmentStudentList = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID,FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
+            assessmentStudentList = finalAssessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID,FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
         } else {
             throw new IllegalArgumentException("schoolID must be provided.");
         }

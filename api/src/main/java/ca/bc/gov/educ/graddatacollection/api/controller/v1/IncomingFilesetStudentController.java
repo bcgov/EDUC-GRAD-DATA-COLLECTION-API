@@ -3,10 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.IncomingFilesetEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetStudentMapper;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetStudent;
@@ -26,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class IncomingFilesetStudentController implements IncomingFilesetEndpoint {
 
+    private final FinalIncomingFilesetSearchService finalIncomingFilesetSearchService;
+
     private final IncomingFilesetSearchService incomingFilesetSearchService;
 
     private final DemographicStudentService demographicStudentService;
@@ -38,7 +37,8 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     private static final IncomingFilesetStudentMapper extendedMapper  = IncomingFilesetStudentMapper.mapper;
 
-    public IncomingFilesetStudentController(IncomingFilesetSearchService incomingFilesetSearchService, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
+    public IncomingFilesetStudentController(FinalIncomingFilesetSearchService finalIncomingFilesetSearchService, IncomingFilesetSearchService incomingFilesetSearchService, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
+        this.finalIncomingFilesetSearchService = finalIncomingFilesetSearchService;
         this.incomingFilesetSearchService = incomingFilesetSearchService;
         this.demographicStudentService = demographicStudentService;
         this.assessmentStudentService = assessmentStudentService;
@@ -65,13 +65,32 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
     }
 
     @Override
+    public CompletableFuture<Page<IncomingFileset>> findAllFinal(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<FinalIncomingFilesetEntity> studentSpecs = finalIncomingFilesetSearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        return this.finalIncomingFilesetSearchService
+                .findAll(studentSpecs, pageNumber, pageSize, sorts)
+                .thenApplyAsync(fileset -> fileset.map(mapper::toStructure).map(file -> {
+                    long pos = finalIncomingFilesetSearchService.getCounts(file);
+                    file.setPositionInQueue(String.valueOf(pos));
+                    return file;
+                }));
+    }
+
+    @Override
     public IncomingFilesetStudent getFilesetStudent(String pen, UUID incomingFilesetID, UUID schoolID) {
-        DemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID);
+        FinalDemographicStudentEntity demStud = this.demographicStudentService.getDemStudent(pen, incomingFilesetID, schoolID);
 
         UUID resolvedFilesetID = incomingFilesetID != null ? incomingFilesetID : demStud.getIncomingFileset().getIncomingFilesetID();
 
-        List<AssessmentStudentEntity> xamStuds = this.assessmentStudentService.getXamStudents(pen, resolvedFilesetID, schoolID);
-        List<CourseStudentEntity> crsStuds = this.courseStudentService.getCrsStudents(pen, resolvedFilesetID, schoolID);
+        List<FinalAssessmentStudentEntity> xamStuds = this.assessmentStudentService.getXamStudents(pen, resolvedFilesetID, schoolID);
+        List<FinalCourseStudentEntity> crsStuds = this.courseStudentService.getCrsStudents(pen, resolvedFilesetID, schoolID);
 
         return extendedMapper.toStructure(pen, resolvedFilesetID, demStud, crsStuds, xamStuds);
     }

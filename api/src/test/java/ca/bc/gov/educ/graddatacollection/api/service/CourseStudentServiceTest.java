@@ -4,9 +4,8 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalCourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,9 @@ class CourseStudentServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
-    private IncomingFilesetRepository incomingFilesetRepository;
+    private FinalIncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    private CourseStudentRepository courseStudentRepository;
+    private FinalCourseStudentRepository courseStudentRepository;
     @Autowired
     private CourseStudentService courseStudentService;
 
@@ -32,21 +31,21 @@ class CourseStudentServiceTest extends BaseGradDataCollectionAPITest {
     void getCrsStudents_withSchoolId_shouldReturnList() {
         String pen = "123456789";
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var fileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var fileset = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
         var incomingFileset = incomingFilesetRepository.save(fileset);
 
-        CourseStudentEntity expected = new CourseStudentEntity();
+        FinalCourseStudentEntity expected = new FinalCourseStudentEntity();
         expected.setPen(pen);
         expected.setIncomingFileset(incomingFileset);
         expected.setStudentStatusCode(SchoolStudentStatus.VERIFIED.getCode());
         expected.setCreateUser("ABC");
         expected.setUpdateUser("ABC");
-        List<CourseStudentEntity> expectedList = List.of(expected);
+        List<FinalCourseStudentEntity> expectedList = List.of(expected);
 
         courseStudentRepository.save(expected);
 
-        List<CourseStudentEntity> result = courseStudentService.getCrsStudents(pen, incomingFileset.getIncomingFilesetID(), incomingFileset.getSchoolID());
+        var result = courseStudentService.getCrsStudents(pen, incomingFileset.getIncomingFilesetID(), incomingFileset.getSchoolID());
         assertThat(result).isEqualTo(expectedList);
     }
 

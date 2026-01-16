@@ -3,10 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -47,6 +44,8 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
@@ -57,6 +56,12 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     @MockBean
     AssessmentStudentService assessmentStudentService;
     @Autowired
+    FinalDemographicStudentRepository finalDemographicStudentRepository;
+    @Autowired
+    FinalCourseStudentRepository finalCourseStudentRepository;
+    @Autowired
+    FinalAssessmentStudentRepository finalAssessmentStudentRepository;
+    @Autowired
     DemographicStudentRepository demographicStudentRepository;
     @Autowired
     CourseStudentRepository courseStudentRepository;
@@ -66,6 +71,7 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
@@ -79,6 +85,23 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
 
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_FILESET + URL.PAGINATED + "?pageSize=2")
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andDo(MvcResult::getAsyncResult)
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    void testReadIncomingFilesetFinalStudentPaginated_Always_ShouldReturnStatusOk() throws Exception {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        var school = this.createMockSchoolTombstone();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_FILESET + URL.PAGINATED + "/final" + "?pageSize=2")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -105,6 +128,31 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_FILESET + URL.PAGINATED)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    void testReadIncomingFilesetFinalPaginated_withName_ShouldReturnStatusOk() throws Exception {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        var school = this.createMockSchoolTombstone();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("schoolID").operation(FilterOperation.EQUAL).value(incomingFileset.getSchoolID().toString()).valueType(ValueType.UUID).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_FILESET + URL.PAGINATED + "/final")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_INCOMING_FILESET")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
@@ -182,11 +230,11 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         UUID filesetId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
 
-        IncomingFilesetEntity incomingFilesetEntity = buildIncomingFilesetEntity(pen, filesetId, schoolId);
+        FinalIncomingFilesetEntity incomingFilesetEntity = buildFinalIncomingFilesetEntity(pen, filesetId, schoolId);
 
-        DemographicStudentEntity demStudent = incomingFilesetEntity.getDemographicStudentEntities().iterator().next();
-        List<AssessmentStudentEntity> xamStuds = List.copyOf(incomingFilesetEntity.getAssessmentStudentEntities());
-        List<CourseStudentEntity> crsStuds = List.copyOf(incomingFilesetEntity.getCourseStudentEntities());
+        FinalDemographicStudentEntity demStudent = incomingFilesetEntity.getDemographicStudentEntities().iterator().next();
+        List<FinalAssessmentStudentEntity> xamStuds = List.copyOf(incomingFilesetEntity.getAssessmentStudentEntities());
+        List<FinalCourseStudentEntity> crsStuds = List.copyOf(incomingFilesetEntity.getCourseStudentEntities());
 
         when(demographicStudentService.getDemStudent(pen, filesetId, schoolId))
                 .thenReturn(demStudent);
@@ -228,6 +276,28 @@ class IncomingFilesetControllerTest extends BaseGradDataCollectionAPITest {
         entity.setCourseStudentEntities(Set.of(courseStudent));
 
         var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(pen);
+        assessmentStudent.setIncomingFileset(entity);
+        entity.setAssessmentStudentEntities(Set.of(assessmentStudent));
+
+        return entity;
+    }
+
+    private FinalIncomingFilesetEntity buildFinalIncomingFilesetEntity(String pen, UUID filesetId, UUID schoolId) {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        FinalIncomingFilesetEntity entity = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        entity.setIncomingFilesetID(filesetId);
+        entity.setSchoolID(schoolId);
+
+        var demStudent = createMockFinalDemographicStudent(entity);
+        demStudent.setPen(pen);
+        entity.setDemographicStudentEntities(Set.of(demStudent));
+
+        var courseStudent = createMockFinalCourseStudent(entity);
+        courseStudent.setPen(pen);
+        entity.setCourseStudentEntities(Set.of(courseStudent));
+
+        var assessmentStudent = createMockFinalAssessmentStudent();
         assessmentStudent.setPen(pen);
         assessmentStudent.setIncomingFileset(entity);
         entity.setAssessmentStudentEntities(Set.of(assessmentStudent));

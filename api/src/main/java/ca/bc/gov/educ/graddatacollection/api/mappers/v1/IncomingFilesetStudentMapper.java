@@ -2,9 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.mappers.LocalDateTimeMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.UUIDMapper;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
@@ -34,12 +32,12 @@ public interface IncomingFilesetStudentMapper {
     @Mapping(target = "assessmentStudents", source = "assessmentStudentEntities", qualifiedByName = "toAssessmentStudentListFromList")
     IncomingFilesetStudent toStructure(String pen,
                                        java.util.UUID incomingFilesetID,
-                                       DemographicStudentEntity demographicStudentEntity,
-                                       List<CourseStudentEntity> courseStudentEntities,
-                                       List<AssessmentStudentEntity> assessmentStudentEntities);
+                                       FinalDemographicStudentEntity demographicStudentEntity,
+                                       List<FinalCourseStudentEntity> courseStudentEntities,
+                                       List<FinalAssessmentStudentEntity> assessmentStudentEntities);
 
     @Named("toDemographicStudent")
-    default DemographicStudent toDemographicStudent(DemographicStudentEntity entity) {
+    default DemographicStudent toDemographicStudent(FinalDemographicStudentEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -47,7 +45,7 @@ public interface IncomingFilesetStudentMapper {
     }
 
     @Named("toCourseStudentListFromList")
-    default List<CourseStudent> toCourseStudentListFromList(List<CourseStudentEntity> entities) {
+    default List<CourseStudent> toCourseStudentListFromList(List<FinalCourseStudentEntity> entities) {
         if (entities == null) {
             return null;
         }
@@ -57,7 +55,7 @@ public interface IncomingFilesetStudentMapper {
     }
 
     @Named("toAssessmentStudentListFromList")
-    default List<AssessmentStudent> toAssessmentStudentListFromList(List<AssessmentStudentEntity> entities) {
+    default List<AssessmentStudent> toAssessmentStudentListFromList(List<FinalAssessmentStudentEntity> entities) {
         if (entities == null) {
             return null;
         }

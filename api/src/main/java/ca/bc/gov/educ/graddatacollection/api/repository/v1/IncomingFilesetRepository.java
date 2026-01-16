@@ -45,6 +45,11 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     @Query("DELETE FROM IncomingFilesetEntity WHERE createDate <= :deleteDate")
     void deleteWithCreateDateBefore(LocalDateTime deleteDate);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM IncomingFilesetEntity WHERE incomingFilesetID = :incomingFilesetID")
+    void deleteByIncomingFilesetID(UUID incomingFilesetID);
+
     @Query(value = """
     SELECT inFileset.school_id as schoolID,
     COUNT(inFileset.incoming_fileset_id) as submissionCount

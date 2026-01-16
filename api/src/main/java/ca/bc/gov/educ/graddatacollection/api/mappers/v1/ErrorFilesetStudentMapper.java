@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 import ca.bc.gov.educ.graddatacollection.api.mappers.LocalDateTimeMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
@@ -17,6 +18,9 @@ public interface ErrorFilesetStudentMapper {
 
     ErrorFilesetStudent toStructure(final ErrorFilesetStudentEntity errorFilesetStudentEntity);
 
+    ErrorFilesetStudent toStructure(final FinalErrorFilesetStudentEntity errorFilesetStudentEntity);
+
     ErrorFilesetStudent toStructureWithFilter(final ErrorFilesetStudentEntity errorFilesetStudentEntity, List<String> validationFilter);
 
+    ErrorFilesetStudent toStructureWithFilter(final FinalErrorFilesetStudentEntity errorFilesetStudentEntity, List<String> validationFilter);
 }

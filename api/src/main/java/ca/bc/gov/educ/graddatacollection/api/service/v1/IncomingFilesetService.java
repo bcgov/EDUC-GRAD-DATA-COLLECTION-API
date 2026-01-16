@@ -5,9 +5,11 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPurgeRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -30,6 +32,7 @@ import java.util.UUID;
 public class IncomingFilesetService {
     private final ApplicationProperties applicationProperties;
     private final IncomingFilesetRepository incomingFilesetRepository;
+    private final FinalIncomingFilesetRepository finalIncomingFilesetRepository;
     private final IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
     private final MessagePublisher messagePublisher;
     private final CompletedFilesetPreparationService completedFilesetPreparationService;
@@ -86,5 +89,33 @@ public class IncomingFilesetService {
         incomingFilesetEntity.setFilesetStatusCode(filesetStatus.getCode());
         incomingFilesetEntity.setUpdateDate(LocalDateTime.now());
         this.incomingFilesetRepository.save(incomingFilesetEntity);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void copyFilesetFromStagingToFinal(final UUID incomingFilesetID) {
+        log.debug("Copying fileset from staging to final {}", incomingFilesetID);
+        var staged = this.incomingFilesetRepository.findById(incomingFilesetID)
+                .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
+        var finalFileset = IncomingFilesetMapper.mapper.stagedToEntity(staged);
+        // Reconnect parent references for all children
+        finalFileset.getDemographicStudentEntities()
+                .forEach(child -> child.setIncomingFileset(finalFileset));
+
+        finalFileset.getCourseStudentEntities()
+                .forEach(child -> child.setIncomingFileset(finalFileset));
+
+        finalFileset.getAssessmentStudentEntities()
+                .forEach(child -> child.setIncomingFileset(finalFileset));
+
+        finalFileset.getErrorFilesetStudentEntities()
+                .forEach(child -> child.setIncomingFileset(finalFileset));
+        finalIncomingFilesetRepository.save(finalFileset);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteFromStagingTables(final UUID incomingFilesetID) {
+        log.debug("Deleting fileset from staging: {}", incomingFilesetID);
+        this.incomingFilesetRepository.deleteByIncomingFilesetID(incomingFilesetID);
+        log.debug("Deleting from staging complete for fileset: {}", incomingFilesetID);
     }
 }

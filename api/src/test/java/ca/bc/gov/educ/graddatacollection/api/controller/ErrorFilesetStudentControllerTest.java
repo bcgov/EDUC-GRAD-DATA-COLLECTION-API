@@ -3,8 +3,8 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.filter.FilterOperation;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalAssessmentStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalDemographicStudentValidationIssueEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
@@ -43,13 +43,15 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    FinalErrorFilesetStudentRepository errorFilesetStudentRepository;
     @Autowired
-    DemographicStudentRepository demographicStudentRepository;
+    FinalDemographicStudentRepository demographicStudentRepository;
     @Autowired
-    AssessmentStudentRepository assessmentStudentRepository;
+    FinalAssessmentStudentRepository assessmentStudentRepository;
     @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
 
@@ -60,15 +62,16 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         this.assessmentStudentRepository.deleteAll();
         this.errorFilesetStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
     void testReadErrorFilesetStudentPaginated_Always_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchoolTombstone();
@@ -87,9 +90,9 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentsPaginated_withName_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
@@ -117,20 +120,20 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentsPaginated_withDemErrors_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        var mockDem = createMockDemographicStudent(incomingFileSet);
+        var mockDem = createMockFinalDemographicStudent(incomingFileSet);
         mockDem.setPen("422342342");
         mockDem.setLastName("PETERS");
 
-        var demValidation = DemographicStudentValidationIssueEntity.builder()
+        var demValidation = FinalDemographicStudentValidationIssueEntity.builder()
                 .demographicStudent(mockDem)
                 .demographicStudentValidationIssueID(UUID.randomUUID())
                 .validationIssueCode("TEST")
@@ -142,7 +145,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         mockDem.getDemographicStudentValidationIssueEntities().add(demValidation);
         demographicStudentRepository.save(mockDem);
 
-        var mockAssessment = createMockAssessmentStudent();
+        var mockAssessment = createMockFinalAssessmentStudent();
         mockAssessment.setIncomingFileset(incomingFileSet);
         mockAssessment.setPen("122342342");
         mockAssessment.setLastName("PETERS");
@@ -170,20 +173,20 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentsPaginated_withErrors_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        var mockDem = createMockDemographicStudent(incomingFileSet);
+        var mockDem = createMockFinalDemographicStudent(incomingFileSet);
         mockDem.setPen("422342342");
         mockDem.setLastName("PETERS");
 
-        var demValidation = DemographicStudentValidationIssueEntity.builder()
+        var demValidation = FinalDemographicStudentValidationIssueEntity.builder()
                 .demographicStudent(mockDem)
                 .demographicStudentValidationIssueID(UUID.randomUUID())
                 .validationIssueCode("TEST")
@@ -195,7 +198,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         mockDem.getDemographicStudentValidationIssueEntities().add(demValidation);
         demographicStudentRepository.save(mockDem);
 
-        var mockAssessment = createMockAssessmentStudent();
+        var mockAssessment = createMockFinalAssessmentStudent();
         mockAssessment.setIncomingFileset(incomingFileSet);
         mockAssessment.setPen("122342342");
         mockAssessment.setLastName("PETERS");
@@ -223,20 +226,20 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentsPaginated_withFieldCode_ShouldReturnStatusOk() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        var mockDem = createMockDemographicStudent(incomingFileSet);
+        var mockDem = createMockFinalDemographicStudent(incomingFileSet);
         mockDem.setPen("422342342");
         mockDem.setLastName("PETERS");
 
-        var demValidation1 = DemographicStudentValidationIssueEntity.builder()
+        var demValidation1 = FinalDemographicStudentValidationIssueEntity.builder()
                 .demographicStudent(mockDem)
                 .demographicStudentValidationIssueID(UUID.randomUUID())
                 .validationIssueCode("TEST")
@@ -245,7 +248,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
                 .validationIssueSeverityCode("ERROR")
                 .build();
 
-        var demValidation2 = DemographicStudentValidationIssueEntity.builder()
+        var demValidation2 = FinalDemographicStudentValidationIssueEntity.builder()
                 .demographicStudent(mockDem)
                 .demographicStudentValidationIssueID(UUID.randomUUID())
                 .validationIssueCode("TEST")
@@ -257,7 +260,7 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
         mockDem.getDemographicStudentValidationIssueEntities().addAll(List.of(demValidation1, demValidation2));
         demographicStudentRepository.save(mockDem);
 
-        var mockAssessment = createMockAssessmentStudent();
+        var mockAssessment = createMockFinalAssessmentStudent();
         mockAssessment.setIncomingFileset(incomingFileSet);
         mockAssessment.setPen("122342342");
         mockAssessment.setLastName("PETERS");
@@ -286,24 +289,24 @@ class ErrorFilesetStudentControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testReadErrorFilesetStudentsPaginated_withErrors_ShouldReturnStatusOkAndReturnErrorContext() throws Exception {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var incomingFileSet = incomingFilesetRepository.save(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setLastName("PETERS");
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
         var school = this.createMockSchoolTombstone();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-        var mockDem = createMockDemographicStudent(incomingFileSet);
+        var mockDem = createMockFinalDemographicStudent(incomingFileSet);
         mockDem.setPen("422342342");
         mockDem.setLastName("PETERS");
         demographicStudentRepository.save(mockDem);
 
-        var mockAssessment = createMockAssessmentStudent();
+        var mockAssessment = createMockFinalAssessmentStudent();
         mockAssessment.setIncomingFileset(incomingFileSet);
         mockAssessment.setPen("422342342");
         mockAssessment.setLastName("PETERS");
-        var assessmentValidation = AssessmentStudentValidationIssueEntity.builder()
+        var assessmentValidation = FinalAssessmentStudentValidationIssueEntity.builder()
                 .assessmentStudent(mockAssessment)
                 .assessmentStudentValidationIssueID(UUID.randomUUID())
                 .validationIssueCode("TEST")

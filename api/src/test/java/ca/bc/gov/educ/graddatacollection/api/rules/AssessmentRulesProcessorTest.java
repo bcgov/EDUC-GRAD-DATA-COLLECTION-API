@@ -6,10 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.NumeracyAssessmentCode
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
@@ -50,6 +47,9 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     private IncomingFilesetRepository incomingFilesetRepository;
 
     @Autowired
+    private FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+
+    @Autowired
     private DemographicStudentRepository demographicStudentRepository;
 
     @Autowired
@@ -65,6 +65,7 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();

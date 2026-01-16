@@ -3,9 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,15 +30,18 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    FinalErrorFilesetStudentRepository errorFilesetStudentRepository;
     @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.errorFilesetStudentRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
@@ -61,11 +62,11 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var fileSet = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
-        var incomingFileSet = incomingFilesetRepository.save(fileSet);
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(incomingFileSet));
-        var errorFileset2 = createMockErrorFilesetStudentEntity(incomingFileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(fileSet);
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
+        var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
         errorFilesetStudentRepository.save(errorFileset2);
 

@@ -55,6 +55,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
@@ -67,6 +69,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         this.demographicStudentRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
@@ -201,7 +204,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getDemFileName()).isNull();
 
         final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
-        assertThat(uploadedCRSStudents).hasSize(206);
+        assertThat(uploadedCRSStudents).hasSize(203);
     }
 
     @Test
@@ -544,7 +547,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getDemFileName()).isNull();
 
         final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
-        assertThat(uploadedCRSStudents).hasSize(206);
+        assertThat(uploadedCRSStudents).hasSize(203);
     }
 
     @Test
