@@ -25,6 +25,8 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     private final FinalIncomingFilesetSearchService finalIncomingFilesetSearchService;
 
+    private final IncomingFilesetSearchService incomingFilesetSearchService;
+
     private final DemographicStudentService demographicStudentService;
 
     private final AssessmentStudentService assessmentStudentService;
@@ -35,8 +37,9 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     private static final IncomingFilesetStudentMapper extendedMapper  = IncomingFilesetStudentMapper.mapper;
 
-    public IncomingFilesetStudentController(FinalIncomingFilesetSearchService finalIncomingFilesetSearchService, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
+    public IncomingFilesetStudentController(FinalIncomingFilesetSearchService finalIncomingFilesetSearchService, IncomingFilesetSearchService incomingFilesetSearchService, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService) {
         this.finalIncomingFilesetSearchService = finalIncomingFilesetSearchService;
+        this.incomingFilesetSearchService = incomingFilesetSearchService;
         this.demographicStudentService = demographicStudentService;
         this.assessmentStudentService = assessmentStudentService;
         this.courseStudentService = courseStudentService;
@@ -44,6 +47,25 @@ public class IncomingFilesetStudentController implements IncomingFilesetEndpoint
 
     @Override
     public CompletableFuture<Page<IncomingFileset>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<IncomingFilesetEntity> studentSpecs = incomingFilesetSearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        return this.incomingFilesetSearchService
+                .findAll(studentSpecs, pageNumber, pageSize, sorts)
+                .thenApplyAsync(fileset -> fileset.map(mapper::toStructure).map(file -> {
+                    long pos = incomingFilesetSearchService.getCounts(file);
+                    file.setPositionInQueue(String.valueOf(pos));
+                    return file;
+                }));
+    }
+
+    @Override
+    public CompletableFuture<Page<IncomingFileset>> findAllFinal(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<FinalIncomingFilesetEntity> studentSpecs = finalIncomingFilesetSearchService
                 .setSpecificationAndSortCriteria(

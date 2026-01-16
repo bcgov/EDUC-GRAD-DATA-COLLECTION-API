@@ -111,4 +111,11 @@ public class IncomingFilesetService {
                 .forEach(child -> child.setIncomingFileset(finalFileset));
         finalIncomingFilesetRepository.save(finalFileset);
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteFromStagingTables(final UUID incomingFilesetID) {
+        log.debug("Deleting fileset from staging: {}", incomingFilesetID);
+        this.incomingFilesetRepository.deleteByIncomingFilesetID(incomingFilesetID);
+        log.debug("Deleting from staging complete for fileset: {}", incomingFilesetID);
+    }
 }

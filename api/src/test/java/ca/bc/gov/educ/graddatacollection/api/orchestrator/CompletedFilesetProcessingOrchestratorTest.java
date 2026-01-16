@@ -114,6 +114,43 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
     @SneakyThrows
     @Test
+    void testHandleEvent_givenEventTypeUpdateStatus_deleteIncomingFileset() {
+        var mockReportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(mockReportingPeriod);
+        incomingFilesetRepository.save(mockFileset);
+
+        var mockDemStudent = createMockDemographicStudent(mockFileset);
+
+        val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(mockDemStudent);
+        val fileset = IncomingFilesetMapper.mapper.toStructure(mockFileset);
+        val saga = createCompletedFilesetMockSaga(fileset, demographicStudent);
+        saga.setSagaId(null);
+        sagaRepository.save(saga);
+
+        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(EventType.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
+                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        completedFilesetProcessingOrchestrator.handleEvent(event);
+
+        verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(DELETE_FILESET_FROM_STAGING_TABLE);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(DELETE_FILESET_FROM_STAGING_COMPLETE);
+
+        val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(DELETE_FILESET_FROM_STAGING_TABLE.toString());
+        
+        var allSets = incomingFilesetRepository.findAll();
+        assertThat(allSets.size()).isZero();
+    }
+    
+    @SneakyThrows
+    @Test
     void testHandleEvent_givenEventTypeUpdateVendorCode_updateRequired() {
         var mockSchool = createMockSchoolTombstone();
         mockSchool.setVendorSourceSystemCode("MYED");
@@ -142,8 +179,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         completedFilesetProcessingOrchestrator.handleEvent(event);
 
@@ -181,8 +218,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
 
         completedFilesetProcessingOrchestrator.handleEvent(event);
@@ -222,8 +259,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
 
         completedFilesetProcessingOrchestrator.handleEvent(event);
@@ -265,8 +302,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(EventOutcome.DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
 
         completedFilesetProcessingOrchestrator.handleEvent(event);
@@ -304,8 +341,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
 
         completedFilesetProcessingOrchestrator.handleEvent(event);
@@ -341,8 +378,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(EventOutcome.DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
 
         completedFilesetProcessingOrchestrator.handleEvent(event);
@@ -382,8 +419,8 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(DELETE_FILESET_FROM_STAGING_TABLE)
+                .eventOutcome(DELETE_FILESET_FROM_STAGING_COMPLETE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
 
         assertThrows(GradDataCollectionAPIRuntimeException.class, () ->

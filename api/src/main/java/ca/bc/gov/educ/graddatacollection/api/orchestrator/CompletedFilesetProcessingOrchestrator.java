@@ -43,7 +43,8 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         this.stepBuilder()
                 .begin(UPDATE_COMPLETED_FILESET_STATUS, this::updateCompletedFilesetStatus)
                 .step(UPDATE_COMPLETED_FILESET_STATUS, COMPLETED_FILESET_STATUS_UPDATED, COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE, this::copyFilesetToFinalTableFromStaging)
-                .step(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE, COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE, CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, this::checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired)
+                .step(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE, COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE, DELETE_FILESET_FROM_STAGING_TABLE, this::deleteFilesetFromStaging)
+                .step(DELETE_FILESET_FROM_STAGING_TABLE, DELETE_FILESET_FROM_STAGING_COMPLETE, CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, this::checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired)
                 .end(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED, this::echoVendorSourceSystemCodeUpdated)
                 .or()
                 .end(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
@@ -80,6 +81,23 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
         log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
     }
+
+    public void deleteFilesetFromStaging(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
+        final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+        saga.setSagaState(DELETE_FILESET_FROM_STAGING_TABLE.toString());
+        saga.setStatus(IN_PROGRESS.toString());
+        this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+        incomingFilesetService.deleteFromStagingTables(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()));
+
+        final Event.EventBuilder eventBuilder = Event.builder();
+        eventBuilder.sagaId(saga.getSagaId()).eventType(DELETE_FILESET_FROM_STAGING_TABLE);
+        eventBuilder.eventOutcome(DELETE_FILESET_FROM_STAGING_COMPLETE);
+        val nextEvent = eventBuilder.build();
+        this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+        log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+    }
+
 
     public void checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
         final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());

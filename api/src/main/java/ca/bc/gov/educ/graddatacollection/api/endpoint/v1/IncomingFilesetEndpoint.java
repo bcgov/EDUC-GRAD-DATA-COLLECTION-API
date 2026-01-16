@@ -27,6 +27,15 @@ public interface IncomingFilesetEndpoint {
                                                      @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                      @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
+    @GetMapping(URL.PAGINATED + "/final")
+    @PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
+    @Transactional(readOnly = true)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+    CompletableFuture<Page<IncomingFileset>> findAllFinal(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                     @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
+                                                     @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
+
     @GetMapping(URL.GET_STUDENT_FILESETS)
     @PreAuthorize("hasAuthority('SCOPE_READ_INCOMING_FILESET')")
     @Transactional(readOnly = true)
