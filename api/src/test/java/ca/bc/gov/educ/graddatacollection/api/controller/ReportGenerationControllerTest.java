@@ -30,7 +30,9 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    FinalIncomingFilesetRepository incomingFilesetRepository;
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
+    IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     FinalErrorFilesetStudentRepository errorFilesetStudentRepository;
     @Autowired
@@ -39,6 +41,7 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.errorFilesetStudentRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
@@ -61,7 +64,7 @@ class ReportGenerationControllerTest extends BaseGradDataCollectionAPITest {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var fileSet = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
-        var incomingFileSet = incomingFilesetRepository.save(fileSet);
+        var incomingFileSet = finalIncomingFilesetRepository.save(fileSet);
         errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(incomingFileSet));
         var errorFileset2 = createMockFinalErrorFilesetStudentEntity(incomingFileSet);
         errorFileset2.setPen("422342342");
