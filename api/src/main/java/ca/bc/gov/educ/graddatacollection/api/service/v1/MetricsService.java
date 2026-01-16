@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorAndWarningSummary;
@@ -19,19 +20,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class MetricsService {
-    private final IncomingFilesetRepository incomingFilesetRepository;
-    private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
-    private final DemographicStudentRepository demographicStudentRepository;
-    private final AssessmentStudentRepository assessmentStudentRepository;
-    private final CourseStudentRepository courseStudentRepository;
+    private final FinalIncomingFilesetRepository incomingFilesetRepository;
+    private final FinalErrorFilesetStudentRepository errorFilesetStudentRepository;
+    private final FinalDemographicStudentRepository demographicStudentRepository;
+    private final FinalAssessmentStudentRepository assessmentStudentRepository;
+    private final FinalCourseStudentRepository courseStudentRepository;
 
-    public IncomingFilesetEntity getFilesetData(UUID incomingFilesetID) {
+    public FinalIncomingFilesetEntity getFilesetData(UUID incomingFilesetID) {
         return incomingFilesetRepository.findByIncomingFilesetID(incomingFilesetID)
                 .orElseThrow(() -> new EntityNotFoundException(IncomingFileset.class, "incomingFilesetID", incomingFilesetID.toString()));
     }
 
     public ErrorAndWarningSummary getErrorAndWarningSummary(UUID incomingFilesetID) {
-        IncomingFilesetEntity filesetEntity = incomingFilesetRepository.findByIncomingFilesetID(incomingFilesetID)
+        FinalIncomingFilesetEntity filesetEntity = incomingFilesetRepository.findByIncomingFilesetID(incomingFilesetID)
                 .orElseThrow(() -> new EntityNotFoundException(IncomingFileset.class, "incomingFilesetID", incomingFilesetID.toString()));
 
         ErrorAndWarningSummary summary = ErrorAndWarningSummary.builder()

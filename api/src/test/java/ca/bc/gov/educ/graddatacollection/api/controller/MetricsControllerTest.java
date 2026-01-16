@@ -30,18 +30,18 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private IncomingFilesetRepository incomingFilesetRepository;
+    private FinalIncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    private ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    private FinalErrorFilesetStudentRepository errorFilesetStudentRepository;
     @Autowired
     private ReportingPeriodRepository reportingPeriodRepository;
 
     @MockBean
-    private DemographicStudentRepository demographicStudentRepository;
+    private FinalDemographicStudentRepository demographicStudentRepository;
     @MockBean
-    private AssessmentStudentRepository assessmentStudentRepository;
+    private FinalAssessmentStudentRepository assessmentStudentRepository;
     @MockBean
-    private CourseStudentRepository courseStudentRepository;
+    private FinalCourseStudentRepository courseStudentRepository;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +57,7 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     void testGenerateSubmissionMetrics_withValidSchoolID_ReturnsMetrics() throws Exception {
         UUID schoolID = UUID.randomUUID();
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        IncomingFilesetEntity mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var mockFileset = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         mockFileset.setSchoolID(schoolID);
         mockFileset.setFilesetStatusCode("LOADED");
         incomingFilesetRepository.save(mockFileset);
@@ -82,13 +82,13 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     void testGenerateErrorAndWarningMetrics_withValidSchoolID_ReturnsSummary() throws Exception {
         UUID schoolID = UUID.randomUUID();
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        IncomingFilesetEntity filesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var filesetEntity = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         filesetEntity.setSchoolID(schoolID);
         filesetEntity.setFilesetStatusCode(FilesetStatus.LOADED.getCode());
 
-        IncomingFilesetEntity savedEntity = incomingFilesetRepository.save(filesetEntity);
+        var savedEntity = incomingFilesetRepository.save(filesetEntity);
 
-        errorFilesetStudentRepository.save(createMockErrorFilesetStudentEntity(savedEntity));
+        errorFilesetStudentRepository.save(createMockFinalErrorFilesetStudentEntity(savedEntity));
 
         List<Object[]> demResults = Arrays.asList(
                 new Object[]{"ERROR", 2L},
@@ -139,10 +139,10 @@ class MetricsControllerTest extends BaseGradDataCollectionAPITest {
     void testGenerateErrorAndWarningMetrics_noIssuesFound_ReturnsZeroCounts() throws Exception {
         UUID schoolID = UUID.randomUUID();
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        IncomingFilesetEntity filesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var filesetEntity = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         filesetEntity.setSchoolID(schoolID);
         filesetEntity.setFilesetStatusCode(FilesetStatus.LOADED.getCode());
-        IncomingFilesetEntity savedEntity = incomingFilesetRepository.save(filesetEntity);
+        var savedEntity = incomingFilesetRepository.save(filesetEntity);
 
         when(demographicStudentRepository.countValidationIssuesBySeverity(savedEntity.getIncomingFilesetID()))
                 .thenReturn(List.of());

@@ -22,7 +22,7 @@ public class MetricsController implements MetricsEndpoint {
     @Override
     public ResponseEntity<IncomingFileset> generateSubmissionMetrics(UUID schoolID) {
         log.debug("Retrieving submission metrics for schoolID: {}", schoolID.toString());
-        IncomingFilesetEntity submissionMetrics = metricsService.getFilesetData(schoolID);
+        var submissionMetrics = metricsService.getFilesetData(schoolID);
 
         return ResponseEntity.ok(IncomingFilesetMapper.mapper.toStructure(submissionMetrics));
     }

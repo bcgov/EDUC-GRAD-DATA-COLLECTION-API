@@ -17,4 +17,12 @@ public interface FinalDemographicStudentRepository extends JpaRepository<FinalDe
     List<FinalDemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     Optional<FinalDemographicStudentEntity> findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeNotOrderByCreateDateDesc(UUID schoolID, String filesetStatusCode, String pen, String studentStatusCode);
     Optional<FinalDemographicStudentEntity> findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(UUID incomingFilesetID, String pen, UUID schoolID, String filesetStatusCode, String studentStatusCode);
+
+    @Query("SELECT " +
+            "   v.validationIssueSeverityCode, COUNT(v) " +
+            "FROM FinalDemographicStudentEntity d " +
+            "JOIN d.demographicStudentValidationIssueEntities v " +
+            "WHERE d.incomingFileset.incomingFilesetID = :incomingFilesetId " +
+            "GROUP BY v.validationIssueSeverityCode")
+    List<Object[]> countValidationIssuesBySeverity(@Param("incomingFilesetId") UUID incomingFilesetId);
 }
