@@ -12,8 +12,10 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalDemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalDemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
@@ -47,23 +49,24 @@ public class DemographicStudentService {
     private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
+    private final FinalDemographicStudentRepository finalDemographicStudentRepository;
     private final DemographicRulesService demographicRulesService;
     private final DemographicStudentRulesProcessor demographicStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
-    public DemographicStudentEntity getDemStudent(String pen, UUID incomingFilesetId, UUID schoolID) {
-        Optional<DemographicStudentEntity> optionalDemographicStudentEntity;
+    public FinalDemographicStudentEntity getDemStudent(String pen, UUID incomingFilesetId, UUID schoolID) {
+        Optional<FinalDemographicStudentEntity> optionalDemographicStudentEntity;
 
         if (incomingFilesetId != null) {
             if (schoolID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
+                optionalDemographicStudentEntity = finalDemographicStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
             } else {
                 throw new IllegalArgumentException("schoolID must be provided.");
             }
         } else {
             if (schoolID != null) {
-                optionalDemographicStudentEntity = demographicStudentRepository.findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeNotOrderByCreateDateDesc(schoolID, FilesetStatus.COMPLETED.getCode(), pen, SchoolStudentStatus.LOADED.getCode());
+                optionalDemographicStudentEntity = finalDemographicStudentRepository.findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeNotOrderByCreateDateDesc(schoolID, FilesetStatus.COMPLETED.getCode(), pen, SchoolStudentStatus.LOADED.getCode());
             } else {
                 throw new IllegalArgumentException("schoolID must be provided.");
             }

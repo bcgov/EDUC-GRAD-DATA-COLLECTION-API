@@ -5,9 +5,8 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalDemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,9 @@ class DemographicStudentServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
-    private IncomingFilesetRepository incomingFilesetRepository;
+    private FinalIncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    private DemographicStudentRepository demographicStudentRepository;
+    private FinalDemographicStudentRepository demographicStudentRepository;
     @Autowired
     private DemographicStudentService demographicStudentService;
 
@@ -32,11 +31,11 @@ class DemographicStudentServiceTest extends BaseGradDataCollectionAPITest {
     void getDemStudent_withIncomingFilesetIdAndSchoolId_shouldReturnEntity() {
         String pen = "123456789";
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var fileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var fileset = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
         var incomingFileset = incomingFilesetRepository.save(fileset);
 
-        DemographicStudentEntity expected = new DemographicStudentEntity();
+        FinalDemographicStudentEntity expected = new FinalDemographicStudentEntity();
         expected.setPen(pen);
         expected.setIncomingFileset(incomingFileset);
         expected.setStudentStatusCode(SchoolStudentStatus.VERIFIED.getCode());
@@ -45,7 +44,7 @@ class DemographicStudentServiceTest extends BaseGradDataCollectionAPITest {
 
         demographicStudentRepository.save(expected);
 
-        DemographicStudentEntity result = demographicStudentService.getDemStudent(pen, incomingFileset.getIncomingFilesetID(), incomingFileset.getSchoolID());
+        var result = demographicStudentService.getDemStudent(pen, incomingFileset.getIncomingFilesetID(), incomingFileset.getSchoolID());
         assertThat(result).isEqualTo(expected);
     }
 

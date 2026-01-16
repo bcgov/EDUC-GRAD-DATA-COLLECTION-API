@@ -4,9 +4,8 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.AssessmentStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalAssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentStudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,9 @@ class AssessmentStudentServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
-    private IncomingFilesetRepository incomingFilesetRepository;
+    private FinalIncomingFilesetRepository incomingFilesetRepository;
     @Autowired
-    private AssessmentStudentRepository assessmentStudentRepository;
+    private FinalAssessmentStudentRepository assessmentStudentRepository;
 
     @Autowired
     private AssessmentStudentService assessmentStudentService;
@@ -33,21 +32,21 @@ class AssessmentStudentServiceTest extends BaseGradDataCollectionAPITest {
     void getXamStudents_withSchoolId_shouldReturnList() {
         String pen = "123456789";
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var fileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var fileset = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
         var incomingFileset = incomingFilesetRepository.save(fileset);
 
-        AssessmentStudentEntity expected = new AssessmentStudentEntity();
+        FinalAssessmentStudentEntity expected = new FinalAssessmentStudentEntity();
         expected.setPen(pen);
         expected.setIncomingFileset(incomingFileset);
         expected.setStudentStatusCode(SchoolStudentStatus.VERIFIED.getCode());
         expected.setCreateUser("ABC");
         expected.setUpdateUser("ABC");
-        List<AssessmentStudentEntity> expectedList = List.of(expected);
+        List<FinalAssessmentStudentEntity> expectedList = List.of(expected);
 
         assessmentStudentRepository.save(expected);
 
-        List<AssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFileset.getIncomingFilesetID(), incomingFileset.getSchoolID());
+        List<FinalAssessmentStudentEntity> result = assessmentStudentService.getXamStudents(pen, incomingFileset.getIncomingFilesetID(), incomingFileset.getSchoolID());
         assertThat(result).isEqualTo(expectedList);
     }
 

@@ -1,10 +1,10 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.graddatacollection.api.filter.IncomingFilesetFilterSpecs;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPaginationRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.filter.FinalIncomingFilesetFilterSpecs;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetPaginationRepository;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.util.RequestUtil;
@@ -36,25 +36,25 @@ import java.util.concurrent.Executor;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class IncomingFilesetSearchService extends BaseSearchService {
+public class FinalIncomingFilesetSearchService extends BaseSearchService {
   @Getter
-  private final IncomingFilesetFilterSpecs incomingFilesetFilterSpecs;
+  private final FinalIncomingFilesetFilterSpecs finalIncomingFilesetFilterSpecs;
 
-  private final IncomingFilesetPaginationRepository incomingFilesetPaginationRepository;
+  private final FinalIncomingFilesetPaginationRepository finalIncomingFilesetPaginationRepository;
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
-  private final IncomingFilesetRepository incomingFilesetRepository;
+  private final FinalIncomingFilesetRepository finalIncomingFilesetRepository;
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Page<IncomingFilesetEntity>> findAll(Specification<IncomingFilesetEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+  public CompletableFuture<Page<FinalIncomingFilesetEntity>> findAll(Specification<FinalIncomingFilesetEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
     log.trace("In find all query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
       Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
       try {
         log.trace("Running paginated query: {}", studentSpecs);
-        var results = this.incomingFilesetPaginationRepository.findAll(studentSpecs, paging);
+        var results = this.finalIncomingFilesetPaginationRepository.findAll(studentSpecs, paging);
         log.trace("Paginated query returned with results: {}", results);
         return results;
       } catch (final Throwable ex) {
@@ -65,8 +65,8 @@ public class IncomingFilesetSearchService extends BaseSearchService {
 
   }
 
-  public Specification<IncomingFilesetEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
-    Specification<IncomingFilesetEntity> schoolSpecs = null;
+  public Specification<FinalIncomingFilesetEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
+    Specification<FinalIncomingFilesetEntity> schoolSpecs = null;
     try {
       RequestUtil.getSortCriteria(sortCriteriaJson, objectMapper, sorts);
       if (StringUtils.isNotBlank(searchCriteriaListJson)) {
@@ -74,7 +74,7 @@ public class IncomingFilesetSearchService extends BaseSearchService {
         });
         int i = 0;
         for (var search : searches) {
-          schoolSpecs = getSpecifications(schoolSpecs, i, search, incomingFilesetFilterSpecs);
+          schoolSpecs = getSpecifications(schoolSpecs, i, search, finalIncomingFilesetFilterSpecs);
           i++;
         }
       }
@@ -90,7 +90,7 @@ public class IncomingFilesetSearchService extends BaseSearchService {
     var condition = !fileset.getFilesetStatusCode().equalsIgnoreCase("COMPLETED")
             && fileset.getDemFileName() != null && fileset.getCrsFileName() != null && fileset.getXamFileName() != null;
     if(condition) {
-      positionInQueue = incomingFilesetRepository.findPositionInQueueByUpdateDate(LocalDateTime.parse(fileset.getUpdateDate()));
+      positionInQueue = finalIncomingFilesetRepository.findPositionInQueueByUpdateDate(LocalDateTime.parse(fileset.getUpdateDate()));
     }
     return positionInQueue;
   }

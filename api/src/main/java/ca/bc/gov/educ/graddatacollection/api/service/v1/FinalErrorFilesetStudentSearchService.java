@@ -1,9 +1,10 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.graddatacollection.api.filter.ErrorFilesetStudentFilterSpecs;
+import ca.bc.gov.educ.graddatacollection.api.filter.FinalErrorFilesetStudentFilterSpecs;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentPaginationRepository;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalErrorFilesetStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalErrorFilesetStudentPaginationRepository;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.util.RequestUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,24 +34,24 @@ import java.util.concurrent.Executor;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ErrorFilesetStudentSearchService extends BaseSearchService {
+public class FinalErrorFilesetStudentSearchService extends BaseSearchService {
   @Getter
-  private final ErrorFilesetStudentFilterSpecs errorFilesetStudentFilterSpecs;
+  private final FinalErrorFilesetStudentFilterSpecs finalErrorFilesetStudentFilterSpecs;
 
-  private final ErrorFilesetStudentPaginationRepository errorFilesetStudentPaginationRepository;
+  private final FinalErrorFilesetStudentPaginationRepository finalErrorFilesetStudentPaginationRepository;
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Page<ErrorFilesetStudentEntity>> findAll(Specification<ErrorFilesetStudentEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+  public CompletableFuture<Page<FinalErrorFilesetStudentEntity>> findAll(Specification<FinalErrorFilesetStudentEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
     log.trace("In find all query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
       Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
       try {
         log.trace("Running paginated query: {}", studentSpecs);
-        var results = this.errorFilesetStudentPaginationRepository.findAll(studentSpecs, paging);
+        var results = this.finalErrorFilesetStudentPaginationRepository.findAll(studentSpecs, paging);
         log.trace("Paginated query returned with results: {}", results);
         return results;
       } catch (final Throwable ex) {
@@ -61,8 +62,8 @@ public class ErrorFilesetStudentSearchService extends BaseSearchService {
 
   }
 
-  public Specification<ErrorFilesetStudentEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
-    Specification<ErrorFilesetStudentEntity> schoolSpecs = null;
+  public Specification<FinalErrorFilesetStudentEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
+    Specification<FinalErrorFilesetStudentEntity> schoolSpecs = null;
     try {
       RequestUtil.getSortCriteria(sortCriteriaJson, objectMapper, sorts);
       if (StringUtils.isNotBlank(searchCriteriaListJson)) {
@@ -70,7 +71,7 @@ public class ErrorFilesetStudentSearchService extends BaseSearchService {
         });
         int i = 0;
         for (var search : searches) {
-          schoolSpecs = getSpecifications(schoolSpecs, i, search, errorFilesetStudentFilterSpecs);
+          schoolSpecs = getSpecifications(schoolSpecs, i, search, finalErrorFilesetStudentFilterSpecs);
           i++;
         }
       }

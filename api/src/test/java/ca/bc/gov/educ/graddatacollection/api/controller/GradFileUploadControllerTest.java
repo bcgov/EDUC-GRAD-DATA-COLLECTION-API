@@ -201,7 +201,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getDemFileName()).isNull();
 
         final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
-        assertThat(uploadedCRSStudents).hasSize(206);
+        assertThat(uploadedCRSStudents).hasSize(203);
     }
 
     @Test
@@ -544,7 +544,7 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(entity.getDemFileName()).isNull();
 
         final var uploadedCRSStudents = assessmentStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
-        assertThat(uploadedCRSStudents).hasSize(206);
+        assertThat(uploadedCRSStudents).hasSize(203);
     }
 
     @Test

@@ -3,8 +3,11 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1.reports;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.ErrorFilesetStudentMapper;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalErrorFilesetStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -29,21 +32,21 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.v1.reports.ReportT
 @Service
 @Slf4j
 public class CSVReportService {
-    private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
-    private final IncomingFilesetRepository incomingFilesetRepository;
+    private final FinalErrorFilesetStudentRepository errorFilesetStudentRepository;
+    private final FinalIncomingFilesetRepository incomingFilesetRepository;
     private static final ErrorFilesetStudentMapper errorFilesetStudentMapper = ErrorFilesetStudentMapper.mapper;
     private final RestUtils restUtils;
 
     @Autowired
-    public CSVReportService(ErrorFilesetStudentRepository errorFilesetStudentRepository, IncomingFilesetRepository incomingFilesetRepository, RestUtils restUtils) {
+    public CSVReportService(FinalErrorFilesetStudentRepository errorFilesetStudentRepository, FinalIncomingFilesetRepository incomingFilesetRepository, RestUtils restUtils) {
         this.errorFilesetStudentRepository = errorFilesetStudentRepository;
         this.incomingFilesetRepository = incomingFilesetRepository;
         this.restUtils = restUtils;
     }
 
     public DownloadableReportResponse generateErrorReport(UUID incomingFilesetId) {
-        Optional<IncomingFilesetEntity> optionalIncomingFilesetEntity =  incomingFilesetRepository.findById(incomingFilesetId);
-        IncomingFilesetEntity incomingFileset = optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetId.toString()));
+        Optional<FinalIncomingFilesetEntity> optionalIncomingFilesetEntity =  incomingFilesetRepository.findById(incomingFilesetId);
+        FinalIncomingFilesetEntity incomingFileset = optionalIncomingFilesetEntity.orElseThrow(() -> new EntityNotFoundException(FinalIncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetId.toString()));
         Optional<SchoolTombstone> optionalSchoolTombstones = restUtils.getSchoolBySchoolID(incomingFileset.getSchoolID().toString());
         SchoolTombstone schoolTombstone = optionalSchoolTombstones.orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class,"incomingFilesetSchoolId", incomingFileset.getSchoolID().toString()));
         List<ErrorFilesetStudent> results = errorFilesetStudentRepository.findAllByIncomingFileset_IncomingFilesetID(incomingFilesetId)

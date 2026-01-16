@@ -12,8 +12,10 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentValidationIssueEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalCourseStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalCourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
@@ -40,6 +42,7 @@ public class CourseStudentService {
     private final MessagePublisher messagePublisher;
     private final IncomingFilesetRepository incomingFilesetRepository;
     private final CourseStudentRepository courseStudentRepository;
+    private final FinalCourseStudentRepository finalCourseStudentRepository;
     private final CourseRulesService courseRulesService;
     private final RestUtils restUtils;
     private final CourseStudentRulesProcessor courseStudentRulesProcessor;
@@ -47,11 +50,11 @@ public class CourseStudentService {
     private static final String COURSE_STUDENT_ID = "courseStudentID";
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
-    public List<CourseStudentEntity> getCrsStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
-        List<CourseStudentEntity> courseStudentList;
+    public List<FinalCourseStudentEntity> getCrsStudents(String pen, UUID incomingFilesetId, UUID schoolID) {
+        List<FinalCourseStudentEntity> courseStudentList;
 
         if (schoolID != null) {
-            courseStudentList = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
+            courseStudentList = finalCourseStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenAndIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndStudentStatusCodeNot(incomingFilesetId, pen, schoolID, FilesetStatus.COMPLETED.getCode(), SchoolStudentStatus.LOADED.getCode());
         } else {
             throw new IllegalArgumentException("schoolID must be provided.");
         }

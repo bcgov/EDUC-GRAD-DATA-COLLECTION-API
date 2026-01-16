@@ -142,8 +142,55 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
+  public FinalIncomingFilesetEntity createMockFinalIncomingFilesetEntityWithDEMFile(UUID schoolID, ReportingPeriodEntity reportingPeriod) {
+    return FinalIncomingFilesetEntity.builder()
+            .reportingPeriod(reportingPeriod)
+            .schoolID(schoolID)
+            .demFileUploadDate(LocalDateTime.now())
+            .crsFileUploadDate(null)
+            .xamFileUploadDate(null)
+            .demFileName("Test.dem")
+            .crsFileName(null)
+            .xamFileName(null)
+            .filesetStatusCode("LOADED")
+            .build();
+  }
+
+  public FinalIncomingFilesetEntity createMockFinalIncomingFilesetEntityWithAllFilesLoaded(ReportingPeriodEntity reportingPeriod) {
+    return FinalIncomingFilesetEntity.builder()
+            .reportingPeriod(reportingPeriod)
+            .schoolID(UUID.randomUUID())
+            .demFileUploadDate(LocalDateTime.now())
+            .crsFileUploadDate(LocalDateTime.now())
+            .xamFileUploadDate(LocalDateTime.now())
+            .demFileName("Test.dem")
+            .crsFileName("Test.crs")
+            .xamFileName("Test.xam")
+            .filesetStatusCode("LOADED")
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now())
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateDate(LocalDateTime.now())
+            .build();
+  }
+
   public ErrorFilesetStudentEntity createMockErrorFilesetStudentEntity(IncomingFilesetEntity incomingFileset) {
     return ErrorFilesetStudentEntity.builder()
+            .incomingFileset(incomingFileset)
+            .firstName("Jane")
+            .lastName("Smith")
+            .localID("123456789")
+            .pen("123459987")
+            .birthdate("19000101")
+            .createUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now())
+            .updateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API)
+            .updateDate(LocalDateTime.now())
+            .build();
+  }
+
+  public FinalErrorFilesetStudentEntity createMockFinalErrorFilesetStudentEntity(FinalIncomingFilesetEntity incomingFileset) {
+    return FinalErrorFilesetStudentEntity.builder()
             .incomingFileset(incomingFileset)
             .firstName("Jane")
             .lastName("Smith")
@@ -245,6 +292,94 @@ public abstract class BaseGradDataCollectionAPITest {
             .build();
   }
 
+  public FinalDemographicStudentEntity createMockFinalDemographicStudent(FinalIncomingFilesetEntity incomingFileset) {
+    return FinalDemographicStudentEntity.builder()
+            .demographicStudentID(UUID.randomUUID())
+            .incomingFileset(incomingFileset)
+            .pen("123456789")
+            .createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now())
+            .createUser("ABC")
+            .updateUser("ABC")
+            .addressLine1("123 SOMEPLACE")
+            .city("SOMEWHERE")
+            .provincialCode("BC")
+            .countryCode("CA")
+            .postalCode("A1A1A1")
+            .grade("08")
+            .birthdate("19900101")
+            .firstName("JIM")
+            .lastName("JACKSON")
+            .citizenship("C")
+            .programCadreFlag("N")
+            .studentStatusCode("LOADED")
+            .localID("8887555")
+            .transactionID("D02")
+            .gradRequirementYear("2023")
+            .programCode1("AA")
+            .programCode2("AB")
+            .programCode3("AC")
+            .programCode4("FR")
+            .programCode5("DD")
+            .studentStatus("A")
+            .vendorID("OTHER")
+            .build();
+  }
+
+  public FinalCourseStudentEntity createMockFinalCourseStudent(FinalIncomingFilesetEntity incomingFileset) {
+    return FinalCourseStudentEntity.builder()
+            .courseStudentID(UUID.randomUUID())
+            .incomingFileset(incomingFileset)
+            .pen("123456789")
+            .createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now())
+            .createUser("ABC")
+            .updateUser("ABC")
+            .courseMonth("01")
+            .courseYear("2024")
+            .studentStatusCode("LOADED")
+            .courseStatus("A")
+            .lastName("JACKSON")
+            .courseType("E")
+            .courseDescription("COMP")
+            .courseGraduationRequirement(null)
+            .finalLetterGrade("A")
+            .finalPercentage("92")
+            .numberOfCredits("3")
+            .interimPercentage("70")
+            .interimLetterGrade("C+")
+            .courseCode("PH")
+            .courseLevel("12")
+            .localID("8887555")
+            .transactionID("E08")
+            .build();
+  }
+
+  public FinalAssessmentStudentEntity createMockFinalAssessmentStudentFromFileset(FinalIncomingFilesetEntity fileset) {
+    return FinalAssessmentStudentEntity.builder()
+            .assessmentStudentID(UUID.randomUUID())
+            .incomingFileset(fileset)
+            .assessmentID(UUID.randomUUID())
+            .pen("123456789")
+            .createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now())
+            .createUser("TEST")
+            .updateUser("TEST")
+            .courseMonth("01")
+            .courseYear("2024")
+            .studentStatusCode("LOADED")
+            .courseStatus("A")
+            .lastName("DOE")
+            .localCourseID("123")
+            .isElectronicExam("N")
+            .courseCode("LTE10")
+            .localID("8887555")
+            .transactionID("E06")
+            .examSchoolID(UUID.randomUUID())
+            .build();
+  }
+
+
   public AssessmentStudentEntity createMockAssessmentStudent() {
     ReportingPeriodEntity reportingPeriod = createMockReportingPeriodEntity();
     LocalDate sessionDate = LocalDate.now().plusYears(1).withMonth(1).withDayOfMonth(1);
@@ -252,6 +387,33 @@ public abstract class BaseGradDataCollectionAPITest {
     return AssessmentStudentEntity.builder()
             .assessmentStudentID(UUID.randomUUID())
             .incomingFileset(createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod))
+            .assessmentID(UUID.randomUUID())
+            .pen("123456789")
+            .createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now())
+            .createUser("ABC")
+            .updateUser("ABC")
+            .courseMonth(sessionDate.format(DateTimeFormatter.ofPattern("MM")))
+            .courseYear(sessionDate.format(DateTimeFormatter.ofPattern("yyyy")))
+            .studentStatusCode("LOADED")
+            .courseStatus("A")
+            .lastName("JACKSON")
+            .localCourseID("123")
+            .isElectronicExam("N")
+            .courseCode("LTE10")
+            .localID("8887555")
+            .transactionID("E06")
+            .examSchoolID(UUID.randomUUID())
+            .build();
+  }
+
+  public FinalAssessmentStudentEntity createMockFinalAssessmentStudent() {
+    ReportingPeriodEntity reportingPeriod = createMockReportingPeriodEntity();
+    LocalDate sessionDate = LocalDate.now().plusYears(1).withMonth(1).withDayOfMonth(1);
+
+    return FinalAssessmentStudentEntity.builder()
+            .assessmentStudentID(UUID.randomUUID())
+            .incomingFileset(createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod))
             .assessmentID(UUID.randomUUID())
             .pen("123456789")
             .createDate(LocalDateTime.now())

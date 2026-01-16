@@ -3,6 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller;
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -32,7 +33,7 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    IncomingFilesetRepository incomingFilesetRepository;
+    FinalIncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
 
@@ -55,7 +56,7 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
         when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
 
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        IncomingFilesetEntity fileSet = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var fileSet = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
         incomingFilesetRepository.save(fileSet);
 

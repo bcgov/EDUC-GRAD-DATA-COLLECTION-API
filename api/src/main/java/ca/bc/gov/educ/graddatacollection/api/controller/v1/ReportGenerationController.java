@@ -3,7 +3,7 @@ package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.ReportGenerationEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.reports.CSVReportService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReportGenerationController implements ReportGenerationEndpoint {
     private final CSVReportService csvReportService;
-    private final IncomingFilesetRepository incomingFilesetRepository;
+    private final FinalIncomingFilesetRepository incomingFilesetRepository;
 
     @Override
     public DownloadableReportResponse generateErrorReport(UUID incomingFilesetID) {

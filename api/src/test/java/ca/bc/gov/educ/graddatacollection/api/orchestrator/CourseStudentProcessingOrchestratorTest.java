@@ -64,6 +64,8 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
     ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    @Autowired
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -71,6 +73,7 @@ class CourseStudentProcessingOrchestratorTest extends BaseGradDataCollectionAPIT
     public void setUp() {
         Mockito.reset(messagePublisher);
         Mockito.reset(restUtils);
+        finalIncomingFilesetRepository.deleteAll();
         sagaEventRepository.deleteAll();
         sagaRepository.deleteAll();
         courseStudentRepository.deleteAll();

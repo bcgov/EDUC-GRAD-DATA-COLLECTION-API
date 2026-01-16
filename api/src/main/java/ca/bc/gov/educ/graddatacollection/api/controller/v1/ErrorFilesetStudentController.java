@@ -5,8 +5,8 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.ErrorFilesetStudentEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.ErrorFilesetStudentMapper;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.ErrorFilesetStudentSearchService;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalErrorFilesetStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.FinalErrorFilesetStudentSearchService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorFilesetStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SearchCriteria;
@@ -28,11 +28,11 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class ErrorFilesetStudentController implements ErrorFilesetStudentEndpoint {
 
-    private final ErrorFilesetStudentSearchService errorFilesetStudentSearchService;
+    private final FinalErrorFilesetStudentSearchService errorFilesetStudentSearchService;
 
     private static final ErrorFilesetStudentMapper mapper = ErrorFilesetStudentMapper.mapper;
 
-    public ErrorFilesetStudentController(ErrorFilesetStudentSearchService errorFilesetStudentSearchService) {
+    public ErrorFilesetStudentController(FinalErrorFilesetStudentSearchService errorFilesetStudentSearchService) {
         this.errorFilesetStudentSearchService = errorFilesetStudentSearchService;
     }
 
@@ -40,7 +40,7 @@ public class ErrorFilesetStudentController implements ErrorFilesetStudentEndpoin
     public CompletableFuture<Page<ErrorFilesetStudent>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         List<String> mapFilter = new ArrayList<>();
-        Specification<ErrorFilesetStudentEntity> studentSpecs = errorFilesetStudentSearchService
+        Specification<FinalErrorFilesetStudentEntity> studentSpecs = errorFilesetStudentSearchService
                 .setSpecificationAndSortCriteria(
                         sortCriteriaJson,
                         searchCriteriaListJson,
