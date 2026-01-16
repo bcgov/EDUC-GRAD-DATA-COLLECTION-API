@@ -33,7 +33,9 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    FinalIncomingFilesetRepository incomingFilesetRepository;
+    FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    @Autowired
+    IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
 
@@ -41,6 +43,7 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         this.incomingFilesetRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
 
@@ -58,7 +61,7 @@ class ReportPeriodControllerTest extends BaseGradDataCollectionAPITest {
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
         var fileSet = createMockFinalIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
         fileSet.setSchoolID(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(fileSet);
+        finalIncomingFilesetRepository.save(fileSet);
 
         this.mockMvc.perform(get(URL.REPORTING_PERIOD_URL + "/" + reportingPeriod.getReportingPeriodID() + "/summary")
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_REPORTING_PERIOD")))
