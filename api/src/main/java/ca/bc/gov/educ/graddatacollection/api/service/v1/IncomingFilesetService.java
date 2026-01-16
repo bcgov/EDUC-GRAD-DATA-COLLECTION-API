@@ -94,21 +94,65 @@ public class IncomingFilesetService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void copyFilesetFromStagingToFinal(final UUID incomingFilesetID) {
         log.debug("Copying fileset from staging to final {}", incomingFilesetID);
+
         var staged = this.incomingFilesetRepository.findById(incomingFilesetID)
                 .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
+
+        // Map parent entity (without children)
         var finalFileset = IncomingFilesetMapper.mapper.stagedToEntity(staged);
-        // Reconnect parent references for all children
-        finalFileset.getDemographicStudentEntities()
-                .forEach(child -> child.setIncomingFileset(finalFileset));
 
-        finalFileset.getCourseStudentEntities()
-                .forEach(child -> child.setIncomingFileset(finalFileset));
+        // Copy demographic students and their validation issues
+        staged.getDemographicStudentEntities().forEach(stagedDemo -> {
+            var finalDemo = IncomingFilesetMapper.mapper.stagedDemographicToEntity(stagedDemo);
+            finalDemo.setIncomingFileset(finalFileset);
 
-        finalFileset.getAssessmentStudentEntities()
-                .forEach(child -> child.setIncomingFileset(finalFileset));
+            // Copy validation issues for this demographic student
+            stagedDemo.getDemographicStudentValidationIssueEntities().forEach(stagedIssue -> {
+                var finalIssue = IncomingFilesetMapper.mapper.stagedDemographicValidationIssueToEntity(stagedIssue);
+                finalIssue.setDemographicStudent(finalDemo);
+                finalDemo.getDemographicStudentValidationIssueEntities().add(finalIssue);
+            });
 
-        finalFileset.getErrorFilesetStudentEntities()
-                .forEach(child -> child.setIncomingFileset(finalFileset));
+            finalFileset.getDemographicStudentEntities().add(finalDemo);
+        });
+
+        // Copy course students and their validation issues
+        staged.getCourseStudentEntities().forEach(stagedCourse -> {
+            var finalCourse = IncomingFilesetMapper.mapper.stagedCourseToEntity(stagedCourse);
+            finalCourse.setIncomingFileset(finalFileset);
+
+            // Copy validation issues for this course student
+            stagedCourse.getCourseStudentValidationIssueEntities().forEach(stagedIssue -> {
+                var finalIssue = IncomingFilesetMapper.mapper.stagedCourseValidationIssueToEntity(stagedIssue);
+                finalIssue.setCourseStudent(finalCourse);
+                finalCourse.getCourseStudentValidationIssueEntities().add(finalIssue);
+            });
+
+            finalFileset.getCourseStudentEntities().add(finalCourse);
+        });
+
+        // Copy assessment students and their validation issues
+        staged.getAssessmentStudentEntities().forEach(stagedAssessment -> {
+            var finalAssessment = IncomingFilesetMapper.mapper.stagedAssessmentToEntity(stagedAssessment);
+            finalAssessment.setIncomingFileset(finalFileset);
+
+            // Copy validation issues for this assessment student
+            stagedAssessment.getAssessmentStudentValidationIssueEntities().forEach(stagedIssue -> {
+                var finalIssue = IncomingFilesetMapper.mapper.stagedAssessmentValidationIssueToEntity(stagedIssue);
+                finalIssue.setAssessmentStudent(finalAssessment);
+                finalAssessment.getAssessmentStudentValidationIssueEntities().add(finalIssue);
+            });
+
+            finalFileset.getAssessmentStudentEntities().add(finalAssessment);
+        });
+
+        // Copy error fileset students
+        staged.getErrorFilesetStudentEntities().forEach(stagedError -> {
+            var finalError = IncomingFilesetMapper.mapper.stagedErrorToEntity(stagedError);
+            finalError.setIncomingFileset(finalFileset);
+            finalFileset.getErrorFilesetStudentEntities().add(finalError);
+        });
+
         finalIncomingFilesetRepository.save(finalFileset);
     }
 
