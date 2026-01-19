@@ -95,7 +95,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         
         incomingFilesetRepository.save(mockFileset);
 
-        incomingFilesetService.prepareAndSendCompletedFilesetsForFurtherProcessing(List.of(mockFileset));
+        incomingFilesetService.prepareAndSendCompletedFilesetsForFurtherProcessing(List.of(mockFileset.getIncomingFilesetID()));
 
         verify(messagePublisher, times(1)).dispatchMessage(any(String.class), any(byte[].class));
     }

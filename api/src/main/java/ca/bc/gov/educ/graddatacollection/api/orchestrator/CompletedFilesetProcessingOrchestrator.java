@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -30,11 +31,13 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 @Slf4j
 public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<IncomingFilesetSagaData> {
     private final IncomingFilesetService incomingFilesetService;
+    private final DemographicStudentService demographicStudentService;
     private final RestUtils restUtils;
 
-    protected CompletedFilesetProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, IncomingFilesetService incomingFilesetService, RestUtils restUtils) {
+    protected CompletedFilesetProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, IncomingFilesetService incomingFilesetService, DemographicStudentService demographicStudentService, RestUtils restUtils) {
         super(sagaService, messagePublisher, IncomingFilesetSagaData.class, SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), TopicsEnum.PROCESS_COMPLETED_FILESETS_SAGA_TOPIC.toString());
         this.incomingFilesetService = incomingFilesetService;
+        this.demographicStudentService = demographicStudentService;
         this.restUtils = restUtils;
     }
 
@@ -56,7 +59,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.setCompletedFilesetStatus(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()), FilesetStatus.COMPLETED);
+        incomingFilesetService.setCompletedFilesetStatus(incomingFilesetSagaData.getIncomingFilesetID(), FilesetStatus.COMPLETED);
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS);
@@ -72,7 +75,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.copyFilesetFromStagingToFinal(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()));
+        incomingFilesetService.copyFilesetFromStagingToFinal(incomingFilesetSagaData.getIncomingFilesetID());
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE);
@@ -88,7 +91,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.deleteFromStagingTables(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()));
+        incomingFilesetService.deleteFromStagingTables(incomingFilesetSagaData.getIncomingFilesetID());
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(DELETE_FILESET_FROM_STAGING_TABLE);
@@ -104,8 +107,12 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setSagaState(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED.toString());
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+        
+        var incomingFileset = incomingFilesetService.getIncomingFileset(incomingFilesetSagaData.getIncomingFilesetID());
 
-        School school = restUtils.getSchoolFromSchoolID(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getSchoolID()), UUID.randomUUID());
+        var incomingFileset = demographicStudentService.getDemStudent(incomingFilesetSagaData.getIncomingFilesetID());
+
+        School school = restUtils.getSchoolFromSchoolID(incomingFileset.getSchoolID(), UUID.randomUUID());
         final Event.EventBuilder eventBuilder = Event.builder();
 
         if (school != null && (
