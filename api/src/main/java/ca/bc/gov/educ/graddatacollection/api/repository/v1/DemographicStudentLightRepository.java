@@ -14,15 +14,18 @@ import java.util.UUID;
 
 @Repository
 public interface DemographicStudentLightRepository extends JpaRepository<DemographicStudentLightEntity, UUID>, JpaSpecificationExecutor<DemographicStudentLightEntity> {
-    @Query(value="""
-    SELECT dse FROM DemographicStudentLightEntity dse WHERE dse.demographicStudentID
-    NOT IN (SELECT saga.demographicStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.demographicStudentID IS NOT NULL)
-    AND dse.incomingFileset.demFileName is not null
-    AND dse.incomingFileset.crsFileName is not null
-    AND dse.incomingFileset.xamFileName is not null
-    AND dse.studentStatusCode = 'LOADED'
-    order by dse.createDate
-    LIMIT :numberOfStudentsToProcess""")
-    List<DemographicStudentLightEntity> findTopLoadedDEMStudentForProcessing(String numberOfStudentsToProcess);
+    @Query(value = """
+    SELECT ds.*
+    FROM demographic_student ds
+    WHERE ds.incoming_fileset_id = :incomingFilesetID
+    AND ds.student_status_code = 'LOADED'
+    AND NOT EXISTS (
+        SELECT 1 FROM grad_saga saga
+        WHERE saga.demographic_student_id = ds.demographic_student_id
+        AND saga.status != 'COMPLETED'
+    )
+    ORDER BY ds.create_date ASC
+    LIMIT :numberOfStudentsToProcess
+    """, nativeQuery = true)
+    List<DemographicStudentLightEntity> findTopLoadedDEMStudentForProcessing(UUID incomingFilesetID, String numberOfStudentsToProcess);
 }

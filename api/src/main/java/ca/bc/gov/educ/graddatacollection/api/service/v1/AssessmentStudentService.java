@@ -125,11 +125,11 @@ public class AssessmentStudentService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendAssessmentStudentsForFurtherProcessing(final List<AssessmentStudentLightEntity> assessmentStudentEntity) {
+    public void prepareAndSendAssessmentStudentsForFurtherProcessing(final List<AssessmentStudentLightEntity> assessmentStudentEntity, IncomingFilesetLightEntity incomingFileset) {
         final List<AssessmentStudentSagaData> assessmentStudentSagaData = assessmentStudentEntity.stream()
                 .map(el -> {
                     val gradAssessmentStudentSagaData = new AssessmentStudentSagaData();
-                    var school = this.restUtils.getSchoolBySchoolID(el.getIncomingFileset().getSchoolID().toString());
+                    var school = this.restUtils.getSchoolBySchoolID(incomingFileset.getSchoolID().toString());
                     gradAssessmentStudentSagaData.setSchool(school.get());
                     gradAssessmentStudentSagaData.setAssessmentStudent(AssessmentStudentMapper.mapper.toAssessmentStudent(el));
                     return gradAssessmentStudentSagaData;

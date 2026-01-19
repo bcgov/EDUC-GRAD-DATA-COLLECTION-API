@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -30,11 +31,13 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 @Slf4j
 public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<IncomingFilesetSagaData> {
     private final IncomingFilesetService incomingFilesetService;
+    private final DemographicStudentService demographicStudentService;
     private final RestUtils restUtils;
 
-    protected CompletedFilesetProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, IncomingFilesetService incomingFilesetService, RestUtils restUtils) {
+    protected CompletedFilesetProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, IncomingFilesetService incomingFilesetService, DemographicStudentService demographicStudentService, RestUtils restUtils) {
         super(sagaService, messagePublisher, IncomingFilesetSagaData.class, SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), TopicsEnum.PROCESS_COMPLETED_FILESETS_SAGA_TOPIC.toString());
         this.incomingFilesetService = incomingFilesetService;
+        this.demographicStudentService = demographicStudentService;
         this.restUtils = restUtils;
     }
 
@@ -56,7 +59,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.setCompletedFilesetStatus(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()), FilesetStatus.COMPLETED);
+        incomingFilesetService.setCompletedFilesetStatus(incomingFilesetSagaData.getIncomingFilesetID(), FilesetStatus.COMPLETED);
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS);
@@ -72,7 +75,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.copyFilesetFromStagingToFinal(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()));
+        incomingFilesetService.copyFilesetFromStagingToFinal(incomingFilesetSagaData.getIncomingFilesetID());
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE);
@@ -88,7 +91,7 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.deleteFromStagingTables(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID()));
+        incomingFilesetService.deleteFromStagingTables(incomingFilesetSagaData.getIncomingFilesetID());
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(DELETE_FILESET_FROM_STAGING_TABLE);
@@ -104,17 +107,21 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         saga.setSagaState(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED.toString());
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+        
+        var incomingFileset = incomingFilesetService.getIncomingFileset(incomingFilesetSagaData.getIncomingFilesetID());
 
-        School school = restUtils.getSchoolFromSchoolID(UUID.fromString(incomingFilesetSagaData.getIncomingFileset().getSchoolID()), UUID.randomUUID());
+        var demStudent = demographicStudentService.getAnyDemStudentInFileset(incomingFilesetSagaData.getIncomingFilesetID());
+
+        School school = restUtils.getSchoolFromSchoolID(incomingFileset.getSchoolID(), UUID.randomUUID());
         final Event.EventBuilder eventBuilder = Event.builder();
 
-        if (school != null && (
-                (school.getVendorSourceSystemCode() == null && incomingFilesetSagaData.getDemographicStudent() != null && incomingFilesetSagaData.getDemographicStudent().getVendorID() != null) ||
-                        ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
-                        (!"M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode()))
+        if (demStudent.isPresent() && school != null && (
+                (school.getVendorSourceSystemCode() == null && demStudent.get().getVendorID() != null) ||
+                        ("M".equalsIgnoreCase(demStudent.get().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
+                        (!"M".equalsIgnoreCase(demStudent.get().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode()))
         )) {
-            log.debug("Vendor code needs to be updated for school ID: {}. Current: {}, New: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), school.getVendorSourceSystemCode(), incomingFilesetSagaData.getDemographicStudent().getVendorID());
-            if ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID())) {
+            log.debug("Vendor code needs to be updated for school ID: {}. Current: {}, New: {}", incomingFileset.getSchoolID(), school.getVendorSourceSystemCode(), demStudent.get().getVendorID());
+            if ("M".equalsIgnoreCase(demStudent.get().getVendorID())) {
                 school.setVendorSourceSystemCode("MYED");
             } else {
                 school.setVendorSourceSystemCode("OTHER");
@@ -122,13 +129,13 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
             InstituteStatusEvent response = restUtils.updateSchool(school, UUID.randomUUID());
 
             if (!response.getEventOutcome().equalsIgnoreCase(EventOutcome.SCHOOL_UPDATED.toString())) {
-                log.error("Update vendor code failed for school {}. Response: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), response);
+                log.error("Update vendor code failed for school {}. Response: {}", incomingFileset.getSchoolID(), response);
                 throw new GradDataCollectionAPIRuntimeException("Failed to update vendor code: " + response);
             }
             eventBuilder.sagaId(saga.getSagaId()).eventType(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED);
             eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED);
         } else {
-            log.debug("Vendor code does not need to be updated for school ID: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID());
+            log.debug("Vendor code does not need to be updated for school ID: {}", incomingFileset.getSchoolID());
             eventBuilder.sagaId(saga.getSagaId()).eventType(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED);
             eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
         }

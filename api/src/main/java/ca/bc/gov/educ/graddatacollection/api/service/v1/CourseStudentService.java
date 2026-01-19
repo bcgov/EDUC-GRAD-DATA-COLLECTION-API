@@ -9,10 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentLightEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.CourseStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalCourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalCourseStudentRepository;
@@ -125,11 +122,11 @@ public class CourseStudentService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendCourseStudentsForFurtherProcessing(final List<CourseStudentLightEntity> courseStudentEntities) {
+    public void prepareAndSendCourseStudentsForFurtherProcessing(final List<CourseStudentLightEntity> courseStudentEntities, IncomingFilesetLightEntity incomingFileset) {
         final List<CourseStudentSagaData> courseStudentSagaData = courseStudentEntities.stream()
                 .map(el -> {
                     val gradCourseStudentSagaData = new CourseStudentSagaData();
-                    var school = this.restUtils.getSchoolBySchoolID(el.getIncomingFileset().getSchoolID().toString());
+                    var school = this.restUtils.getSchoolBySchoolID(incomingFileset.getSchoolID().toString());
                     gradCourseStudentSagaData.setSchool(school.get());
                     gradCourseStudentSagaData.setCourseStudent(CourseStudentMapper.mapper.toCourseStudent(el));
                     return gradCourseStudentSagaData;
@@ -157,12 +154,12 @@ public class CourseStudentService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendCourseStudentsForDownstreamProcessing(final List<ICourseStudentUpdate> entities) {
-        final List<CourseStudentUpdate> courseStudentUpdateList = entities.stream()
-                .map(el -> {
+    public void prepareAndSendCourseStudentsForDownstreamProcessing(final List<String> pens, UUID incomingFilesetID) {
+        final List<CourseStudentUpdate> courseStudentUpdateList = pens.stream()
+                .map(pen -> {
                     val courseStudentUpdate = new CourseStudentUpdate();
-                    courseStudentUpdate.setIncomingFilesetID(el.getIncomingFilesetID());
-                    courseStudentUpdate.setPen(el.getPen());
+                    courseStudentUpdate.setIncomingFilesetID(incomingFilesetID.toString());
+                    courseStudentUpdate.setPen(pen);
                     return courseStudentUpdate;
                 }).toList();
         courseStudentUpdateList.forEach(this::sendIndividualStudentAsMessageForDownstreamUpdateToTopic);

@@ -209,8 +209,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         var mockFileset =  IncomingFilesetMapper.mapper.toStructure(mockFilesetEntity);
 
         var sagaData = IncomingFilesetSagaData.builder()
-                .demographicStudent(demographicStudent)
-                .incomingFileset(mockFileset)
+                .incomingFilesetID(UUID.fromString(mockFileset.getIncomingFilesetID()))
                 .build();
         var event = Event.builder()
                 .eventType(ca.bc.gov.educ.graddatacollection.api.constants.EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING)

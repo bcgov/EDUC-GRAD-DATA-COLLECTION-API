@@ -9,10 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentLightEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentValidationIssueEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalDemographicStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalDemographicStudentRepository;
@@ -22,10 +19,7 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.graddatacollection.api.util.PenUtil;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +70,10 @@ public class DemographicStudentService {
         String incomingSchoolIdString = Objects.toString(schoolID, null);
         return optionalDemographicStudentEntity.orElseThrow(() -> new EntityNotFoundException(DemographicStudentEntity.class, "pen: ", pen, "incomingFilesetId: ", incomingFilesetIdString, "incomingSchoolId: ", incomingSchoolIdString)
         );
+    }
+
+    public Optional<DemographicStudentEntity> getAnyDemStudentInFileset(UUID incomingFilesetId) {
+        return demographicStudentRepository.findFirstByIncomingFileset_IncomingFilesetID(incomingFilesetId);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -149,11 +147,11 @@ public class DemographicStudentService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendDemStudentsForFurtherProcessing(final List<DemographicStudentLightEntity> demographicStudentEntities) {
+    public void prepareAndSendDemStudentsForFurtherProcessing(final List<DemographicStudentLightEntity> demographicStudentEntities, IncomingFilesetLightEntity incomingFileset) {
         final List<DemographicStudentSagaData> demographicStudentSagaData = demographicStudentEntities.stream()
                 .map(el -> {
                     val gradDemographicStudentSagaData = new DemographicStudentSagaData();
-                    var school = this.restUtils.getSchoolBySchoolID(el.getIncomingFileset().getSchoolID().toString());
+                    var school = this.restUtils.getSchoolBySchoolID(incomingFileset.getSchoolID().toString());
                     gradDemographicStudentSagaData.setSchool(school.get());
                     gradDemographicStudentSagaData.setDemographicStudent(DemographicStudentMapper.mapper.toDemographicStudent(el));
                     return gradDemographicStudentSagaData;

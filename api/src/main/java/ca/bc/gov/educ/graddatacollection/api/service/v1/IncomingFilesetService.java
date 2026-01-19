@@ -35,13 +35,18 @@ public class IncomingFilesetService {
     private final FinalIncomingFilesetRepository finalIncomingFilesetRepository;
     private final IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
     private final MessagePublisher messagePublisher;
-    private final CompletedFilesetPreparationService completedFilesetPreparationService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
     @Transactional(propagation = Propagation.MANDATORY)
     public IncomingFilesetEntity saveIncomingFilesetRecord(IncomingFilesetEntity currentFileset) {
         log.debug("About to save school file data for fileset: {}", currentFileset.getIncomingFilesetID());
         return this.incomingFilesetRepository.save(currentFileset);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public IncomingFilesetEntity getIncomingFileset(UUID incomingFilesetID) {
+        return this.incomingFilesetRepository.findById(incomingFilesetID)
+                .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
     }
 
     public void purgeStaleIncomingFilesetRecords() {
@@ -52,12 +57,13 @@ public class IncomingFilesetService {
     }
 
     @Async("publisherExecutor")
-    public void prepareAndSendCompletedFilesetsForFurtherProcessing(final List<IncomingFilesetEntity> incomingFilesetEntities) {
-        List<UUID> filesetIds = incomingFilesetEntities.stream()
-                .map(IncomingFilesetEntity::getIncomingFilesetID)
+    public void prepareAndSendCompletedFilesetsForFurtherProcessing(final List<UUID> filesetIds) {
+        List<IncomingFilesetSagaData> incomingFilesetSagaData = filesetIds
+                .stream()
+                .map(uuid -> IncomingFilesetSagaData.builder()
+                        .incomingFilesetID(uuid)
+                        .build())
                 .toList();
-        
-        List<IncomingFilesetSagaData> incomingFilesetSagaData = completedFilesetPreparationService.prepareFilesetData(filesetIds);
         
         this.publishCompletedFilesetRecordsForProcessing(incomingFilesetSagaData);
     }
@@ -69,7 +75,7 @@ public class IncomingFilesetService {
     private void sendIndividualFilesetAsMessageToTopic(final IncomingFilesetSagaData incomingFilesetSagaData) {
         final var eventPayload = JsonUtil.getJsonString(incomingFilesetSagaData);
         if (eventPayload.isPresent()) {
-            final Event event = Event.builder().eventType(EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).incomingFilesetID(String.valueOf(incomingFilesetSagaData.getIncomingFileset().getIncomingFilesetID())).build();
+            final Event event = Event.builder().eventType(EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).incomingFilesetID(String.valueOf(incomingFilesetSagaData.getIncomingFilesetID())).build();
             final var eventString = JsonUtil.getJsonString(event);
             if (eventString.isPresent()) {
                 this.messagePublisher.dispatchMessage(TopicsEnum.READ_COMPLETED_FILESETS_FROM_TOPIC.toString(), eventString.get().getBytes());

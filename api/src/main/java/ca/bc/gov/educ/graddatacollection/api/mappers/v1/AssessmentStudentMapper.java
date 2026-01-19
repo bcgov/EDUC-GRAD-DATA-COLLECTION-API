@@ -21,7 +21,6 @@ public interface AssessmentStudentMapper {
   @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
   AssessmentStudent toAssessmentStudent(FinalAssessmentStudentEntity assessmentStudentEntity);
 
-  @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
   AssessmentStudent toAssessmentStudent(AssessmentStudentLightEntity assessmentStudentEntity);
 
 }

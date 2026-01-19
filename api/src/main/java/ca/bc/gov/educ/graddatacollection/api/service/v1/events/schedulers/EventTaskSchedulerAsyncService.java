@@ -30,7 +30,7 @@ import java.util.concurrent.TimeoutException;
 public class EventTaskSchedulerAsyncService {
   private final SagaRepository sagaRepository;
   private final Map<String, Orchestrator> sagaOrchestrators = new HashMap<>();
-  private final IncomingFilesetRepository incomingFilesetRepository;
+  private final IncomingFilesetLightRepository incomingFilesetLightRepository;
   private final DemographicStudentLightRepository demographicStudentLightRepository;
   private final AssessmentStudentLightRepository assessmentStudentLightRepository;
   private final CourseStudentLightRepository courseStudentLightRepository;
@@ -45,9 +45,9 @@ public class EventTaskSchedulerAsyncService {
   private final ReportingPeriodService reportingPeriodService;
   private final IncomingFilesetService incomingFilesetService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetRepository incomingFilesetRepository, DemographicStudentLightRepository demographicStudentLightRepository, AssessmentStudentLightRepository assessmentStudentLightRepository, CourseStudentLightRepository courseStudentLightRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService, IncomingFilesetService incomingFilesetService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, IncomingFilesetLightRepository incomingFilesetLightRepository, DemographicStudentLightRepository demographicStudentLightRepository, AssessmentStudentLightRepository assessmentStudentLightRepository, CourseStudentLightRepository courseStudentLightRepository, ReportingPeriodRepository reportingPeriodRepository, DemographicStudentService demographicStudentService, AssessmentStudentService assessmentStudentService, CourseStudentService courseStudentService, ReportingPeriodService reportingPeriodService, IncomingFilesetService incomingFilesetService) {
       this.sagaRepository = sagaRepository;
-      this.incomingFilesetRepository = incomingFilesetRepository;
+      this.incomingFilesetLightRepository = incomingFilesetLightRepository;
       this.demographicStudentLightRepository = demographicStudentLightRepository;
       this.assessmentStudentLightRepository = assessmentStudentLightRepository;
       this.courseStudentLightRepository = courseStudentLightRepository;
@@ -97,37 +97,51 @@ public class EventTaskSchedulerAsyncService {
       return;
     }
 
-    var completedFilesets = this.incomingFilesetRepository.findCompletedCollectionsForStatusUpdate();
+    log.debug("Query for completed records start");
+    var completedFilesets = this.incomingFilesetLightRepository.findCompletedCollectionsForStatusUpdate();
+    log.debug("Query for completed records complete, found {} records", completedFilesets.size());
     if (!completedFilesets.isEmpty()) {
       this.incomingFilesetService.prepareAndSendCompletedFilesetsForFurtherProcessing(completedFilesets);
       return;
     }
 
-    final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(numberOfStudentsToProcess);
-    log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
-    if (!demographicStudentEntities.isEmpty()) {
-      this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities);
-      return;
-    }
+    log.debug("Query for fileset to process start");
+    var nextIncomingFilesetToProcess = this.incomingFilesetLightRepository.findNextReadyCollectionForProcessing();
+    log.debug("Query for completed records complete, found record? {}", nextIncomingFilesetToProcess.isPresent());
+    
+    if(nextIncomingFilesetToProcess.isPresent()) {
+      var filesetID = nextIncomingFilesetToProcess.get().getIncomingFilesetID();
 
-    final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(numberOfStudentsToProcess);
-    log.debug("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
-    if (!assessmentStudentEntities.isEmpty()) {
-      this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities);
-      return;
-    }
+      log.debug("Query for demog students in fileset {} start", filesetID);
+      final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(filesetID, numberOfStudentsToProcess);
+      log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
+      if (!demographicStudentEntities.isEmpty()) {
+        this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities, nextIncomingFilesetToProcess.get());
+        return;
+      }
 
-    final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(numberOfStudentsToProcess);
-    log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
-    if (!courseStudentEntities.isEmpty()) {
-      this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities);
-      return;
-    }
+      log.debug("Query for assessment students in fileset {} start", filesetID);
+      final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(filesetID, numberOfStudentsToProcess);
+      log.debug("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
+      if (!assessmentStudentEntities.isEmpty()) {
+        this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities, nextIncomingFilesetToProcess.get());
+        return;
+      }
 
-    final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(Integer.parseInt(numberOfStudentsToProcess));
-    log.debug("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
-    if (!courseStudentEntitiesToUpdate.isEmpty()) {
-      this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate);
+      log.debug("Query for course students in fileset {} start", filesetID);
+      final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(filesetID, numberOfStudentsToProcess);
+      log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
+      if (!courseStudentEntities.isEmpty()) {
+        this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities, nextIncomingFilesetToProcess.get());
+        return;
+      }
+
+      log.debug("Query for course student packages in fileset {} start", filesetID);
+      final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(filesetID, Integer.parseInt(numberOfStudentsToProcess));
+      log.debug("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
+      if (!courseStudentEntitiesToUpdate.isEmpty()) {
+        this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate, filesetID);
+      }
     }
   }
 

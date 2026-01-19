@@ -22,7 +22,6 @@ public interface DemographicStudentMapper {
   @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
   DemographicStudent toDemographicStudent(FinalDemographicStudentEntity demographicStudentEntity);
 
-  @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
   DemographicStudent toDemographicStudent(DemographicStudentLightEntity demographicStudentEntity);
 
 }

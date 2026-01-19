@@ -93,7 +93,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.INITIATED)
@@ -127,7 +127,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
                 .eventType(EventType.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
@@ -167,7 +167,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         var school = createMockSchool();
         school.setVendorSourceSystemCode("MYED");
@@ -212,7 +212,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         when(restUtils.getSchoolFromSchoolID(any(UUID.class), any(UUID.class))).thenReturn(null);
 
@@ -240,6 +240,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         incomingFilesetRepository.save(mockFileset);
         var mockDemStudent = createMockDemographicStudent(mockFileset);
         mockDemStudent.setVendorID("M");
+        demographicStudentRepository.save(mockDemStudent);
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(mockDemStudent);
         val fileset = IncomingFilesetMapper.mapper.toStructure(mockFileset);
@@ -247,7 +248,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         School school = createMockSchool();
         school.setVendorSourceSystemCode("OTHER");
@@ -283,6 +284,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         incomingFilesetRepository.save(mockFileset);
         var mockDemStudent = createMockDemographicStudent(mockFileset);
         mockDemStudent.setVendorID("ABC");
+        demographicStudentRepository.save(mockDemStudent);
 
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(mockDemStudent);
         val fileset = IncomingFilesetMapper.mapper.toStructure(mockFileset);
@@ -290,7 +292,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         School school = createMockSchool();
         school.setVendorSourceSystemCode("MYED");
@@ -333,7 +335,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         School school = createMockSchool();
         school.setVendorSourceSystemCode("MYED");
@@ -370,7 +372,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         School school = createMockSchool();
         school.setVendorSourceSystemCode("OTHER");
@@ -400,14 +402,14 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         incomingFilesetRepository.save(mockFileset);
         var mockDemStudent = createMockDemographicStudent(mockFileset);
         mockDemStudent.setVendorID("M");
-
+        demographicStudentRepository.save(mockDemStudent);
         val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(mockDemStudent);
         val fileset = IncomingFilesetMapper.mapper.toStructure(mockFileset);
         val saga = createCompletedFilesetMockSaga(fileset, demographicStudent);
         saga.setSagaId(null);
         sagaRepository.save(saga);
 
-        val sagaData = IncomingFilesetSagaData.builder().incomingFileset(fileset).demographicStudent(demographicStudent).build();
+        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
 
         School school = createMockSchool();
         school.setVendorSourceSystemCode("OTHER");
