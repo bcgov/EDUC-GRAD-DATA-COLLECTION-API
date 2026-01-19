@@ -33,14 +33,14 @@ public interface CourseStudentLightRepository extends JpaRepository<CourseStuden
     @Query(value="""
     SELECT cse.pen
     FROM course_student cse
-    WHERE cse.incoming_fileset_id NOT EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM grad_saga saga
         WHERE saga.status != 'COMPLETED'
         AND saga.saga_name = 'PROCESS_COURSE_STUDENTS_FOR_DOWNSTREAM_UPDATE_SAGA'
         AND saga.incoming_fileset_id = :incomingFilesetID
     )
-    AND cse.incoming_fileset_id NOT EXISTS (
+    AND NOT EXISTS (
         SELECT 1
         FROM course_student cs2
         WHERE cs2.student_status_code = 'LOADED'
