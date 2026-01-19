@@ -113,7 +113,7 @@ public class EventTaskSchedulerAsyncService {
       var filesetID = nextIncomingFilesetToProcess.get().getIncomingFilesetID();
 
       log.debug("Query for demog students in fileset {} start", filesetID);
-      final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(filesetID, numberOfStudentsToProcess);
+      final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(filesetID, Integer.parseInt(numberOfStudentsToProcess));
       log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
       if (!demographicStudentEntities.isEmpty()) {
         this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities, nextIncomingFilesetToProcess.get());
@@ -121,7 +121,7 @@ public class EventTaskSchedulerAsyncService {
       }
 
       log.debug("Query for assessment students in fileset {} start", filesetID);
-      final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(filesetID, numberOfStudentsToProcess);
+      final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(filesetID, Integer.parseInt(numberOfStudentsToProcess));
       log.debug("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
       if (!assessmentStudentEntities.isEmpty()) {
         this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities, nextIncomingFilesetToProcess.get());
@@ -129,7 +129,7 @@ public class EventTaskSchedulerAsyncService {
       }
 
       log.debug("Query for course students in fileset {} start", filesetID);
-      final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(filesetID, numberOfStudentsToProcess);
+      final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(filesetID, Integer.parseInt(numberOfStudentsToProcess));
       log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
       if (!courseStudentEntities.isEmpty()) {
         this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities, nextIncomingFilesetToProcess.get());

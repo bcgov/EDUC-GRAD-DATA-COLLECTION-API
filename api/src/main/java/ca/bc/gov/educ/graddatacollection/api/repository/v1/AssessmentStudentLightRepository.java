@@ -30,5 +30,5 @@ public interface AssessmentStudentLightRepository extends JpaRepository<Assessme
     )
     ORDER BY ase.create_date ASC
     LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
-    List<AssessmentStudentLightEntity> findTopLoadedAssessmentStudentForProcessing(UUID incomingFilesetID, String numberOfStudentsToProcess);
+    List<AssessmentStudentLightEntity> findTopLoadedAssessmentStudentForProcessing(UUID incomingFilesetID, int numberOfStudentsToProcess);
 }

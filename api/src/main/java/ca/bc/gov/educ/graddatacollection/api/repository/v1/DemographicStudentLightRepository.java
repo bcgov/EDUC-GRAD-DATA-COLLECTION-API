@@ -27,5 +27,5 @@ public interface DemographicStudentLightRepository extends JpaRepository<Demogra
     ORDER BY ds.create_date ASC
     LIMIT :numberOfStudentsToProcess
     """, nativeQuery = true)
-    List<DemographicStudentLightEntity> findTopLoadedDEMStudentForProcessing(UUID incomingFilesetID, String numberOfStudentsToProcess);
+    List<DemographicStudentLightEntity> findTopLoadedDEMStudentForProcessing(UUID incomingFilesetID, int numberOfStudentsToProcess);
 }
