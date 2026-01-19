@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface DemographicStudentRepository extends JpaRepository<DemographicStudentEntity, UUID>, JpaSpecificationExecutor<DemographicStudentEntity> {
+    Optional<DemographicStudentEntity> findFirstByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetID);
     List<DemographicStudentEntity> findAllByIncomingFileset_IncomingFilesetIDAndLastNameEqualsIgnoreCaseAndPenEqualsIgnoreCaseAndLocalIDEqualsIgnoreCase(UUID incomingFilesetID, String lastName, String pen, String localID);
     Optional<DemographicStudentEntity> findFirstByIncomingFileset_SchoolIDAndIncomingFileset_FilesetStatusCodeAndPenAndStudentStatusCodeNotOrderByCreateDateDesc(UUID schoolID, String filesetStatusCode, String pen, String studentStatusCode);

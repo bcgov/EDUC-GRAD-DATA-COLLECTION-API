@@ -20,6 +20,5 @@ public interface CourseStudentMapper {
     @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
     CourseStudent toCourseStudent(FinalCourseStudentEntity courseStudentEntity);
 
-    @Mapping(target = "incomingFilesetID", source = "incomingFileset.incomingFilesetID")
     CourseStudent toCourseStudent(CourseStudentLightEntity courseStudentEntity);
 }

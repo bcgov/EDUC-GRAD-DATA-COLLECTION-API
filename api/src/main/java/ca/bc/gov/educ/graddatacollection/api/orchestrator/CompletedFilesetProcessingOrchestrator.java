@@ -110,18 +110,18 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
         
         var incomingFileset = incomingFilesetService.getIncomingFileset(incomingFilesetSagaData.getIncomingFilesetID());
 
-        var incomingFileset = demographicStudentService.getDemStudent(incomingFilesetSagaData.getIncomingFilesetID());
+        var demStudent = demographicStudentService.getAnyDemStudentInFileset(incomingFilesetSagaData.getIncomingFilesetID());
 
         School school = restUtils.getSchoolFromSchoolID(incomingFileset.getSchoolID(), UUID.randomUUID());
         final Event.EventBuilder eventBuilder = Event.builder();
 
-        if (school != null && (
-                (school.getVendorSourceSystemCode() == null && incomingFilesetSagaData.getDemographicStudent() != null && incomingFilesetSagaData.getDemographicStudent().getVendorID() != null) ||
-                        ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
-                        (!"M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode()))
+        if (demStudent.isPresent() && school != null && (
+                (school.getVendorSourceSystemCode() == null && demStudent.get().getVendorID() != null) ||
+                        ("M".equalsIgnoreCase(demStudent.get().getVendorID()) && !"MYED".equalsIgnoreCase(school.getVendorSourceSystemCode())) ||
+                        (!"M".equalsIgnoreCase(demStudent.get().getVendorID()) && "MYED".equalsIgnoreCase(school.getVendorSourceSystemCode()))
         )) {
-            log.debug("Vendor code needs to be updated for school ID: {}. Current: {}, New: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), school.getVendorSourceSystemCode(), incomingFilesetSagaData.getDemographicStudent().getVendorID());
-            if ("M".equalsIgnoreCase(incomingFilesetSagaData.getDemographicStudent().getVendorID())) {
+            log.debug("Vendor code needs to be updated for school ID: {}. Current: {}, New: {}", incomingFileset.getSchoolID(), school.getVendorSourceSystemCode(), demStudent.get().getVendorID());
+            if ("M".equalsIgnoreCase(demStudent.get().getVendorID())) {
                 school.setVendorSourceSystemCode("MYED");
             } else {
                 school.setVendorSourceSystemCode("OTHER");
@@ -129,13 +129,13 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
             InstituteStatusEvent response = restUtils.updateSchool(school, UUID.randomUUID());
 
             if (!response.getEventOutcome().equalsIgnoreCase(EventOutcome.SCHOOL_UPDATED.toString())) {
-                log.error("Update vendor code failed for school {}. Response: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID(), response);
+                log.error("Update vendor code failed for school {}. Response: {}", incomingFileset.getSchoolID(), response);
                 throw new GradDataCollectionAPIRuntimeException("Failed to update vendor code: " + response);
             }
             eventBuilder.sagaId(saga.getSagaId()).eventType(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED);
             eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED);
         } else {
-            log.debug("Vendor code does not need to be updated for school ID: {}", incomingFilesetSagaData.getIncomingFileset().getSchoolID());
+            log.debug("Vendor code does not need to be updated for school ID: {}", incomingFileset.getSchoolID());
             eventBuilder.sagaId(saga.getSagaId()).eventType(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED);
             eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
         }

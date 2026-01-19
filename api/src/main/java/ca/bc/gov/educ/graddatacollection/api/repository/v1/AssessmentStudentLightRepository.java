@@ -14,15 +14,21 @@ import java.util.UUID;
 @Repository
 public interface AssessmentStudentLightRepository extends JpaRepository<AssessmentStudentLightEntity, UUID>, JpaSpecificationExecutor<AssessmentStudentLightEntity> {
     @Query(value="""
-    SELECT ase FROM AssessmentStudentLightEntity ase WHERE ase.assessmentStudentID
-    NOT IN (SELECT saga.assessmentStudentID FROM GradSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.assessmentStudentID IS NOT NULL)
-    AND ase.incomingFileset.demFileName is not null
-    AND ase.incomingFileset.crsFileName is not null
-    AND ase.incomingFileset.xamFileName is not null
-    and (select count(ds2) from DemographicStudentEntity ds2 where ds2.studentStatusCode = 'LOADED' and ds2.incomingFileset.incomingFilesetID = ase.incomingFileset.incomingFilesetID) = 0
-    AND ase.studentStatusCode = 'LOADED'
-    order by ase.createDate
-    LIMIT :numberOfStudentsToProcess""")
-    List<AssessmentStudentLightEntity> findTopLoadedAssessmentStudentForProcessing(String numberOfStudentsToProcess);
+    SELECT ase.*
+    FROM assessment_student ase
+    WHERE ase.incoming_fileset_id = :incomingFilesetID
+    AND ase.student_status_code = 'LOADED'
+    AND NOT EXISTS (
+        SELECT 1 FROM grad_saga saga
+        WHERE saga.assessment_student_id = ase.assessment_student_id
+        AND saga.status != 'COMPLETED'
+    )
+    AND NOT EXISTS (
+        SELECT 1 FROM demographic_student ds
+        WHERE ds.incoming_fileset_id = ase.incoming_fileset_id
+        AND ds.student_status_code = 'LOADED'
+    )
+    ORDER BY ase.create_date ASC
+    LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
+    List<AssessmentStudentLightEntity> findTopLoadedAssessmentStudentForProcessing(UUID incomingFilesetID, String numberOfStudentsToProcess);
 }

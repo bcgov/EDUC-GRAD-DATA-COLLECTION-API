@@ -53,7 +53,7 @@ public class EventHandlerService {
   public void handleProcessCompletedFilesetsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS) {
       final IncomingFilesetSagaData sagaData = JsonUtil.getJsonObjectFromString(IncomingFilesetSagaData.class, event.getEventPayload());
-      final var sagaList = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getIncomingFileset().getIncomingFilesetID()), SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      final var sagaList = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(sagaData.getIncomingFilesetID(), SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (!sagaList.isEmpty()) { // possible duplicate message.
         log.trace(NO_EXECUTION_MSG, event);
         return;
@@ -61,7 +61,7 @@ public class EventHandlerService {
       val saga = this.completedFilesetProcessingOrchestrator
               .createSaga(event.getEventPayload(),
                       ApplicationProperties.GRAD_DATA_COLLECTION_API,
-                      UUID.fromString(sagaData.getIncomingFileset().getIncomingFilesetID()),
+                      sagaData.getIncomingFilesetID(),
                       null,
                       null,
                       null);

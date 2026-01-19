@@ -24,12 +24,10 @@ public class CourseStudentLightEntity {
   @UuidGenerator
   @Column(name = "COURSE_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID courseStudentID;
-
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = IncomingFilesetEntity.class)
-  @JoinColumn(name = "INCOMING_FILESET_ID", referencedColumnName = "INCOMING_FILESET_ID", updatable = false)
-  private IncomingFilesetEntity incomingFileset;
+  
+  @NotNull(message = "incomingFilesetID cannot be null")
+  @Column(name = "INCOMING_FILESET_ID")
+  UUID incomingFilesetID;
 
   @NotNull(message = "studentStatusCode cannot be null")
   @Column(name = "STUDENT_STATUS_CODE")

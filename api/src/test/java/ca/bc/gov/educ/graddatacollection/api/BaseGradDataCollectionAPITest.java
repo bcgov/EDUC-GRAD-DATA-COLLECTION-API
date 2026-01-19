@@ -533,7 +533,7 @@ public abstract class BaseGradDataCollectionAPITest {
             .sagaName(SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString())
             .status(SagaStatusEnum.IN_PROGRESS.toString())
             .sagaState(EventType.INITIATED.toString())
-            .payload(JsonUtil.getJsonStringFromObject(IncomingFilesetSagaData.builder().incomingFileset(incomingFileset).demographicStudent(demographicStudent).build()))
+            .payload(JsonUtil.getJsonStringFromObject(IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(incomingFileset.getIncomingFilesetID())).build()))
             .build();
   }
 
