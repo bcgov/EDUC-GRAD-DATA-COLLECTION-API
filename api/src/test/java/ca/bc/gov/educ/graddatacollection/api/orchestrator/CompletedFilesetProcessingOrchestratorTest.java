@@ -143,7 +143,7 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(DELETE_FILESET_FROM_STAGING_TABLE.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED.toString());
         
         var allSets = incomingFilesetRepository.findAll();
         assertThat(allSets.size()).isZero();
