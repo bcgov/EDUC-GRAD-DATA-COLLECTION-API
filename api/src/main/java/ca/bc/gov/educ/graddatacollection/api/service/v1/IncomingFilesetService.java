@@ -151,6 +151,8 @@ public class IncomingFilesetService {
         });
 
         finalFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
+        staged.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
+        incomingFilesetRepository.save(staged);
         finalIncomingFilesetRepository.save(finalFileset);
     }
 
