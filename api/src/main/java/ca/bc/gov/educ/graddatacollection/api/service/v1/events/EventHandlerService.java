@@ -52,12 +52,16 @@ public class EventHandlerService {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleProcessCompletedFilesetsEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS) {
+      log.info("Read completed filesets for processing event {}", event.getSagaId());
       final IncomingFilesetSagaData sagaData = JsonUtil.getJsonObjectFromString(IncomingFilesetSagaData.class, event.getEventPayload());
+      log.info("Querying for sagas for event {}", event.getSagaId());
       final var sagaList = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(sagaData.getIncomingFilesetID(), SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      log.info("Querying complete sagas for event {}, found sagaList {}", event.getSagaId(), sagaList.size());
       if (!sagaList.isEmpty()) { // possible duplicate message.
         log.info(NO_EXECUTION_MSG, event);
         return;
       }
+      log.info("Creating sagas for event {}", event.getSagaId());
       val saga = this.completedFilesetProcessingOrchestrator
               .createSaga(event.getEventPayload(),
                       ApplicationProperties.GRAD_DATA_COLLECTION_API,
@@ -65,7 +69,7 @@ public class EventHandlerService {
                       null,
                       null,
                       null);
-      log.debug("Starting incoming fileset processing orchestrator :: {}", saga);
+      log.info("Starting incoming fileset processing orchestrator :: {}", saga);
       this.completedFilesetProcessingOrchestrator.startSaga(saga);
     }
   }
