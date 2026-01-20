@@ -44,37 +44,20 @@ public class CompletedFilesetProcessingOrchestrator extends BaseOrchestrator<Inc
     @Override
     public void populateStepsToExecuteMap() {
         this.stepBuilder()
-                .begin(UPDATE_COMPLETED_FILESET_STATUS, this::updateCompletedFilesetStatus)
-                .step(UPDATE_COMPLETED_FILESET_STATUS, COMPLETED_FILESET_STATUS_UPDATED, COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE, this::copyFilesetToFinalTableFromStaging)
+                .begin(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE, this::copyFilesetToFinalTableFromStagingAndMarkComplete)
                 .step(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE, COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE, CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, this::checkVendorSourceSystemCodeInInstituteAndUpdateVendorCodeIfRequired)
                 .step(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, COMPLETED_FILESET_STATUS_AND_SOURCE_SYSTEM_VENDOR_CODE_UPDATED, DELETE_FILESET_FROM_STAGING_TABLE,  this::deleteFilesetFromStaging)
                 .step(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED, COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE, DELETE_FILESET_FROM_STAGING_TABLE, this::deleteFilesetFromStaging)
                 .end(DELETE_FILESET_FROM_STAGING_TABLE, DELETE_FILESET_FROM_STAGING_COMPLETE);
     }
 
-    public void updateCompletedFilesetStatus(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
-        final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-        saga.setSagaState(UPDATE_COMPLETED_FILESET_STATUS.toString());
-        saga.setStatus(IN_PROGRESS.toString());
-        this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-
-        incomingFilesetService.setCompletedFilesetStatus(incomingFilesetSagaData.getIncomingFilesetID(), FilesetStatus.COMPLETED);
-
-        final Event.EventBuilder eventBuilder = Event.builder();
-        eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_COMPLETED_FILESET_STATUS);
-        eventBuilder.eventOutcome(COMPLETED_FILESET_STATUS_UPDATED);
-        val nextEvent = eventBuilder.build();
-        this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-        log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
-    }
-
-    public void copyFilesetToFinalTableFromStaging(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
+    public void copyFilesetToFinalTableFromStagingAndMarkComplete(final Event event, final GradSagaEntity saga, final IncomingFilesetSagaData incomingFilesetSagaData) {
         final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
         saga.setSagaState(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE.toString());
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        incomingFilesetService.copyFilesetFromStagingToFinal(incomingFilesetSagaData.getIncomingFilesetID());
+        incomingFilesetService.copyFilesetFromStagingToFinalAndMarkComplete(incomingFilesetSagaData.getIncomingFilesetID());
 
         final Event.EventBuilder eventBuilder = Event.builder();
         eventBuilder.sagaId(saga.getSagaId()).eventType(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE);

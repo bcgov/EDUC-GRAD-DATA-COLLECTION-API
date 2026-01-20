@@ -103,13 +103,13 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
 
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COMPLETED_FILESET_STATUS_UPDATED);
+        assertThat(newEvent.getEventType()).isEqualTo(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE);
 
         val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_COMPLETED_FILESET_STATUS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE.toString());
     }
 
     @SneakyThrows

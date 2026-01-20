@@ -100,16 +100,6 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         verify(messagePublisher, times(1)).dispatchMessage(any(String.class), any(byte[].class));
     }
 
-    @Test
-    void testSetCompletedFilesetStatus() {
-        var mockFileset = this.setupMockIncomingFileset(true, LocalDateTime.now());
-        UUID filesetID = mockFileset.getIncomingFilesetID();
-        incomingFilesetService.setCompletedFilesetStatus(filesetID, FilesetStatus.COMPLETED);
-        var updated = incomingFilesetRepository.findById(filesetID);
-        assertThat(updated).isPresent();
-        assertThat(updated.get().getFilesetStatusCode()).isEqualTo(FilesetStatus.COMPLETED.getCode());
-    }
-
     private IncomingFilesetEntity setupMockIncomingFileset(boolean allFilesUploaded, LocalDateTime timestamp) {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");

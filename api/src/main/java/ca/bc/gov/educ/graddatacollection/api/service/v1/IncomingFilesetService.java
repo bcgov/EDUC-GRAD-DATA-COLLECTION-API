@@ -89,17 +89,7 @@ public class IncomingFilesetService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void setCompletedFilesetStatus(final UUID incomingFilesetID, final FilesetStatus filesetStatus) {
-        log.info("Setting completed status for fileset: {}", incomingFilesetID);
-        var incomingFilesetEntity = this.incomingFilesetRepository.findById(incomingFilesetID)
-                .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
-        incomingFilesetEntity.setFilesetStatusCode(filesetStatus.getCode());
-        incomingFilesetEntity.setUpdateDate(LocalDateTime.now());
-        this.incomingFilesetRepository.save(incomingFilesetEntity);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void copyFilesetFromStagingToFinal(final UUID incomingFilesetID) {
+    public void copyFilesetFromStagingToFinalAndMarkComplete(final UUID incomingFilesetID) {
         log.debug("Copying fileset from staging to final {}", incomingFilesetID);
 
         var staged = this.incomingFilesetRepository.findById(incomingFilesetID)
@@ -160,6 +150,7 @@ public class IncomingFilesetService {
             finalFileset.getErrorFilesetStudentEntities().add(finalError);
         });
 
+        finalFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
         finalIncomingFilesetRepository.save(finalFileset);
     }
 
