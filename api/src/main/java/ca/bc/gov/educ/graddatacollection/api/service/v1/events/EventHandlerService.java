@@ -55,7 +55,7 @@ public class EventHandlerService {
       final IncomingFilesetSagaData sagaData = JsonUtil.getJsonObjectFromString(IncomingFilesetSagaData.class, event.getEventPayload());
       final var sagaList = this.getSagaService().findByIncomingFilesetIDAndSagaNameAndStatusNot(sagaData.getIncomingFilesetID(), SagaEnum.PROCESS_COMPLETED_FILESETS_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (!sagaList.isEmpty()) { // possible duplicate message.
-        log.trace(NO_EXECUTION_MSG, event);
+        log.info(NO_EXECUTION_MSG, event);
         return;
       }
       val saga = this.completedFilesetProcessingOrchestrator

@@ -1,0 +1,1 @@
+CREATE INDEX incoming_fileset_id_status_saga_name_idx ON api_grad_data_collection.grad_saga USING btree (incoming_fileset_id, status, saga_name)
