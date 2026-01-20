@@ -130,20 +130,20 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(EventType.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE)
-                .eventOutcome(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE)
+                .eventType(EventType.CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED)
+                .eventOutcome(EventOutcome.COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         completedFilesetProcessingOrchestrator.handleEvent(event);
 
         verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(COMPLETED_FILESET_STATUS_UPDATED_SOURCE_SYSTEM_VENDOR_CODE_DOES_NOT_NEED_UPDATE);
+        assertThat(newEvent.getEventType()).isEqualTo(DELETE_FILESET_FROM_STAGING_TABLE);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(DELETE_FILESET_FROM_STAGING_COMPLETE);
 
         val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CHECK_SOURCE_SYSTEM_VENDOR_CODE_IN_INSTITUTE_AND_UPDATE_IF_REQUIRED.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(DELETE_FILESET_FROM_STAGING_TABLE.toString());
         
         var allSets = incomingFilesetRepository.findAll();
         assertThat(allSets.size()).isZero();
