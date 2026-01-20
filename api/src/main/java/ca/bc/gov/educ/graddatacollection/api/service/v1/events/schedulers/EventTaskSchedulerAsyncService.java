@@ -142,6 +142,9 @@ public class EventTaskSchedulerAsyncService {
       if (!courseStudentEntitiesToUpdate.isEmpty()) {
         this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate, filesetID);
       }
+      
+      //If we get here the fileset is ready to be completed
+//      this.incomingFilesetLightRepository.updateFilesetToFinalizing(nextIncomingFilesetToProcess.get().getIncomingFilesetID());
     }
   }
 

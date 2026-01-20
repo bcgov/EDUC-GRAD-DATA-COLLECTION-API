@@ -53,11 +53,15 @@ public class MessageSubscriber {
   public MessageHandler onMessage(final EventHandler eventHandler) {
     return (Message message) -> {
       if (message != null) {
-        log.debug("Message received subject :: {},  replyTo :: {}, subscriptionID :: {}", message.getSubject(), message.getReplyTo(), message.getSID());
+        log.info("Message received subject :: {},  replyTo :: {}, subscriptionID :: {}", message.getSubject(), message.getReplyTo(), message.getSID());
         try {
+          log.info("Reading string for message");
           final var eventString = new String(message.getData());
+          log.info("logMessagingEventDetails for message");
           LogHelper.logMessagingEventDetails(eventString);
+          log.info("getJsonObjectFromString for message");
           final var event = JsonUtil.getJsonObjectFromString(Event.class, eventString);
+          log.info("handle event for message");
           eventHandler.handleEvent(event);
         } catch (final Exception e) {
           log.error("Exception ", e);
