@@ -97,48 +97,48 @@ public class EventTaskSchedulerAsyncService {
       return;
     }
 
-    log.debug("Query for completed records start");
+    log.info("Query for completed records start");
     var completedFilesets = this.incomingFilesetLightRepository.findCompletedCollectionsForStatusUpdate();
-    log.debug("Query for completed records complete, found {} records", completedFilesets.size());
+    log.info("Query for completed records complete, found {} records", completedFilesets.size());
     if (!completedFilesets.isEmpty()) {
       this.incomingFilesetService.prepareAndSendCompletedFilesetsForFurtherProcessing(completedFilesets);
       return;
     }
 
-    log.debug("Query for fileset to process start");
+    log.info("Query for fileset to process start");
     var nextIncomingFilesetToProcess = this.incomingFilesetLightRepository.findNextReadyCollectionForProcessing();
-    log.debug("Query for completed records complete, found record? {}", nextIncomingFilesetToProcess.isPresent());
+    log.info("Query for completed records complete, found record? {}", nextIncomingFilesetToProcess.isPresent());
     
     if(nextIncomingFilesetToProcess.isPresent()) {
       var filesetID = nextIncomingFilesetToProcess.get().getIncomingFilesetID();
 
-      log.debug("Query for demog students in fileset {} start", filesetID);
+      log.info("Query for demog students in fileset {} start", filesetID);
       final var demographicStudentEntities = this.demographicStudentLightRepository.findTopLoadedDEMStudentForProcessing(filesetID, Integer.parseInt(numberOfStudentsToProcess));
-      log.debug("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
+      log.info("Found :: {} demographic records in loaded status", demographicStudentEntities.size());
       if (!demographicStudentEntities.isEmpty()) {
         this.demographicStudentService.prepareAndSendDemStudentsForFurtherProcessing(demographicStudentEntities, nextIncomingFilesetToProcess.get());
         return;
       }
 
-      log.debug("Query for assessment students in fileset {} start", filesetID);
+      log.info("Query for assessment students in fileset {} start", filesetID);
       final var assessmentStudentEntities = this.assessmentStudentLightRepository.findTopLoadedAssessmentStudentForProcessing(filesetID, Integer.parseInt(numberOfStudentsToProcess));
-      log.debug("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
+      log.info("Found :: {} assessment records in loaded status", assessmentStudentEntities.size());
       if (!assessmentStudentEntities.isEmpty()) {
         this.assessmentStudentService.prepareAndSendAssessmentStudentsForFurtherProcessing(assessmentStudentEntities, nextIncomingFilesetToProcess.get());
         return;
       }
 
-      log.debug("Query for course students in fileset {} start", filesetID);
+      log.info("Query for course students in fileset {} start", filesetID);
       final var courseStudentEntities = this.courseStudentLightRepository.findTopLoadedCRSStudentForProcessing(filesetID, Integer.parseInt(numberOfStudentsToProcess));
-      log.debug("Found :: {} course records in loaded status", courseStudentEntities.size());
+      log.info("Found :: {} course records in loaded status", courseStudentEntities.size());
       if (!courseStudentEntities.isEmpty()) {
         this.courseStudentService.prepareAndSendCourseStudentsForFurtherProcessing(courseStudentEntities, nextIncomingFilesetToProcess.get());
         return;
       }
 
-      log.debug("Query for course student packages in fileset {} start", filesetID);
+      log.info("Query for course student packages in fileset {} start", filesetID);
       final var courseStudentEntitiesToUpdate = this.courseStudentLightRepository.findTopLoadedCRSStudentForDownstreamUpdate(filesetID, Integer.parseInt(numberOfStudentsToProcess));
-      log.debug("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
+      log.info("Found :: {} course student packages in loaded status", courseStudentEntitiesToUpdate.size());
       if (!courseStudentEntitiesToUpdate.isEmpty()) {
         this.courseStudentService.prepareAndSendCourseStudentsForDownstreamProcessing(courseStudentEntitiesToUpdate, filesetID);
       }
