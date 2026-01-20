@@ -78,6 +78,7 @@ public class IncomingFilesetService {
             final Event event = Event.builder().eventType(EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING).eventOutcome(EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS).eventPayload(eventPayload.get()).incomingFilesetID(String.valueOf(incomingFilesetSagaData.getIncomingFilesetID())).build();
             final var eventString = JsonUtil.getJsonString(event);
             if (eventString.isPresent()) {
+                log.info("Dispatching message for completed fileset event {}", incomingFilesetSagaData.getIncomingFilesetID());
                 this.messagePublisher.dispatchMessage(TopicsEnum.READ_COMPLETED_FILESETS_FROM_TOPIC.toString(), eventString.get().getBytes());
             } else {
                 log.error(EVENT_EMPTY_MSG, incomingFilesetSagaData);
