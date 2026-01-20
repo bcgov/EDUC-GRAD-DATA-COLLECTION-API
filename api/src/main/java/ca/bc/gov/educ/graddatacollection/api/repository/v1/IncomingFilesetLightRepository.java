@@ -43,7 +43,6 @@ public interface IncomingFilesetLightRepository extends JpaRepository<IncomingFi
         SELECT 1 FROM grad_saga saga 
         WHERE saga.incoming_fileset_id = inFileset.incoming_fileset_id
         AND saga.status != 'COMPLETED'
-        AND saga.saga_name = 'PROCESS_COMPLETED_FILESETS_SAGA'
     )
     AND NOT EXISTS (
         SELECT 1 FROM demographic_student ds 
