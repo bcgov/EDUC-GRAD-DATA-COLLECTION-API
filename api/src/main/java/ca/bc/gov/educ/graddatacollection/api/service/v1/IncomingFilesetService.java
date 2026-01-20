@@ -89,7 +89,7 @@ public class IncomingFilesetService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void setCompletedFilesetStatus(final UUID incomingFilesetID, final FilesetStatus filesetStatus) {
-        log.debug("Setting completed status for fileset: {}", incomingFilesetID);
+        log.info("Setting completed status for fileset: {}", incomingFilesetID);
         var incomingFilesetEntity = this.incomingFilesetRepository.findById(incomingFilesetID)
                 .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
         incomingFilesetEntity.setFilesetStatusCode(filesetStatus.getCode());
