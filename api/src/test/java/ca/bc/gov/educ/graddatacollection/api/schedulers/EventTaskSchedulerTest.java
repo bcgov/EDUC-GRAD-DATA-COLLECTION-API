@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetPurgeEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
@@ -48,6 +49,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
+    @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
@@ -60,6 +63,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     public void setUp() {
         this.demographicStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
+        this.incomingFilesetPurgeRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.assessmentStudentRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
@@ -191,13 +195,20 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     void testSetupReportingPeriodForUpcomingYearAndOldFilesets() {
         var pe = reportingPeriodRepository.save(createMockReportingPeriodEntity());
 
-        var fileset = createMockIncomingFilesetEntityWithAllFilesLoaded(pe);
-        fileset.setCreateDate(LocalDateTime.now().minusYears(6));
-        incomingFilesetRepository.save(fileset);
+        var fileset = FinalIncomingFilesetPurgeEntity.builder()
+                .demFileName("Test.dem")
+                .xamFileName("Test.xam")
+                .crsFileName("Test.crs")
+                .filesetStatusCode("LOADED")
+                .reportingPeriod(pe)
+                .createDate(LocalDateTime.now().minusYears(6))
+                .updateDate(LocalDateTime.now())
+                .build();
+        incomingFilesetPurgeRepository.save(fileset);
 
         eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
 
-        var incomingSets = incomingFilesetRepository.findAll();
+        var incomingSets = incomingFilesetPurgeRepository.findAll();
         assertThat(incomingSets).hasSize(0);
     }
 }
