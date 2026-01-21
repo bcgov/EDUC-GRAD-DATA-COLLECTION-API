@@ -2,8 +2,10 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetPurgeEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPurgeRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
@@ -34,44 +36,47 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
+    IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
+    @Autowired
     ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
     public void setUp() {
         this.incomingFilesetRepository.deleteAll();
+        this.incomingFilesetPurgeRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
 
     @Test
     void testStaleIncomingFilesetsArePurged() {
-        var mockFileset = this.setupMockIncomingFileset(false, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() + 1));
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        var mockFileset = this.setupMockFinalIncomingFileset(false, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() + 1));
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isEmpty();
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isEmpty();
     }
 
     @Test
     void testFreshIncomingFilesetsAreNotPurged() {
-        var mockFileset = this.setupMockIncomingFileset(false, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() - 1));
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        var mockFileset = this.setupMockFinalIncomingFileset(false, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() - 1));
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
     }
 
     @Test
     void testStaleAndLoadedIncomingFilesetsAreNotPurged() {
-        var mockFileset = this.setupMockIncomingFileset(true, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() + 1));
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        var mockFileset = this.setupMockFinalIncomingFileset(true, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() + 1));
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
     }
 
     @Test
     void testFreshAndLoadedIncomingFilesetsAreNotPurged() {
-        var mockFileset = this.setupMockIncomingFileset(true, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() - 1));
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        var mockFileset = this.setupMockFinalIncomingFileset(true, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() - 1));
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
-        assertThat(incomingFilesetRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
+        assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
     }
 
     @Test
@@ -109,5 +114,26 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         mockFileset.setUpdateDate(timestamp);
 
         return incomingFilesetRepository.save(mockFileset);
+    }
+
+    private FinalIncomingFilesetPurgeEntity setupMockFinalIncomingFileset(boolean allFilesUploaded, LocalDateTime timestamp) {
+        var school = this.createMockSchoolTombstone();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
+
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+
+        var mockFileset = FinalIncomingFilesetPurgeEntity.builder()
+                .schoolID(UUID.fromString(school.getSchoolId()))
+                .demFileName("Test.dem")
+                .xamFileName(allFilesUploaded ? "Test.xam" : null)
+                .crsFileName(allFilesUploaded ? "Test.crs" : null)
+                .filesetStatusCode("LOADED")
+                .reportingPeriod(reportingPeriod)
+                .createDate(timestamp)
+                .updateDate(timestamp)
+                .build();
+
+        return incomingFilesetPurgeRepository.save(mockFileset);
     }
 }
