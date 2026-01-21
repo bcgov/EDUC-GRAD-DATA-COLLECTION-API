@@ -107,7 +107,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             school_certificate_completion_date, STUDENT_STATUS, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
+            DEMOGRAPHIC_STUDENT_ID,
             :filesetId,
             STUDENT_STATUS_CODE, TRANSACTION_ID, VENDOR_ID,
             LOCAL_ID, PEN, LAST_NAME, MIDDLE_NAME, FIRST_NAME, ADDRESS1, ADDRESS2, CITY, PROVINCIAL_CODE,
@@ -128,13 +128,12 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
-            fds.DEMOGRAPHIC_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
-            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
-            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            dvi.DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE_ID,
+            dvi.DEMOGRAPHIC_STUDENT_ID, dvi.VALIDATION_ISSUE_SEVERITY_CODE,
+            dvi.VALIDATION_ISSUE_CODE, dvi.VALIDATION_ISSUE_FIELD_CODE, dvi.VALIDATION_ISSUE_DESCRIPTION,
+            dvi.CREATE_USER, dvi.CREATE_DATE, dvi.UPDATE_USER, dvi.UPDATE_DATE
         FROM DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE dvi
         INNER JOIN DEMOGRAPHIC_STUDENT ds ON dvi.DEMOGRAPHIC_STUDENT_ID = ds.DEMOGRAPHIC_STUDENT_ID
-        INNER JOIN FINAL_DEMOGRAPHIC_STUDENT fds ON ds.DEMOGRAPHIC_STUDENT_ID = fds.DEMOGRAPHIC_STUDENT_ID
         WHERE ds.INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
     int copyDemographicValidationIssues(
@@ -150,7 +149,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
+            COURSE_STUDENT_ID,
             :filesetId,
             STUDENT_STATUS_CODE, TRANSACTION_ID, LOCAL_ID, VENDOR_ID,
             PEN, COURSE_CODE, COURSE_LEVEL, COURSE_YEAR, COURSE_MONTH, INTERIM_PERCENTAGE, INTERIM_GRADE,
@@ -171,13 +170,12 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
-            fcs.COURSE_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
-            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
-            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            cvi.COURSE_STUDENT_VALIDATION_ISSUE_ID,
+            cvi.COURSE_STUDENT_ID, cvi.VALIDATION_ISSUE_SEVERITY_CODE,
+            cvi.VALIDATION_ISSUE_CODE, cvi.VALIDATION_ISSUE_FIELD_CODE, cvi.VALIDATION_ISSUE_DESCRIPTION,
+            cvi.CREATE_USER, cvi.CREATE_DATE, cvi.UPDATE_USER, cvi.UPDATE_DATE
         FROM COURSE_STUDENT_VALIDATION_ISSUE cvi
         INNER JOIN COURSE_STUDENT cs ON cvi.COURSE_STUDENT_ID = cs.COURSE_STUDENT_ID
-        INNER JOIN FINAL_COURSE_STUDENT fcs ON cs.COURSE_STUDENT_ID = fcs.COURSE_STUDENT_ID
         WHERE cs.INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
     int copyCourseValidationIssues(
@@ -194,7 +192,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
+            ASSESSMENT_STUDENT_ID,
             :filesetId,
             ASSESSMENT_ID, STUDENT_STATUS_CODE, TRANSACTION_ID,
             VENDOR_ID, LOCAL_ID, PEN, COURSE_CODE, COURSE_YEAR, COURSE_MONTH, IS_ELECTRONIC_EXAM,
@@ -216,13 +214,12 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
-            fas.ASSESSMENT_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
-            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
-            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            avi.ASSESSMENT_STUDENT_VALIDATION_ISSUE_ID,
+            avi.ASSESSMENT_STUDENT_ID, avi.VALIDATION_ISSUE_SEVERITY_CODE,
+            avi.VALIDATION_ISSUE_CODE, avi.VALIDATION_ISSUE_FIELD_CODE, avi.VALIDATION_ISSUE_DESCRIPTION,
+            avi.CREATE_USER, avi.CREATE_DATE, avi.UPDATE_USER, avi.UPDATE_DATE
         FROM ASSESSMENT_STUDENT_VALIDATION_ISSUE avi
         INNER JOIN ASSESSMENT_STUDENT asst ON avi.ASSESSMENT_STUDENT_ID = asst.ASSESSMENT_STUDENT_ID
-        INNER JOIN FINAL_ASSESSMENT_STUDENT fas ON asst.ASSESSMENT_STUDENT_ID = fas.ASSESSMENT_STUDENT_ID
         WHERE asst.INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
     int copyAssessmentValidationIssues(
@@ -235,7 +232,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
         )
         SELECT 
-            gen_random_uuid(),
+            ERROR_FILESET_STUDENT_ID,
             :filesetId,
             PEN, LOCAL_ID, LAST_NAME, FIRST_NAME, BIRTHDATE,
             CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
