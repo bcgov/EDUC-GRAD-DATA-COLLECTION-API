@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,4 +76,174 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     OR (select count(as2) from AssessmentStudentEntity as2 where as2.studentStatusCode = 'LOADED' and as2.incomingFileset.incomingFilesetID = inFileset.incomingFilesetID) > 0)
     """)
     long findPositionInQueueByUpdateDate(LocalDateTime updateDate);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_INCOMING_FILESET (
+            INCOMING_FILESET_ID, SCHOOL_ID, DISTRICT_ID, DEM_FILE_NAME, DEM_FILE_DATE_UPLOADED,
+            XAM_FILE_NAME, XAM_FILE_DATE_UPLOADED, CRS_FILE_NAME, CRS_FILE_DATE_UPLOADED,
+            FILESET_STATUS_CODE, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE, CSV_FILE_NAME,
+            REPORTING_PERIOD_ID
+        )
+        SELECT 
+            gen_random_uuid(), SCHOOL_ID, DISTRICT_ID, DEM_FILE_NAME, DEM_FILE_DATE_UPLOADED,
+            XAM_FILE_NAME, XAM_FILE_DATE_UPLOADED, CRS_FILE_NAME, CRS_FILE_DATE_UPLOADED,
+            :filesetStatus, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE, CSV_FILE_NAME,
+            REPORTING_PERIOD_ID
+        FROM INCOMING_FILESET
+        WHERE INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyFilesetParent(
+            @Param("filesetId") UUID filesetId,
+            @Param("filesetStatus") String filesetStatus);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_DEMOGRAPHIC_STUDENT (
+            DEMOGRAPHIC_STUDENT_ID, INCOMING_FILESET_ID, PEN, LEGAL_FIRST_NAME, LEGAL_MIDDLE_NAMES,
+            LEGAL_LAST_NAME, DOB, SEX_CODE, GRADE_CODE, MINCODE, LOCAL_ID, CREATE_USER, CREATE_DATE,
+            UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            :filesetId,
+            PEN, LEGAL_FIRST_NAME, LEGAL_MIDDLE_NAMES, LEGAL_LAST_NAME, DOB, SEX_CODE, GRADE_CODE,
+            MINCODE, LOCAL_ID, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM DEMOGRAPHIC_STUDENT
+        WHERE INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyDemographicStudents(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE (
+            DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE_ID, DEMOGRAPHIC_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
+            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            fds.DEMOGRAPHIC_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
+            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE dvi
+        INNER JOIN DEMOGRAPHIC_STUDENT ds ON dvi.DEMOGRAPHIC_STUDENT_ID = ds.DEMOGRAPHIC_STUDENT_ID
+        INNER JOIN FINAL_DEMOGRAPHIC_STUDENT fds ON ds.DEMOGRAPHIC_STUDENT_ID = fds.DEMOGRAPHIC_STUDENT_ID
+        WHERE ds.INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyDemographicValidationIssues(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_COURSE_STUDENT (
+            COURSE_STUDENT_ID, INCOMING_FILESET_ID, PEN, COURSE_CODE, COURSE_LEVEL, COMPLETION_CODE,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            :filesetId,
+            PEN, COURSE_CODE, COURSE_LEVEL, COMPLETION_CODE,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM COURSE_STUDENT
+        WHERE INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyCourseStudents(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_COURSE_STUDENT_VALIDATION_ISSUE (
+            COURSE_STUDENT_VALIDATION_ISSUE_ID, COURSE_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
+            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            fcs.COURSE_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
+            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM COURSE_STUDENT_VALIDATION_ISSUE cvi
+        INNER JOIN COURSE_STUDENT cs ON cvi.COURSE_STUDENT_ID = cs.COURSE_STUDENT_ID
+        INNER JOIN FINAL_COURSE_STUDENT fcs ON cs.COURSE_STUDENT_ID = fcs.COURSE_STUDENT_ID
+        WHERE cs.INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyCourseValidationIssues(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_ASSESSMENT_STUDENT (
+            ASSESSMENT_STUDENT_ID, INCOMING_FILESET_ID, PEN, ASSESSMENT_CODE, COMPLETION_CODE,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            :filesetId,
+            PEN, ASSESSMENT_CODE, COMPLETION_CODE,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM ASSESSMENT_STUDENT
+        WHERE INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyAssessmentStudents(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_ASSESSMENT_STUDENT_VALIDATION_ISSUE (
+            ASSESSMENT_STUDENT_VALIDATION_ISSUE_ID, ASSESSMENT_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
+            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            fas.ASSESSMENT_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
+            VALIDATION_ISSUE_CODE, VALIDATION_ISSUE_FIELD_CODE, VALIDATION_ISSUE_DESCRIPTION,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM ASSESSMENT_STUDENT_VALIDATION_ISSUE avi
+        INNER JOIN ASSESSMENT_STUDENT asst ON avi.ASSESSMENT_STUDENT_ID = asst.ASSESSMENT_STUDENT_ID
+        INNER JOIN FINAL_ASSESSMENT_STUDENT fas ON asst.ASSESSMENT_STUDENT_ID = fas.ASSESSMENT_STUDENT_ID
+        WHERE asst.INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyAssessmentValidationIssues(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO FINAL_ERROR_FILESET_STUDENT (
+            ERROR_FILESET_STUDENT_ID, INCOMING_FILESET_ID, PEN, LOCAL_ID, LAST_NAME, FIRST_NAME, BIRTHDATE,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        )
+        SELECT 
+            gen_random_uuid(),
+            :filesetId,
+            PEN, LOCAL_ID, LAST_NAME, FIRST_NAME, BIRTHDATE,
+            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+        FROM ERROR_FILESET_STUDENT
+        WHERE INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int copyErrorFilesetStudents(
+            @Param("filesetId") UUID filesetId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE INCOMING_FILESET 
+        SET FILESET_STATUS_CODE = :filesetStatus,
+            UPDATE_DATE = NOW()
+        WHERE INCOMING_FILESET_ID = :filesetId
+        """, nativeQuery = true)
+    int markStagedFilesetComplete(
+            @Param("filesetId") UUID filesetId,
+            @Param("filesetStatus") String filesetStatus);
+    
 }

@@ -92,68 +92,41 @@ public class IncomingFilesetService {
     public void copyFilesetFromStagingToFinalAndMarkComplete(final UUID incomingFilesetID) {
         log.debug("Copying fileset from staging to final {}", incomingFilesetID);
 
-        var staged = this.incomingFilesetRepository.findById(incomingFilesetID)
-                .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
+        // 1. Copy parent fileset
+        int parentsCopied = incomingFilesetRepository.copyFilesetParent(incomingFilesetID, FilesetStatus.COMPLETED.getCode());
+        log.info("Filesets copied: {}", parentsCopied);
 
-        // Map parent entity (without children)
-        var finalFileset = IncomingFilesetMapper.mapper.stagedToEntity(staged);
+        // 2. Copy demographic students and validation issues
+        int demStudentsCopied = incomingFilesetRepository.copyDemographicStudents(incomingFilesetID);
+        log.info("Demographic students copied: {}", demStudentsCopied);
 
-        // Copy demographic students and their validation issues
-        staged.getDemographicStudentEntities().forEach(stagedDemo -> {
-            var finalDemo = IncomingFilesetMapper.mapper.stagedDemographicToEntity(stagedDemo);
-            finalDemo.setIncomingFileset(finalFileset);
+        int demIssuesCopied = incomingFilesetRepository.copyDemographicValidationIssues(incomingFilesetID);
+        log.info("Demographic validation issues copied: {}", demIssuesCopied);
 
-            // Copy validation issues for this demographic student
-            stagedDemo.getDemographicStudentValidationIssueEntities().forEach(stagedIssue -> {
-                var finalIssue = IncomingFilesetMapper.mapper.stagedDemographicValidationIssueToEntity(stagedIssue);
-                finalIssue.setDemographicStudent(finalDemo);
-                finalDemo.getDemographicStudentValidationIssueEntities().add(finalIssue);
-            });
+        // 3. Copy course students and validation issues
+        int courseStudentsCopied = incomingFilesetRepository.copyCourseStudents(incomingFilesetID);
+        log.info("Course students copied: {}", courseStudentsCopied);
 
-            finalFileset.getDemographicStudentEntities().add(finalDemo);
-        });
+        int courseIssuesCopied = incomingFilesetRepository.copyCourseValidationIssues(incomingFilesetID);
+        log.info("Course validation issues copied: {}", courseIssuesCopied);
 
-        // Copy course students and their validation issues
-        staged.getCourseStudentEntities().forEach(stagedCourse -> {
-            var finalCourse = IncomingFilesetMapper.mapper.stagedCourseToEntity(stagedCourse);
-            finalCourse.setIncomingFileset(finalFileset);
+        // 4. Copy assessment students and validation issues
+        int assessmentStudentsCopied = incomingFilesetRepository.copyAssessmentStudents(incomingFilesetID);
+        log.info("Assessment students copied: {}", assessmentStudentsCopied);
 
-            // Copy validation issues for this course student
-            stagedCourse.getCourseStudentValidationIssueEntities().forEach(stagedIssue -> {
-                var finalIssue = IncomingFilesetMapper.mapper.stagedCourseValidationIssueToEntity(stagedIssue);
-                finalIssue.setCourseStudent(finalCourse);
-                finalCourse.getCourseStudentValidationIssueEntities().add(finalIssue);
-            });
+        int assessmentIssuesCopied = incomingFilesetRepository.copyAssessmentValidationIssues(incomingFilesetID);
+        log.info("Assessment validation issues copied: {}", assessmentIssuesCopied);
 
-            finalFileset.getCourseStudentEntities().add(finalCourse);
-        });
+        // 5. Copy error fileset students
+        int errorStudentsCopied = incomingFilesetRepository.copyErrorFilesetStudents(incomingFilesetID);
+        log.info("Error fileset students copied: {}", errorStudentsCopied);
 
-        // Copy assessment students and their validation issues
-        staged.getAssessmentStudentEntities().forEach(stagedAssessment -> {
-            var finalAssessment = IncomingFilesetMapper.mapper.stagedAssessmentToEntity(stagedAssessment);
-            finalAssessment.setIncomingFileset(finalFileset);
+        // 6. Mark fileset as complete
+        incomingFilesetRepository.markStagedFilesetComplete(incomingFilesetID, FilesetStatus.COMPLETED.getCode());
 
-            // Copy validation issues for this assessment student
-            stagedAssessment.getAssessmentStudentValidationIssueEntities().forEach(stagedIssue -> {
-                var finalIssue = IncomingFilesetMapper.mapper.stagedAssessmentValidationIssueToEntity(stagedIssue);
-                finalIssue.setAssessmentStudent(finalAssessment);
-                finalAssessment.getAssessmentStudentValidationIssueEntities().add(finalIssue);
-            });
+        log.info("Fileset copy completed successfully for {} - Total: {} demographic, {} course, {} assessment, {} errors",
+                incomingFilesetID, demStudentsCopied, courseStudentsCopied, assessmentStudentsCopied, errorStudentsCopied);
 
-            finalFileset.getAssessmentStudentEntities().add(finalAssessment);
-        });
-
-        // Copy error fileset students
-        staged.getErrorFilesetStudentEntities().forEach(stagedError -> {
-            var finalError = IncomingFilesetMapper.mapper.stagedErrorToEntity(stagedError);
-            finalError.setIncomingFileset(finalFileset);
-            finalFileset.getErrorFilesetStudentEntities().add(finalError);
-        });
-
-        finalFileset.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
-        staged.setFilesetStatusCode(FilesetStatus.COMPLETED.getCode());
-        incomingFilesetRepository.save(staged);
-        finalIncomingFilesetRepository.save(finalFileset);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
