@@ -46,9 +46,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
             .end(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
             .or()
             .step(CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD, DEM_STUDENT_CREATED_IN_GRAD, SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, this::sendStudentAddressToScholarships)
-            .step(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, STUDENT_ADDRESS_UPDATED, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
-            .step(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, NO_STUDENT_ADDRESS_UPDATE_REQUIRED, UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, this::updateDemStudentStatus)
-            .end(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION, DEM_STUDENT_STATUS_IN_COLLECTION_UPDATED);
+            .end(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, STUDENT_ADDRESS_UPDATE_COMPLETE);
   }
 
   public void validateDEMStudentRecord(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
@@ -63,11 +61,14 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     // call For dem validation
     var validationErrors = demographicStudentService.validateStudent(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), demographicStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
+      demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.ERROR);
       eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR);
     } else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()))) {
       demographicStudentService.flagErrorOnStudent(demographicStudentSagaData.getDemographicStudent());
+      demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.VERIFIED);
       eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR);
     } else {
+      demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.VERIFIED);
       eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR);
     }
 
@@ -94,22 +95,6 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void updateDemStudentStatus(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION.toString());
-    saga.setStatus(IN_PROGRESS.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-
-    demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.VERIFIED);
-
-    final Event.EventBuilder eventBuilder = Event.builder();
-    eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_DEM_STUDENT_STATUS_IN_COLLECTION);
-    eventBuilder.eventOutcome(DEM_STUDENT_STATUS_IN_COLLECTION_UPDATED);
-    val nextEvent = eventBuilder.build();
-    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
-  }
-
   public void sendStudentAddressToScholarships(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS.toString());
@@ -123,10 +108,8 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
       Student studentApiStudent = restUtils.getStudentByPEN(UUID.randomUUID(), demographicStudentSagaData.getDemographicStudent().getPen());
       updateAddressFieldsIfNeeded(demographicStudentSagaData.getDemographicStudent());
       restUtils.writeStudentAddressToScholarships(demographicStudentSagaData.getDemographicStudent(), studentApiStudent.getStudentID());
-      eventBuilder.eventOutcome(STUDENT_ADDRESS_UPDATED);
-    }else{
-      eventBuilder.eventOutcome(NO_STUDENT_ADDRESS_UPDATE_REQUIRED);
     }
+    eventBuilder.eventOutcome(STUDENT_ADDRESS_UPDATED);
     
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);

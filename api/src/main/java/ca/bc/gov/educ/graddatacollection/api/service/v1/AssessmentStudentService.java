@@ -100,9 +100,6 @@ public class AssessmentStudentService {
         var entity = studentRuleData.getAssessmentStudentEntity();
         entity.getAssessmentStudentValidationIssueEntities().clear();
         entity.getAssessmentStudentValidationIssueEntities().addAll(populateValidationErrors(validationErrors, entity));
-        if(validationErrors.stream().anyMatch(val -> val.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
-            entity.setStudentStatusCode(SchoolStudentStatus.ERROR.getCode());
-        }
         return validationErrors;
     }
 

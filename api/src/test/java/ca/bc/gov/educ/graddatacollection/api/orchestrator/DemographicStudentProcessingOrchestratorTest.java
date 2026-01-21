@@ -74,7 +74,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         sagaRepository.deleteAll();
         courseStudentRepository.deleteAll();
         demographicStudentRepository.deleteAll();
-        errorFilesetStudentRepository.deleteAll();
+//        errorFilesetStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
         reportingPeriodRepository.deleteAll();
         JsonMapper.builder()

@@ -26,7 +26,6 @@ public interface CourseStudentLightRepository extends JpaRepository<CourseStuden
         WHERE ds.incoming_fileset_id = cse.incoming_fileset_id
         AND ds.student_status_code = 'LOADED'
     )
-    ORDER BY cse.create_date ASC
     LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
     List<CourseStudentLightEntity> findTopLoadedCRSStudentForProcessing(UUID incomingFilesetID, int numberOfStudentsToProcess);
 

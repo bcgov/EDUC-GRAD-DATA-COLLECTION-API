@@ -97,9 +97,6 @@ public class CourseStudentService {
         var entity = studentRuleData.getCourseStudentEntity();
         entity.getCourseStudentValidationIssueEntities().clear();
         entity.getCourseStudentValidationIssueEntities().addAll(populateValidationErrors(validationErrors, entity));
-        if(validationErrors.stream().anyMatch(val -> val.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
-            entity.setStudentStatusCode(SchoolStudentStatus.ERROR.getCode());
-        }
         return validationErrors;
     }
 

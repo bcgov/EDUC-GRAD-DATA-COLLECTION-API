@@ -54,11 +54,17 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
     @Autowired
     FinalIncomingFilesetRepository finalIncomingFilesetRepository;
     @Autowired
+    FinalErrorFilesetStudentRepository finalErrorFilesetStudentRepository;
+    @Autowired
     IncomingFilesetRepository incomingFilesetRepository;
     @Autowired
     CompletedFilesetProcessingOrchestrator completedFilesetProcessingOrchestrator;
     @Autowired
     ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    @Autowired
+    FinalAssessmentStudentRepository finalAssessmentStudentRepository;
+    @Autowired
+    AssessmentStudentRepository assessmentStudentRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
     @Autowired
@@ -72,6 +78,9 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         sagaRepository.deleteAll();
         courseStudentRepository.deleteAll();
         demographicStudentRepository.deleteAll();
+        assessmentStudentRepository.deleteAll();
+        finalAssessmentStudentRepository.deleteAll();
+        finalErrorFilesetStudentRepository.deleteAll();
         errorFilesetStudentRepository.deleteAll();
         incomingFilesetRepository.deleteAll();
         finalIncomingFilesetRepository.deleteAll();

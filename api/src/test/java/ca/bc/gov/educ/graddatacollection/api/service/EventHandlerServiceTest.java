@@ -63,10 +63,17 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
     ReportingPeriodRepository reportingPeriodRepository;
     @Autowired
     EventHandlerService eventHandlerService;
+    @Autowired
+    private ErrorFilesetStudentRepository errorFilesetStudentRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        assessmentStudentRepository.deleteAll();
+        courseStudentRepository.deleteAll();
+        demographicStudentRepository.deleteAll();
+        errorFilesetStudentRepository.deleteAll();
+        incomingFilesetRepository.deleteAll();
     }
 
     @Test
@@ -138,7 +145,7 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         courseStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
 
         courseStudentRepository.save(courseStudentEntity);
-
+        
         val courseStudent = CourseStudentMapper.mapper.toCourseStudent(courseStudentEntity);
 
         val sagaData = CourseStudentSagaData.builder().courseStudent(courseStudent).school(createMockSchoolTombstone()).build();

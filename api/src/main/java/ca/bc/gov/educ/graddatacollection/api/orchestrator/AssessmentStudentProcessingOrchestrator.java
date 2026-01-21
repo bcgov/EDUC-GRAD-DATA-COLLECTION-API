@@ -44,9 +44,7 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
             .step(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR, PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, this::writeAssessmentStudentRecordInAssessmentService)
             .end(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
             .or()
-            .step(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, ASSESSMENT_STUDENT_REGISTRATION_PROCESSED, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateAssessmentStudentStatus)
-            .step(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, ASSESSMENT_STUDENT_NOT_WRITTEN_DUE_TO_DEM_FILE_ERROR, UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, this::updateAssessmentStudentStatus)
-            .end(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION, ASSESSMENT_STATUS_IN_COLLECTION_UPDATED);
+            .end(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, ASSESSMENT_STUDENT_REGISTRATION_PROCESSED);
   }
 
   public void validateAssessmentStudentRecord(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
@@ -60,11 +58,15 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
 
     var validationErrors = assessmentStudentService.validateStudent(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), assessmentStudentSagaData.getSchool());
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
+      assessmentStudentService.flagErrorOnStudent(assessmentStudentSagaData.getAssessmentStudent());
+      assessmentStudentService.setStudentStatus(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.ERROR);
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
     } else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()))) {
       assessmentStudentService.flagErrorOnStudent(assessmentStudentSagaData.getAssessmentStudent());
+      assessmentStudentService.setStudentStatus(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED);
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
     } else {
+      assessmentStudentService.setStudentStatus(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED);
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
     }
 
@@ -94,24 +96,8 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  public void updateAssessmentStudentStatus(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION.toString());
-    saga.setStatus(IN_PROGRESS.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-
-    assessmentStudentService.setStudentStatus(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED);
-
-    final Event.EventBuilder eventBuilder = Event.builder();
-    eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_ASSESSMENT_STUDENT_STATUS_IN_COLLECTION);
-    eventBuilder.eventOutcome(ASSESSMENT_STATUS_IN_COLLECTION_UPDATED);
-    val nextEvent = eventBuilder.build();
-    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
-  }
-
   private void completeWithError(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
-    assessmentStudentService.flagErrorOnStudent(assessmentStudentSagaData.getAssessmentStudent());
+    //Do nothing here - we already flagged an error
   }
 
 }
