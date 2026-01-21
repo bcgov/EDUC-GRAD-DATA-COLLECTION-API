@@ -2,7 +2,6 @@ package ca.bc.gov.educ.graddatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.MetricsEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.MetricsService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorAndWarningSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;

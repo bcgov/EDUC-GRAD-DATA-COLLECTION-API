@@ -7,7 +7,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
-import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.AssessmentStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.DemographicStudentProcessingOrchestrator;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -21,7 +20,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFilesetSagaData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.val;

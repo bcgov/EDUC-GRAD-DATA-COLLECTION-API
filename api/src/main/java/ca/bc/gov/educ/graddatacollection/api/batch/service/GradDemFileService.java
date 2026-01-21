@@ -37,7 +37,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.*;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.DUPLICATE_PEN_IN_DEM_FILE;
+import static ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError.INVALID_TRANSACTION_CODE_STUDENT_DETAILS_DEM;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.CourseBatchFile.LOCAL_STUDENT_ID;
 import static ca.bc.gov.educ.graddatacollection.api.constants.v1.DEMBatchFile.*;
 import static lombok.AccessLevel.PRIVATE;

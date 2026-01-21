@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.filter;
 
 import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

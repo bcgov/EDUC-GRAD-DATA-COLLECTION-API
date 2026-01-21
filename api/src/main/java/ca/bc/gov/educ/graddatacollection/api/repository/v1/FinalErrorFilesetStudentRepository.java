@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.repository.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalErrorFilesetStudentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

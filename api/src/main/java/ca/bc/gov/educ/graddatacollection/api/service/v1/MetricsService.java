@@ -2,7 +2,6 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ErrorAndWarningSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.FileWarningErrorCounts;

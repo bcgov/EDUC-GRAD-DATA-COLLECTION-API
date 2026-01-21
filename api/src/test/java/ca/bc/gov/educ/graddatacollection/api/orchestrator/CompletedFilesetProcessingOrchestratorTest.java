@@ -9,7 +9,6 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.InstituteStatusEvent;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School;
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,9 +28,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;

@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.*;
+import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.INVALID_PERIOD;
+import static ca.bc.gov.educ.graddatacollection.api.validator.ReportingPeriodValidator.REPORITNG_PERIOD_ID;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ReportingPeriodValidatorTest {
 

@@ -1,6 +1,9 @@
 package ca.bc.gov.educ.graddatacollection.api.struct.v1;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serial;

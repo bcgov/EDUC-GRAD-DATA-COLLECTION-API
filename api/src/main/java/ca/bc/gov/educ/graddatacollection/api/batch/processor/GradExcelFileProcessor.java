@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.graddatacollection.api.batch.constants.ExcelFileType;
-import ca.bc.gov.educ.graddatacollection.api.batch.constants.FileType;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.graddatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.graddatacollection.api.batch.struct.GradFileExcelProcessor;
@@ -9,9 +8,7 @@ import ca.bc.gov.educ.graddatacollection.api.batch.validation.GradFileValidator;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradCollectionStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.graddatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
 import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
 import lombok.Getter;
@@ -24,8 +21,6 @@ import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;

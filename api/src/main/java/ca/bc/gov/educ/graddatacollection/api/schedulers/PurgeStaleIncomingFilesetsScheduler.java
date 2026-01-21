@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.schedulers;
 
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
-import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockAssert;
@@ -26,11 +25,10 @@ public class PurgeStaleIncomingFilesetsScheduler {
      */
     @Scheduled(cron = "${scheduled.jobs.purge.stale.incoming.filesets.cron}")
     @SchedulerLock(name = "PurgeStaleIncomingFilesetsLock", lockAtLeastFor = "${scheduled.jobs.purge.stale.incoming.filesets.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.purge.stale.incoming.filesets.cron.lockAtMostFor}")
-    @Transactional
-    public void purgeStaleIncomingFilesetsRecords() {
+    public void purgeStaleFinalIncomingFilesetsRecords() {
         LockAssert.assertLocked();
         log.info("Purging stale Incoming Filesets records from EDUC-GRAD-DATA-COLLECTION-API.");
-        this.incomingFilesetService.purgeStaleIncomingFilesetRecords();
+        this.incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
         log.info("Finished purging stale Incoming Filesets records from EDUC-GRAD-DATA-COLLECTION-API");
     }
 }

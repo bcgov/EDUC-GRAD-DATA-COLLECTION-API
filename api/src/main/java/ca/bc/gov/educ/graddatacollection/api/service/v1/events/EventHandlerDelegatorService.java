@@ -2,12 +2,8 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1.events;
 
 import ca.bc.gov.educ.graddatacollection.api.choreographer.ChoreographEventHandler;
 import ca.bc.gov.educ.graddatacollection.api.exception.BusinessException;
-import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.messaging.jetstream.Publisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.GDCEvent;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ChoreographedEventPersistenceService;
-import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ChoreographedEvent;
 import io.nats.client.Message;
 import lombok.extern.slf4j.Slf4j;

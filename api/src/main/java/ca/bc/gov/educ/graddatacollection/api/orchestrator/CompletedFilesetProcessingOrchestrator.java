@@ -3,7 +3,6 @@ package ca.bc.gov.educ.graddatacollection.api.orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;

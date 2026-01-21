@@ -6,12 +6,13 @@ import ca.bc.gov.educ.graddatacollection.api.batch.service.ProcessSummerStudentS
 import ca.bc.gov.educ.graddatacollection.api.endpoint.v1.GradFileUploadEndpoint;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.IncomingFileset;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerFileUpload;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SummerStudentDataResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @Slf4j

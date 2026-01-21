@@ -19,9 +19,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @DynamicUpdate
 @Entity
-@Table(name = "INCOMING_FILESET")
+@Table(name = "FINAL_INCOMING_FILESET")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IncomingFilesetPurgeEntity {
+public class FinalIncomingFilesetPurgeEntity {
     @Id
     @UuidGenerator
     @Column(name = "INCOMING_FILESET_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")

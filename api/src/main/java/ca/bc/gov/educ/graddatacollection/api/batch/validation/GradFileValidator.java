@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;

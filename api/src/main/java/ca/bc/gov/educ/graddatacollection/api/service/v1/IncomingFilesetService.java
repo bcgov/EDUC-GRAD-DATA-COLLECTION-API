@@ -5,7 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
@@ -48,8 +47,9 @@ public class IncomingFilesetService {
         return this.incomingFilesetRepository.findById(incomingFilesetID)
                 .orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
     }
-
-    public void purgeStaleIncomingFilesetRecords() {
+    
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void purgeStaleFinalIncomingFilesetRecords() {
         final LocalDateTime oldestIncomingFilesetTimestamp = LocalDateTime.now().minusHours(this.applicationProperties.getIncomingFilesetStaleInHours());
         log.debug("Purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
         this.incomingFilesetPurgeRepository.deleteStaleWithUpdateDateBefore(oldestIncomingFilesetTimestamp);

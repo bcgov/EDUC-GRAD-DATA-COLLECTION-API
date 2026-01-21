@@ -3,8 +3,6 @@ package ca.bc.gov.educ.graddatacollection.api.messaging.jetstream;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GDCEvent;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
-import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ChoreographedEvent;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import io.nats.client.Connection;

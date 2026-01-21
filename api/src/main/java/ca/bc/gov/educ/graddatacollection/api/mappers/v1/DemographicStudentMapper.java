@@ -6,7 +6,6 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentLightEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalDemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
-import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

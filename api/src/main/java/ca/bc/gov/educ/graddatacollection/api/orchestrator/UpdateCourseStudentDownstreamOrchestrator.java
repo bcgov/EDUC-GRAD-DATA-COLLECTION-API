@@ -21,8 +21,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.*;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.COURSE_STUDENT_CREATED_IN_GRAD;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.COURSE_STUDENT_STATUS_UPDATED;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.CREATE_COURSE_STUDENT_IN_GRAD;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.UPDATE_COURSE_STUDENT_STATUS;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 
 @Component

@@ -2,7 +2,9 @@ package ca.bc.gov.educ.graddatacollection.api.mappers.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.mappers.LocalDateTimeMapper;
 import ca.bc.gov.educ.graddatacollection.api.mappers.UUIDMapper;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalAssessmentStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalCourseStudentEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalDemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;

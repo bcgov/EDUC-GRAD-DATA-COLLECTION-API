@@ -2,7 +2,6 @@ package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.filter.FinalErrorFilesetStudentFilterSpecs;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalErrorFilesetStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalErrorFilesetStudentPaginationRepository;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.Search;

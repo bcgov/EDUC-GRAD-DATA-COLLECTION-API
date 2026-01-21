@@ -1,9 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1;
 
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.BaseRequest;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,7 +9,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @SuperBuilder

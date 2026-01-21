@@ -18,6 +18,6 @@ class PurgeStaleIncomingFilesetsSchedulerTest extends BaseGradDataCollectionAPIT
     PurgeStaleIncomingFilesetsScheduler purgeStaleIncomingFilesetsScheduler;
     @Test
     void purgeStaleIncomingFilesetsSchedulerIsTriggered() {
-        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> verify(purgeStaleIncomingFilesetsScheduler, atLeast(1)).purgeStaleIncomingFilesetsRecords());
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> verify(purgeStaleIncomingFilesetsScheduler, atLeast(1)).purgeStaleFinalIncomingFilesetsRecords());
     }
 }

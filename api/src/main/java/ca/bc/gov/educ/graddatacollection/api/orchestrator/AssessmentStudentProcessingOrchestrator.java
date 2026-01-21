@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
-import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.*;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE;
+import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.VALIDATE_ASSESSMENT_STUDENT;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 
 @Component

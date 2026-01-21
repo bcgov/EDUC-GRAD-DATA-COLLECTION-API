@@ -19,6 +19,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.Cit
 import io.nats.client.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -36,8 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-
-import org.mockito.ArgumentCaptor;
 
 class RestUtilsTest {
     @Mock
