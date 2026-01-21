@@ -86,7 +86,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             REPORTING_PERIOD_ID
         )
         SELECT 
-            gen_random_uuid(), SCHOOL_ID, DISTRICT_ID, DEM_FILE_NAME, DEM_FILE_DATE_UPLOADED,
+            :filesetId, SCHOOL_ID, DISTRICT_ID, DEM_FILE_NAME, DEM_FILE_DATE_UPLOADED,
             XAM_FILE_NAME, XAM_FILE_DATE_UPLOADED, CRS_FILE_NAME, CRS_FILE_DATE_UPLOADED,
             :filesetStatus, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE, CSV_FILE_NAME,
             REPORTING_PERIOD_ID
