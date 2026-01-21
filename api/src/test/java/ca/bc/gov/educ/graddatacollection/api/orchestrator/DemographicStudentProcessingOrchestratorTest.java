@@ -262,7 +262,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
 
     @SneakyThrows
     @Test
-    void testHandleEvent_givenEventTypeSEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS_validateDEMStudentRecordWithEventOutCome_STUDENT_ADDRESS_UPDATED() {
+    void testHandleEvent_givenEventTypeSEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS_validateDEMStudentRecordWithEventOutCome_STUDENT_ADDRESS_UPDATE_COMPLETE() {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -308,7 +308,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.demographicStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(EventType.SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_ADDRESS_UPDATED);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_ADDRESS_UPDATE_COMPLETE);
 
         val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
         assertThat(savedSagaInDB).isPresent();
