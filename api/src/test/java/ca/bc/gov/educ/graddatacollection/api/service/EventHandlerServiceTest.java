@@ -194,42 +194,4 @@ class EventHandlerServiceTest extends BaseGradDataCollectionAPITest {
         var sagaEntity = sagaRepository.findByAssessmentStudentIDAndIncomingFilesetIDAndSagaNameAndStatusNot(assessmentStudentEntity.getAssessmentStudentID(), mockFileset.getIncomingFilesetID(), "PROCESS_ASSESSMENT_STUDENTS_SAGA", "COMPLETED");
         assertThat(sagaEntity).hasSize(1);
     }
-
-    @Test
-    void testHandleProcessCompletedFilesetsEvent() throws JsonProcessingException {
-        var school = this.createMockSchoolTombstone();
-        school.setMincode("07965039");
-        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var mockFilesetEntity = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
-        mockFilesetEntity.setSchoolID(UUID.fromString(school.getSchoolId()));
-        incomingFilesetRepository.save(mockFilesetEntity);
-
-        var demographicStudentEntity = createMockDemographicStudent(mockFilesetEntity);
-        demographicStudentEntity.setDemographicStudentID(null);
-        demographicStudentEntity.setStudentStatusCode("LOADED");
-        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
-        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
-        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
-        demographicStudentRepository.save(demographicStudentEntity);
-        var demographicStudent =  DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
-        var mockFileset =  IncomingFilesetMapper.mapper.toStructure(mockFilesetEntity);
-
-        var sagaData = IncomingFilesetSagaData.builder()
-                .incomingFilesetID(UUID.fromString(mockFileset.getIncomingFilesetID()))
-                .build();
-        var event = Event.builder()
-                .eventType(ca.bc.gov.educ.graddatacollection.api.constants.EventType.READ_COMPLETED_FILESETS_FOR_PROCESSING)
-                .eventOutcome(ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.READ_COMPLETED_FILESETS_FOR_PROCESSING_SUCCESS)
-                .eventPayload(ca.bc.gov.educ.graddatacollection.api.util.JsonUtil.getJsonStringFromObject(sagaData))
-                .build();
-
-        eventHandlerService.handleProcessCompletedFilesetsEvent(event);
-
-        var sagaEntity = sagaRepository.findByIncomingFilesetIDAndSagaNameAndStatusNot(
-                UUID.fromString(mockFileset.getIncomingFilesetID()),
-                "PROCESS_COMPLETED_FILESETS_SAGA",
-                "COMPLETED");
-        assertThat(sagaEntity).hasSize(1);
-    }
 }

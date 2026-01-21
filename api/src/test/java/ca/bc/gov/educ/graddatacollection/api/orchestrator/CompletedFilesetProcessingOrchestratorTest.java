@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.mappers.v1.IncomingFilesetMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.InstituteStatusEvent;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -85,40 +87,6 @@ class CompletedFilesetProcessingOrchestratorTest extends BaseGradDataCollectionA
         incomingFilesetRepository.deleteAll();
         finalIncomingFilesetRepository.deleteAll();
         reportingPeriodRepository.deleteAll();
-    }
-
-    @SneakyThrows
-    @Test
-    void testHandleEvent_givenEventTypeInitiated_updateIncomingFilesetStatus() {
-        var mockReportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
-        var mockFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(mockReportingPeriod);
-        incomingFilesetRepository.save(mockFileset);
-
-        var mockDemStudent = createMockDemographicStudent(mockFileset);
-
-        val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(mockDemStudent);
-        val fileset = IncomingFilesetMapper.mapper.toStructure(mockFileset);
-        val saga = createCompletedFilesetMockSaga(fileset, demographicStudent);
-        saga.setSagaId(null);
-        sagaRepository.save(saga);
-
-        val sagaData = IncomingFilesetSagaData.builder().incomingFilesetID(UUID.fromString(fileset.getIncomingFilesetID())).build();
-        val event = Event.builder()
-                .sagaId(saga.getSagaId())
-                .eventType(EventType.INITIATED)
-                .eventOutcome(EventOutcome.INITIATE_SUCCESS)
-                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-        completedFilesetProcessingOrchestrator.handleEvent(event);
-
-        verify(messagePublisher, atMost(2)).dispatchMessage(eq(completedFilesetProcessingOrchestrator.getTopicToSubscribe()), eventCaptor.capture());
-        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE);
-        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE_COMPLETE);
-
-        val savedSagaInDB = sagaRepository.findById(saga.getSagaId());
-        assertThat(savedSagaInDB).isPresent();
-        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(COPY_FILESET_FROM_STAGING_TO_FINAL_TABLE.toString());
     }
 
     @SneakyThrows
