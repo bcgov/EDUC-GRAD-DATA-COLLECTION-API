@@ -92,8 +92,8 @@ public class EventTaskSchedulerAsyncService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.info("Querying for loaded students to process");
-    if (this.sagaRepository.countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
-      log.info("Saga count is greater than 100, so not processing student records");
+    if (this.sagaRepository.countAllByStatusIn(this.getStatusFilters()) > 150) { // at max there will be 100 parallel sagas.
+      log.info("Saga count is greater than 150, so not processing student records");
       return;
     }
 
@@ -107,7 +107,7 @@ public class EventTaskSchedulerAsyncService {
 
     log.info("Query for fileset to process start");
     var nextIncomingFilesetToProcess = this.incomingFilesetLightRepository.findNextReadyCollectionForProcessing();
-    log.info("Query for completed records complete, found record? {}", nextIncomingFilesetToProcess.isPresent());
+    log.info("Query for fileset to process, found record? {}", nextIncomingFilesetToProcess.isPresent());
     
     if(nextIncomingFilesetToProcess.isPresent()) {
       var filesetID = nextIncomingFilesetToProcess.get().getIncomingFilesetID();
