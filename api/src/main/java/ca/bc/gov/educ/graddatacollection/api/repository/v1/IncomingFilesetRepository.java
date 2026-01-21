@@ -78,7 +78,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     long findPositionInQueueByUpdateDate(LocalDateTime updateDate);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_INCOMING_FILESET (
             INCOMING_FILESET_ID, SCHOOL_ID, DISTRICT_ID, DEM_FILE_NAME, DEM_FILE_DATE_UPLOADED,
@@ -99,7 +98,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetStatus") String filesetStatus);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_DEMOGRAPHIC_STUDENT (
             DEMOGRAPHIC_STUDENT_ID, INCOMING_FILESET_ID, STUDENT_STATUS_CODE, TRANSACTION_ID, VENDOR_ID,
@@ -123,7 +121,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE (
             DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE_ID, DEMOGRAPHIC_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
@@ -144,7 +141,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_COURSE_STUDENT (
             COURSE_STUDENT_ID, INCOMING_FILESET_ID, STUDENT_STATUS_CODE, TRANSACTION_ID, LOCAL_ID, VENDOR_ID,
@@ -168,7 +164,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_COURSE_STUDENT_VALIDATION_ISSUE (
             COURSE_STUDENT_VALIDATION_ISSUE_ID, COURSE_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
@@ -189,7 +184,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_ASSESSMENT_STUDENT (
             ASSESSMENT_STUDENT_ID, INCOMING_FILESET_ID, ASSESSMENT_ID, STUDENT_STATUS_CODE, TRANSACTION_ID,
@@ -215,7 +209,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_ASSESSMENT_STUDENT_VALIDATION_ISSUE (
             ASSESSMENT_STUDENT_VALIDATION_ISSUE_ID, ASSESSMENT_STUDENT_ID, VALIDATION_ISSUE_SEVERITY_CODE,
@@ -236,7 +229,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         INSERT INTO FINAL_ERROR_FILESET_STUDENT (
             ERROR_FILESET_STUDENT_ID, INCOMING_FILESET_ID, PEN, LOCAL_ID, LAST_NAME, FIRST_NAME, BIRTHDATE,
@@ -254,7 +246,6 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             @Param("filesetId") UUID filesetId);
 
     @Modifying
-    @Transactional
     @Query(value = """
         UPDATE INCOMING_FILESET 
         SET FILESET_STATUS_CODE = :filesetStatus,
