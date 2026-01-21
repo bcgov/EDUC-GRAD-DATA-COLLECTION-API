@@ -88,7 +88,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
         SELECT 
             :filesetId, SCHOOL_ID, DISTRICT_ID, DEM_FILE_NAME, DEM_FILE_DATE_UPLOADED,
             XAM_FILE_NAME, XAM_FILE_DATE_UPLOADED, CRS_FILE_NAME, CRS_FILE_DATE_UPLOADED,
-            :filesetStatus, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE, CSV_FILE_NAME,
+            :filesetStatus, CREATE_USER, CREATE_DATE, UPDATE_USER, NOW(), CSV_FILE_NAME,
             REPORTING_PERIOD_ID
         FROM INCOMING_FILESET
         WHERE INCOMING_FILESET_ID = :filesetId
@@ -113,7 +113,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             LOCAL_ID, PEN, LAST_NAME, MIDDLE_NAME, FIRST_NAME, ADDRESS1, ADDRESS2, CITY, PROVINCIAL_CODE,
             COUNTRY_CODE, POSTAL_CODE, BIRTHDATE, GENDER, CITIZENSHIP, GRADE, PROGRAM_CODE_1, PROGRAM_CODE_2,
             PROGRAM_CODE_3, PROGRAM_CODE_4, PROGRAM_CODE_5, program_cadre_flag, grad_requirement_year,
-            school_certificate_completion_date, STUDENT_STATUS, CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            school_certificate_completion_date, STUDENT_STATUS, CREATE_USER, CREATE_DATE, UPDATE_USER, NOW()
         FROM DEMOGRAPHIC_STUDENT
         WHERE INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
@@ -131,7 +131,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             dvi.DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE_ID,
             dvi.DEMOGRAPHIC_STUDENT_ID, dvi.VALIDATION_ISSUE_SEVERITY_CODE,
             dvi.VALIDATION_ISSUE_CODE, dvi.VALIDATION_ISSUE_FIELD_CODE, dvi.VALIDATION_ISSUE_DESCRIPTION,
-            dvi.CREATE_USER, dvi.CREATE_DATE, dvi.UPDATE_USER, dvi.UPDATE_DATE
+            dvi.CREATE_USER, dvi.CREATE_DATE, dvi.UPDATE_USER, NOW()
         FROM DEMOGRAPHIC_STUDENT_VALIDATION_ISSUE dvi
         INNER JOIN DEMOGRAPHIC_STUDENT ds ON dvi.DEMOGRAPHIC_STUDENT_ID = ds.DEMOGRAPHIC_STUDENT_ID
         WHERE ds.INCOMING_FILESET_ID = :filesetId
@@ -155,7 +155,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             PEN, COURSE_CODE, COURSE_LEVEL, COURSE_YEAR, COURSE_MONTH, INTERIM_PERCENTAGE, INTERIM_GRADE,
             FINAL_PERCENTAGE, FINAL_GRADE, COURSE_STATUS, LAST_NAME, NUMBER_OF_CREDITS, RELATED_COURSE,
             RELATED_LEVEL, COURSE_DESCRIPTION, COURSE_TYPE, COURSE_GRADUATION_REQUIREMENT,
-            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            CREATE_USER, CREATE_DATE, UPDATE_USER, NOW()
         FROM COURSE_STUDENT
         WHERE INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
@@ -173,7 +173,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             cvi.COURSE_STUDENT_VALIDATION_ISSUE_ID,
             cvi.COURSE_STUDENT_ID, cvi.VALIDATION_ISSUE_SEVERITY_CODE,
             cvi.VALIDATION_ISSUE_CODE, cvi.VALIDATION_ISSUE_FIELD_CODE, cvi.VALIDATION_ISSUE_DESCRIPTION,
-            cvi.CREATE_USER, cvi.CREATE_DATE, cvi.UPDATE_USER, cvi.UPDATE_DATE
+            cvi.CREATE_USER, cvi.CREATE_DATE, cvi.UPDATE_USER, NOW()
         FROM COURSE_STUDENT_VALIDATION_ISSUE cvi
         INNER JOIN COURSE_STUDENT cs ON cvi.COURSE_STUDENT_ID = cs.COURSE_STUDENT_ID
         WHERE cs.INCOMING_FILESET_ID = :filesetId
@@ -199,7 +199,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             LOCAL_COURSE_ID, PROVINCIAL_SPECIAL_CASE, COURSE_STATUS, LAST_NAME, COURSE_LEVEL, INTERIM_LETTER_GRADE,
             INTERIM_SCHOOL_PERCENT, FINAL_SCHOOL_PERCENT, EXAM_PERCENT, FINAL_PERCENT, FINAL_LETTER_GRADE,
             NUM_CREDITS, CRSE_TYPE, TO_WRITE_FLAG, EXAM_SCHOOL_ID,
-            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            CREATE_USER, CREATE_DATE, UPDATE_USER, NOW()
         FROM ASSESSMENT_STUDENT
         WHERE INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
@@ -217,7 +217,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             avi.ASSESSMENT_STUDENT_VALIDATION_ISSUE_ID,
             avi.ASSESSMENT_STUDENT_ID, avi.VALIDATION_ISSUE_SEVERITY_CODE,
             avi.VALIDATION_ISSUE_CODE, avi.VALIDATION_ISSUE_FIELD_CODE, avi.VALIDATION_ISSUE_DESCRIPTION,
-            avi.CREATE_USER, avi.CREATE_DATE, avi.UPDATE_USER, avi.UPDATE_DATE
+            avi.CREATE_USER, avi.CREATE_DATE, avi.UPDATE_USER, NOW()
         FROM ASSESSMENT_STUDENT_VALIDATION_ISSUE avi
         INNER JOIN ASSESSMENT_STUDENT asst ON avi.ASSESSMENT_STUDENT_ID = asst.ASSESSMENT_STUDENT_ID
         WHERE asst.INCOMING_FILESET_ID = :filesetId
@@ -235,7 +235,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
             ERROR_FILESET_STUDENT_ID,
             :filesetId,
             PEN, LOCAL_ID, LAST_NAME, FIRST_NAME, BIRTHDATE,
-            CREATE_USER, CREATE_DATE, UPDATE_USER, UPDATE_DATE
+            CREATE_USER, CREATE_DATE, UPDATE_USER, NOW()
         FROM ERROR_FILESET_STUDENT
         WHERE INCOMING_FILESET_ID = :filesetId
         """, nativeQuery = true)
