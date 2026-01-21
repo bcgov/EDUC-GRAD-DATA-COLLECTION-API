@@ -109,8 +109,8 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
       updateAddressFieldsIfNeeded(demographicStudentSagaData.getDemographicStudent());
       restUtils.writeStudentAddressToScholarships(demographicStudentSagaData.getDemographicStudent(), studentApiStudent.getStudentID());
     }
-    eventBuilder.eventOutcome(STUDENT_ADDRESS_UPDATED);
-    
+    eventBuilder.eventOutcome(STUDENT_ADDRESS_UPDATE_COMPLETE);
+
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
