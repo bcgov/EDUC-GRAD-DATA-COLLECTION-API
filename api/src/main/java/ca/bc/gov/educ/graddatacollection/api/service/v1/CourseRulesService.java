@@ -40,6 +40,14 @@ public class CourseRulesService extends BaseRulesService {
         return null;
     }
 
+    public DemographicStudentEntity getDemographicDataForStudentByPen(UUID incomingFilesetID, String pen) {
+        var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(incomingFilesetID, pen);
+        if(!results.isEmpty()) {
+            return results.getFirst();
+        }
+        return null;
+    }
+
     public boolean checkIfStudentHasDuplicateInFileset(UUID incomingFilesetID, String pen, String courseCode, String courseMonth, String courseYear, String courseLevel) {
         return courseStudentRepository.countByIncomingFileset_IncomingFilesetIDAndPenEqualsAndCourseCodeEqualsAndCourseMonthEqualsAndCourseYearEqualsAndCourseLevelEquals(incomingFilesetID, pen, courseCode, courseMonth, courseYear, courseLevel) > 1;
     }

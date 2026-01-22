@@ -45,6 +45,14 @@ public class AssessmentRulesService extends BaseRulesService {
         return null;
     }
 
+    public DemographicStudentEntity getDemographicDataForStudentByPen(UUID incomingFilesetID, String pen) {
+        var results = demographicStudentRepository.findAllByIncomingFileset_IncomingFilesetIDAndPenEqualsIgnoreCase(incomingFilesetID, pen);
+        if(!results.isEmpty()) {
+            return results.getFirst();
+        }
+        return null;
+    }
+
     public boolean sessionYearIsValid(String year) {
         try{
             Year.of(Integer.parseInt(year));

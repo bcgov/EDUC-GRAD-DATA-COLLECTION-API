@@ -8,7 +8,8 @@ import java.util.Map;
 public enum AssessmentStudentValidationIssueTypeCode {
 
   DEM_DATA_MISSING("DEM_DATA_MISSING", "The student’s registration data cannot be processed because they are missing from the DEM file."),
-  DEM_DATA_XAM_DATA_MISMATCH("DEM_DATA_XAM_DATA_MISMATCH", "The student’s registration data cannot be processed because their Surname in the XAM file does not match the DEM file."),
+  DEM_DATA_XAM_DATA_SURNAME_MISMATCH("DEM_DATA_XAM_DATA_SURNAME_MISMATCH", "The student’s registration data cannot be processed because their Surname in the XAM file does not match the DEM file."),
+  DEM_DATA_XAM_DATA_LOCALID_MISMATCH("DEM_DATA_XAM_DATA_LOCALID_MISMATCH", "The student’s registration data cannot be processed because their Local ID in the XAM file does not match the DEM file."),
   COURSE_LEVEL_NOT_BLANK("COURSE_LEVEL_NOT_BLANK", "Course level must be blank. This registration cannot be updated."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "%s is not offered in %s%s. Check that a valid assessment code and session date were reported. This registration cannot be updated."),
   COURSE_SESSION_INVALID_YEAR("COURSE_SESSION_INVALID_YEAR", "The assessment session year provided is not valid. Please provide a valid value for the year. The registration cannot be updated."),

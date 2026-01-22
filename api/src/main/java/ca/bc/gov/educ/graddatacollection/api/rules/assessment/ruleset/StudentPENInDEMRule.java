@@ -53,14 +53,20 @@ public class StudentPENInDEMRule implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V01 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        DemographicStudentEntity demographicStudentEntity = assessmentRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+        DemographicStudentEntity demographicStudentEntity = assessmentRulesService.getDemographicDataForStudentByPen(student.getIncomingFileset().getIncomingFilesetID(), student.getPen());
 
         if (demographicStudentEntity == null) {
             log.debug("V01: Error 1: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
-        } else if (!StringUtils.equalsIgnoreCase(student.getLastName(), demographicStudentEntity.getLastName())) {
-            log.debug("V01: Error 2: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_MISMATCH.getMessage(), student.getAssessmentStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_MISMATCH, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_MISMATCH.getMessage()));
+        } else {
+            if (!StringUtils.equalsIgnoreCase(student.getLastName(), demographicStudentEntity.getLastName())) {
+                log.debug("V01: Error 2: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_SURNAME_MISMATCH.getMessage(), student.getAssessmentStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_SURNAME_MISMATCH, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_SURNAME_MISMATCH.getMessage()));
+            }
+            if (!StringUtils.equalsIgnoreCase(student.getLocalID(), demographicStudentEntity.getLocalID())) {
+                log.debug("V01: Error 3: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_LOCALID_MISMATCH.getMessage(), student.getAssessmentStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LOCAL_ID, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_LOCALID_MISMATCH, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_LOCALID_MISMATCH.getMessage()));
+            }
         }
         return errors;
     }

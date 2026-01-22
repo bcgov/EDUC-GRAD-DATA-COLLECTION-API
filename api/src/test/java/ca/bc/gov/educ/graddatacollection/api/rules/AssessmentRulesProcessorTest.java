@@ -121,6 +121,77 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    void testV01StudentLatNameRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(demStudent.getPen());
+        assessmentStudent.setLocalID(demStudent.getLocalID());
+        assessmentStudent.setLastName(demStudent.getLastName());
+        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Session session = new Session();
+        Assessment assessment = new Assessment();
+        assessment.setAssessmentID(UUID.randomUUID().toString());
+        session.setAssessments(Arrays.asList(assessment));
+        assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(null), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError1.size()).isZero();
+
+        var assessmentStudent2 = createMockAssessmentStudent();
+        assessmentStudent2.setPen(demStudent.getPen());
+        assessmentStudent2.setLocalID(demStudent.getLocalID());
+        assessmentStudent2.setLastName("DifferentLastName");
+        assessmentStudent2.setIncomingFileset(demStudent.getIncomingFileset());
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), createMockCourseStudent(incomingFileset), assessmentStudent2, createMockSchoolTombstone()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LAST_NAME.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_SURNAME_MISMATCH.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_SURNAME_MISMATCH.getMessage());
+    }
+
+    @Test
+    void testV01StudentLocalIDRule() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demographicStudentRepository.save(demStudent);
+        var assessmentStudent = createMockAssessmentStudent();
+        assessmentStudent.setPen(demStudent.getPen());
+        assessmentStudent.setLocalID(demStudent.getLocalID());
+        assessmentStudent.setLastName(demStudent.getLastName());
+        assessmentStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Session session = new Session();
+        Assessment assessment = new Assessment();
+        assessment.setAssessmentID(UUID.randomUUID().toString());
+        session.setAssessments(Arrays.asList(assessment));
+        assessment.setAssessmentTypeCode(assessmentStudent.getCourseCode());
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(any(),any())).thenReturn(Optional.of(session));
+
+        val validationError1 = rulesProcessor.processRules(createMockStudentRuleData(demStudent, createMockCourseStudent(null), assessmentStudent, createMockSchoolTombstone()));
+        assertThat(validationError1.size()).isZero();
+
+        var assessmentStudent2 = createMockAssessmentStudent();
+        assessmentStudent2.setPen(demStudent.getPen());
+        assessmentStudent2.setLocalID(demStudent.getLocalID());
+        assessmentStudent2.setLastName("DifferentLastName");
+        assessmentStudent2.setIncomingFileset(demStudent.getIncomingFileset());
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), createMockCourseStudent(incomingFileset), assessmentStudent2, createMockSchoolTombstone()));
+        assertThat(validationError2.size()).isNotZero();
+        assertThat(validationError2.get(0).getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.LOCAL_ID.getCode());
+        assertThat(validationError2.get(0).getValidationIssueCode()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_LOCALID_MISMATCH.getCode());
+        assertThat(validationError2.get(0).getValidationIssueDescription()).isEqualTo(AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_LOCALID_MISMATCH.getMessage());
+    }
+
+
+    @Test
     void testV03CourseCodeRule() {
         Session sess = createMockSession();
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(sess));

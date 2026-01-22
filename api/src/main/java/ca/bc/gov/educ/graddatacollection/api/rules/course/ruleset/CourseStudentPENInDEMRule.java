@@ -53,14 +53,20 @@ public class CourseStudentPENInDEMRule implements CourseValidationBaseRule {
         log.debug("In executeValidation of C01 for courseStudentID :: {}", student.getCourseStudentID());
         final List<CourseStudentValidationIssue> errors = new ArrayList<>();
 
-        DemographicStudentEntity demographicStudentEntity = courseRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+        DemographicStudentEntity demographicStudentEntity = courseRulesService.getDemographicDataForStudentByPen(student.getIncomingFileset().getIncomingFilesetID(), student.getPen());
 
         if (demographicStudentEntity == null) {
-            log.debug("V201: Error 1: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getCourseStudentID());
+            log.debug("C01: Error 1: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING, CourseStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
-        } else if (!StringUtils.equalsIgnoreCase(student.getLastName(), demographicStudentEntity.getLastName())) {
-            log.debug("V201: Error 2: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_MISMATCH.getMessage(), student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_MISMATCH, CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_MISMATCH.getMessage()));
+        } else {
+            if (!StringUtils.equalsIgnoreCase(student.getLastName(), demographicStudentEntity.getLastName())) {
+                log.debug("C01: Error 2: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_SURNAME_MISMATCH.getMessage(), student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_SURNAME_MISMATCH, CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_SURNAME_MISMATCH.getMessage()));
+            }
+            if (!StringUtils.equalsIgnoreCase(student.getLocalID(), demographicStudentEntity.getLocalID())) {
+                log.debug("C01: Error 3: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_LOCALID_MISMATCH.getMessage(), student.getCourseStudentID());
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LOCAL_ID, CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_LOCALID_MISMATCH, CourseStudentValidationIssueTypeCode.DEM_DATA_CRS_DATA_LOCALID_MISMATCH.getMessage()));
+            }
         }
         return errors;
     }

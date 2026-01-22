@@ -54,7 +54,7 @@ public class CourseStudentDemographicRule implements CourseValidationBaseRule {
 
         var studentApiStudent = courseRulesService.getStudentApiStudent(studentRuleData, student.getPen());
 
-        var demographicStudentEntity = courseRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+        var demographicStudentEntity = courseRulesService.getDemographicDataForStudentByPen(student.getIncomingFileset().getIncomingFilesetID(), student.getPen());
 
         studentRuleData.setStudentApiStudent(studentApiStudent);
         studentRuleData.setDemographicStudentEntity(demographicStudentEntity);
