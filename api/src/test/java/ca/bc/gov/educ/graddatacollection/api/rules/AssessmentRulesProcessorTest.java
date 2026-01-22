@@ -180,8 +180,8 @@ class AssessmentRulesProcessorTest extends BaseGradDataCollectionAPITest {
 
         var assessmentStudent2 = createMockAssessmentStudent();
         assessmentStudent2.setPen(demStudent.getPen());
-        assessmentStudent2.setLocalID(demStudent.getLocalID());
-        assessmentStudent2.setLastName("DifferentLastName");
+        assessmentStudent2.setLocalID("23232323");
+        assessmentStudent2.setLastName(demStudent.getLastName());
         assessmentStudent2.setIncomingFileset(demStudent.getIncomingFileset());
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), createMockCourseStudent(incomingFileset), assessmentStudent2, createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
