@@ -850,9 +850,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var issues = rulesProcessor.processRules(ruleData);
 
         assertThat(issues).isEmpty();
+        String errorMessage = CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage().formatted("MPH--", "11");
         assertThat(issues.stream().noneMatch(issue ->
                 issue.getValidationIssueFieldCode().equals(ValidationFieldCode.COURSE_CODE.getCode()) &&
-                issue.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getCode())
+                issue.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getCode()) &&
+                issue.getValidationIssueDescription().equals(errorMessage)
         )).isTrue();
     }
 
@@ -900,6 +902,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(issues).isNotEmpty();
         assertThat(issues.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(issues.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getCode());
+        String errorMessage = CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_MYEDBC_INVALID.getMessage().formatted("MPH--", "11");
+        assertThat(issues.getFirst().getValidationIssueDescription()).isEqualTo(errorMessage);
     }
 
     @Test
@@ -982,6 +986,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(issues).isNotEmpty();
         assertThat(issues.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_CODE.getCode());
         assertThat(issues.getFirst().getValidationIssueCode()).isEqualTo(CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getCode());
+        String errorMessage = CourseStudentValidationIssueTypeCode.COURSE_CODE_COREG_TRAX_INVALID.getMessage().formatted("PH", "12");
+        assertThat(issues.getFirst().getValidationIssueDescription()).isEqualTo(errorMessage);
     }
 
     @Test
