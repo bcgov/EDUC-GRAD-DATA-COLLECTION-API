@@ -19,7 +19,9 @@ import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.IncomingFilesetService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.GradFileUpload;
 import ca.bc.gov.educ.graddatacollection.api.util.ValidationUtil;
@@ -60,6 +62,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     private final IncomingFilesetService incomingFilesetService;
     @Getter(PRIVATE)
     private final GradFileValidator gradFileValidator;
+    private final RestUtils restUtils;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
@@ -99,6 +102,7 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             index++;
         }
         batchFile.setCourseData(filterOutDupeWithdrawals(batchFile.getCourseData()));
+        batchFile.setCourseData(scrubInterimLetterGrades(batchFile.getCourseData()));
     }
 
     public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
@@ -114,9 +118,36 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             index++;
         }
         batchFile.setCourseData(filterOutDupeWithdrawals(batchFile.getCourseData()));
+        batchFile.setCourseData(scrubInterimLetterGrades(batchFile.getCourseData()));
+    }
+    
+    private List<GradStudentCourseDetails> scrubInterimLetterGrades(List<GradStudentCourseDetails> courses){
+        //Grab the whole table
+        List<LetterGrade> letterGradeList = restUtils.getLetterGradeList(null);
+
+        courses.forEach(gradStudentCourseDetails -> {
+            //Pull letter grade based on what's there
+            //If it exists, and there's no percentage low/high, remove the interim letter grade and percentage
+            if(StringUtils.isNotBlank(gradStudentCourseDetails.getInterimLetterGrade()) && foundLetterGradeWithNoPercentages(letterGradeList, gradStudentCourseDetails.getInterimLetterGrade())) {
+                gradStudentCourseDetails.setInterimLetterGrade(null);
+                gradStudentCourseDetails.setInterimPercentage(null);
+            }
+        });
+         
+        return courses;
+    }
+    
+    private boolean foundLetterGradeWithNoPercentages(List<LetterGrade> letterGradeList, String interimLetterGrade){
+        if(StringUtils.isNotBlank(interimLetterGrade)){
+            var foundGrade = letterGradeList.stream().filter(grade -> grade.getGrade().equalsIgnoreCase(interimLetterGrade)).findFirst();
+            if(foundGrade.isPresent()){
+                return foundGrade.get().getPercentRangeHigh() == null && foundGrade.get().getPercentRangeLow() == null;
+            }
+        }
+        return false;
     }
 
-    public static List<GradStudentCourseDetails> filterOutDupeWithdrawals(List<GradStudentCourseDetails> courses) {
+    private List<GradStudentCourseDetails> filterOutDupeWithdrawals(List<GradStudentCourseDetails> courses) {
         Map<String, List<GradStudentCourseDetails>> groupedByKey = courses.stream()
                 .collect(Collectors.groupingBy(course ->
                         course.getPen() + "|" +
