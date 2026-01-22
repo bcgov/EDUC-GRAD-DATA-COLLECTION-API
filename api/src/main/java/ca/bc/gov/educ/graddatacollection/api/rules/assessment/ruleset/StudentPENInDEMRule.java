@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.assessment.ruleset;
 
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentValidationBaseRule;
@@ -8,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.service.v1.AssessmentRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -51,11 +53,14 @@ public class StudentPENInDEMRule implements AssessmentValidationBaseRule {
         log.debug("In executeValidation of V01 for assessmentStudentID :: {}", student.getAssessmentStudentID());
         final List<AssessmentStudentValidationIssue> errors = new ArrayList<>();
 
-        var isPresent = assessmentRulesService.containsDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
+        DemographicStudentEntity demographicStudentEntity = assessmentRulesService.getDemographicDataForStudent(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getLastName(), student.getLocalID());
 
-        if (!isPresent) {
-            log.debug("V01: Error: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getAssessmentStudentID());
+        if (demographicStudentEntity == null) {
+            log.debug("V01: Error 1: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage(), student.getAssessmentStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING, AssessmentStudentValidationIssueTypeCode.DEM_DATA_MISSING.getMessage()));
+        } else if (!StringUtils.equalsIgnoreCase(student.getLastName(), demographicStudentEntity.getLastName())) {
+            log.debug("V01: Error 2: {} for assessmentStudentID :: {}", AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_MISMATCH.getMessage(), student.getAssessmentStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.LAST_NAME, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_MISMATCH, AssessmentStudentValidationIssueTypeCode.DEM_DATA_XAM_DATA_MISMATCH.getMessage()));
         }
         return errors;
     }
