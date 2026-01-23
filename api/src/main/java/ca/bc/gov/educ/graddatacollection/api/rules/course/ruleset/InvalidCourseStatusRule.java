@@ -5,9 +5,11 @@ import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverit
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GradStudentCourseExam;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -57,20 +59,38 @@ public class InvalidCourseStatusRule implements CourseValidationBaseRule {
         var studentCourseRecord = courseRulesService.getStudentCourseRecord(studentRuleData, student.getStudentID());
         var externalID = courseRulesService.formatExternalID(courseStudentEntity.getCourseCode(), courseStudentEntity.getCourseLevel());
 
-        if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
+        if (("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus()) || finalLetterGradeIsW(courseStudentEntity.getFinalLetterGrade()))
             && studentCourseRecord != null
             && studentCourseRecord.stream().anyMatch(record ->
                 (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
                     && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth()) // yyyymm
-                    && (record.getCourseExam() != null && record.getCourseExam().getExamPercentage() != null)
+                    && (record.getCourseExam() != null && examWasWritten(record.getCourseExam(), courseStudentEntity.getFinalPercentage()))
                     )) {
             log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_EXISTS.getMessage()));
-        } else if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus()) && "Q".equalsIgnoreCase(courseStudentEntity.getCourseCode().substring(0,1))){
+        } else if (("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus()) 
+                || finalLetterGradeIsW(courseStudentEntity.getFinalLetterGrade()))
+                && studentCourseRecord != null
+                && studentCourseRecord.stream().anyMatch(record ->
+                (record.getGradCourseCode39().getExternalCode().equalsIgnoreCase(externalID))
+                        && record.getCourseSession().equalsIgnoreCase(courseStudentEntity.getCourseYear() + courseStudentEntity.getCourseMonth())
+                && "Q".equalsIgnoreCase(courseStudentEntity.getCourseCode().substring(0,1)))){
             log.debug("C11: Error: A student course has been submitted as \"W\" (withdrawal) but is trying to remove a Q-coded course. This course cannot be deleted. for course student id :: {}", courseStudentEntity.getCourseStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.COURSE_STATUS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_Q_EXISTS, CourseStudentValidationIssueTypeCode.COURSE_RECORD_Q_EXISTS.getMessage()));
         }
         return errors;
+    }
+    
+    private boolean finalLetterGradeIsW(String finalLetterGrade) {
+        return StringUtils.isNotBlank(finalLetterGrade) && finalLetterGrade.contains("W");
+    }
+
+    private boolean examWasWritten(GradStudentCourseExam courseExam, String finalPercent) {
+        if(courseExam == null) {
+            return false;
+        }
+        
+        return StringUtils.isNotBlank(finalPercent) || (StringUtils.isNotBlank(courseExam.getSpecialCase()) && !courseExam.getSpecialCase().equalsIgnoreCase("N")) || courseExam.getExamPercentage() != null;
     }
 
 }

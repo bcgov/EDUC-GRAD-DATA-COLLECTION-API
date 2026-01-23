@@ -10,7 +10,7 @@ public enum CourseStudentValidationIssueTypeCode {
   DEM_DATA_MISSING("DEM_DATA_MISSING", "The student’s course data cannot be processed because they are either missing from the DEM file or their Surname or Local ID in the CRS file does not match the DEM file."),
   DEM_ISSUE("DEM_ISSUE", "An error in the DEM file for this student is preventing the processing of their course data."),
   COURSE_STATUS_INVALID("COURSE_STATUS_INVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification. This course cannot be updated."),
-  COURSE_RECORD_EXISTS("COURSE_RECORD_EXISTS", "A student course has been submitted as \"W\" (withdrawal) but has an associated exam record. This course cannot be deleted."),
+  COURSE_RECORD_EXISTS("COURSE_RECORD_EXISTS", "A student course has been submitted as \"W\" (withdrawal) but has an associated exam record (has completed/final course percentage, completed/final course letter exam, or exam percentage). This course cannot be deleted."),
   COURSE_RECORD_Q_EXISTS("COURSE_RECORD_Q_EXISTS", "A student course has been submitted as \"W\" (withdrawal) but is a Q-coded course. This course cannot be deleted."),
   COURSE_USED_FOR_GRADUATION("COURSE_USED_FOR_GRADUATION", "A student course has been submitted as \"W\" (withdrawal) but has already been used to meet a graduation requirement."),
   COURSE_WRONG_SESSION("COURSE_WRONG_SESSION", "The course code and session date does not exist in the student record so cannot be withdrawn. Check the TVR to see if the course was previously reported with a different session date."),
