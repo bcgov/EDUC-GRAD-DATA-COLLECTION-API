@@ -551,7 +551,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getCoreg39CourseByID(any())).thenReturn(
                 Optional.of(new GradCourseCode(
                         "3201860", // courseID
-                        "CLE  12", // externalCode
+                        "QLE  12", // externalCode
                         "39" // originatingSystem
                 ))
         );
@@ -560,6 +560,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, null, null, null, "true", Collections.emptyList())
         );
 
+        courseStudent.setFinalPercentage("55");
+        
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isNotZero();
         assertThat(validationError2.getFirst().getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.COURSE_STATUS.getCode());
@@ -781,6 +783,8 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 ))
         );
 
+        courseStudent.setFinalPercentage(null);
+        
         val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(createMockDemographicStudent(incomingFileset), courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
         assertThat(validationError2.size()).isZero();
     }
