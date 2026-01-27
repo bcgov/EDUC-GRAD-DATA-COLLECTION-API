@@ -103,7 +103,7 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         when(restUtils.getGraduationProgramCodeList(true)).thenReturn(
                 List.of(
                         new GraduationProgramCode("1950", "Adult Graduation Program", "Description for 1950", 4, LocalDate.now().toString(), null, "associatedCred"),
-                        new GraduationProgramCode("2023", "B.C. Graduation Program", "Description for 2023", 4, LocalDate.now().toString(), null, "associatedCred"),
+                        new GraduationProgramCode("2023-PF", "B.C. Graduation Program", "Description for 2023", 4, LocalDate.now().toString(), null, "associatedCred"),
                         new GraduationProgramCode("2023-EN", "B.C. Graduation Program", "Description for 2023", 4, LocalDate.now().toString(), null, "associatedCred"),
                         new GraduationProgramCode("SCCP", "School Completion Certificate Program", "Description for SCCP", 4, LocalDate.now().toString(), null, "associatedCred")
                 )
@@ -1153,6 +1153,52 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
             assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
             assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
             assertThat(err.getValidationIssueDescription()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted("2023-EN"));
+        });
+    }
+
+    @Test
+    void testD12BlankGradRequirementPF_Error_When_BlankYear_NotGA_NotFNS_IsGraduated_UsingDirectDataInjection() {
+        var mockReportingPeriod = createMockReportingPeriodEntity();
+        mockReportingPeriod.setSummerStart(LocalDate.now().minusDays(2).atStartOfDay());
+        mockReportingPeriod.setSummerEnd(LocalDate.now().minusDays(1).atStartOfDay());
+        var reportingPeriod = reportingPeriodRepository.save(mockReportingPeriod);
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        var assessmentStudent = createMockAssessmentStudent();
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        var school = createMockSchoolTombstone();
+
+        var gradStudentRecord = new GradStudentRecord();
+        demStudent.setGradRequirementYear("");
+        demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        school.setSchoolReportingRequirementCode("CSF");
+        gradStudentRecord.setProgramCompletionDate("2025-01-15");
+        gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+
+        StudentRuleData studentRuleDataError = new StudentRuleData();
+        studentRuleDataError.setDemographicStudentEntity(demStudent);
+        studentRuleDataError.setCourseStudentEntity(courseStudent);
+        studentRuleDataError.setAssessmentStudentEntity(assessmentStudent);
+        studentRuleDataError.setSchool(school);
+        studentRuleDataError.setGradStudentRecord(gradStudentRecord);
+
+        val validationErrorsError = rulesProcessor.processRules(studentRuleDataError);
+
+        var d12ErrorOptional = validationErrorsError.stream()
+                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getCode()))
+                .findFirst();
+
+        assertThat(d12ErrorOptional)
+                .isPresent();
+
+        d12ErrorOptional.ifPresent(err -> {
+            assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
+            assertThat(err.getValidationIssueDescription()).isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted("2023-PF"));
         });
     }
 

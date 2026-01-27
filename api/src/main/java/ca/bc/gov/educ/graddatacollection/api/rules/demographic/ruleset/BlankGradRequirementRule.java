@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.graddatacollection.api.rules.demographic.ruleset;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
-import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
@@ -75,7 +74,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .filter(g -> g.getProgramCode() != null)
                     .filter(g -> !g.getProgramCode().equals(GradRequirementYearCodes.YEAR_1950.getCode()))
                     .filter(g -> !g.getProgramCode().equals(GradRequirementYearCodes.SCCP.getCode()))
-                    .filter(g -> g.getProgramCode().endsWith("-EN"))
+                    .filter(g -> studentRuleData.getSchool().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode()) ? g.getProgramCode().endsWith("-PF") : g.getProgramCode().endsWith("-EN"))
                     .filter(g -> {
                         if (g.getEffectiveDate() == null) return false;
                         String effectiveDate = g.getEffectiveDate().substring(0, 10);
