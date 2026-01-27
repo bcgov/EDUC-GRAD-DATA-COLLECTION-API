@@ -63,8 +63,8 @@ public class StudentStatusMismatchRule implements DemographicValidationBaseRule 
 
         if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
                 && "M".equalsIgnoreCase(ministryStudentStatus)) {
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED.getMessage()
-            ));
+            String message = "Student PEN has been merged with a pre-existing PEN. Ensure the valid, pre-existing PEN appears in system data file extracts. If needed, request PEN support through <a href=\"" + secureMessageUrl + "\">EDX Secure Messaging </a>";
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_MERGED, message));
         }
         else if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
                 && "D".equalsIgnoreCase(ministryStudentStatus)) {
