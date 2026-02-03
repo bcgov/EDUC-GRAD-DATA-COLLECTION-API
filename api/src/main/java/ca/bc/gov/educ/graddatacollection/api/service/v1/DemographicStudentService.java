@@ -39,11 +39,9 @@ import java.util.*;
 public class DemographicStudentService {
     private static final String DEMOGRAPHIC_STUDENT_ID = "demographicStudentID";
     private final MessagePublisher messagePublisher;
-    private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
     private final FinalDemographicStudentRepository finalDemographicStudentRepository;
-    private final DemographicRulesService demographicRulesService;
     private final DemographicStudentRulesProcessor demographicStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
@@ -181,7 +179,7 @@ public class DemographicStudentService {
         try{
             errorFilesetStudentService.flagErrorOnStudent(demographicStudent.getIncomingFileset().getIncomingFilesetID(), demographicStudent.getPen(), demographicStudent, demographicStudent.getCreateUser(), demographicStudent.getCreateDate(), demographicStudent.getUpdateUser(), demographicStudent.getUpdateDate());
         } catch (Exception e) {
-            log.info("Adding student to error fileset failed, will be retried :: {}", e);
+            log.info("Adding student to error fileset failed, will be retried :: {}", e.getMessage());
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
         }
     }

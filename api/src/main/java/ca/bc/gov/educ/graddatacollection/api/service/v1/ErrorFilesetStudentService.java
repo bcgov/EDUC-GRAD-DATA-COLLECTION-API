@@ -30,7 +30,7 @@ public class ErrorFilesetStudentService {
     @Transactional(propagation = Propagation.MANDATORY)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
-        if (!preexisting.isPresent()) {
+        if (preexisting.isEmpty()) {
             var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
             ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
             newErrorFilesetStudent.setIncomingFileset(fileSet);

@@ -44,9 +44,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AssessmentStudentService {
     private final MessagePublisher messagePublisher;
-    private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
-    private final AssessmentRulesService assessmentRulesService;
     private final AssessmentStudentRepository assessmentStudentRepository;
     private final FinalAssessmentStudentRepository finalAssessmentStudentRepository;
     private final AssessmentStudentRulesProcessor assessmentStudentRulesProcessor;

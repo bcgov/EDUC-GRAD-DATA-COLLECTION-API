@@ -45,7 +45,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CourseStudentService {
     private final MessagePublisher messagePublisher;
-    private final IncomingFilesetRepository incomingFilesetRepository;
     private final CourseStudentRepository courseStudentRepository;
     private final FinalCourseStudentRepository finalCourseStudentRepository;
     private final CourseRulesService courseRulesService;
