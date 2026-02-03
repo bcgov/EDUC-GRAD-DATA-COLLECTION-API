@@ -3,10 +3,14 @@ package ca.bc.gov.educ.graddatacollection.api.orchestrator;
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.GradSagaEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.graddatacollection.api.orchestrator.base.BaseOrchestrator;
+import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseStudentService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -24,10 +28,12 @@ import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_
 @Slf4j
 public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<CourseStudentSagaData> {
   private final CourseStudentService courseStudentService;
+  private final CourseRulesService courseRulesService;
 
-  protected CourseStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CourseStudentService courseStudentService) {
+  protected CourseStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CourseStudentService courseStudentService, CourseRulesService courseRulesService) {
     super(sagaService, messagePublisher, CourseStudentSagaData.class, SagaEnum.PROCESS_COURSE_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_COURSE_STUDENTS_SAGA_TOPIC.toString());
-      this.courseStudentService = courseStudentService;
+    this.courseStudentService = courseStudentService;
+    this.courseRulesService = courseRulesService;
   }
 
   @Override
@@ -42,20 +48,24 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
     saga.setSagaState(VALIDATE_COURSE_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-
+    var student = courseStudentSagaData.getCourseStudent();
+    
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_COURSE_STUDENT);
-
+    
+    var demStudent = courseRulesService.getDemographicDataForStudent(UUID.fromString(student.getIncomingFilesetID()),student.getPen(), student.getLastName(), student.getLocalID());
     var validationErrors = courseStudentService.validateStudent(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), courseStudentSagaData.getSchool());
+    
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
-      courseStudentService.flagErrorOnStudent(courseStudentSagaData.getCourseStudent());
-      courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.ERROR);
-    } else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()))) {
-      courseStudentService.flagErrorOnStudent(courseStudentSagaData.getCourseStudent());
-      courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.UPDATE_CRS);
+      courseStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.ERROR, demStudent, true);
     } else {
-      courseStudentService.setStudentStatus(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.UPDATE_CRS);
-    }
+      if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
+        var hasWarning = validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()));
+        courseStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.UPDATE_CRS, demStudent, hasWarning);
+      }else{
+        courseStudentService.setDemValidationErrorStudentStatusAndFlagError(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_HAS_DEM_BLOCKING, CourseStudentValidationIssueTypeCode.COURSE_HAS_DEM_BLOCKING.getMessage());
+      }
+    } 
 
     eventBuilder.eventOutcome(VALIDATE_COURSE_STUDENT_SUCCESS);
 

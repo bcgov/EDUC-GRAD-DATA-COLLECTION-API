@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -49,6 +50,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    @Transactional
     void testFlagErrorOnStudents_NewStudentError_NoExceptions() {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
@@ -68,6 +70,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    @Transactional
     void testFlagErrorOnStudents_NewStudentError_WithDemographics_NoExceptions() {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
@@ -101,6 +104,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    @Transactional
     void testFlagErrorOnStudents_NewStudentError_isDemLoadedFalse_DemographicsNotSaved() {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
@@ -129,6 +133,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    @Transactional
     void testFlagErrorOnStudents_ExistingStudentError_WithoutDemographics_IsNotUpdated() {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
@@ -165,6 +170,7 @@ class ErrorFilesetStudentServiceTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
+    @Transactional
     void testFlagErrorOnStudents_ExistingStudentError_WithDemographics_NoExceptions() {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");

@@ -27,7 +27,7 @@ public class ErrorFilesetStudentService {
     private final IncomingFilesetRepository incomingFilesetRepository;
 
     @Retryable(retryFor = {PSQLException.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.MANDATORY)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
         if (!preexisting.isPresent()) {

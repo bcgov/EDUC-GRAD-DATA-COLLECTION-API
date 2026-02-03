@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.CourseStudentMapper;
@@ -15,10 +16,15 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentReposito
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalCourseStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
+import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentUpdate;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,27 +73,53 @@ public class CourseStudentService {
         var currentStudentEntity = this.courseStudentRepository.findById(courseStudentID);
         if(currentStudentEntity.isPresent()) {
             var validationErrors = runValidationRules(currentStudentEntity.get(), schoolTombstone);
-            saveSdcStudent(currentStudentEntity.get());
+            saveCourseStudent(currentStudentEntity.get());
             return validationErrors;
         } else {
             throw new EntityNotFoundException(CourseStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
         }
     }
 
-    public void saveSdcStudent(CourseStudentEntity studentEntity) {
+    public void saveCourseStudent(CourseStudentEntity studentEntity) {
         studentEntity.setUpdateDate(LocalDateTime.now());
         this.courseStudentRepository.save(studentEntity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void setStudentStatus(final UUID courseStudentID, final SchoolStudentStatus status) {
+    public void setStudentStatusAndFlagErrorIfRequired(final UUID courseStudentID, final SchoolStudentStatus status, final DemographicStudentEntity demographicStudentEntity, boolean flagError) {
         var currentStudentEntity = this.courseStudentRepository.findById(courseStudentID);
         if(currentStudentEntity.isPresent()) {
+            if(flagError) {
+                flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
+            }
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
-            saveSdcStudent(currentStudentEntity.get());
+            saveCourseStudent(currentStudentEntity.get());
         } else {
             throw new EntityNotFoundException(CourseStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setDemValidationErrorStudentStatusAndFlagError(final UUID courseStudentID, final SchoolStudentStatus status, final DemographicStudentEntity demographicStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, CourseStudentValidationIssueTypeCode typeCode, String description) {
+        var currentStudentEntity = this.courseStudentRepository.findById(courseStudentID);
+        if(currentStudentEntity.isPresent()) {
+            flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
+            currentStudentEntity.get().setStudentStatusCode(status.getCode());
+            currentStudentEntity.get().getCourseStudentValidationIssueEntities().add(createValidationIssue(currentStudentEntity.get(), severityCode, fieldCode, typeCode, description));
+            saveCourseStudent(currentStudentEntity.get());
+        } else {
+            throw new EntityNotFoundException(CourseStudentEntity.class, COURSE_STUDENT_ID, courseStudentID.toString());
+        }
+    }
+
+    private CourseStudentValidationIssueEntity createValidationIssue(CourseStudentEntity courseStudent, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, CourseStudentValidationIssueTypeCode typeCode, String description){
+        CourseStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssue = new CourseStudentValidationIssueEntity();
+        sdcSchoolCollectionStudentValidationIssue.setCourseStudent(courseStudent);
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
+        return sdcSchoolCollectionStudentValidationIssue;
     }
 
     public List<CourseStudentValidationIssue> runValidationRules(CourseStudentEntity courseStudentEntity, SchoolTombstone schoolTombstone) {
@@ -179,10 +211,9 @@ public class CourseStudentService {
         }
     }
 
-    public void flagErrorOnStudent(final CourseStudent courseStudent) {
+    private void flagErrorOnStudent(final CourseStudentEntity courseStudent, final DemographicStudentEntity demographicStudentEntity) {
         try{
-            var demographicStudentEntity = courseRulesService.getDemographicDataForStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), courseStudent.getLastName(), courseStudent.getLocalID());
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(courseStudent.getIncomingFilesetID()), courseStudent.getPen(), demographicStudentEntity, courseStudent.getCreateUser(), LocalDateTime.parse(courseStudent.getCreateDate()), courseStudent.getUpdateUser(), LocalDateTime.parse(courseStudent.getUpdateDate()));
+            errorFilesetStudentService.flagErrorOnStudent(courseStudent.getIncomingFileset().getIncomingFilesetID(), courseStudent.getPen(), demographicStudentEntity, courseStudent.getCreateUser(), courseStudent.getCreateDate(), courseStudent.getUpdateUser(), courseStudent.getUpdateDate());
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");

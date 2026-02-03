@@ -57,20 +57,18 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_DEM_STUDENT);
-
-    // call For dem validation
+    
     var validationErrors = demographicStudentService.validateStudent(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), demographicStudentSagaData.getSchool());
+    var demStudent = demographicStudentService.findByID(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()));
+    
     if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
-      demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.ERROR);
+      demographicStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.ERROR, true);
       eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR);
-    } else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()))) {
-      demographicStudentService.flagErrorOnStudent(demographicStudentSagaData.getDemographicStudent());
-      demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.VERIFIED);
-      eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR);
     } else {
-      demographicStudentService.setStudentStatus(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.VERIFIED);
+      var hasWarning = validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()));
+      demographicStudentService.setStudentStatusAndFlagErrorIfRequired(demStudent.getDemographicStudentID(), SchoolStudentStatus.VERIFIED, hasWarning);
       eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR);
-    }
+    } 
 
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
@@ -147,7 +145,7 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
   }
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
-    demographicStudentService.flagErrorOnStudent(demographicStudentSagaData.getDemographicStudent());
+    //Do nothing here - we already flagged an error
   }
 
 }

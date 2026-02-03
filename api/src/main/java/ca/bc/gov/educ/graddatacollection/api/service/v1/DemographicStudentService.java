@@ -18,7 +18,6 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -98,9 +97,12 @@ public class DemographicStudentService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void setStudentStatus(final UUID demographicStudentID, final SchoolStudentStatus status) {
+    public void setStudentStatusAndFlagErrorIfRequired(final UUID demographicStudentID, final SchoolStudentStatus status, boolean flagError) {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
         if(currentStudentEntity.isPresent()) {
+            if(flagError){
+                flagErrorOnStudent(currentStudentEntity.get());
+            }
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
             saveDemographicStudent(currentStudentEntity.get());
         } else {
@@ -175,10 +177,9 @@ public class DemographicStudentService {
         }
     }
 
-    public void flagErrorOnStudent(final DemographicStudent demographicStudent) {
+    private void flagErrorOnStudent(final DemographicStudentEntity demographicStudent) {
         try{
-            var demographicStudentEntity = demographicRulesService.getDemographicDataForStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), demographicStudent.getLastName(), demographicStudent.getLocalID());
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), demographicStudentEntity, demographicStudent.getCreateUser(), LocalDateTime.parse(demographicStudent.getCreateDate()), demographicStudent.getUpdateUser(), LocalDateTime.parse(demographicStudent.getUpdateDate()));
+            errorFilesetStudentService.flagErrorOnStudent(demographicStudent.getIncomingFileset().getIncomingFilesetID(), demographicStudent.getPen(), demographicStudent, demographicStudent.getCreateUser(), demographicStudent.getCreateDate(), demographicStudent.getUpdateUser(), demographicStudent.getUpdateDate());
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
