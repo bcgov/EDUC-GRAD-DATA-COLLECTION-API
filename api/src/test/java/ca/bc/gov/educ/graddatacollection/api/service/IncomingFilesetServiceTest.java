@@ -49,7 +49,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testStaleIncomingFilesetsArePurged() {
-        var mockFileset = this.setupMockFinalIncomingFileset(false, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() + 1));
+        var mockFileset = this.setupMockFinalIncomingFileset(false, LocalDateTime.now().minusMinutes(applicationProperties.getIncomingFilesetStaleInMinutes() + 1));
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isEmpty();
@@ -57,7 +57,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFreshIncomingFilesetsAreNotPurged() {
-        var mockFileset = this.setupMockFinalIncomingFileset(false, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() - 1));
+        var mockFileset = this.setupMockFinalIncomingFileset(false, LocalDateTime.now().minusMinutes(applicationProperties.getIncomingFilesetStaleInMinutes() - 1));
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
@@ -65,7 +65,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testStaleAndLoadedIncomingFilesetsAreNotPurged() {
-        var mockFileset = this.setupMockFinalIncomingFileset(true, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() + 1));
+        var mockFileset = this.setupMockFinalIncomingFileset(true, LocalDateTime.now().minusMinutes(applicationProperties.getIncomingFilesetStaleInMinutes() + 1));
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
@@ -73,7 +73,7 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
 
     @Test
     void testFreshAndLoadedIncomingFilesetsAreNotPurged() {
-        var mockFileset = this.setupMockFinalIncomingFileset(true, LocalDateTime.now().minusHours(applicationProperties.getIncomingFilesetStaleInHours() - 1));
+        var mockFileset = this.setupMockFinalIncomingFileset(true, LocalDateTime.now().minusMinutes(applicationProperties.getIncomingFilesetStaleInMinutes() - 1));
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();
         incomingFilesetService.purgeStaleFinalIncomingFilesetRecords();
         assertThat(incomingFilesetPurgeRepository.findById(mockFileset.getIncomingFilesetID())).isNotEmpty();

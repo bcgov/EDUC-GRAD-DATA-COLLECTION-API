@@ -50,7 +50,7 @@ public class IncomingFilesetService {
     
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void purgeStaleFinalIncomingFilesetRecords() {
-        final LocalDateTime oldestIncomingFilesetTimestamp = LocalDateTime.now().minusHours(this.applicationProperties.getIncomingFilesetStaleInHours());
+        final LocalDateTime oldestIncomingFilesetTimestamp = LocalDateTime.now().minusMinutes(this.applicationProperties.getIncomingFilesetStaleInMinutes());
         log.debug("Purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
         this.incomingFilesetPurgeRepository.deleteStaleWithUpdateDateBefore(oldestIncomingFilesetTimestamp);
         log.debug("Finished purging stale IncomingFilesets that were modified before {}.", oldestIncomingFilesetTimestamp);
