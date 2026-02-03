@@ -13,5 +13,4 @@ import java.util.UUID;
 public interface ErrorFilesetStudentRepository extends JpaRepository<ErrorFilesetStudentEntity, UUID>, JpaSpecificationExecutor<ErrorFilesetStudentEntity> {
     Optional<ErrorFilesetStudentEntity> findByIncomingFileset_IncomingFilesetIDAndPen(UUID incomingFilesetId, String pen);
     List<ErrorFilesetStudentEntity> findAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetId);
-    long countAllByIncomingFileset_IncomingFilesetID(UUID incomingFilesetId);
 }

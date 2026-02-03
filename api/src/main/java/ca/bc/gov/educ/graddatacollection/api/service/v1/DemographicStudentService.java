@@ -18,7 +18,6 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -40,11 +39,9 @@ import java.util.*;
 public class DemographicStudentService {
     private static final String DEMOGRAPHIC_STUDENT_ID = "demographicStudentID";
     private final MessagePublisher messagePublisher;
-    private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
     private final DemographicStudentRepository demographicStudentRepository;
     private final FinalDemographicStudentRepository finalDemographicStudentRepository;
-    private final DemographicRulesService demographicRulesService;
     private final DemographicStudentRulesProcessor demographicStudentRulesProcessor;
     private final ErrorFilesetStudentService errorFilesetStudentService;
     private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
@@ -98,9 +95,12 @@ public class DemographicStudentService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void setStudentStatus(final UUID demographicStudentID, final SchoolStudentStatus status) {
+    public void setStudentStatusAndFlagErrorIfRequired(final UUID demographicStudentID, final SchoolStudentStatus status, boolean flagError) {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
         if(currentStudentEntity.isPresent()) {
+            if(flagError){
+                flagErrorOnStudent(currentStudentEntity.get());
+            }
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
             saveDemographicStudent(currentStudentEntity.get());
         } else {
@@ -175,12 +175,11 @@ public class DemographicStudentService {
         }
     }
 
-    public void flagErrorOnStudent(final DemographicStudent demographicStudent) {
+    private void flagErrorOnStudent(final DemographicStudentEntity demographicStudent) {
         try{
-            var demographicStudentEntity = demographicRulesService.getDemographicDataForStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), demographicStudent.getLastName(), demographicStudent.getLocalID());
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(demographicStudent.getIncomingFilesetID()), demographicStudent.getPen(), demographicStudentEntity, demographicStudent.getCreateUser(), LocalDateTime.parse(demographicStudent.getCreateDate()), demographicStudent.getUpdateUser(), LocalDateTime.parse(demographicStudent.getUpdateDate()));
+            errorFilesetStudentService.flagErrorOnStudent(demographicStudent.getIncomingFileset().getIncomingFilesetID(), demographicStudent.getPen(), demographicStudent, demographicStudent.getCreateUser(), demographicStudent.getCreateDate(), demographicStudent.getUpdateUser(), demographicStudent.getUpdateDate());
         } catch (Exception e) {
-            log.info("Adding student to error fileset failed, will be retried :: {}", e);
+            log.info("Adding student to error fileset failed, will be retried :: {}", e.getMessage());
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
         }
     }

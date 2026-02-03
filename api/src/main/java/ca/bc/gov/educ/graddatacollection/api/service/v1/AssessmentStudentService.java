@@ -5,6 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
+import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
@@ -15,10 +16,11 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepo
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalAssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentRulesProcessor;
+import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentSagaData;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.AssessmentStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -42,9 +44,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AssessmentStudentService {
     private final MessagePublisher messagePublisher;
-    private final IncomingFilesetRepository incomingFilesetRepository;
     private final RestUtils restUtils;
-    private final AssessmentRulesService assessmentRulesService;
     private final AssessmentStudentRepository assessmentStudentRepository;
     private final FinalAssessmentStudentRepository finalAssessmentStudentRepository;
     private final AssessmentStudentRulesProcessor assessmentStudentRulesProcessor;
@@ -83,14 +83,40 @@ public class AssessmentStudentService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void setStudentStatus(final UUID assessmentStudentID, final SchoolStudentStatus status) {
+    public void setStudentStatusAndFlagErrorIfRequired(final UUID assessmentStudentID, final SchoolStudentStatus status, final DemographicStudentEntity demographicStudentEntity, boolean flagError) {
         var currentStudentEntity = this.assessmentStudentRepository.findById(assessmentStudentID);
         if(currentStudentEntity.isPresent()) {
+            if(flagError) {
+                flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
+            }
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
             saveAssessmentStudent(currentStudentEntity.get());
         } else {
             throw new EntityNotFoundException(AssessmentStudentEntity.class, ASSESSMENT_STUDENT_ID, assessmentStudentID.toString());
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setDemValidationErrorAndStudentStatusAndFlagError(final UUID assessmentStudentID, final SchoolStudentStatus status, DemographicStudentEntity demographicStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description) {
+        var currentStudentEntity = this.assessmentStudentRepository.findById(assessmentStudentID);
+        if(currentStudentEntity.isPresent()) {
+            flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
+            currentStudentEntity.get().setStudentStatusCode(status.getCode());
+            currentStudentEntity.get().getAssessmentStudentValidationIssueEntities().add(createValidationIssue(currentStudentEntity.get(), severityCode, fieldCode, typeCode, description));
+            saveAssessmentStudent(currentStudentEntity.get());
+        } else {
+            throw new EntityNotFoundException(AssessmentStudentEntity.class, ASSESSMENT_STUDENT_ID, assessmentStudentID.toString());
+        }
+    }
+
+    private AssessmentStudentValidationIssueEntity createValidationIssue(AssessmentStudentEntity assessmentStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description){
+        AssessmentStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssue = new AssessmentStudentValidationIssueEntity();
+        sdcSchoolCollectionStudentValidationIssue.setAssessmentStudent(assessmentStudentEntity);
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
+        sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
+        return sdcSchoolCollectionStudentValidationIssue;
     }
 
     public List<AssessmentStudentValidationIssue> runValidationRules(AssessmentStudentEntity assessmentStudentEntity, SchoolTombstone schoolTombstone) {
@@ -155,10 +181,9 @@ public class AssessmentStudentService {
         }
     }
 
-    public void flagErrorOnStudent(final AssessmentStudent assessmentStudent) {
+    public void flagErrorOnStudent(final AssessmentStudentEntity assessmentStudent, DemographicStudentEntity demographicStudentEntity) {
         try {
-            var demographicStudentEntity = assessmentRulesService.getDemographicDataForStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), assessmentStudent.getLastName(), assessmentStudent.getLocalID());
-            errorFilesetStudentService.flagErrorOnStudent(UUID.fromString(assessmentStudent.getIncomingFilesetID()), assessmentStudent.getPen(), demographicStudentEntity, assessmentStudent.getCreateUser(), LocalDateTime.parse(assessmentStudent.getCreateDate()), assessmentStudent.getUpdateUser(), LocalDateTime.parse(assessmentStudent.getUpdateDate()));
+            errorFilesetStudentService.flagErrorOnStudent(assessmentStudent.getIncomingFileset().getIncomingFilesetID(), assessmentStudent.getPen(), demographicStudentEntity, assessmentStudent.getCreateUser(), assessmentStudent.getCreateDate(), assessmentStudent.getUpdateUser(), assessmentStudent.getUpdateDate());
         } catch (Exception e) {
             log.info("Adding student to error fileset failed, will be retried :: {}", e);
             throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
