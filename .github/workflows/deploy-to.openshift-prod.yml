@@ -131,7 +131,7 @@ jobs:
             -p APP_NAME=${{ env.APP_NAME }} \
             -p REPO_NAME=${{ env.REPO_NAME }} \
             -p BRANCH=${{ env.BRANCH }} \
-            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_PROD }} \
+            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} \
             -p TAG=${{ steps.get-latest-tag.outputs.tag }} \
             -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} \
             -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
