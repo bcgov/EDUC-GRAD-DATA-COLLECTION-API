@@ -5,7 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReportingSummaryService {
 
-    private final IncomingFilesetRepository incomingFilesetRepository;
+    private final FinalIncomingFilesetRepository finalIncomingFilesetRepository;
     private final ReportingPeriodRepository reportingPeriodRepository;
     private final RestUtils restUtils;
     private static final String SUMMER_COLLECTION_TYPE = "Summer";
@@ -51,11 +51,11 @@ public class ReportingSummaryService {
         List<SchoolSubmissionCount> last30DaysSubmissionCount;
 
         if(isSummer) {
-            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingEntity.getReportingPeriodID(), reportingEntity.getSummerStart(), reportingEntity.getSummerEnd());
-            last30DaysSubmissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSummerStart());
+            submissionCount = finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingEntity.getReportingPeriodID(), reportingEntity.getSummerStart(), reportingEntity.getSummerEnd());
+            last30DaysSubmissionCount = finalIncomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSummerStart());
         } else {
-            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
-            last30DaysSubmissionCount = incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart());
+            submissionCount = finalIncomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
+            last30DaysSubmissionCount = finalIncomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingEntity.getReportingPeriodID(), reportingEntity.getSchYrStart());
         }
 
         List<SchoolTombstone> schools = getEligibleSchools(reportingEntity, isSummer);
@@ -112,9 +112,9 @@ public class ReportingSummaryService {
 
         List<SchoolSubmissionCount> submissionCount;
         if (Boolean.TRUE.equals(isSummer)) {
-            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodID, reportingEntity.getSummerStart(), reportingEntity.getSummerEnd());
+            submissionCount = finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodID, reportingEntity.getSummerStart(), reportingEntity.getSummerEnd());
         } else {
-            submissionCount = incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodID, reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
+            submissionCount = finalIncomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodID, reportingEntity.getSchYrStart(), reportingEntity.getSchYrEnd());
         }
 
         List<SchoolTombstone> schools = getEligibleSchools(reportingEntity, isSummer);
