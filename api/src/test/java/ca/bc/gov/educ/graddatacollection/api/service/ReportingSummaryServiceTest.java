@@ -2,7 +2,7 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalIncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.ReportingSummaryService;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 class ReportingSummaryServiceTest {
 
     @Mock
-    private IncomingFilesetRepository incomingFilesetRepository;
+    private FinalIncomingFilesetRepository finalIncomingFilesetRepository;
     
     @Mock
     private ReportingPeriodRepository reportingPeriodRepository;
@@ -55,7 +55,7 @@ class ReportingSummaryServiceTest {
                 .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
                 .build();
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
-        when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(Collections.emptyList());
         SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
 
@@ -74,7 +74,7 @@ class ReportingSummaryServiceTest {
         assertNotNull(result);
         assertFalse(result.getRows().isEmpty());
         assertTrue(result.getRows().stream().anyMatch(r -> r.getCategoryOrFacilityType().equals("Public") && r.getSchoolsExpected().equals("1")));
-        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
+        verify(finalIncomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
     }
 
     @Test
@@ -92,7 +92,7 @@ class ReportingSummaryServiceTest {
                 .periodEnd(now.plusMonths(1))
                 .build();
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
-        when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(Collections.emptyList());
         SchoolTombstone school = SchoolTombstone.builder()
                 .schoolId("SCHOOL1")
@@ -117,7 +117,7 @@ class ReportingSummaryServiceTest {
         assertNotNull(result);
         assertFalse(result.getRows().isEmpty());
         assertTrue(result.getRows().stream().anyMatch(r -> r.getCategoryOrFacilityType().equals("Public") && r.getSchoolsExpected().equals("1")));
-        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
+        verify(finalIncomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
     }
 
     @Test
@@ -131,7 +131,7 @@ class ReportingSummaryServiceTest {
                 .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
                 .build();
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
-        when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(Collections.emptyList());
         SchoolTombstone school = SchoolTombstone.builder()
                 .schoolId("SCHOOL1")
@@ -157,7 +157,7 @@ class ReportingSummaryServiceTest {
         assertNotNull(result);
         assertFalse(result.getRows().isEmpty());
         assertTrue(result.getRows().stream().anyMatch(r -> r.getCategoryOrFacilityType().equals("Public") && r.getSchoolsExpected().equals("0")));
-        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
+        verify(finalIncomingFilesetRepository, times(1)).findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
     }
 
     @Test
@@ -171,9 +171,9 @@ class ReportingSummaryServiceTest {
                 .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
                 .build();
         when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
-        when(incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
                 .thenReturn(Collections.emptyList());
-        when(incomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart()))
                 .thenReturn(Collections.emptyList());
 
         var gradSchool = GradSchool.builder()
@@ -188,8 +188,8 @@ class ReportingSummaryServiceTest {
         ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Other");
         assertNotNull(result);
         assertFalse(result.getRows().isEmpty());
-        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd());
-        verify(incomingFilesetRepository, times(1)).findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart());
+        verify(finalIncomingFilesetRepository, times(1)).findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd());
+        verify(finalIncomingFilesetRepository, times(1)).findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart());
     }
 
     @Test
@@ -213,7 +213,7 @@ class ReportingSummaryServiceTest {
             public LocalDateTime getLastSubmissionDate() { return null; }
         };
         
-        when(incomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
                 .thenReturn(List.of(submission));
         SchoolTombstone school = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
         var gradSchool = GradSchool.builder()
@@ -229,7 +229,7 @@ class ReportingSummaryServiceTest {
         List<SchoolSubmissionCount> result = reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodId, null, true);
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(incomingFilesetRepository, times(1))
+        verify(finalIncomingFilesetRepository, times(1))
                 .findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd());
     }
 
@@ -262,7 +262,7 @@ class ReportingSummaryServiceTest {
             public LocalDateTime getLastSubmissionDate() { return null; }
         };
         
-        when(incomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
                 .thenReturn(List.of(submission1, submission2));
         SchoolTombstone school1 = SchoolTombstone.builder().schoolId("SCHOOL1").schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
         SchoolTombstone school2 = SchoolTombstone.builder().schoolId("SCHOOL2").schoolCategoryCode("INDEPEND").facilityTypeCode("STANDARD").openedDate("1964-09-01T00:00:00").build();
@@ -288,7 +288,7 @@ class ReportingSummaryServiceTest {
 
         List<SchoolSubmissionCount> resultAll = reportingSummaryService.getSchoolSubmissionCounts(reportingPeriodId, "", false);
         assertEquals(2, resultAll.size());
-        verify(incomingFilesetRepository, times(3))
+        verify(finalIncomingFilesetRepository, times(3))
                 .findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd());
     }
     
