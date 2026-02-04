@@ -29,7 +29,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     @Query(value = """
     SELECT inFileset.school_id as schoolID,
     COUNT(inFileset.incoming_fileset_id) as submissionCount
-    FROM incoming_fileset inFileset
+    FROM final_incoming_fileset inFileset
     WHERE inFileset.fileset_status_code = 'COMPLETED'
     AND inFileset.create_date >= GREATEST(:reportingStartDate, (CURRENT_TIMESTAMP - INTERVAL '30' day))
     AND inFileset.reporting_period_id = :reportingPeriodID
@@ -41,7 +41,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     SELECT inFileset.schoolID as schoolID,
     COUNT(inFileset.incomingFilesetID) as submissionCount,
     MAX(inFileset.createDate) as lastSubmissionDate
-    FROM IncomingFilesetEntity inFileset
+    FROM FinalIncomingFilesetEntity inFileset
     WHERE inFileset.filesetStatusCode = 'COMPLETED'
     AND inFileset.createDate >= :summerStartDate
     AND inFileset.createDate <= :summerEndDate
@@ -54,7 +54,7 @@ public interface IncomingFilesetRepository extends JpaRepository<IncomingFileset
     SELECT inFileset.schoolID as schoolID,
     COUNT(inFileset.incomingFilesetID) as submissionCount,
     MAX(inFileset.createDate) as lastSubmissionDate
-    FROM IncomingFilesetEntity inFileset
+    FROM FinalIncomingFilesetEntity inFileset
     WHERE inFileset.filesetStatusCode = 'COMPLETED'
     AND inFileset.createDate >= :schoolStartDate
     AND inFileset.createDate <= :schoolEndDate
