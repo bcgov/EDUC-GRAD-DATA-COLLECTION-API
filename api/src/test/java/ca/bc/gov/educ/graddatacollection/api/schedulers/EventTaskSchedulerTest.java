@@ -62,10 +62,10 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     public void setUp() {
         this.demographicStudentRepository.deleteAll();
+        this.assessmentStudentRepository.deleteAll();
+        this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.incomingFilesetPurgeRepository.deleteAll();
-        this.courseStudentRepository.deleteAll();
-        this.assessmentStudentRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
 
