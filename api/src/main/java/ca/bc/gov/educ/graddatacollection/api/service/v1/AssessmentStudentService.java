@@ -97,25 +97,29 @@ public class AssessmentStudentService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void setDemValidationErrorAndStudentStatusAndFlagError(final UUID assessmentStudentID, final SchoolStudentStatus status, DemographicStudentEntity demographicStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description) {
+    public void setDemValidationErrorAndStudentStatusAndFlagError(final UUID assessmentStudentID, final SchoolStudentStatus status, DemographicStudentEntity demographicStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description, String updateUser) {
         var currentStudentEntity = this.assessmentStudentRepository.findById(assessmentStudentID);
         if(currentStudentEntity.isPresent()) {
             flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
-            currentStudentEntity.get().getAssessmentStudentValidationIssueEntities().add(createValidationIssue(currentStudentEntity.get(), severityCode, fieldCode, typeCode, description));
+            currentStudentEntity.get().getAssessmentStudentValidationIssueEntities().add(createValidationIssue(currentStudentEntity.get(), severityCode, fieldCode, typeCode, description, updateUser));
             saveAssessmentStudent(currentStudentEntity.get());
         } else {
             throw new EntityNotFoundException(AssessmentStudentEntity.class, ASSESSMENT_STUDENT_ID, assessmentStudentID.toString());
         }
     }
 
-    private AssessmentStudentValidationIssueEntity createValidationIssue(AssessmentStudentEntity assessmentStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description){
+    private AssessmentStudentValidationIssueEntity createValidationIssue(AssessmentStudentEntity assessmentStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description, String updateUser){
         AssessmentStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssue = new AssessmentStudentValidationIssueEntity();
         sdcSchoolCollectionStudentValidationIssue.setAssessmentStudent(assessmentStudentEntity);
         sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
         sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
         sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
         sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
+        sdcSchoolCollectionStudentValidationIssue.setCreateDate(LocalDateTime.now());
+        sdcSchoolCollectionStudentValidationIssue.setCreateUser(updateUser);
+        sdcSchoolCollectionStudentValidationIssue.setUpdateUser(updateUser);
+        sdcSchoolCollectionStudentValidationIssue.setUpdateDate(LocalDateTime.now());
         return sdcSchoolCollectionStudentValidationIssue;
     }
 

@@ -63,7 +63,7 @@ public class CourseStudentProcessingOrchestrator extends BaseOrchestrator<Course
         var hasWarning = validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()));
         courseStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.UPDATE_CRS, demStudent, hasWarning);
       }else{
-        courseStudentService.setDemValidationErrorStudentStatusAndFlagError(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_HAS_DEM_BLOCKING, CourseStudentValidationIssueTypeCode.COURSE_HAS_DEM_BLOCKING.getMessage());
+        courseStudentService.setDemValidationErrorStudentStatusAndFlagError(UUID.fromString(courseStudentSagaData.getCourseStudent().getCourseStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_HAS_DEM_BLOCKING, CourseStudentValidationIssueTypeCode.COURSE_HAS_DEM_BLOCKING.getMessage(), demStudent.getUpdateUser());
       }
     } 
 

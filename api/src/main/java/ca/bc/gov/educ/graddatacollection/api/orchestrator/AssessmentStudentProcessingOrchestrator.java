@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.orchestrator;
 
+import ca.bc.gov.educ.graddatacollection.api.batch.service.GradDemFileService;
 import ca.bc.gov.educ.graddatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
@@ -33,12 +34,14 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
   private final AssessmentStudentService assessmentStudentService;
   private final AssessmentRulesService assessmentRulesService;
   private final RestUtils restUtils;
+  private final GradDemFileService dem;
 
-  protected AssessmentStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, AssessmentStudentService assessmentStudentService, AssessmentRulesService assessmentRulesService, RestUtils restUtils) {
+  protected AssessmentStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, AssessmentStudentService assessmentStudentService, AssessmentRulesService assessmentRulesService, RestUtils restUtils, GradDemFileService dem) {
     super(sagaService, messagePublisher, AssessmentStudentSagaData.class, SagaEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_ASSESSMENT_STUDENTS_SAGA_TOPIC.toString());
     this.assessmentStudentService = assessmentStudentService;
     this.assessmentRulesService = assessmentRulesService;
     this.restUtils = restUtils;
+    this.dem = dem;
   }
 
   @Override
@@ -72,7 +75,7 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
         assessmentStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED, demStudent, hasWarning);
         eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
       } else {
-        assessmentStudentService.setDemValidationErrorAndStudentStatusAndFlagError(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING.getMessage());
+        assessmentStudentService.setDemValidationErrorAndStudentStatusAndFlagError(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING.getMessage(), demStudent.getUpdateUser());
         eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
       }
     } 
