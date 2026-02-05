@@ -70,14 +70,14 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
       assessmentStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.ERROR, demStudent, true);
       eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
     } else {
-      if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
-        var hasWarning = validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()));
-        assessmentStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED, demStudent, hasWarning);
-        eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
-      } else {
-        assessmentStudentService.setDemValidationErrorAndStudentStatusAndFlagError(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING.getMessage(), demStudent.getUpdateUser());
-        eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
-      }
+//      if(!demStudent.getStudentStatusCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.getCode())) {
+      var hasWarning = validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()));
+      assessmentStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.VERIFIED, demStudent, hasWarning);
+      eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR);
+//      } else {
+//        assessmentStudentService.setDemValidationErrorAndStudentStatusAndFlagError(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), SchoolStudentStatus.ERROR, demStudent, StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING, AssessmentStudentValidationIssueTypeCode.ASSESSMENT_HAS_DEM_BLOCKING.getMessage(), demStudent.getUpdateUser());
+//        eventBuilder.eventOutcome(VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR);
+//      }
     } 
 
     val nextEvent = eventBuilder.build();
