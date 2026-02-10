@@ -4,7 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.EventType;
 import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetPurgeEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.ReportingPeriodEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
@@ -51,6 +51,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
     @Autowired
+    FinalIncomingFilesetPurgeRepository finalIncomingFilesetPurgeRepository;
+    @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
@@ -66,6 +68,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.incomingFilesetPurgeRepository.deleteAll();
+        this.finalIncomingFilesetPurgeRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
 
@@ -195,7 +198,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     void testSetupReportingPeriodForUpcomingYearAndOldFilesets() {
         var pe = reportingPeriodRepository.save(createMockReportingPeriodEntity());
 
-        var fileset = IncomingFilesetPurgeEntity.builder()
+        var fileset = FinalIncomingFilesetEntity.builder()
                 .demFileName("Test.dem")
                 .xamFileName("Test.xam")
                 .crsFileName("Test.crs")
@@ -204,11 +207,11 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
                 .createDate(LocalDateTime.now().minusYears(6))
                 .updateDate(LocalDateTime.now())
                 .build();
-        incomingFilesetPurgeRepository.save(fileset);
+        finalIncomingFilesetPurgeRepository.save(fileset);
 
         eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
 
-        var incomingSets = incomingFilesetPurgeRepository.findAll();
+        var incomingSets = finalIncomingFilesetPurgeRepository.findAll();
         assertThat(incomingSets).hasSize(0);
     }
 }
