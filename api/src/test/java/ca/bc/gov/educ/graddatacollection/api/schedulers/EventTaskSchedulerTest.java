@@ -179,7 +179,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         LocalDate periodEndDate = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 30);
         LocalDateTime periodEnd = periodEndDate.atTime(23, 59, 59, 0);
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge2YearOldFilesets();
 
         List<ReportingPeriodEntity> reportingPeriods = reportingPeriodRepository.findAll();
         assertThat(reportingPeriods)
@@ -209,7 +209,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
                 .build();
         finalIncomingFilesetPurgeRepository.save(fileset);
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge2YearOldFilesets();
 
         var incomingSets = finalIncomingFilesetPurgeRepository.findAll();
         assertThat(incomingSets).hasSize(0);

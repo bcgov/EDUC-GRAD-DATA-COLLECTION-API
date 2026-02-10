@@ -149,7 +149,7 @@ public class EventTaskSchedulerAsyncService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void createReportingPeriodForYearAndPurge5YearOldFilesets(){
+  public void createReportingPeriodForYearAndPurge2YearOldFilesets(){
     int schoolYearStart = LocalDate.now().getYear();
     try {
       if (this.reportingPeriodRepository.upcomingReportingPeriodDoesNotExist(schoolYearStart)) {
