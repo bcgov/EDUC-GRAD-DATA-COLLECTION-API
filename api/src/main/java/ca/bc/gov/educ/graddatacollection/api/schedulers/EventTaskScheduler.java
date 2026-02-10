@@ -57,7 +57,7 @@ public class EventTaskScheduler {
   public void setupReportingPeriodForUpcomingYear() {
     LockAssert.assertLocked();
     log.debug("Started setupReportingPeriodForUpcomingYear scheduler");
-    this.getTaskSchedulerAsyncService().createReportingPeriodForYearAndPurge5YearOldFilesets();
+    this.getTaskSchedulerAsyncService().createReportingPeriodForYearAndPurge2YearOldFilesets();
     log.debug("Scheduler setupReportingPeriodForYear complete");
   }
 }

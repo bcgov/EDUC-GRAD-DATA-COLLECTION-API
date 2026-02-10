@@ -2,8 +2,8 @@ package ca.bc.gov.educ.graddatacollection.api.service;
 
 import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetPurgeEntity;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetPurgeEntity;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetPurgeRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
@@ -116,14 +116,14 @@ class IncomingFilesetServiceTest extends BaseGradDataCollectionAPITest {
         return incomingFilesetRepository.save(mockFileset);
     }
 
-    private FinalIncomingFilesetPurgeEntity setupMockFinalIncomingFileset(boolean allFilesUploaded, LocalDateTime timestamp) {
+    private IncomingFilesetPurgeEntity setupMockFinalIncomingFileset(boolean allFilesUploaded, LocalDateTime timestamp) {
         var school = this.createMockSchoolTombstone();
         school.setMincode("07965039");
         when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
 
         var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
 
-        var mockFileset = FinalIncomingFilesetPurgeEntity.builder()
+        var mockFileset = IncomingFilesetPurgeEntity.builder()
                 .schoolID(UUID.fromString(school.getSchoolId()))
                 .demFileName("Test.dem")
                 .xamFileName(allFilesUploaded ? "Test.xam" : null)

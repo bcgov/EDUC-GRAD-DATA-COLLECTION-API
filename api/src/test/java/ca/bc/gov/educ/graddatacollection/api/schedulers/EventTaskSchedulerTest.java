@@ -51,6 +51,8 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     @Autowired
     IncomingFilesetPurgeRepository incomingFilesetPurgeRepository;
     @Autowired
+    FinalIncomingFilesetPurgeRepository finalIncomingFilesetPurgeRepository;
+    @Autowired
     CourseStudentRepository courseStudentRepository;
     @Autowired
     AssessmentStudentRepository assessmentStudentRepository;
@@ -66,6 +68,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.incomingFilesetPurgeRepository.deleteAll();
+        this.finalIncomingFilesetPurgeRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
     }
 
@@ -176,7 +179,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         LocalDate periodEndDate = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 30);
         LocalDateTime periodEnd = periodEndDate.atTime(23, 59, 59, 0);
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge2YearOldFilesets();
 
         List<ReportingPeriodEntity> reportingPeriods = reportingPeriodRepository.findAll();
         assertThat(reportingPeriods)
@@ -204,11 +207,11 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
                 .createDate(LocalDateTime.now().minusYears(6))
                 .updateDate(LocalDateTime.now())
                 .build();
-        incomingFilesetPurgeRepository.save(fileset);
+        finalIncomingFilesetPurgeRepository.save(fileset);
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge5YearOldFilesets();
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge2YearOldFilesets();
 
-        var incomingSets = incomingFilesetPurgeRepository.findAll();
+        var incomingSets = finalIncomingFilesetPurgeRepository.findAll();
         assertThat(incomingSets).hasSize(0);
     }
 }

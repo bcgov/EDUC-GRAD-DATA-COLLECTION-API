@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.graddatacollection.api.repository.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetPurgeEntity;
+import ca.bc.gov.educ.graddatacollection.api.model.v1.FinalIncomingFilesetPurgeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,10 +12,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
-public interface IncomingFilesetPurgeRepository extends JpaRepository<IncomingFilesetPurgeEntity, UUID>, JpaSpecificationExecutor<IncomingFilesetPurgeEntity> {
+public interface FinalIncomingFilesetPurgeRepository extends JpaRepository<FinalIncomingFilesetPurgeEntity, UUID>, JpaSpecificationExecutor<FinalIncomingFilesetPurgeEntity> {
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM IncomingFilesetPurgeEntity WHERE updateDate <= :oldestIncomingFilesetTimestamp AND (demFileName is null OR crsFileName is null OR xamFileName is null)")
-    void deleteStaleWithUpdateDateBefore(LocalDateTime oldestIncomingFilesetTimestamp);
+    @Query("DELETE FROM FinalIncomingFilesetPurgeEntity WHERE createDate <= :deleteDate")
+    void deleteWithCreateDateBefore(LocalDateTime deleteDate);
 }
+
