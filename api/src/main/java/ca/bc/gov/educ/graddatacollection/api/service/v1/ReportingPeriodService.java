@@ -79,9 +79,9 @@ public class ReportingPeriodService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void purgeReportingPeriodFor5YearsAgo(){
+    public void purgeReportingPeriodFor2YearsAgo(){
         int octoberMonth = Month.OCTOBER.getValue();
-        LocalDateTime october1stFiveYearsAgo = LocalDateTime.now().withDayOfMonth(1).withMonth(octoberMonth).minusYears(5);
+        LocalDateTime october1stFiveYearsAgo = LocalDateTime.now().withDayOfMonth(1).withMonth(octoberMonth).minusYears(2);
         finalIncomingFilesetPurgeRepository.deleteWithCreateDateBefore(october1stFiveYearsAgo);
     }
 
