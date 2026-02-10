@@ -22,7 +22,7 @@ public interface SagaRepository extends JpaRepository<GradSagaEntity, UUID>, Jpa
 
   @Transactional
   @Modifying
-  @Query("delete from GradSagaEntity where createDate <= :createDate")
+  @Query("delete from GradSagaEntity where createDate <= :createDate and status = 'COMPLETED'")
   void deleteByCreateDateBefore(LocalDateTime createDate);
 
   List<GradSagaEntity> findTop500ByStatusInOrderByCreateDate(List<String> statuses);
