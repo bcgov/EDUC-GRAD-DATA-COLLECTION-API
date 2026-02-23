@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,8 +21,8 @@ public interface SagaRepository extends JpaRepository<GradSagaEntity, UUID>, Jpa
 
   @Transactional
   @Modifying
-  @Query("delete from GradSagaEntity where createDate <= :createDate and status = 'COMPLETED'")
-  void deleteByCreateDateBefore(LocalDateTime createDate);
+  @Query("delete from GradSagaEntity where status = 'COMPLETED'")
+  void deleteAllCompletedSagas();
 
   List<GradSagaEntity> findTop500ByStatusInOrderByCreateDate(List<String> statuses);
 
