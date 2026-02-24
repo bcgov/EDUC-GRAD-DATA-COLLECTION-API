@@ -8,6 +8,8 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRe
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,26 @@ public class ErrorFilesetStudentService {
             newErrorFilesetStudent.setCreateDate(createDate);
             newErrorFilesetStudent.setUpdateUser(updateUser);
             newErrorFilesetStudent.setUpdateDate(updateDate);
-            errorFilesetStudentRepository.save(newErrorFilesetStudent);
+            try {
+                errorFilesetStudentRepository.save(newErrorFilesetStudent);
+            } catch (DataIntegrityViolationException e) {
+                if (isUniqueConstraintViolation(e)) {
+                    log.debug("Error fileset student already exists for pen {} and incomingFilesetID {}, ignoring duplicate insert.", pen, incomingFilesetID);
+                } else {
+                    throw e;
+                }
+            }
         }
+    }
+
+    private boolean isUniqueConstraintViolation(Throwable e) {
+        Throwable cause = e;
+        while (cause != null) {
+            if (cause instanceof PSQLException psql && "23505".equals(psql.getSQLState())) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 }
