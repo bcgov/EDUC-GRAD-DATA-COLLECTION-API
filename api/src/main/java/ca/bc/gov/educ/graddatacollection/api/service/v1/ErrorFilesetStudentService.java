@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ErrorFilesetStudentService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         errorFilesetStudentRepository.insertIgnoreConflict(
                 UUID.randomUUID(),
