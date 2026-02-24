@@ -1,22 +1,14 @@
 package ca.bc.gov.educ.graddatacollection.api.service.v1;
 
-import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.DemographicStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.ErrorFilesetStudentEntity;
-import ca.bc.gov.educ.graddatacollection.api.model.v1.IncomingFilesetEntity;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.postgresql.util.PSQLException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,28 +16,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ErrorFilesetStudentService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
-    private final IncomingFilesetRepository incomingFilesetRepository;
 
-    @Retryable(retryFor = {PSQLException.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
-        Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
-        if (preexisting.isEmpty()) {
-            var fileSet = incomingFilesetRepository.findById(incomingFilesetID).orElseThrow(() -> new EntityNotFoundException(IncomingFilesetEntity.class, "incomingFilesetID", incomingFilesetID.toString()));
-            ErrorFilesetStudentEntity newErrorFilesetStudent = new ErrorFilesetStudentEntity();
-            newErrorFilesetStudent.setIncomingFileset(fileSet);
-            newErrorFilesetStudent.setPen(pen);
-            if(demStudent != null) {
-                newErrorFilesetStudent.setLocalID(demStudent.getLocalID());
-                newErrorFilesetStudent.setLastName(demStudent.getLastName());
-                newErrorFilesetStudent.setFirstName(demStudent.getFirstName());
-                newErrorFilesetStudent.setBirthdate(demStudent.getBirthdate());
-            }
-            newErrorFilesetStudent.setCreateUser(createUser);
-            newErrorFilesetStudent.setCreateDate(createDate);
-            newErrorFilesetStudent.setUpdateUser(updateUser);
-            newErrorFilesetStudent.setUpdateDate(updateDate);
-            errorFilesetStudentRepository.save(newErrorFilesetStudent);
-        }
+        errorFilesetStudentRepository.insertIgnoreConflict(
+                UUID.randomUUID(),
+                incomingFilesetID,
+                pen,
+                demStudent != null ? demStudent.getLocalID() : null,
+                demStudent != null ? demStudent.getLastName() : null,
+                demStudent != null ? demStudent.getFirstName() : null,
+                demStudent != null ? demStudent.getBirthdate() : null,
+                createUser,
+                createDate,
+                updateUser,
+                updateDate
+        );
     }
 }
