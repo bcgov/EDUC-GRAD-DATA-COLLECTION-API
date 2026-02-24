@@ -99,20 +99,6 @@ public class AssessmentStudentService {
         }
     }
 
-    private AssessmentStudentValidationIssueEntity createValidationIssue(AssessmentStudentEntity assessmentStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description, String updateUser){
-        AssessmentStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssue = new AssessmentStudentValidationIssueEntity();
-        sdcSchoolCollectionStudentValidationIssue.setAssessmentStudent(assessmentStudentEntity);
-        sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
-        sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());
-        sdcSchoolCollectionStudentValidationIssue.setValidationIssueFieldCode(fieldCode.getCode());
-        sdcSchoolCollectionStudentValidationIssue.setValidationIssueDescription(description);
-        sdcSchoolCollectionStudentValidationIssue.setCreateDate(LocalDateTime.now());
-        sdcSchoolCollectionStudentValidationIssue.setCreateUser(updateUser);
-        sdcSchoolCollectionStudentValidationIssue.setUpdateUser(updateUser);
-        sdcSchoolCollectionStudentValidationIssue.setUpdateDate(LocalDateTime.now());
-        return sdcSchoolCollectionStudentValidationIssue;
-    }
-
     public List<AssessmentStudentValidationIssue> runValidationRules(AssessmentStudentEntity assessmentStudentEntity, SchoolTombstone schoolTombstone) {
         StudentRuleData studentRuleData = new StudentRuleData();
         studentRuleData.setAssessmentStudentEntity(assessmentStudentEntity);
