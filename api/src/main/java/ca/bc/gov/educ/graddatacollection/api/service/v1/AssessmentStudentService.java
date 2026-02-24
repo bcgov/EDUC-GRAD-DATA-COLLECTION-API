@@ -7,14 +7,12 @@ import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.AssessmentStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.AssessmentStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalAssessmentStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.assessment.AssessmentStudentRulesProcessor;
@@ -87,7 +85,7 @@ public class AssessmentStudentService {
         var currentStudentEntity = this.assessmentStudentRepository.findById(assessmentStudentID);
         if(currentStudentEntity.isPresent()) {
             if(flagError) {
-                flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
+                errorFilesetStudentService.flagErrorOnStudent(currentStudentEntity.get().getIncomingFileset().getIncomingFilesetID(), currentStudentEntity.get().getPen(), demographicStudentEntity, currentStudentEntity.get().getCreateUser(), currentStudentEntity.get().getCreateDate(), currentStudentEntity.get().getUpdateUser(), currentStudentEntity.get().getUpdateDate());
             }
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
             saveAssessmentStudent(currentStudentEntity.get());
@@ -100,7 +98,7 @@ public class AssessmentStudentService {
     public void setDemValidationErrorAndStudentStatusAndFlagError(final UUID assessmentStudentID, final SchoolStudentStatus status, DemographicStudentEntity demographicStudentEntity, StudentValidationIssueSeverityCode severityCode, ValidationFieldCode fieldCode, AssessmentStudentValidationIssueTypeCode typeCode, String description, String updateUser) {
         var currentStudentEntity = this.assessmentStudentRepository.findById(assessmentStudentID);
         if(currentStudentEntity.isPresent()) {
-            flagErrorOnStudent(currentStudentEntity.get(), demographicStudentEntity);
+            errorFilesetStudentService.flagErrorOnStudent(currentStudentEntity.get().getIncomingFileset().getIncomingFilesetID(), currentStudentEntity.get().getPen(), demographicStudentEntity, currentStudentEntity.get().getCreateUser(), currentStudentEntity.get().getCreateDate(), currentStudentEntity.get().getUpdateUser(), currentStudentEntity.get().getUpdateDate());
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
             currentStudentEntity.get().getAssessmentStudentValidationIssueEntities().add(createValidationIssue(currentStudentEntity.get(), severityCode, fieldCode, typeCode, description, updateUser));
             saveAssessmentStudent(currentStudentEntity.get());
@@ -185,13 +183,5 @@ public class AssessmentStudentService {
         }
     }
 
-    public void flagErrorOnStudent(final AssessmentStudentEntity assessmentStudent, DemographicStudentEntity demographicStudentEntity) {
-        try {
-            errorFilesetStudentService.flagErrorOnStudent(assessmentStudent.getIncomingFileset().getIncomingFilesetID(), assessmentStudent.getPen(), demographicStudentEntity, assessmentStudent.getCreateUser(), assessmentStudent.getCreateDate(), assessmentStudent.getUpdateUser(), assessmentStudent.getUpdateDate());
-        } catch (Exception e) {
-            log.info("Adding student to error fileset failed, will be retried :: {}", e);
-            throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
-        }
-    }
 
 }

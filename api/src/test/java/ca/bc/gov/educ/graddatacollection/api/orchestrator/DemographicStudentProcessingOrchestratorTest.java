@@ -9,6 +9,7 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ErrorFilesetStudentService;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
@@ -62,7 +63,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
     @Autowired
     DemographicStudentProcessingOrchestrator demographicStudentProcessingOrchestrator;
     @Autowired
-    ErrorFilesetStudentRepository errorFilesetStudentRepository;
+    ErrorFilesetStudentService errorFilesetStudentService;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -360,8 +361,7 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(VALIDATE_DEM_STUDENT.toString());
 
-        val errorFilesetRecord = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(mockFileset.getIncomingFilesetID(), demographicStudentEntity.getPen());
-        assertThat(errorFilesetRecord).isPresent();
+        verify(errorFilesetStudentService, atLeastOnce()).flagErrorOnStudent(eq(mockFileset.getIncomingFilesetID()), eq(demographicStudentEntity.getPen()), any(), any(), any(), any(), any());
     }
 
     @SneakyThrows

@@ -6,6 +6,7 @@ import ca.bc.gov.educ.graddatacollection.api.messaging.NatsConnection;
 import ca.bc.gov.educ.graddatacollection.api.messaging.jetstream.Publisher;
 import ca.bc.gov.educ.graddatacollection.api.messaging.jetstream.Subscriber;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.ErrorFilesetStudentService;
 import io.nats.client.Connection;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -67,6 +68,12 @@ public class MockConfiguration {
   @Primary
   public Subscriber subscriber() {
     return Mockito.mock(Subscriber.class);
+  }
+
+  @Bean
+  @Primary
+  public ErrorFilesetStudentService errorFilesetStudentService() {
+    return Mockito.mock(ErrorFilesetStudentService.class);
   }
 
 }
