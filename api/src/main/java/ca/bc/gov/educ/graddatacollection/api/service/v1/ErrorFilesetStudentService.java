@@ -8,9 +8,6 @@ import ca.bc.gov.educ.graddatacollection.api.repository.v1.ErrorFilesetStudentRe
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.postgresql.util.PSQLException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +23,7 @@ public class ErrorFilesetStudentService {
     private final ErrorFilesetStudentRepository errorFilesetStudentRepository;
     private final IncomingFilesetRepository incomingFilesetRepository;
 
-    @Retryable(retryFor = {PSQLException.class}, backoff = @Backoff(multiplier = 3, delay = 2000))
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void flagErrorOnStudent(UUID incomingFilesetID, String pen, DemographicStudentEntity demStudent, String createUser, LocalDateTime createDate, String updateUser, LocalDateTime updateDate) {
         Optional<ErrorFilesetStudentEntity> preexisting = errorFilesetStudentRepository.findByIncomingFileset_IncomingFilesetIDAndPen(incomingFilesetID, pen);
         if (preexisting.isEmpty()) {

@@ -6,14 +6,12 @@ import ca.bc.gov.educ.graddatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.FilesetStatus;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.SchoolStudentStatus;
 import ca.bc.gov.educ.graddatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.graddatacollection.api.exception.GradDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.graddatacollection.api.mappers.v1.DemographicStudentMapper;
 import ca.bc.gov.educ.graddatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.graddatacollection.api.model.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
 import ca.bc.gov.educ.graddatacollection.api.repository.v1.FinalDemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.struct.Event;
@@ -25,6 +23,7 @@ import ca.bc.gov.educ.graddatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -99,7 +98,11 @@ public class DemographicStudentService {
         var currentStudentEntity = this.demographicStudentRepository.findById(demographicStudentID);
         if(currentStudentEntity.isPresent()) {
             if(flagError){
-                flagErrorOnStudent(currentStudentEntity.get());
+                try {
+                    errorFilesetStudentService.flagErrorOnStudent(currentStudentEntity.get().getIncomingFileset().getIncomingFilesetID(), currentStudentEntity.get().getPen(), currentStudentEntity.get(), currentStudentEntity.get().getCreateUser(), currentStudentEntity.get().getCreateDate(), currentStudentEntity.get().getUpdateUser(), currentStudentEntity.get().getUpdateDate());
+                } catch (DataIntegrityViolationException e) {
+                    log.debug("Error fileset student already exists for pen {} and incomingFilesetID {}, ignoring duplicate insert.", currentStudentEntity.get().getPen(), currentStudentEntity.get().getIncomingFileset().getIncomingFilesetID());
+                }
             }
             currentStudentEntity.get().setStudentStatusCode(status.getCode());
             saveDemographicStudent(currentStudentEntity.get());
@@ -174,14 +177,4 @@ public class DemographicStudentService {
             log.error(EVENT_EMPTY_MSG, demographicStudentSagaData);
         }
     }
-
-    private void flagErrorOnStudent(final DemographicStudentEntity demographicStudent) {
-        try{
-            errorFilesetStudentService.flagErrorOnStudent(demographicStudent.getIncomingFileset().getIncomingFilesetID(), demographicStudent.getPen(), demographicStudent, demographicStudent.getCreateUser(), demographicStudent.getCreateDate(), demographicStudent.getUpdateUser(), demographicStudent.getUpdateDate());
-        } catch (Exception e) {
-            log.info("Adding student to error fileset failed, will be retried :: {}", e.getMessage());
-            throw new GradDataCollectionAPIRuntimeException("Adding student to error fileset failed, will be retried");
-        }
-    }
-
 }
