@@ -25,7 +25,7 @@ public enum SchoolCategoryCodes {
 
     private final String code;
     public static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode()));
-    public static final Set<String> INDEPENDENTS_AND_OFFSHORE = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode(), OFFSHORE.getCode()));
+    public static final Set<String> INDEPENDENTS_AND_OFFSHORE = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode(), OFFSHORE.getCode(), FED_BAND.getCode()));
     SchoolCategoryCodes(String code) { this.code = code; }
 
     public static String[] getReportingSchoolCategoryCodes(){
