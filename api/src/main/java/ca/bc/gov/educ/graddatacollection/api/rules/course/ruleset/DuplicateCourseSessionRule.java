@@ -52,7 +52,7 @@ public class DuplicateCourseSessionRule implements CourseValidationBaseRule {
 
         if (courseRulesService.checkIfStudentHasDuplicateInFileset(student.getIncomingFileset().getIncomingFilesetID(), student.getPen(), student.getCourseCode(), student.getCourseMonth(), student.getCourseYear(), student.getCourseLevel())) {
             log.debug("C06: Error: {} for courseStudentID :: {}", CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage(), student.getCourseStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.PEN, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE, CourseStudentValidationIssueTypeCode.COURSE_SESSION_DUPLICATE.getMessage()));
         }
 
         return errors;

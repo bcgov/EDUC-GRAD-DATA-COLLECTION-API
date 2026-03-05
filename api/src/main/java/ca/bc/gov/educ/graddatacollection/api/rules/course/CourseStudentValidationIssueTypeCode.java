@@ -19,7 +19,7 @@ public enum CourseStudentValidationIssueTypeCode {
   COURSE_CODE_COREG_TRAX_INVALID("COURSE_CODE_COREG_TRAX_INVALID", "The submitted course code, %s, and course level, %s, does not exist in the ministry course registry. This course cannot be updated."),
   COURSE_CODE_COREG_MYEDBC_INVALID("COURSE_CODE_COREG_MYEDBC_INVALID", "The submitted course code, %s, and course level, %s, is a local course code, not a ministry code. This course cannot be updated."),
   Q_CODE_INVALID("Q_CODE_INVALID", "New Q-code course submissions (not already in the student record) must be requested through a GRAD Change Form."),
-  COURSE_SESSION_DUPLICATE("COURSE_SESSION_DUPLICATE", "Duplicate course and session date reported for the same student. These courses cannot be updated."),
+  COURSE_SESSION_DUPLICATE("COURSE_SESSION_DUPLICATE", "Duplicate course and session date reported for the same student."),
   COURSE_SESSION_INVALID("COURSE_SESSION_INVALID", "Course session date cannot be beyond the current reporting year or before 1984/01. This course cannot be updated."),
   EXAMINABLE_COURSES_DISCONTINUED("EXAMINABLE_COURSES_DISCONTINUED", "Examinable courses were discontinued in 2019/2020. To add a past examinable course to a student record, please submit a GRAD Change Form."),
   COURSE_MONTH_INVALID("COURSE_MONTH_INVALID", "Course month must be between 01 and 12 (January to December)."),
