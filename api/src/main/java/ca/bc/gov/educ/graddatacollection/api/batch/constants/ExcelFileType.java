@@ -7,7 +7,8 @@ import java.util.Optional;
 
 @Getter
 public enum ExcelFileType {
-  XLSX("xlsx", ".xlsx")
+  XLSX("xlsx", ".xlsx"),
+  CSV("csv", ".csv")
   ;
 
   private final String code;
