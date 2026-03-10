@@ -38,10 +38,10 @@ public class GradCsvFileService extends BaseExcelProcessor {
             final var sheet = workbook.createSheet();
             int rowIdx = 0;
 
-            for (final CSVRecord record : csvParser) {
+            for (final CSVRecord csvRecord : csvParser) {
                 final var row = sheet.createRow(rowIdx++);
-                for (int col = 0; col < record.size(); col++) {
-                    String value = record.get(col);
+                for (int col = 0; col < csvRecord.size(); col++) {
+                    String value = csvRecord.get(col);
                     row.createCell(col).setCellValue(value != null ? value : "");
                 }
             }
