@@ -300,6 +300,9 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
     }
 
     private void validateSchoolCode(final String schoolID, final String districtID, final String mincodeFromFile, final String guid) throws FileUnProcessableException {
+        if (StringUtils.isBlank(mincodeFromFile)) {
+            throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, GradCollectionStatus.LOAD_FAIL, mincodeFromFile);
+        }
         if(districtID != null) {
             var schoolTombstone = gradFileValidator.getSchoolUsingMincode(mincodeFromFile);
             if(schoolTombstone.isPresent()) {
