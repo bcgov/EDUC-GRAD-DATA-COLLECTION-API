@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C25  | WARNING  | Final pct or Final Letter Grade should be included for completed      | C03, C16, C31|
- *  |      |          | courses
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C25  | WARNING  | Final pct or Final Letter Grade should be included for completed      | C02, C03, C16 |
+ *  |      |          | courses                                                               | C31, C41      |
  *  |      |          | Future = Course Session < today's date
  */
 @Component

@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C24  | ERROR    | Final pct or Final Letter Grade should not be included for future     | C03, C16     |
- *  |      |          | courses                                                               |              |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C24  | ERROR    | Final pct or Final Letter Grade should not be included for future     | C02, C03, C16 |
+ *  |      |          | courses                                                               | C41           |
  */
 @Component
 @Slf4j

@@ -17,7 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C30  | ERROR    | Final percent cannot be negative or greater than 100                  | C03, C24     |
+ *  | C30  | ERROR    | Final percent cannot be negative or greater than 100                  | C02, C03, C24|
+ *  |      |          |                                                                       | C41          |
  */
 @Component
 @Slf4j

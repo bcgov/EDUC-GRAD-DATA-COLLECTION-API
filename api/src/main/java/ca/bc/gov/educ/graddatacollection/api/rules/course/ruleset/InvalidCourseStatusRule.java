@@ -19,8 +19,9 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C11 | ERROR    |  If course status = "W" course cannot be associated with a student    | C03, C04  |
- *                       course exam if the record exists for the same course code/level/session
+ *  | C11 | ERROR     |  If course status = "W" course cannot be associated with a student    | C02, C03, C04 |
+ *                       course exam if the record exists for the same course code/level/     | C41           |
+ *                       session
  *
  */
 @Component

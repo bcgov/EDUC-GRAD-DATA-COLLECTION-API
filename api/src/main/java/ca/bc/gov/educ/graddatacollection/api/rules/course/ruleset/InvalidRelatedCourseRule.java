@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C19  | ERROR    | A related course code and level can only be applied to an Independent | C03, C16     |
- *  |      |          | Directed Studies course. This course cannot be updated.               |              |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C19  | ERROR    | A related course code and level can only be applied to an Independent | C02, C03, C16 |
+ *  |      |          | Directed Studies course. This course cannot be updated.               | C41           |
  */
 @Component
 @Slf4j

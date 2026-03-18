@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C33  | ERROR    | For the 1996 graduation program, check number of credits for Fine     |C03, C18      |
- *  |      |          | Arts/Applied Skills.
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C33  | ERROR    | For the 1996 graduation program, check number of credits for Fine     | C02, C03, C18 |
+ *  |      |          | Arts/Applied Skills.                                                  | C41           |
  *  |      |          | If B - credits for course must be 4-credits
  */
 @Component

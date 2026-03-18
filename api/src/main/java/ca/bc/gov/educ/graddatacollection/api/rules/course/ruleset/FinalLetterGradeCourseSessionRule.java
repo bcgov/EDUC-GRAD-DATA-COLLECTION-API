@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C40 | WARN     | If the Final Letter Grade is IE, the course cannot be past 12 months  |C03, C32 |
- *  |      |          | old.
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C40 | WARN     | If the Final Letter Grade is IE, the course cannot be past 12 months   | C02, C03, C32 |
+ *  |      |          | old.                                                                  | C41           |
  *  |      |          | Course Session > today's date plus 12 months.
  */
 @Component
