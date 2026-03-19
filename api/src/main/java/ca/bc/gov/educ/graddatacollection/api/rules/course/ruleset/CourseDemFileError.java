@@ -28,11 +28,11 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(25)
-public class DemFileError implements CourseValidationBaseRule {
+public class CourseDemFileError implements CourseValidationBaseRule {
 
     private final CourseRulesService courseRulesService;
 
-    public DemFileError(CourseRulesService courseRulesService) {
+    public CourseDemFileError(CourseRulesService courseRulesService) {
         this.courseRulesService = courseRulesService;
     }
 
@@ -93,3 +93,4 @@ public class DemFileError implements CourseValidationBaseRule {
         return errors;
     }
 }
+
