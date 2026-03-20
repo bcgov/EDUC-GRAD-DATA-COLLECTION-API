@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C37  | ERROR    | Final letter grade must match final pct unless course session is	  |C03,C32,C30,C31  |
+ *  | C37  | ERROR    | Final letter grade must match final pct unless course session is	  | C02,C03,C32,C30,C31,C41 |
  *  |      |          | prior to 199409.
  *  Updated rule:
  *  1. If a final letter grade has been submitted and the final letter grade does not have associated percent range

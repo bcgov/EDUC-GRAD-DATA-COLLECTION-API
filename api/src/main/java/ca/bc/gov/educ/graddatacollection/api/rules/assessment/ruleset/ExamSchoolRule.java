@@ -20,7 +20,8 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V14  | ERROR    | Invalid exam school provided.                                         | V03          |
+ *  | V14  | ERROR    | Invalid exam school provided.                                         | V01,V02,V03, |
+ *  |      |          |                                                                       | V23
  */
 @Component
 @Slf4j

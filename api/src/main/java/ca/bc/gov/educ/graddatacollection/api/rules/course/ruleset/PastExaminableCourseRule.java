@@ -18,13 +18,13 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C15 | ERROR    | Error if the course code, level, and session exists for the student,   | C03, C07, C08|
- *                      and the course has an associated exam.
- *                      Else, error if the course was examinable for the course code, session,
- *                      and grad program submitted AND either of the following are true:
- *                      1. The course does not exist for the student
- *                      2. The course exists for the student and there is a mismatch between
- *                      the submitted course and the existing course on Final Percent or Final Letter Grade
+ *  | C15 | ERROR    | Error if the course code, level, and session exists for the student,   | C02, C03, C07 |
+ *  |     |          | and the course has an associated exam.                                 | C08, C41      |
+*                      Else, error if the course was examinable for the course code, session,
+*                      and grad program submitted AND either of the following are true:
+*                      1. The course does not exist for the student
+*                      2. The course exists for the student and there is a mismatch between
+*                      the submitted course and the existing course on Final Percent or Final Letter Grade
  *
  */
 @Component

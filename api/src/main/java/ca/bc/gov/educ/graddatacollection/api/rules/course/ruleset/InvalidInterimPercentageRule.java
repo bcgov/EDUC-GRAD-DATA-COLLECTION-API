@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C22  | ERROR    | Interim percent range must be 0 to 100. This course cannot be updated.| C03, C16     |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C22  | ERROR    | Interim percent range must be 0 to 100. This course cannot be updated.| C02, C03, C16 |
+ *  |      |          |                                                                       | C41           |
  */
 @Component
 @Slf4j

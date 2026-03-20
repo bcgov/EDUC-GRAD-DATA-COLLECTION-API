@@ -21,8 +21,8 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                                                                        | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
- *  | V22  | ERROR    | Assessment session and code cannot be a duplicate numeracy registration within the “assessment register” (assessment        | V03          |
- *  |      |          | student table in the assessment api) for the student. Numeracy assessments, NME10, NMF10, NME, and NMF, are all             |              |
+ *  | V22  | ERROR    | Assessment session and code cannot be a duplicate numeracy registration within the “assessment register” (assessment        | V01,V02,V03, |
+ *  |      |          | student table in the assessment api) for the student. Numeracy assessments, NME10, NMF10, NME, and NMF, are all             | V23          |
  *  |      |          | considered the same assessment code.                                                                                        |              |
  */
 @Component

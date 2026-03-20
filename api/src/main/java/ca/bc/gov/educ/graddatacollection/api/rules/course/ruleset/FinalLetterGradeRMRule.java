@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C38  | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | C03, C32     |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C38  | ERROR    | Letter Grade RM can only be used for course GT/GTF	                  | C02, C03, C32 |
+ *  |      |          |                                                                       | C41           |
  */
 @Component
 @Slf4j

@@ -20,8 +20,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C16  | ERROR    | Course session date cannot be beyond the current reporting year or    | C03, C07, C08 |
- *  |      |          | before 1984/01. This course cannot be updated.                        |               |
+ *  | C16  | ERROR    | Course session date cannot be beyond the current reporting year or    | C02, C03, C07 |
+ *  |      |          | before 1984/01. This course cannot be updated.                        | C08, C41      |
  */
 @Component
 @Slf4j

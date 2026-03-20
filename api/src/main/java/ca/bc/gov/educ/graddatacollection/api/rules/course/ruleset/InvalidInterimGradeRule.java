@@ -5,7 +5,6 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseValidationBaseRule;
-import ca.bc.gov.educ.graddatacollection.api.service.v1.CourseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.LetterGrade;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.CourseStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
@@ -20,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C23  | ERROR    | The submitted interim letter grade <INTERIM LETTER GRADE> is not a    | C03, C160,   |
- *  |      |          | valid letter grade. This course cannot be updated.                    | C07, C08     |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C23  | ERROR    | The submitted interim letter grade <INTERIM LETTER GRADE> is not a    | C02, C03, C16 |
+ *  |      |          | valid letter grade. This course cannot be updated.                    | C07, C08, C41 |
  */
 @Component
 @Slf4j
@@ -32,7 +31,7 @@ public class InvalidInterimGradeRule implements CourseValidationBaseRule {
 
     private final RestUtils restUtils;
 
-    public InvalidInterimGradeRule(RestUtils restUtils, CourseRulesService courseRulesService) {
+    public InvalidInterimGradeRule(RestUtils restUtils) {
         this.restUtils = restUtils;
     }
 

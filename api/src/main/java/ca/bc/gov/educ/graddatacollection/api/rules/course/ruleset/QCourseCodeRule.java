@@ -18,8 +18,9 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C05 | ERROR    | Schools cannot report Q code courses unless the q-code course already  | C03           |
- *                      exists for the student for the same Course Code/LeveL/Session in Student Course
+ *  | C05 | ERROR    | Schools cannot report Q code courses unless the q-code course already  | C02, C03, C41 |
+ *                      exists for the student for the same Course Code/LeveL/Session in
+ *                      Student Course
  *
  */
 @Component
