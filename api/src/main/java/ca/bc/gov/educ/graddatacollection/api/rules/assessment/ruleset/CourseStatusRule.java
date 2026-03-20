@@ -19,7 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V18  | ERROR    | Assessment registration must be A=active or W=withdraw                | V03          |
+ *  | V18  | ERROR    | Assessment registration must be A=active or W=withdraw                | V01,V02,V03, |
+ *  |      |          |                                                                       | V23
  */
 @Component
 @Slf4j

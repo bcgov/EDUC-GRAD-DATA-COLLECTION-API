@@ -19,8 +19,8 @@ import java.util.UUID;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V20  | ERROR    |  Error if the course status is not "W" and the student already        | V03, V18     |
- *                       has three write attempts for the submitted assessment (course code)
+ *  | V20  | ERROR    |  Error if the course status is not "W" and the student already        | V01,V02,V03, |
+ *  |      |          |  has three write attempts for the submitted assessment (course code)  | V18,V23      |
  */
 @Component
 @Slf4j
