@@ -52,7 +52,8 @@ public enum CourseStudentValidationIssueTypeCode {
   RELATED_COURSE_RELATED_LEVEL_INVALID("RELATED_COURSE_RELATED_LEVEL_INVALID", "The submitted related course code %s is not a valid course. This course cannot be updated."),
   RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY("RELATED_COURSE_RELATED_LEVEL_MISSING_FOR_INDY", "Related course code and level missing for Independent Directed Studies course."),
   COURSE_DESCRIPTION_INVALID("COURSE_DESCRIPTION_INVALID", "The ministry course title must be used for this course. Please check the Course Registry: descriptive titles only allowed if Generic Course Type = G."),
-  COURSE_HAS_DEM_BLOCKING("COURSE_HAS_DEM_BLOCKING", "Error(s) on the DEM file for this student are preventing the course from being stored in GRAD.")
+  COURSE_HAS_DEM_BLOCKING("COURSE_HAS_DEM_BLOCKING", "Error(s) on the DEM file for this student are preventing the course from being stored in GRAD."),
+  ERROR_IN_DEM_FILE("ERROR_IN_DEM_FILE", "An error in the DEM file for this student is preventing the processing of their course data.")
   ;
 
   private static final Map<String, CourseStudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();

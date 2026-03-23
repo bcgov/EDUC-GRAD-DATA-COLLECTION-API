@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V21 | ERROR    |  School’s cannot withdraw a student form an assessment, if the student |V03, V18|
- *                       does not have an existing registration for the given assessment.         
+ *  | ID   | Severity | Rule                                                                   | Dependent On |
+ *  |------|----------|------------------------------------------------------------------------|--------------|
+ *  | V21  | ERROR    |  School’s cannot withdraw a student form an assessment, if the student | V01,V02,V03, |
+ *  |      |          |  does not have an existing registration for the given assessment.      | V18, V23     |
  *
  */
 @Component

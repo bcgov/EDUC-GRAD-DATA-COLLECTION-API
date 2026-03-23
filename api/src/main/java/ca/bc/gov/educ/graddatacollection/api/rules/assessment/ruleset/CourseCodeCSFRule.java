@@ -17,8 +17,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V16  | ERROR    | Student is in a Francophone school and cannot register for            | V03          |
- *                      this assessment session for this student
+ *  | V16  | ERROR    | Student is in a Francophone school and cannot register for            | V01,V02,V03, |
+ *  |      |          | this assessment session for this student                              | V23          |
  */
 @Component
 @Slf4j

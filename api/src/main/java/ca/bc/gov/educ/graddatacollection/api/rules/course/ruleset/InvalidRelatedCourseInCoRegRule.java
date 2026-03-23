@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C28  | ERROR    | Related Course Code and Related Course Level must be a valid          |C03, C19, C20 |
- *  |      |          | course/level
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C28  | ERROR    | Related Course Code and Related Course Level must be a valid          | C02, C03, C19 |
+ *  |      |          | course/level                                                          | C20, C41      |
  */
 @Component
 @Slf4j

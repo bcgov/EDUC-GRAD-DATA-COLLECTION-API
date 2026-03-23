@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C06 | ERROR     | Duplicate course and session date reported for the same student.      | C03          |
- *  |     |           | These courses cannot be updated.                                      |              |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C06 | ERROR     | Duplicate course and session date reported for the same student.      | C02, C03, C41 |
+ *  |     |           | These courses cannot be updated.                                      |               |
  */
 @Component
 @Slf4j

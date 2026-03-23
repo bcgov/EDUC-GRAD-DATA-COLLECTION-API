@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C35 | ERROR    | 	Error if Final LG = "W" and student has graduated and the course  | C03, C32   |
- *                          has been used for graduation.
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C35 | ERROR    | 	Error if Final LG = "W" and student has graduated and the course      | C02, C03, C32 |
+ *                          has been used for graduation.                                     | C41           |
  *
  */
 @Component

@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C09  | ERROR    | The submitted value <CRS VALUE> is not an allowable value, per the    | C03          |
+ *  | C09  | ERROR    | The submitted value <CRS VALUE> is not an allowable value, per the    | C02,C03,C41  |
  *  |      |          | current GRAD file specification. This course cannot be updated.       |              |
  */
 @Component

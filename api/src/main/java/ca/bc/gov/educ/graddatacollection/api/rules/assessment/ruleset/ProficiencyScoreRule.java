@@ -17,9 +17,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *  | ID          | Severity | Rule                                                                                              | Dependent On |
- *  |-------------|----------|---------------------------------------------------------------------------------------------------|--------------|
- *  | V19         | ERROR    | The student has already received a Proficiency Score or Special Case for this assessment session. | V03, V18     |
+ *  | ID          | Severity | Rule                                                  | Dependent On |
+ *  |-------------|----------|-------------------------------------------------------|--------------|
+ *  | V19         | ERROR    | The student has already received a Proficiency Score  | V01,V02,V03, |
+ *  |             |          | or Special Case for this assessment session.          | V18,V23      |
  */
 @Component
 @Slf4j

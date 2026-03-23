@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C08  | ERROR    | Course has been submitted with a blank course year. This course can-  | C03          |
+ *  | C08  | ERROR    | Course has been submitted with a blank course year. This course can-  | C02,C03,C41  |
  *  |      |          | not be updated.                                                       |              |
  */
 

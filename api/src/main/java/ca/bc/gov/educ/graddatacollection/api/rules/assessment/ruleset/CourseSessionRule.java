@@ -17,8 +17,8 @@ import java.util.List;
 /**
 *  | ID   | Severity | Rule                                                                                                                        | Dependent On |
 *  |------|----------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
-*  | V15  | ERROR    | Assessment session and code cannot be a duplicate assessment code and session within the .XAM file for the student.         | V03          |
-*  |      |          | Numeracy assessments, NME10, NMF10, NME, and NMF, are all considered the same assessment code.                              |              |
+*  | V15  | ERROR    | Assessment session and code cannot be a duplicate assessment code and session within the .XAM file for the student.         | V01,V02,V03, |
+*  |      |          | Numeracy assessments, NME10, NMF10, NME, and NMF, are all considered the same assessment code.                              | V23          |
 */
 @Component
 @Slf4j

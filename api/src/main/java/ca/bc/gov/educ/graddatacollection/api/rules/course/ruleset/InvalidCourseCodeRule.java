@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C03 | ERROR    | Must exist in CoReg - check for both TRAX and MyEdBC                  |   C02       |
+ *  | C03 | ERROR    | Must exist in CoReg - check for both TRAX and MyEdBC                   |   C02, C41   |
  *  |      |          | If it exists in TRAX validation passes                                |              |
  *                      If it does not exist in either use Error msg 1
  *                      If it exists in MyEdBC and external code matches use Error msg 2

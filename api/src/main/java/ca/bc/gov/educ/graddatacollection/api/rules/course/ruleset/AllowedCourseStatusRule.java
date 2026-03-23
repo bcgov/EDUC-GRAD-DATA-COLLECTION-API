@@ -19,8 +19,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | lC04  | ERROR    | The submitted value %s is not an allowable value, per the current     | C03          |
- *  |      |          | GRAD file specification. This course cannot be updated.               |              |
+ *  | lC04  | ERROR    | The submitted value %s is not an allowable value, per the current    | C02, C03,    |
+ *  |      |          | GRAD file specification. This course cannot be updated.               |     C41      |
  */
 @Component
 @Slf4j

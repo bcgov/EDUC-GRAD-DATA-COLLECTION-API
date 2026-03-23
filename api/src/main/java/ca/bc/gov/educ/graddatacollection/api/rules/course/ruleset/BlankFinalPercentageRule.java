@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID   | Severity | Rule                                                                  | Dependent On |
- *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C31  | ERROR    | If course session is prior to 199409 no Final percent should be       |C03, C24      |
- *  |      |          | entered for these courses.  This field should be blank.               |              |
+ *  | ID   | Severity | Rule                                                                  | Dependent On  |
+ *  |------|----------|-----------------------------------------------------------------------|---------------|
+ *  | C31  | ERROR    | If course session is prior to 199409 no Final percent should be       | C02, C03, C24 |
+ *  |      |          | entered for these courses.  This field should be blank.               | C41           |
  */
 @Component
 @Slf4j

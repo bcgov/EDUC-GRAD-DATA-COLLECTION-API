@@ -20,8 +20,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | C18  | ERROR    | The number of credits reported for the course is not an allowable     | C03, C16     |
- *  |      |          | credit value in the Course Registry. This course cannot be updated.   |              |
+ *  | C18  | ERROR    | The number of credits reported for the course is not an allowable     | C02, C03, C16|
+ *  |      |          | credit value in the Course Registry. This course cannot be updated.   | C41          |
  */
 @Component
 @Slf4j
