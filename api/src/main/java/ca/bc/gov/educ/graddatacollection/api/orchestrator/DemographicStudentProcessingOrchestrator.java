@@ -14,23 +14,30 @@ import ca.bc.gov.educ.graddatacollection.api.struct.Event;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentSagaData;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.graddatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
+import static ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode.*;
 
 @Component
 @Slf4j
 public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<DemographicStudentSagaData> {
   private final DemographicStudentService demographicStudentService;
   private final RestUtils restUtils;
+  private final List<String> CRITICAL_DEM_ERRORS = Arrays.asList(STUDENT_PEN_NOT_FOUND.getCode(),
+          STUDENT_BIRTHDATE_INVALID.getCode(), STUDENT_SURNAME_MISMATCH.getCode(), STUDENT_MIDDLE_MISMATCH.getCode(), 
+          STUDENT_GIVEN_MISMATCH.getCode(), STUDENT_BIRTHDATE_MISMATCH.getCode(), STUDENT_STATUS_INVALID.getCode(),
+          STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getCode(), STUDENT_STATUS_INCORRECT_NEW_STUDENT.getCode(), STUDENT_STATUS_MERGED.getCode());
 
   protected DemographicStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, DemographicStudentService demographicStudentService, RestUtils restUtils) {
     super(sagaService, messagePublisher, DemographicStudentSagaData.class, SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_DEM_STUDENTS_SAGA_TOPIC.toString());
@@ -43,7 +50,10 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     this.stepBuilder()
             .begin(VALIDATE_DEM_STUDENT, this::validateDEMStudentRecord)
             .step(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_NO_ERROR, CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD, this::createOrUpdateDEMStudentRecordInGrad)
-            .end(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
+            .step(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_NON_CRITICAL_ERROR, UPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD, this::updateDEMStudentSchoolOfRecordAndStatusInGrad)
+            .end(VALIDATE_DEM_STUDENT, VALIDATE_DEM_STUDENT_SUCCESS_WITH_CRITICAL_ERROR, this::completeWithError)
+            .or()
+            .end(UPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD, DEM_STUDENT_SOR_UPDATED_IN_GRAD, this::completeWithError)
             .or()
             .step(CREATE_OR_UPDATE_DEM_STUDENT_IN_GRAD, DEM_STUDENT_CREATED_IN_GRAD, SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, this::sendStudentAddressToScholarships)
             .end(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS, STUDENT_ADDRESS_UPDATE_COMPLETE);
@@ -61,9 +71,12 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     var validationErrors = demographicStudentService.validateStudent(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), demographicStudentSagaData.getSchool());
     var demStudent = demographicStudentService.findByID(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()));
     
-    if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
+    if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString())) && hasCriticalDEMErrors(validationErrors)) {
       demographicStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.ERROR, true);
-      eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_ERROR);
+      eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_CRITICAL_ERROR);
+    }else if(validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.ERROR.toString()))) {
+      demographicStudentService.setStudentStatusAndFlagErrorIfRequired(UUID.fromString(demographicStudentSagaData.getDemographicStudent().getDemographicStudentID()), SchoolStudentStatus.ERROR, true);
+      eventBuilder.eventOutcome(VALIDATE_DEM_STUDENT_SUCCESS_WITH_NON_CRITICAL_ERROR);
     } else {
       var hasWarning = validationErrors.stream().anyMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(SchoolStudentStatus.WARNING.toString()));
       demographicStudentService.setStudentStatusAndFlagErrorIfRequired(demStudent.getDemographicStudentID(), SchoolStudentStatus.VERIFIED, hasWarning);
@@ -74,6 +87,28 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
+
+  private boolean hasCriticalDEMErrors(List<DemographicStudentValidationIssue> validationErrors) {
+    return validationErrors.stream()
+            .anyMatch(error -> CRITICAL_DEM_ERRORS.contains(error.getValidationIssueCode()));
+  }
+
+  public void updateDEMStudentSchoolOfRecordAndStatusInGrad(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(UPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+    
+    restUtils.writeDEMStudentSchoolOfRecordAndStatusInGrad(demographicStudentSagaData.getDemographicStudent(), demographicStudentSagaData.getSchool());
+
+    final Event.EventBuilder eventBuilder = Event.builder();
+    eventBuilder.sagaId(saga.getSagaId()).eventType(UPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD);
+    eventBuilder.eventOutcome(DEM_STUDENT_SOR_UPDATED_IN_GRAD);
+    val nextEvent = eventBuilder.build();
+    this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+    log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+  }
+
 
   public void createOrUpdateDEMStudentRecordInGrad(final Event event, final GradSagaEntity saga, final DemographicStudentSagaData demographicStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());

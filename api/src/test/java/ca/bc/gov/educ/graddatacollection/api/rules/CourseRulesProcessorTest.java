@@ -5,10 +5,7 @@ import ca.bc.gov.educ.graddatacollection.api.BaseGradDataCollectionAPITest;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.GradRequirementYearCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.StudentStatusCodes;
 import ca.bc.gov.educ.graddatacollection.api.constants.v1.ValidationFieldCode;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.CourseStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.DemographicStudentRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.IncomingFilesetRepository;
-import ca.bc.gov.educ.graddatacollection.api.repository.v1.ReportingPeriodRepository;
+import ca.bc.gov.educ.graddatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentRulesProcessor;
 import ca.bc.gov.educ.graddatacollection.api.rules.course.CourseStudentValidationIssueTypeCode;
@@ -47,6 +44,9 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     private RestUtils restUtils;
 
     @Autowired
+    private FinalIncomingFilesetRepository finalIncomingFilesetRepository;
+    
+    @Autowired
     private IncomingFilesetRepository incomingFilesetRepository;
 
     @Autowired
@@ -64,6 +64,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         this.demographicStudentRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
 
         when(restUtils.getLetterGradeList(any())).thenReturn(

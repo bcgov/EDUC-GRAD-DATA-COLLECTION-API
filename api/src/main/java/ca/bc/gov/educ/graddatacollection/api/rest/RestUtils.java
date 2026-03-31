@@ -1195,6 +1195,35 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public GradStatusEvent writeDEMStudentSchoolOfRecordAndStatusInGrad(DemographicStudent student, SchoolTombstone schoolTombstone) {
+    try {
+      final TypeReference<GradStatusEvent> eventResult = new TypeReference<>() {
+      };
+      var demStudent = new DemStudentSchoolOfRecordAndStatus();
+      demStudent.setSchoolOfRecordID(schoolTombstone.getSchoolId());
+      demStudent.setStatus(student.getStudentStatus());
+      demStudent.setPen(student.getPen());
+      demStudent.setCreateUser(student.getCreateUser());
+      demStudent.setUpdateUser(student.getUpdateUser());
+
+      log.debug("DEM Student SOR and status Detail:: {}", demStudent);
+
+      Object event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOOL_OF_RECORD_AND_STATUS).eventPayload(JsonUtil.getJsonStringFromObject(demStudent)).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), eventResult);
+      } else {
+        throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling UPDATE_STUDENT_SCHOOL_OF_RECORD_AND_STATUS service :: {}", ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new GradDataCollectionAPIRuntimeException(NATS_TIMEOUT + ex.getMessage());
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public Event writeStudentAddressToScholarships(DemographicStudent student, String studentID) {
     try {
       final TypeReference<Event> eventResult = new TypeReference<>() {
