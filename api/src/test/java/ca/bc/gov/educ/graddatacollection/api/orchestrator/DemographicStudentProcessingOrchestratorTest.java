@@ -363,6 +363,62 @@ class DemographicStudentProcessingOrchestratorTest extends BaseGradDataCollectio
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(SEND_STUDENT_ADDRESS_TO_SCHOLARSHIPS.toString());
     }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeUPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD_validateDEMStudentRecordWithEventOutCome_STUDENT_ADDRESS_UPDATE_COMPLETE() {
+        var school = this.createMockSchoolTombstone();
+        school.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var mockFileset = createMockIncomingFilesetEntityWithCRSFile(UUID.fromString(school.getSchoolId()), reportingPeriod);
+        incomingFilesetRepository.save(mockFileset);
+
+        var courseStudent = createMockCourseStudent(mockFileset);
+        courseStudentRepository.save(courseStudent);
+
+        var demographicStudentEntity = createMockDemographicStudent(mockFileset);
+        demographicStudentEntity.setDemographicStudentID(null);
+        demographicStudentEntity.setPen(courseStudent.getPen());
+        demographicStudentEntity.setFirstName("JIM");
+        demographicStudentEntity.setLastName("JACKSON");
+        demographicStudentEntity.setAddressLine1("ABCD");
+        demographicStudentEntity.setAddressLine2("ABCD");
+        demographicStudentEntity.setGrade("12");
+        demographicStudentEntity.setCity("ABCD");
+        demographicStudentEntity.setProvincialCode("AB");
+        demographicStudentEntity.setCountryCode("CA");
+        demographicStudentEntity.setPostalCode("ABCD");
+        demographicStudentEntity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        demographicStudentEntity.setUpdateDate(LocalDateTime.now());
+        demographicStudentEntity.setCreateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+        demographicStudentEntity.setUpdateUser(ApplicationProperties.GRAD_DATA_COLLECTION_API);
+
+        demographicStudentRepository.save(demographicStudentEntity);
+
+        val demographicStudent = DemographicStudentMapper.mapper.toDemographicStudent(demographicStudentEntity);
+        val saga = this.createDemMockSaga(demographicStudent);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val sagaData = DemographicStudentSagaData.builder().demographicStudent(demographicStudent).school(createMockSchoolTombstone()).build();
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(VALIDATE_DEM_STUDENT)
+                .eventOutcome(EventOutcome.VALIDATE_DEM_STUDENT_SUCCESS_WITH_NON_CRITICAL_ERROR)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.demographicStudentProcessingOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.demographicStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.DEM_STUDENT_SOR_UPDATED_IN_GRAD);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_DEM_STUDENT_SOR_AND_STATUS_IN_GRAD.toString());
+    }
     
     @SneakyThrows
     @Test
