@@ -19,6 +19,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -204,6 +205,16 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        // Clean up in reverse order: children first, then parents
+        this.finalIncomingFilesetRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
+        this.demographicStudentRepository.deleteAll();
+        this.courseStudentRepository.deleteAll();
+        this.incomingFilesetRepository.deleteAll();
     }
 
     @Test
