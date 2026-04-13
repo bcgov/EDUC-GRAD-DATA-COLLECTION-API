@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | V03 | ERROR     | The Assessment Code provided is not valid for the Assessment Session  |    V02  |
+ *  | V03 | ERROR     | The Assessment Code provided is not valid for the Assessment Session  | V01,V02,V23  |
  *                      specified.
  */
 @Component

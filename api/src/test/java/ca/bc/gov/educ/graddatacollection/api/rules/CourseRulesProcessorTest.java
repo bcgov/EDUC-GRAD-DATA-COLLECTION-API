@@ -14,6 +14,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseAllo
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCharacteristicsRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.coreg.v1.CourseCodeRecord;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.*;
+import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
@@ -2988,6 +2989,179 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         assertThat(validationError2.stream().anyMatch(err ->
                 err.getValidationIssueFieldCode().equals(ValidationFieldCode.FINAL_LETTER_GRADE.getCode()) &&
                 err.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.FINAL_LETTER_USED_FOR_GRADUATION.getCode())
+        )).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_noError_whenValidStudentStatus() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("A");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationErrors.stream().noneMatch(e -> e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()))).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_d06_blankStudentStatus() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationErrors.stream().anyMatch(e ->
+                e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()) &&
+                e.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode())
+        )).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_d06_invalidStudentStatusM() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("M");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationErrors.stream().anyMatch(e ->
+                e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()) &&
+                e.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode())
+        )).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_d19_statusT_gradStudentCur_differentSchool() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("T");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setStudentID(UUID.randomUUID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setSchoolOfRecordId(UUID.randomUUID().toString());
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationErrors.stream().anyMatch(e ->
+                e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()) &&
+                e.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode())
+        )).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_d19_noError_whenStatusT_gradStudentCur_sameSchool() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("T");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        String schoolId = UUID.randomUUID().toString();
+        SchoolTombstone schoolTombstone = createMockSchoolTombstone();
+        schoolTombstone.setSchoolId(schoolId);
+
+        GradStudentRecord gradStudentRecord = new GradStudentRecord();
+        gradStudentRecord.setStudentID(UUID.randomUUID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+        gradStudentRecord.setSchoolOfRecordId(schoolId);
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(gradStudentRecord);
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), schoolTombstone));
+        assertThat(validationErrors.stream().noneMatch(e -> e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()))).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_d20_statusT_gradStudentNull() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("T");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(null);
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationErrors.stream().anyMatch(e ->
+                e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()) &&
+                e.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode())
+        )).isTrue();
+    }
+
+    @Test
+    void testC41DemFileError_d21_ministryStudentStatusM() {
+        var reportingPeriod = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        demStudent.setStudentStatus("A");
+        demographicStudentRepository.save(demStudent);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        courseStudent.setPen(demStudent.getPen());
+        courseStudent.setLocalID(demStudent.getLocalID());
+        courseStudent.setLastName(demStudent.getLastName());
+        courseStudent.setIncomingFileset(demStudent.getIncomingFileset());
+
+        Student studentApiStudent = new Student();
+        studentApiStudent.setStudentID(UUID.randomUUID().toString());
+        studentApiStudent.setPen("123456789");
+        studentApiStudent.setLocalID("8887555");
+        studentApiStudent.setLegalFirstName("JIM");
+        studentApiStudent.setLegalLastName("JACKSON");
+        studentApiStudent.setDob("1990-01-01");
+        studentApiStudent.setStatusCode("M");
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
+
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(
+                new GradStudentRecord(UUID.randomUUID().toString(), null, "2018", null, UUID.randomUUID().toString(), null, "NOT_CUR", "N", Collections.emptyList())
+        );
+
+        val validationErrors = rulesProcessor.processRules(createMockStudentRuleData(demStudent, courseStudent, createMockAssessmentStudent(), createMockSchoolTombstone()));
+        assertThat(validationErrors.stream().anyMatch(e ->
+                e.getValidationIssueCode().equals(CourseStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getCode()) &&
+                e.getValidationIssueFieldCode().equals(ValidationFieldCode.STUDENT_STATUS.getCode())
         )).isTrue();
     }
 }

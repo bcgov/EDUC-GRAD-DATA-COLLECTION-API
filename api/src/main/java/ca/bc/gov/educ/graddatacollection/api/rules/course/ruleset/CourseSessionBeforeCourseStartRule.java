@@ -20,8 +20,8 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On  |
  *  |------|----------|-----------------------------------------------------------------------|---------------|
- *  | C13  | ERROR    | The course was not open for the submitted session date. This course   | C03, C07, C08 |
- *  |      |          | cannot be updated.                                                    |               |
+ *  | C13  | ERROR    | The course was not open for the submitted session date. This course   | C02, C03, C07 |
+ *  |      |          | cannot be updated.                                                    | C08, C41      |
  */
 @Component
 @Slf4j

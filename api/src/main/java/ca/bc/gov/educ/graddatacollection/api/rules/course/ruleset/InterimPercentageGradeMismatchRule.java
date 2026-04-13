@@ -23,6 +23,7 @@ import java.util.Optional;
  *  |------|----------|-----------------------------------------------------------------------|--------------|
  *  | C29  | ERROR    | Interim percent must match interim letter grade if interim letter 	  |C03, C07, C08 |
  *  |      |          | grade provided                                                        |C16, C22, C23 |
+ *  |      |          |                                                                       |C41           |
  *  updated rule:
  *  1. If interim letter grade has been submitted and the interim letter grade does not have associated percent range
  *  (i.e. low and high percent are 0s) in the letter grade table, an interim percent should not be submitted.
