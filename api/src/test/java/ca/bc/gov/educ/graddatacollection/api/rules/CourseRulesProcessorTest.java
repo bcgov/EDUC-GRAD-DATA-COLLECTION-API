@@ -19,7 +19,6 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.studentapi.v1.Stude
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -61,14 +60,13 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     private ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
-        this.finalIncomingFilesetRepository.deleteAll();
-        this.incomingFilesetRepository.deleteAll();
         this.demographicStudentRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
+        this.incomingFilesetRepository.deleteAll();
+        this.finalIncomingFilesetRepository.deleteAll();
         this.reportingPeriodRepository.deleteAll();
-
 
         when(restUtils.getLetterGradeList(any())).thenReturn(
                 List.of(
@@ -205,16 +203,6 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
         studentApiStudent.setDob("1990-01-01");
         studentApiStudent.setStatusCode(StudentStatusCodes.A.getCode());
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(studentApiStudent);
-    }
-
-    @AfterEach
-    void tearDown() {
-        this.finalIncomingFilesetRepository.deleteAll();
-        this.incomingFilesetRepository.deleteAll();
-        this.demographicStudentRepository.deleteAll();
-        this.courseStudentRepository.deleteAll();
-        this.reportingPeriodRepository.deleteAll();
-
     }
 
     @Test
