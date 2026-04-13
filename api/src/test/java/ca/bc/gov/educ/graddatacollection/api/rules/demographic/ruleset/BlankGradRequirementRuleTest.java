@@ -125,7 +125,6 @@ class BlankGradRequirementRuleTest {
     @DisplayName("D12-Summer-001: Summer period + blank grad year + with grad record = Summer message")
     void testD12SummerPeriod_BlankGradYear_WithGradRecord_ReturnsSummerMessage() {
         log.info("Test: D12-Summer-001");
-       LocalDateTime summerDate = LocalDateTime.of(2026, 7, 15, 10, 0); // July 15
         reportingPeriod.setSummerStart(LocalDateTime.of(2026, 3, 1, 0, 0));
         reportingPeriod.setSummerEnd(LocalDateTime.of(2026, 4, 30, 23, 59));
         incomingFileset.setReportingPeriod(reportingPeriod);
@@ -235,7 +234,6 @@ class BlankGradRequirementRuleTest {
         reportingPeriod.setSchYrEnd(LocalDateTime.of(2026, 6, 30, 23, 59));
         incomingFileset.setReportingPeriod(reportingPeriod);
         demographicStudent.setIncomingFileset(incomingFileset);
-       // demographicStudent.setGradRequirementYear("2023");
 
         GradStudentRecord gradRecord = new GradStudentRecord();
         gradRecord.setProgram("2023-EN");
