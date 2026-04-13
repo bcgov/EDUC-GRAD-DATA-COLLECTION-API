@@ -58,7 +58,7 @@ public class GraduatedStudentCourseStatusRule implements CourseValidationBaseRul
 
         if ("W".equalsIgnoreCase(courseStudentEntity.getCourseStatus())
                 && gradStudent != null
-                && gradStudent.getGraduated().equalsIgnoreCase("true")
+                && "true".equalsIgnoreCase(gradStudent.getGraduated())
                 && gradStudent.getCourseList()!= null && !gradStudent.getCourseList().isEmpty()
                 ) {
             boolean hasWithDrawnCourse = gradStudent.getCourseList().stream().anyMatch(course -> {
