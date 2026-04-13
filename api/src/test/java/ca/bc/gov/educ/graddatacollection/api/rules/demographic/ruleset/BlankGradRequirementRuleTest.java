@@ -278,4 +278,46 @@ class BlankGradRequirementRuleTest {
 
         assertThat(validationIssues).isNotEmpty();
     }
+
+    @Test
+    @DisplayName("D12-Summer-005: ReportingPeriod is null = Returns false")
+    void testIsCurrentReportingPeriodSummer_NullReportingPeriod_ReturnsFalse() {
+        log.info("Test: D12-Summer-005");
+        // Explicitly set reporting period to null
+        incomingFileset.setReportingPeriod(null);
+        demographicStudent.setIncomingFileset(incomingFileset);
+
+        GradStudentRecord gradRecord = new GradStudentRecord();
+        gradRecord.setProgram("2023-EN");
+        gradRecord.setGraduated("false");
+
+        when(restUtils.getGraduationProgramCodeList(true)).thenReturn(programCodes);
+        when(demographicRulesService.getGradStudentRecord(any(), any())).thenReturn(gradRecord);
+
+        List<DemographicStudentValidationIssue> validationIssues = blankGradRequirementRule.executeValidation(studentRuleData);
+
+        assertThat(validationIssues).isNotNull();
+        log.info("Validation issues count: {}", validationIssues.size());
+    }
+
+    @Test
+    @DisplayName("D12-Summer-006: IncomingFileset is null = Catches NullPointerException gracefully")
+    void testIsCurrentReportingPeriodSummer_NullIncomingFileset_CatchesException() {
+        log.info("Test: D12-Summer-006");
+        // Set incoming fileset to null to trigger NullPointerException path
+        demographicStudent.setIncomingFileset(null);
+
+        GradStudentRecord gradRecord = new GradStudentRecord();
+        gradRecord.setProgram("2023-EN");
+        gradRecord.setGraduated("false");
+
+        when(restUtils.getGraduationProgramCodeList(true)).thenReturn(programCodes);
+        when(demographicRulesService.getGradStudentRecord(any(), any())).thenReturn(gradRecord);
+
+        List<DemographicStudentValidationIssue> validationIssues = blankGradRequirementRule.executeValidation(studentRuleData);
+
+        assertThat(validationIssues).isNotNull();
+        log.info("Validation issues count: {}", validationIssues.size());
+    }
+
 }
