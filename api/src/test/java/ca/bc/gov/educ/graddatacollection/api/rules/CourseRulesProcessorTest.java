@@ -211,10 +211,11 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     public void tearDown() {
         // Clean up in reverse order: children first, then parents
         this.finalIncomingFilesetRepository.deleteAll();
-        this.reportingPeriodRepository.deleteAll();
+        this.incomingFilesetRepository.deleteAll();
         this.demographicStudentRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
-        this.incomingFilesetRepository.deleteAll();
+        this.reportingPeriodRepository.deleteAll();
+
     }
 
     @Test
