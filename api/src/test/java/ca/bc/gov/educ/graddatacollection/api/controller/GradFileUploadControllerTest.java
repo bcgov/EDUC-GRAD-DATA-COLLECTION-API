@@ -1312,4 +1312,388 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
         assertThat(uploadedCRSStudents).hasSize(2);
     }
 
+    @Test
+    void testProcessSchoolCsvFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    void testProcessDistrictCsvFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        var districtID = UUID.randomUUID();
+        schoolTombstone.setMincode("02496099");
+        schoolTombstone.setDistrictId(String.valueOf(districtID));
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+        when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/district/" + districtID + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "src/test/resources/summer-reporting-missing-header.csv, Missing required header Legal Middle Name.",
+            "src/test/resources/summer-reporting-header-blank.csv, Missing required header Ministry Course Code.",
+    })
+    void testProcessSchoolCsvFile_givenHeaderIssues_ShouldReturnStatusBadRequest(final String filePath, final String errorMessage) throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream(filePath);
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message", is(equalToIgnoringCase(errorMessage))));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenEmptyFile_ShouldReturnStatusBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-empty.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting-empty.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("The file does not contain any records."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidPEN_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-pen.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PENs cannot be more than 10 digits. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidPENCheckDigit_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-pen-check-digit.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Submitted PEN is invalid. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithMincodeMismatch_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("The school codes in your file do not match your school's code. Please ensure that all school codes in the file correspond to your school code."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidSessionDate_ShouldReturnBadRequest() throws Exception {
+        var reporting = createMockReportingPeriodEntity();
+        reporting.setPeriodStart(LocalDateTime.now().minusMinutes(2));
+        reporting.setPeriodEnd(LocalDateTime.now().plusMinutes(2));
+        reportingPeriodRepository.save(reporting);
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-sessionDate.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Can only report courses in the current reporting period. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidLegalSurname_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-surname.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Surnames cannot be longer than 25 characters. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidFirstName_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-firstName.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Given Names cannot be longer than 25 characters. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidMiddleName_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-MiddleName.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Legal Middle Names cannot be longer than 25 characters. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidCourseCode_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-course-code.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Course code cannot be longer than 5 characters. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidCourseLevel_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-course-level.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Course level cannot be longer than 3 characters. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidFinalPercent_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-final-percent.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Final School Percent cannot be more than 3 digits. Review the data on line 1."));
+    }
+
+    @Test
+    void testProcessSchoolCsvFile_givenFileWithInvalidDOB_ShouldReturnBadRequest() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("02496099");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final FileInputStream fis = new FileInputStream("src/test/resources/summer-reporting-invalid-dob.csv");
+        final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+        assertThat(fileContents).isNotEmpty();
+        val body = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .fileType("csv")
+                .createUser("test")
+                .fileName("summer-reporting.csv")
+                .build();
+
+        this.mockMvc.perform(post(BASE_URL + "/" + schoolTombstone.getSchoolId() + "/excel-upload")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(body))
+                .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.subErrors[0].message").value("Birthdate must be in the format YYYYMMDD. Review the data on line 1."));
+    }
+
 }
