@@ -14,6 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
         boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
         boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
+        boolean isSummerPeriod = isCurrentReportingPeriodSummer(studentRuleData);
 
         if(gradRequirementYearIsBlank) {
             String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
@@ -93,9 +95,16 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .map(GraduationProgramCode::getProgramCode)
                     .findFirst()
                     .orElse("");
-            String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
+
+            String gradProgramErrorMessage;
+            if (isSummerPeriod && gradRecord != null && gradProgramValue != null) {
+                gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL, gradProgramErrorMessage));
+            } else {
+                gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, gradProgramErrorMessage));
+            }
             log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", gradProgramErrorMessage, student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, gradProgramErrorMessage));
 
         } else if (isGraduated && !isSCCPProgram && isGradProgramChanged) {
             String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage().formatted(gradRecord.getProgram());
@@ -106,6 +115,20 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         return errors;
     }
     
+    private boolean isCurrentReportingPeriodSummer(StudentRuleData studentRuleData) {
+        try {
+            var reportingPeriod = studentRuleData.getDemographicStudentEntity().getIncomingFileset().getReportingPeriod();
+            if (reportingPeriod == null) {
+                return false;
+            }
+            LocalDateTime now = LocalDateTime.now();
+            return !now.isBefore(reportingPeriod.getSummerStart()) && !now.isAfter(reportingPeriod.getSummerEnd());
+        } catch (NullPointerException e) {
+            log.debug("Unable to determine if current period is summer for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
+            return false;
+        }
+    }
+
     private String getGradProgramValue(String gradProgram) {
         if(!StringUtils.isBlank(gradProgram) && gradProgram.length() > 4) {
             return gradProgram.substring(0, 4);
