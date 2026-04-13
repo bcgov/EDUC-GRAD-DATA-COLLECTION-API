@@ -61,7 +61,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     private ReportingPeriodRepository reportingPeriodRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
@@ -208,8 +208,7 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     }
 
     @AfterEach
-    public void tearDown() {
-        // Clean up in reverse order: children first, then parents
+    void tearDown() {
         this.finalIncomingFilesetRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.demographicStudentRepository.deleteAll();
