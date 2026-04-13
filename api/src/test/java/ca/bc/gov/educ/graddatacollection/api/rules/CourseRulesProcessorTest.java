@@ -62,11 +62,12 @@ class CourseRulesProcessorTest extends BaseGradDataCollectionAPITest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        this.reportingPeriodRepository.deleteAll();
         this.demographicStudentRepository.deleteAll();
         this.courseStudentRepository.deleteAll();
         this.incomingFilesetRepository.deleteAll();
         this.finalIncomingFilesetRepository.deleteAll();
-        this.reportingPeriodRepository.deleteAll();
+
 
         when(restUtils.getLetterGradeList(any())).thenReturn(
                 List.of(
