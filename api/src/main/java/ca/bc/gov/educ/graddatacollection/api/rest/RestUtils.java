@@ -1169,9 +1169,8 @@ public class RestUtils {
       demStudent.setProgramCode5(student.getProgramCode5());
       demStudent.setGradRequirementYear(student.getGradRequirementYear());
       demStudent.setSchoolCertificateCompletionDate(student.getSchoolCertificateCompletionDate());
-      demStudent.setStudentStatus(student.getStudentStatus());
+      demStudent.setStudentStatus(isSummer ? "CUR" : student.getStudentStatus());
       demStudent.setIsSummerCollection(isSummer ? "Y" : "N");
-      demStudent.setStudentStatus(isSummer ? "CUR  " : student.getStudentStatus());
       demStudent.setCreateUser(student.getCreateUser());
       demStudent.setUpdateUser(student.getCreateUser());
       demStudent.setCreateDate(student.getCreateDate());
