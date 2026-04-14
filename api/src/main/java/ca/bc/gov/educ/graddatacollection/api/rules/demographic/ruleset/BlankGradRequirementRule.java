@@ -35,12 +35,10 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
     private final DemographicRulesService demographicRulesService;
-    private final BaseRulesService baseRulesService;
 
     public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService, BaseRulesService baseRulesService) {
         this.restUtils = restUtils;
         this.demographicRulesService = demographicRulesService;
-        this.baseRulesService = baseRulesService;
     }
 
     @Override
@@ -71,7 +69,8 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
         boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
         boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
-        boolean isSummerPeriod = baseRulesService.isSummerCollection(studentRuleData.getDemographicStudentEntity().getIncomingFileset()!=null ? studentRuleData.getDemographicStudentEntity().getIncomingFileset() : null);
+        boolean isSummerPeriod = demographicRulesService.isSummerCollection(student.getIncomingFileset());
+
         if(gradRequirementYearIsBlank) {
             String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
                     .filter(g -> g.getProgramCode() != null)
