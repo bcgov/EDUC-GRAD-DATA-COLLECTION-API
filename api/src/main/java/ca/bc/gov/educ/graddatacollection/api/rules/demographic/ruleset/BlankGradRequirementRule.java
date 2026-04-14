@@ -26,6 +26,7 @@ import java.util.List;
  *  |      |          |    - The student has graduated                                         |              |
  *  |      |          |    - The student's program in GRAD is not SCCP                         |              |
  *  |      |          |    - The submitted grad program is different from the program in GRAD  |              |
+ *  |      |          |    - If it is summer collection         |              |
  */
 @Component
 @Slf4j
