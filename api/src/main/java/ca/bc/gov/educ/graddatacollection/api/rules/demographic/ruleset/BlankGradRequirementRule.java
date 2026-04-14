@@ -36,7 +36,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
     private final RestUtils restUtils;
     private final DemographicRulesService demographicRulesService;
 
-    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService, BaseRulesService baseRulesService) {
+    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService) {
         this.restUtils = restUtils;
         this.demographicRulesService = demographicRulesService;
     }
