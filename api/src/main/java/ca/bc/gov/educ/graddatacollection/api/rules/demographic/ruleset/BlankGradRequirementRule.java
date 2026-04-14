@@ -4,16 +4,19 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.BaseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GraduationProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +37,12 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
     private final DemographicRulesService demographicRulesService;
+    private final BaseRulesService baseRulesService;
 
-    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService) {
+    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService, BaseRulesService baseRulesService) {
         this.restUtils = restUtils;
         this.demographicRulesService = demographicRulesService;
+        this.baseRulesService = baseRulesService;
     }
 
     @Override
@@ -68,6 +73,8 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
         boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
         boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
+        boolean isSummerPeriod = baseRulesService.isSummerCollection(studentRuleData.getDemographicStudentEntity().getIncomingFileset()!=null ? studentRuleData.getDemographicStudentEntity().getIncomingFileset() : null);
+
 
         if(gradRequirementYearIsBlank) {
             String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
@@ -93,9 +100,16 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .map(GraduationProgramCode::getProgramCode)
                     .findFirst()
                     .orElse("");
-            String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
+
+            String gradProgramErrorMessage;
+            if (isSummerPeriod) {
+                gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL, gradProgramErrorMessage));
+            } else {
+                gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, gradProgramErrorMessage));
+            }
             log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", gradProgramErrorMessage, student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, gradProgramErrorMessage));
 
         } else if (isGraduated && !isSCCPProgram && isGradProgramChanged) {
             String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage().formatted(gradRecord.getProgram());
