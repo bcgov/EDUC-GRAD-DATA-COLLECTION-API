@@ -4,6 +4,7 @@ import ca.bc.gov.educ.graddatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.graddatacollection.api.rules.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.graddatacollection.api.rules.demographic.DemographicValidationBaseRule;
+import ca.bc.gov.educ.graddatacollection.api.service.v1.BaseRulesService;
 import ca.bc.gov.educ.graddatacollection.api.service.v1.DemographicRulesService;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.grad.v1.GraduationProgramCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidationIssue;
@@ -35,10 +36,12 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
     private final DemographicRulesService demographicRulesService;
+    private final BaseRulesService baseRuleService;
 
-    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService) {
+    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService, BaseRulesService baseRuleService) {
         this.restUtils = restUtils;
         this.demographicRulesService = demographicRulesService;
+        this.baseRuleService = baseRuleService;
     }
 
     @Override
@@ -69,7 +72,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
         boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
         boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
-        boolean isSummerPeriod = isCurrentReportingPeriodSummer(studentRuleData);
+        boolean isSummerPeriod = baseRuleService.isSummerCollection(studentRuleData.getDemographicStudentEntity().getIncomingFileset());
 
         if(gradRequirementYearIsBlank) {
             String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
@@ -97,7 +100,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .orElse("");
 
             String gradProgramErrorMessage;
-            if (isSummerPeriod && gradRecord != null && gradProgramValue != null) {
+            if (isSummerPeriod) {
                 gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL, gradProgramErrorMessage));
             } else {
