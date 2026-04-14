@@ -11,6 +11,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudentValidat
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -36,12 +37,12 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
 
     private final RestUtils restUtils;
     private final DemographicRulesService demographicRulesService;
-    private final BaseRulesService baseRuleService;
+    private final BaseRulesService baseRulesService;
 
-    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService, BaseRulesService baseRuleService) {
+    public BlankGradRequirementRule(RestUtils restUtils, DemographicRulesService demographicRulesService, BaseRulesService baseRulesService) {
         this.restUtils = restUtils;
         this.demographicRulesService = demographicRulesService;
-        this.baseRuleService = baseRuleService;
+        this.baseRulesService = baseRulesService;
     }
 
     @Override
@@ -72,7 +73,8 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
         boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
         boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
-        boolean isSummerPeriod = baseRuleService.isSummerCollection(studentRuleData.getDemographicStudentEntity().getIncomingFileset());
+        boolean isSummerPeriod = baseRulesService.isSummerCollection(studentRuleData.getDemographicStudentEntity().getIncomingFileset()!=null ? studentRuleData.getDemographicStudentEntity().getIncomingFileset() : null);
+
 
         if(gradRequirementYearIsBlank) {
             String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
@@ -118,20 +120,6 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         return errors;
     }
     
-    private boolean isCurrentReportingPeriodSummer(StudentRuleData studentRuleData) {
-        try {
-            var reportingPeriod = studentRuleData.getDemographicStudentEntity().getIncomingFileset().getReportingPeriod();
-            if (reportingPeriod == null) {
-                return false;
-            }
-            LocalDateTime now = LocalDateTime.now();
-            return !now.isBefore(reportingPeriod.getSummerStart()) && !now.isAfter(reportingPeriod.getSummerEnd());
-        } catch (NullPointerException e) {
-            log.debug("Unable to determine if current period is summer for demographicStudentID :: {}", studentRuleData.getDemographicStudentEntity().getDemographicStudentID());
-            return false;
-        }
-    }
-
     private String getGradProgramValue(String gradProgram) {
         if(!StringUtils.isBlank(gradProgram) && gradProgram.length() > 4) {
             return gradProgram.substring(0, 4);
