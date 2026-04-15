@@ -20,13 +20,14 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                   | Dependent On |
  *  |------|----------|------------------------------------------------------------------------|--------------|
- *  | D12  | WARNING  | 1. Warning if a null Grad Req Year is reported                         |    D03       |
+ *  | D12  | WARNING  | 1. Warning if Grad Req Year is blank:                                  |    D03       |
+ *  |      |          |    - If it is a summer collection, use the summer-specific message     |              |
+ *  |      |          |    - Otherwise, use the standard null Grad Req Year message            |              |
  *  |      |          | 2. Warning if all the following are true:                              |              |
  *  |      |          |    - Grad Req Year is not null                                         |              |
  *  |      |          |    - The student has graduated                                         |              |
  *  |      |          |    - The student's program in GRAD is not SCCP                         |              |
  *  |      |          |    - The submitted grad program is different from the program in GRAD  |              |
- *  |      |          |    - If it is summer collection         |              |
  */
 @Component
 @Slf4j
@@ -95,17 +96,13 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .map(GraduationProgramCode::getProgramCode)
                     .findFirst()
                     .orElse("");
-            String gradProgramErrorMessage;
-            if (isSummerPeriod) {
-                gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL, gradProgramErrorMessage));
-            } else {
-                gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, gradProgramErrorMessage));
-            }
 
+            var issueTypeCode = isSummerPeriod
+                    ? DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL
+                    : DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL;
+            String gradProgramErrorMessage = issueTypeCode.getMessage().formatted(gradProgramForErrorMessage);
             log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", gradProgramErrorMessage, student.getDemographicStudentID());
-
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, issueTypeCode, gradProgramErrorMessage));
         } else if (isGraduated && !isSCCPProgram && isGradProgramChanged) {
             String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage().formatted(gradRecord.getProgram());
             log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage(), student.getDemographicStudentID());
