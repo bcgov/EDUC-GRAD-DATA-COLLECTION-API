@@ -40,6 +40,7 @@ public enum DemographicStudentValidationIssueTypeCode {
   STUDENT_PROGRAM_SCHOOL_CATEGORY_CODE_INVALID("STUDENTPROGRAMSCHOOLCATEGORYCODEINVALID", "1950 and SCCP are not valid program codes for offshore schools."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_INVALID("STUDENTPROGRAMGRADREQUIREMENTYEARINVALID", "The submitted value %s is not an allowable value, per the current GRAD file specification."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL("STUDENTPROGRAMGRADREQUIREMENTYEARNULL", "The Graduation Program Year was blank. The GRAD System has the %s program for this student."),
+  STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL("STUDENTPROGRAMGRADREQUIREMENTSUMMERYEARNULL", "The GRAD System has the %s program for this student. Please submit a GRAD Change Form if this needs to be updated."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD("STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD", "The student has a %s completion date so the program code cannot be changed."),
   STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_PROGRAM_CLOSED("STUDENTPROGRAMGRADREQUIREMENTYEARPROGRAMCLOSED", "Reported graduation program is closed. Students will not be able to graduate on this program."),
   ;

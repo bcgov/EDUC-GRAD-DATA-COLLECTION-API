@@ -1541,5 +1541,204 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
                 .as("Expecting NO D12 WARNING when student has not graduated, even if program changed")
                 .isNotPresent();
     }
+    @Test
+    void testD12BlankGradRequirement_Error_When_BlankYear_Summer_NotFNS_NotGraduated() {
+        var reportingPeriodEntity = createMockReportingPeriodEntity();
+        reportingPeriodEntity.setSchYrStart(LocalDateTime.now().minusDays(2));
+        reportingPeriodEntity.setSchYrEnd(LocalDateTime.now().plusDays(2));
+        reportingPeriodEntity.setSummerStart(LocalDate.now().minusDays(5).atStartOfDay());
+        reportingPeriodEntity.setSummerEnd(LocalDate.now().plusDays(5).atStartOfDay());
 
+        var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        var assessmentStudent = createMockAssessmentStudent();
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        var school = createMockSchoolTombstone();
+
+        var gradStudentRecord = new GradStudentRecord();
+        demStudent.setGradRequirementYear("");
+        demStudent.setGrade(SchoolGradeCodes.GRADUATED_ADULT.getCode());
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        gradStudentRecord.setProgramCompletionDate("2025-01-15");
+        gradStudentRecord.setGraduated("false");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+
+        StudentRuleData studentRuleDataError = new StudentRuleData();
+        studentRuleDataError.setDemographicStudentEntity(demStudent);
+        studentRuleDataError.setCourseStudentEntity(courseStudent);
+        studentRuleDataError.setAssessmentStudentEntity(assessmentStudent);
+        studentRuleDataError.setSchool(school);
+        studentRuleDataError.setGradStudentRecord(gradStudentRecord);
+
+        val validationErrorsError = rulesProcessor.processRules(studentRuleDataError);
+
+        var d12ErrorOptional = validationErrorsError.stream()
+                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getCode()))
+                .findFirst();
+
+        assertThat(d12ErrorOptional)
+                .isPresent();
+
+        d12ErrorOptional.ifPresent(err -> {
+            assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
+            assertThat(err.getValidationIssueDescription())
+                    .isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted("2023-EN"));
+        });
+    }
+
+    @Test
+    void testD12BlankGradRequirement_Warning_When_BlankYear_Summer_WithGradRecordProgram() {
+        var reportingPeriodEntity = createMockReportingPeriodEntity();
+        reportingPeriodEntity.setSchYrStart(LocalDateTime.now().minusDays(2));
+        reportingPeriodEntity.setSchYrEnd(LocalDateTime.now().plusDays(2));
+        reportingPeriodEntity.setSummerStart(LocalDate.now().minusDays(5).atStartOfDay());
+        reportingPeriodEntity.setSummerEnd(LocalDate.now().plusDays(5).atStartOfDay());
+
+        var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        var assessmentStudent = createMockAssessmentStudent();
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        var school = createMockSchoolTombstone();
+
+        var gradStudentRecord = new GradStudentRecord();
+        demStudent.setGradRequirementYear("");
+        demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        gradStudentRecord.setProgram("2018-EN");
+        gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+
+        StudentRuleData studentRuleData = new StudentRuleData();
+        studentRuleData.setDemographicStudentEntity(demStudent);
+        studentRuleData.setCourseStudentEntity(courseStudent);
+        studentRuleData.setAssessmentStudentEntity(assessmentStudent);
+        studentRuleData.setSchool(school);
+        studentRuleData.setGradStudentRecord(gradStudentRecord);
+        studentRuleData.setGradStudentRecordFetched(true);
+
+        val validationErrors = rulesProcessor.processRules(studentRuleData);
+
+        var d12ErrorOptional = validationErrors.stream()
+                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getCode()))
+                .findFirst();
+
+        assertThat(d12ErrorOptional)
+                .as("Expecting D12 summer WARNING when grad year is blank during summer period with a grad record program")
+                .isPresent();
+
+        d12ErrorOptional.ifPresent(err -> {
+            assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
+            assertThat(err.getValidationIssueDescription())
+                    .isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted("2018"));
+        });
+    }
+
+    @Test
+    void testD12BlankGradRequirement_Warning_When_BlankYear_Summer_NoGradRecordProgram_CSFSchool() {
+        var reportingPeriodEntity = createMockReportingPeriodEntity();
+        reportingPeriodEntity.setSchYrStart(LocalDateTime.now().minusDays(2));
+        reportingPeriodEntity.setSchYrEnd(LocalDateTime.now().plusDays(2));
+        reportingPeriodEntity.setSummerStart(LocalDate.now().minusDays(5).atStartOfDay());
+        reportingPeriodEntity.setSummerEnd(LocalDate.now().plusDays(5).atStartOfDay());
+
+        var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        var assessmentStudent = createMockAssessmentStudent();
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        var school = createMockSchoolTombstone();
+
+        var gradStudentRecord = new GradStudentRecord();
+        demStudent.setGradRequirementYear("");
+        demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        school.setSchoolReportingRequirementCode("CSF");
+        gradStudentRecord.setGraduated("false");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+
+        StudentRuleData studentRuleData = new StudentRuleData();
+        studentRuleData.setDemographicStudentEntity(demStudent);
+        studentRuleData.setCourseStudentEntity(courseStudent);
+        studentRuleData.setAssessmentStudentEntity(assessmentStudent);
+        studentRuleData.setSchool(school);
+        studentRuleData.setGradStudentRecord(gradStudentRecord);
+
+        val validationErrors = rulesProcessor.processRules(studentRuleData);
+
+        var d12ErrorOptional = validationErrors.stream()
+                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getCode()))
+                .findFirst();
+
+        assertThat(d12ErrorOptional)
+                .as("Expecting D12 summer WARNING for CSF school when grad year is blank during summer period")
+                .isPresent();
+
+        d12ErrorOptional.ifPresent(err -> {
+            assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
+            assertThat(err.getValidationIssueDescription())
+                    .isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL.getMessage().formatted("2023-PF"));
+        });
+    }
+
+    @Test
+    void testD12BlankGradRequirement_Warning_When_BlankYear_NonSummer_WithGradRecordProgram() {
+        var reportingPeriodEntity = createMockReportingPeriodEntity();
+        reportingPeriodEntity.setSchYrStart(LocalDateTime.now().minusDays(2));
+        reportingPeriodEntity.setSchYrEnd(LocalDateTime.now().plusDays(2));
+        reportingPeriodEntity.setSummerStart(LocalDate.now().minusDays(10).atStartOfDay());
+        reportingPeriodEntity.setSummerEnd(LocalDate.now().minusDays(5).atStartOfDay());
+
+        var reportingPeriod = reportingPeriodRepository.save(reportingPeriodEntity);
+        var incomingFileset = createMockIncomingFilesetEntityWithAllFilesLoaded(reportingPeriod);
+        var savedFileSet = incomingFilesetRepository.save(incomingFileset);
+        var courseStudent = createMockCourseStudent(savedFileSet);
+        var assessmentStudent = createMockAssessmentStudent();
+        var demStudent = createMockDemographicStudent(savedFileSet);
+        var school = createMockSchoolTombstone();
+
+        var gradStudentRecord = new GradStudentRecord();
+        demStudent.setGradRequirementYear("");
+        demStudent.setGrade(SchoolGradeCodes.GRADE12.getCode());
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        gradStudentRecord.setProgram("2018-EN");
+        gradStudentRecord.setGraduated("true");
+        gradStudentRecord.setStudentID(demStudent.getDemographicStudentID().toString());
+        gradStudentRecord.setStudentStatusCode("CUR");
+
+        StudentRuleData studentRuleData = new StudentRuleData();
+        studentRuleData.setDemographicStudentEntity(demStudent);
+        studentRuleData.setCourseStudentEntity(courseStudent);
+        studentRuleData.setAssessmentStudentEntity(assessmentStudent);
+        studentRuleData.setSchool(school);
+        studentRuleData.setGradStudentRecord(gradStudentRecord);
+        studentRuleData.setGradStudentRecordFetched(true);
+
+        val validationErrors = rulesProcessor.processRules(studentRuleData);
+
+        var d12ErrorOptional = validationErrors.stream()
+                .filter(e -> e.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getCode()))
+                .findFirst();
+
+        assertThat(d12ErrorOptional)
+                .as("Expecting D12 standard WARNING when grad year is blank during non-summer period with a grad record program")
+                .isPresent();
+
+        d12ErrorOptional.ifPresent(err -> {
+            assertThat(err.getValidationIssueFieldCode()).isEqualTo(ValidationFieldCode.GRAD_REQUIREMENT_YEAR.getCode());
+            assertThat(err.getValidationIssueSeverityCode()).isEqualTo(StudentValidationIssueSeverityCode.WARNING.getCode());
+            assertThat(err.getValidationIssueDescription())
+                    .isEqualTo(DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted("2018"));
+        });
+    }
 }

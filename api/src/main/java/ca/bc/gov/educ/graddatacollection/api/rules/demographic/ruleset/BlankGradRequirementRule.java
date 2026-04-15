@@ -20,7 +20,9 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                   | Dependent On |
  *  |------|----------|------------------------------------------------------------------------|--------------|
- *  | D12  | WARNING  | 1. Warning if a null Grad Req Year is reported                         |    D03       |
+ *  | D12  | WARNING  | 1. Warning if Grad Req Year is blank:                                  |    D03       |
+ *  |      |          |    - If it is a summer collection, use the summer-specific message     |              |
+ *  |      |          |    - Otherwise, use the standard null Grad Req Year message            |              |
  *  |      |          | 2. Warning if all the following are true:                              |              |
  *  |      |          |    - Grad Req Year is not null                                         |              |
  *  |      |          |    - The student has graduated                                         |              |
@@ -68,6 +70,7 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
         boolean isGraduated = gradRecord != null && StringUtils.isNotBlank(gradRecord.getGraduated()) && gradRecord.getGraduated().equalsIgnoreCase("true");
         boolean isSCCPProgram = gradRecord != null && StringUtils.isNotBlank(gradProgramValue) && gradProgramValue.equalsIgnoreCase(GradRequirementYearCodes.SCCP.getCode());
         boolean isGradProgramChanged = gradRecord != null && StringUtils.isNotBlank(student.getGradRequirementYear()) && !student.getGradRequirementYear().equalsIgnoreCase(gradProgramValue);
+        boolean isSummerPeriod = demographicRulesService.isSummerCollection(student.getIncomingFileset());
 
         if(gradRequirementYearIsBlank) {
             String gradProgramForErrorMessage = (gradRecord != null && gradProgramValue != null) ? gradProgramValue : graduationProgramCodes.stream()
@@ -93,10 +96,13 @@ public class BlankGradRequirementRule implements DemographicValidationBaseRule {
                     .map(GraduationProgramCode::getProgramCode)
                     .findFirst()
                     .orElse("");
-            String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL.getMessage().formatted(gradProgramForErrorMessage);
-            log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", gradProgramErrorMessage, student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL, gradProgramErrorMessage));
 
+            var issueTypeCode = isSummerPeriod
+                    ? DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_SUMMER_YEAR_NULL
+                    : DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL;
+            String gradProgramErrorMessage = issueTypeCode.getMessage().formatted(gradProgramForErrorMessage);
+            log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", gradProgramErrorMessage, student.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.GRAD_REQUIREMENT_YEAR, issueTypeCode, gradProgramErrorMessage));
         } else if (isGraduated && !isSCCPProgram && isGradProgramChanged) {
             String gradProgramErrorMessage = DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage().formatted(gradRecord.getProgram());
             log.debug("StudentProgram-D12: {} for demographicStudentID :: {}", DemographicStudentValidationIssueTypeCode.STUDENT_PROGRAM_GRAD_REQUIREMENT_YEAR_NULL_GRAD.getMessage(), student.getDemographicStudentID());
