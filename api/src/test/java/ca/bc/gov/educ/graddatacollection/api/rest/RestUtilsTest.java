@@ -16,6 +16,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.School
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolCategoryCode;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.external.scholarships.v1.CitizenshipCode;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.DemographicStudent;
 import io.nats.client.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -606,6 +607,51 @@ class RestUtilsTest {
         
         assertNotNull(event);
         assertTrue(event.getEventPayload().contains("\"vendorCode\":\"MYED\""));
+    }
+
+    @Test
+    void testwriteDEMStudentRecordInGrad_whenSummerCollection_thenStudentStatusSetToCUR() {
+        DemographicStudent student = DemographicStudent.builder()
+                .pen("123456789")
+                .birthdate("20080101")
+                .citizenship("C")
+                .grade("12")
+                .gradRequirementYear("2025")
+                .studentStatus("A")
+                .vendorID("OTHER")
+                .createUser("test")
+                .updateUser("test")
+                .createDate(LocalDateTime.now().minusDays(1).toString())
+                .updateDate(LocalDateTime.now().toString())
+                .build();
+
+        SchoolTombstone school = SchoolTombstone.builder()
+                .schoolId(UUID.randomUUID().toString())
+                .mincode("12345678")
+                .schoolReportingRequirementCode("REGULAR")
+                .build();
+
+        ReportingPeriodEntity reportingPeriod = ReportingPeriodEntity.builder()
+                .summerStart(LocalDateTime.now().minusDays(10))
+                .summerEnd(LocalDateTime.now().plusDays(10))
+                .build();
+
+        String responseJson = "{\"status\":\"SUCCESS\"}";
+        Message mockMessage = mock(Message.class);
+        when(mockMessage.getData()).thenReturn(responseJson.getBytes(StandardCharsets.UTF_8));
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(mockMessage));
+
+        restUtils.writeDEMStudentRecordInGrad(student, school, reportingPeriod);
+
+        ArgumentCaptor<byte[]> bytesCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(messagePublisher).requestMessage(anyString(), bytesCaptor.capture());
+
+        String capturedJson = new String(bytesCaptor.getValue(), StandardCharsets.UTF_8);
+        assertTrue(capturedJson.contains("\\\"studentStatus\\\":\\\"CUR\\\""),
+                "Expected studentStatus to be CUR but was: " + capturedJson);
+        assertTrue(capturedJson.contains("\\\"isSummerCollection\\\":\\\"Y\\\""),
+                "Expected isSummerCollection to be Y but was: " + capturedJson);
     }
 
     @Test
