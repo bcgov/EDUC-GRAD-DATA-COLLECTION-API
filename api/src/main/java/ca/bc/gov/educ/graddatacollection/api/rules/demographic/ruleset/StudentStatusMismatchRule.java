@@ -69,12 +69,12 @@ public class StudentStatusMismatchRule implements DemographicValidationBaseRule 
         else if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
                 && "D".equalsIgnoreCase(ministryStudentStatus)) {
             String message = "STUDENT STATUS mismatch. School submitted: " + StringEscapeUtils.escapeHtml4(demStudentStatus) + " and the Ministry PEN system has: " + ministryStudentStatus + ". If the submitted STUDENT STATUS is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
         }
         else if ("D".equalsIgnoreCase(demStudentStatus)
                 && !"D".equalsIgnoreCase(ministryStudentStatus)) {
             String message = "STUDENT STATUS mismatch. School submitted: " + StringEscapeUtils.escapeHtml4(demStudentStatus) + " and the Ministry PEN system has: " + ministryStudentStatus + ". If the submitted STUDENT STATUS is correct, request a PEN update through <a href=\""+secureMessageUrl+"\">EDX Secure Messaging </a>";
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_PEN_MISMATCH, message));
         }
 
         return errors;
