@@ -118,7 +118,7 @@ public abstract class BaseExcelProcessor implements GradFileExcelProcessor {
         if (cell == null) {
             throw new FileUnProcessableException(FileError.BLANK_CELL_IN_HEADING_ROW, guid, GradCollectionStatus.LOAD_FAIL, String.valueOf(cn));
         }
-        val headerNameFromFile = StringUtils.trim(cell.getStringCellValue());
+        val headerNameFromFile = StringUtils.trimToEmpty(cell.getStringCellValue()).replace("\uFEFF", "");
         val headerOptional = Headers.fromString(headerNameFromFile);
         headerOptional.ifPresent(header -> headersMap.put(cn, StringUtils.trim(header.getCode())));
     }
