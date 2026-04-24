@@ -37,7 +37,8 @@ public class DemographicStudentProcessingOrchestrator extends BaseOrchestrator<D
   private final List<String> CRITICAL_DEM_ERRORS = Arrays.asList(STUDENT_PEN_NOT_FOUND.getCode(),
           STUDENT_BIRTHDATE_INVALID.getCode(), STUDENT_SURNAME_MISMATCH.getCode(), STUDENT_MIDDLE_MISMATCH.getCode(), 
           STUDENT_GIVEN_MISMATCH.getCode(), STUDENT_BIRTHDATE_MISMATCH.getCode(), STUDENT_STATUS_INVALID.getCode(),
-          STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getCode(), STUDENT_STATUS_INCORRECT_NEW_STUDENT.getCode(), STUDENT_STATUS_MERGED.getCode());
+          STUDENT_STATUS_SCHOOL_OF_RECORD_MISMATCH.getCode(), STUDENT_STATUS_INCORRECT_NEW_STUDENT.getCode(), STUDENT_STATUS_MERGED.getCode(),
+          STUDENT_STATUS_PEN_MISMATCH.getCode());
 
   protected DemographicStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, DemographicStudentService demographicStudentService, RestUtils restUtils) {
     super(sagaService, messagePublisher, DemographicStudentSagaData.class, SagaEnum.PROCESS_DEM_STUDENTS_SAGA.toString(), TopicsEnum.PROCESS_DEM_STUDENTS_SAGA_TOPIC.toString());

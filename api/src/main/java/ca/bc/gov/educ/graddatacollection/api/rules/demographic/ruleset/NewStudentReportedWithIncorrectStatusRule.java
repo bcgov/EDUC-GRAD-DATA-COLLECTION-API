@@ -19,7 +19,7 @@ import java.util.List;
 /**
  *  | ID   | Severity | Rule                                                                  | Dependent On |
  *  |------|----------|-----------------------------------------------------------------------|--------------|
- *  | D20 | ERROR    |  If the student is new to GRAD, that reported status should not        | D03, D06     |
+ *  | D20  | ERROR    |  If the student is new to GRAD, that reported status should not       | D03, D06     |
  *  |      |          |  be “T”.                                                              |              |
  */
 
@@ -56,7 +56,7 @@ public class NewStudentReportedWithIncorrectStatusRule implements DemographicVal
         GradStudentRecord gradStudentRecord = demographicRulesService.getGradStudentRecord(studentRuleData, student.getPen());
         if (gradStudentRecord == null && student.getStudentStatus().equalsIgnoreCase(StudentStatusCodes.T.getCode())) {
             log.debug("StudentStatus-D20: {} for demographicStudentID: {}", DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage(), student.getDemographicStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.WARNING, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage()));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT, DemographicStudentValidationIssueTypeCode.STUDENT_STATUS_INCORRECT_NEW_STUDENT.getMessage()));
         }
         return errors;
     }
