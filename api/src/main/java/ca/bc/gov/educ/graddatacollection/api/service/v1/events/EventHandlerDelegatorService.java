@@ -57,5 +57,6 @@ public class EventHandlerDelegatorService {
         message.ack(); // acknowledge to Jet Stream that api got the message and it is now in DB.
         log.info("acknowledged to Jet Stream...");
         restUtils.populateGradSchoolMap();
+        restUtils.populateAssessmentSessionMap();
     }
 }
