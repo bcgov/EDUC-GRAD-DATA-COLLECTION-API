@@ -81,11 +81,12 @@ class ReportingSummaryServiceTest {
     void testGetReportingSummary_Summer_WithClosedDateWithIn3Months() {
         UUID reportingPeriodId = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime closedDate = now.minusMonths(2);
+        LocalDateTime summerEnd = now.plusMonths(1);
+        LocalDateTime closedDate = summerEnd.minusMonths(2);
         ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
                 .reportingPeriodID(reportingPeriodId)
                 .summerStart(now.minusMonths(1))
-                .summerEnd(now.plusMonths(1))
+                .summerEnd(summerEnd)
                 .schYrStart(now.minusMonths(6))
                 .schYrEnd(now.minusMonths(2))
                 .periodStart(now.minusMonths(6))
