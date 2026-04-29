@@ -81,13 +81,23 @@ public class AssessmentDemFileError implements AssessmentValidationBaseRule {
             return errors;
         }
 
-        // D21 partial - only checking if student status in the student api is M
+        // D21 - all three sub-rules
         var student = assessmentRulesService.getStudentApiStudent(studentRuleData, demographicStudent.getPen());
 
+        String demStudentStatus = demographicStudent.getStudentStatus();
         String ministryStudentStatus = student.getStatusCode();
 
-        if ("M".equalsIgnoreCase(ministryStudentStatus)) {
-            log.debug("StudentStatus-D21 (V23): {} for demographicStudentID :: {}", AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage(), demographicStudent.getDemographicStudentID());
+        if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
+                && "M".equalsIgnoreCase(ministryStudentStatus)) {
+            log.debug("StudentStatus-D21 merged (V23): {} for demographicStudentID :: {}", AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage(), demographicStudent.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE, AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage()));
+        } else if (("A".equalsIgnoreCase(demStudentStatus) || "T".equalsIgnoreCase(demStudentStatus))
+                && "D".equalsIgnoreCase(ministryStudentStatus)) {
+            log.debug("StudentStatus-D21 deceased mismatch (V23): {} for demographicStudentID :: {}", AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage(), demographicStudent.getDemographicStudentID());
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE, AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage()));
+        } else if ("D".equalsIgnoreCase(demStudentStatus)
+                && !"D".equalsIgnoreCase(ministryStudentStatus)) {
+            log.debug("StudentStatus-D21 status mismatch (V23): {} for demographicStudentID :: {}", AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage(), demographicStudent.getDemographicStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, ValidationFieldCode.STUDENT_STATUS, AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE, AssessmentStudentValidationIssueTypeCode.ERROR_IN_DEM_FILE.getMessage()));
         }
         return errors;
