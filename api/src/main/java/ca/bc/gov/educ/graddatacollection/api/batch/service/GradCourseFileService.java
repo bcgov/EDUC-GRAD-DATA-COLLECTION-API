@@ -98,6 +98,23 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             if(!studentSet.contains(courseRecord.hashCode())) {
                 batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
                 studentSet.add(courseRecord.hashCode());
+            } else {
+                log.warn("CRS line {} dropped during hash-based dedupe. hash={}, pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}",
+                        courseRecord.getLineNumber(),
+                        courseRecord.hashCode(),
+                        courseRecord.getPen(),
+                        courseRecord.getLocalId(),
+                        courseRecord.getCourseCode(),
+                        courseRecord.getCourseLevel(),
+                        courseRecord.getCourseYear(),
+                        StringUtils.isNotBlank(courseRecord.getCourseMonth()) ? "-" : "",
+                        courseRecord.getCourseMonth(),
+                        courseRecord.getCourseStatus(),
+                        courseRecord.getInterimPercentage(),
+                        courseRecord.getInterimLetterGrade(),
+                        courseRecord.getFinalPercentage(),
+                        courseRecord.getFinalLetterGrade(),
+                        courseRecord.getCourseDesc());
             }
             index++;
         }
@@ -114,6 +131,23 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             if(!studentSet.contains(courseRecord.hashCode())) {
                 batchFile.getCourseData().add(courseRecord);
                 studentSet.add(courseRecord.hashCode());
+            } else {
+                log.warn("CRS line {} dropped during hash-based dedupe. hash={}, pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}",
+                        courseRecord.getLineNumber(),
+                        courseRecord.hashCode(),
+                        courseRecord.getPen(),
+                        courseRecord.getLocalId(),
+                        courseRecord.getCourseCode(),
+                        courseRecord.getCourseLevel(),
+                        courseRecord.getCourseYear(),
+                        StringUtils.isNotBlank(courseRecord.getCourseMonth()) ? "-" : "",
+                        courseRecord.getCourseMonth(),
+                        courseRecord.getCourseStatus(),
+                        courseRecord.getInterimPercentage(),
+                        courseRecord.getInterimLetterGrade(),
+                        courseRecord.getFinalPercentage(),
+                        courseRecord.getFinalLetterGrade(),
+                        courseRecord.getCourseDesc());
             }
             index++;
         }
@@ -129,6 +163,17 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             //Pull letter grade based on what's there
             //If it exists, and there's no percentage low/high, remove the interim letter grade and percentage
             if(StringUtils.isNotBlank(gradStudentCourseDetails.getInterimLetterGrade()) && foundLetterGradeWithNoPercentages(letterGradeList, gradStudentCourseDetails.getInterimLetterGrade())) {
+                log.info("CRS line {} interim letter grade scrubbed. pen={}, localID={}, course={} {}, session={}{}{}, interim={} {}",
+                        gradStudentCourseDetails.getLineNumber(),
+                        gradStudentCourseDetails.getPen(),
+                        gradStudentCourseDetails.getLocalId(),
+                        gradStudentCourseDetails.getCourseCode(),
+                        gradStudentCourseDetails.getCourseLevel(),
+                        gradStudentCourseDetails.getCourseYear(),
+                        StringUtils.isNotBlank(gradStudentCourseDetails.getCourseMonth()) ? "-" : "",
+                        gradStudentCourseDetails.getCourseMonth(),
+                        gradStudentCourseDetails.getInterimPercentage(),
+                        gradStudentCourseDetails.getInterimLetterGrade());
                 gradStudentCourseDetails.setInterimLetterGrade(null);
                 gradStudentCourseDetails.setInterimPercentage(null);
             }
@@ -173,6 +218,18 @@ public class GradCourseFileService implements GradFileBatchProcessor {
 
                     // If mixed (both A and W exist), keep only A records
                     if (countA > 0 && countW > 0) {
+                        group.stream()
+                                .filter(course -> "W".equals(course.getCourseStatus()))
+                                .forEach(course -> log.warn("CRS line {} dropped by withdrawal filter due to matching active course. pen={}, localID={}, course={} {}, session={}{}{}, desc={}",
+                                        course.getLineNumber(),
+                                        course.getPen(),
+                                        course.getLocalId(),
+                                        course.getCourseCode(),
+                                        course.getCourseLevel(),
+                                        course.getCourseYear(),
+                                        StringUtils.isNotBlank(course.getCourseMonth()) ? "-" : "",
+                                        course.getCourseMonth(),
+                                        course.getCourseDesc()));
                         return group.stream()
                                 .filter(course -> "A".equals(course.getCourseStatus()));
                     } else {
@@ -204,7 +261,24 @@ public class GradCourseFileService implements GradFileBatchProcessor {
             if(StringUtils.isNotBlank(student.getPen())) {
                 final var crsStudentEntity = mapper.toCRSStudentEntity(student, entity);
                 courseLineSet.put(student.getLineNumber(), crsStudentEntity);
-                entity.getCourseStudentEntities().add(crsStudentEntity);
+                var added = entity.getCourseStudentEntities().add(crsStudentEntity);
+                if (!added) {
+                    log.warn("CRS line {} dropped when adding to fileset entity set. pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}",
+                            student.getLineNumber(),
+                            student.getPen(),
+                            student.getLocalId(),
+                            student.getCourseCode(),
+                            student.getCourseLevel(),
+                            student.getCourseYear(),
+                            StringUtils.isNotBlank(student.getCourseMonth()) ? "-" : "",
+                            student.getCourseMonth(),
+                            student.getCourseStatus(),
+                            student.getInterimPercentage(),
+                            student.getInterimLetterGrade(),
+                            student.getFinalPercentage(),
+                            student.getFinalLetterGrade(),
+                            student.getCourseDesc());
+                }
             }else{
                 entity.setNumberOfMissingPENs(entity.getNumberOfMissingPENs() + 1);
             }
