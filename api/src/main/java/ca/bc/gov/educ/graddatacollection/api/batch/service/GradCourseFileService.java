@@ -90,20 +90,21 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
-        var studentHashMap = new HashMap<Integer, GradStudentCourseDetails>();
+        var studentKeyMap = new HashMap<CourseDedupeKey, GradStudentCourseDetails>();
         while (ds.next()) {
             final var mincode = ds.getString(DEMBatchFile.MINCODE.getName());
             gradFileValidator.validateMincode(guid, schoolID, mincode);
             var courseRecord = this.getStudentCourseDetailRecordFromFile(ds, guid, index);
-            var existingCourseRecord = studentHashMap.get(courseRecord.hashCode());
+            var dedupeKey = createCourseDedupeKey(courseRecord);
+            var existingCourseRecord = studentKeyMap.get(dedupeKey);
             if(existingCourseRecord == null) {
                 batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
-                studentHashMap.put(courseRecord.hashCode(), courseRecord);
+                studentKeyMap.put(dedupeKey, courseRecord);
             } else {
-                log.warn("populateSchoolBatchFile: CRS line {} dropped during hash-based dedupe against line {}. hash={}, dropped=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}], existing=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}]",
+                log.warn("populateSchoolBatchFile: CRS line {} dropped during key-based dedupe against line {}. dedupeKey={}, dropped=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}], existing=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}]",
                         courseRecord.getLineNumber(),
                         existingCourseRecord.getLineNumber(),
-                        courseRecord.hashCode(),
+                        dedupeKey,
                         courseRecord.getPen(),
                         courseRecord.getLocalId(),
                         courseRecord.getCourseCode(),
@@ -140,18 +141,19 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
         long index = 0;
         gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
-        var studentHashMap = new HashMap<Integer, GradStudentCourseDetails>();
+        var studentKeyMap = new HashMap<CourseDedupeKey, GradStudentCourseDetails>();
         while (ds.next()) {
             var courseRecord = this.getStudentCourseDetailRecordFromFile(ds, guid, index);
-            var existingCourseRecord = studentHashMap.get(courseRecord.hashCode());
+            var dedupeKey = createCourseDedupeKey(courseRecord);
+            var existingCourseRecord = studentKeyMap.get(dedupeKey);
             if(existingCourseRecord == null) {
                 batchFile.getCourseData().add(courseRecord);
-                studentHashMap.put(courseRecord.hashCode(), courseRecord);
+                studentKeyMap.put(dedupeKey, courseRecord);
             } else {
-                log.warn("populateDistrictBatchFile: CRS line {} dropped during hash-based dedupe against line {}. hash={}, dropped=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}], existing=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}]",
+                log.warn("populateDistrictBatchFile: CRS line {} dropped during key-based dedupe against line {}. dedupeKey={}, dropped=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}], existing=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}]",
                         courseRecord.getLineNumber(),
                         existingCourseRecord.getLineNumber(),
-                        courseRecord.hashCode(),
+                        dedupeKey,
                         courseRecord.getPen(),
                         courseRecord.getLocalId(),
                         courseRecord.getCourseCode(),
@@ -183,6 +185,61 @@ public class GradCourseFileService implements GradFileBatchProcessor {
         }
         batchFile.setCourseData(filterOutDupeWithdrawals(batchFile.getCourseData()));
         batchFile.setCourseData(scrubInterimLetterGrades(batchFile.getCourseData()));
+    }
+
+    private CourseDedupeKey createCourseDedupeKey(GradStudentCourseDetails courseRecord) {
+        return new CourseDedupeKey(
+                defaultString(courseRecord.getTransactionCode()),
+                defaultString(courseRecord.getVendorID()),
+                defaultString(courseRecord.getVerificationFlag()),
+                defaultString(courseRecord.getFiller1()),
+                defaultString(courseRecord.getMincode()),
+                defaultString(courseRecord.getLocalId()),
+                defaultString(courseRecord.getPen()),
+                defaultString(courseRecord.getCourseCode()),
+                defaultString(courseRecord.getCourseLevel()),
+                defaultString(courseRecord.getCourseYear()),
+                defaultString(courseRecord.getCourseMonth()),
+                defaultString(courseRecord.getInterimPercentage()),
+                defaultString(courseRecord.getInterimLetterGrade()),
+                defaultString(courseRecord.getFinalPercentage()),
+                defaultString(courseRecord.getFinalLetterGrade()),
+                defaultString(courseRecord.getCourseStatus()),
+                defaultString(courseRecord.getLegalSurname()),
+                defaultString(courseRecord.getNumCredits()),
+                defaultString(courseRecord.getRelatedCourse()),
+                defaultString(courseRecord.getRelatedCourseLevel()),
+                defaultString(courseRecord.getCourseType()),
+                defaultString(courseRecord.getCourseGradReqt()));
+    }
+
+    private String defaultString(String value) {
+        return value == null ? "" : value;
+    }
+
+    private record CourseDedupeKey(
+            String transactionCode,
+            String vendorID,
+            String verificationFlag,
+            String filler1,
+            String mincode,
+            String localId,
+            String pen,
+            String courseCode,
+            String courseLevel,
+            String courseYear,
+            String courseMonth,
+            String interimPercentage,
+            String interimLetterGrade,
+            String finalPercentage,
+            String finalLetterGrade,
+            String courseStatus,
+            String legalSurname,
+            String numCredits,
+            String relatedCourse,
+            String relatedCourseLevel,
+            String courseType,
+            String courseGradReqt) {
     }
     
     private List<GradStudentCourseDetails> scrubInterimLetterGrades(List<GradStudentCourseDetails> courses){
