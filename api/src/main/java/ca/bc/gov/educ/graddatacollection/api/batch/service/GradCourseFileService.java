@@ -90,17 +90,19 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     public void populateSchoolBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String schoolID) throws FileUnProcessableException {
         long index = 0;
         gradFileValidator.validateSchoolIsTranscriptEligibleAndOpen(guid, schoolTombstone, schoolID);
-        var studentSet = new HashSet<>();
+        var studentHashMap = new HashMap<Integer, GradStudentCourseDetails>();
         while (ds.next()) {
             final var mincode = ds.getString(DEMBatchFile.MINCODE.getName());
             gradFileValidator.validateMincode(guid, schoolID, mincode);
             var courseRecord = this.getStudentCourseDetailRecordFromFile(ds, guid, index);
-            if(!studentSet.contains(courseRecord.hashCode())) {
+            var existingCourseRecord = studentHashMap.get(courseRecord.hashCode());
+            if(existingCourseRecord == null) {
                 batchFile.getCourseData().add(this.getStudentCourseDetailRecordFromFile(ds, guid, index));
-                studentSet.add(courseRecord.hashCode());
+                studentHashMap.put(courseRecord.hashCode(), courseRecord);
             } else {
-                log.warn("CRS line {} dropped during hash-based dedupe. hash={}, pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}",
+                log.warn("populateSchoolBatchFile: CRS line {} dropped during hash-based dedupe against line {}. hash={}, dropped=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}], existing=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}]",
                         courseRecord.getLineNumber(),
+                        existingCourseRecord.getLineNumber(),
                         courseRecord.hashCode(),
                         courseRecord.getPen(),
                         courseRecord.getLocalId(),
@@ -114,7 +116,20 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                         courseRecord.getInterimLetterGrade(),
                         courseRecord.getFinalPercentage(),
                         courseRecord.getFinalLetterGrade(),
-                        courseRecord.getCourseDesc());
+                        courseRecord.getCourseDesc(),
+                        existingCourseRecord.getPen(),
+                        existingCourseRecord.getLocalId(),
+                        existingCourseRecord.getCourseCode(),
+                        existingCourseRecord.getCourseLevel(),
+                        existingCourseRecord.getCourseYear(),
+                        StringUtils.isNotBlank(existingCourseRecord.getCourseMonth()) ? "-" : "",
+                        existingCourseRecord.getCourseMonth(),
+                        existingCourseRecord.getCourseStatus(),
+                        existingCourseRecord.getInterimPercentage(),
+                        existingCourseRecord.getInterimLetterGrade(),
+                        existingCourseRecord.getFinalPercentage(),
+                        existingCourseRecord.getFinalLetterGrade(),
+                        existingCourseRecord.getCourseDesc());
             }
             index++;
         }
@@ -125,15 +140,17 @@ public class GradCourseFileService implements GradFileBatchProcessor {
     public void populateDistrictBatchFile(final String guid, final DataSet ds, final GradStudentCourseFile batchFile, SchoolTombstone schoolTombstone, final String districtID) throws FileUnProcessableException {
         long index = 0;
         gradFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolTombstone, districtID);
-        var studentSet = new HashSet<>();
+        var studentHashMap = new HashMap<Integer, GradStudentCourseDetails>();
         while (ds.next()) {
             var courseRecord = this.getStudentCourseDetailRecordFromFile(ds, guid, index);
-            if(!studentSet.contains(courseRecord.hashCode())) {
+            var existingCourseRecord = studentHashMap.get(courseRecord.hashCode());
+            if(existingCourseRecord == null) {
                 batchFile.getCourseData().add(courseRecord);
-                studentSet.add(courseRecord.hashCode());
+                studentHashMap.put(courseRecord.hashCode(), courseRecord);
             } else {
-                log.warn("CRS line {} dropped during hash-based dedupe. hash={}, pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}",
+                log.warn("populateDistrictBatchFile: CRS line {} dropped during hash-based dedupe against line {}. hash={}, dropped=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}], existing=[pen={}, localID={}, course={} {}, session={}{}{}, status={}, interim={} {}, final={} {}, desc={}]",
                         courseRecord.getLineNumber(),
+                        existingCourseRecord.getLineNumber(),
                         courseRecord.hashCode(),
                         courseRecord.getPen(),
                         courseRecord.getLocalId(),
@@ -147,7 +164,20 @@ public class GradCourseFileService implements GradFileBatchProcessor {
                         courseRecord.getInterimLetterGrade(),
                         courseRecord.getFinalPercentage(),
                         courseRecord.getFinalLetterGrade(),
-                        courseRecord.getCourseDesc());
+                        courseRecord.getCourseDesc(),
+                        existingCourseRecord.getPen(),
+                        existingCourseRecord.getLocalId(),
+                        existingCourseRecord.getCourseCode(),
+                        existingCourseRecord.getCourseLevel(),
+                        existingCourseRecord.getCourseYear(),
+                        StringUtils.isNotBlank(existingCourseRecord.getCourseMonth()) ? "-" : "",
+                        existingCourseRecord.getCourseMonth(),
+                        existingCourseRecord.getCourseStatus(),
+                        existingCourseRecord.getInterimPercentage(),
+                        existingCourseRecord.getInterimLetterGrade(),
+                        existingCourseRecord.getFinalPercentage(),
+                        existingCourseRecord.getFinalLetterGrade(),
+                        existingCourseRecord.getCourseDesc());
             }
             index++;
         }
