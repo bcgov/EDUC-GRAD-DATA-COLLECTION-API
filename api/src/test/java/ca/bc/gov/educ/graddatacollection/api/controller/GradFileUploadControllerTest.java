@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -354,6 +355,46 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
 
         final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
         assertThat(uploadedCRSStudents).hasSize(93);
+    }
+
+    @Test
+    void testProcessGradFile_givenFiletypeCRS_StringHashCollisionRows_ShouldPersistBothRows() throws Exception {
+        reportingPeriodRepository.save(createMockReportingPeriodEntity());
+        SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
+        schoolTombstone.setMincode("07965039");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+
+        final String payload =
+                createCrsLine("E08", "M", "", "", "07965039", "AO", "123456782", "YED", "10A", "2024", "06", "90", "", "90", "A", "A", "SyntheticStudent", "4", "", "", "TEACHING ASSISTANT 10", "", "")
+                        + System.lineSeparator()
+                        + createCrsLine("E08", "M", "", "", "07965039", "B0", "123456782", "YED", "10A", "2024", "06", "90", "", "90", "A", "A", "SyntheticStudent", "4", "", "", "TEACHING ASSISTANT 10", "", "");
+        final String fileContents = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
+
+        GradFileUpload verFile = GradFileUpload.builder()
+                .fileContents(fileContents)
+                .courseSessionOverride(true)
+                .createUser("ABC")
+                .fileName("student-crs-file-hash-collision.crs")
+                .fileType("crs")
+                .build();
+
+        this.mockMvc.perform(post( BASE_URL + "/" + schoolTombstone.getSchoolId() + "/file")
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_GRAD_COLLECTION")))
+                .header("correlationID", UUID.randomUUID().toString())
+                .content(JsonUtil.getJsonStringFromObject(verFile))
+                .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+        final var result = incomingFilesetRepository.findAll();
+        assertThat(result).hasSize(1);
+        final var entity = result.getFirst();
+
+        final var uploadedCRSStudents = courseStudentRepository.findAllByIncomingFileset_IncomingFilesetID(entity.getIncomingFilesetID());
+        assertThat(uploadedCRSStudents).hasSize(2);
+        assertThat(uploadedCRSStudents)
+                .extracting(courseStudent -> courseStudent.getPen() + "|" + courseStudent.getLocalID() + "|" + courseStudent.getCourseCode() + "|" + courseStudent.getCourseLevel())
+                .containsExactlyInAnyOrder(
+                        "123456782|AO|YED|10A",
+                        "123456782|B0|YED|10A");
     }
 
     @Test
@@ -1694,6 +1735,40 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
                 .content(JsonUtil.getJsonStringFromObject(body))
                 .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.subErrors[0].message").value("Birthdate must be in the format YYYYMMDD. Review the data on line 1."));
+    }
+
+    private String createCrsLine(String transactionCode, String vendorID, String verificationFlag, String filler1, String mincode, String localId, String pen,
+                                 String courseCode, String courseLevel, String courseYear, String courseMonth, String interimPercentage,
+                                 String interimLetterGrade, String finalPercentage, String finalLetterGrade, String courseStatus,
+                                 String legalSurname, String numCredits, String relatedCourse, String relatedCourseLevel,
+                                 String courseDesc, String courseType, String courseGradReqt) {
+        return pad(transactionCode, 3)
+                + pad(vendorID, 1)
+                + pad(verificationFlag, 1)
+                + pad(filler1, 5)
+                + pad(mincode, 8)
+                + pad(localId, 12)
+                + pad(pen, 10)
+                + pad(courseCode, 5)
+                + pad(courseLevel, 3)
+                + pad(courseYear, 4)
+                + pad(courseMonth, 2)
+                + pad(interimPercentage, 3)
+                + pad(interimLetterGrade, 2)
+                + pad(finalPercentage, 3)
+                + pad(finalLetterGrade, 2)
+                + pad(courseStatus, 1)
+                + pad(legalSurname, 25)
+                + pad(numCredits, 2)
+                + pad(relatedCourse, 5)
+                + pad(relatedCourseLevel, 3)
+                + pad(courseDesc, 40)
+                + pad(courseType, 1)
+                + pad(courseGradReqt, 1);
+    }
+
+    private String pad(String value, int width) {
+        return String.format("%-" + width + "s", value == null ? "" : value);
     }
 
 }
