@@ -21,6 +21,7 @@ class ReportingPeriodRetentionTest {
             "2027-01-01, 2022-10-01T00:00:00"
     })
     void retainsFiveReportingYearsAcrossRollover(String date, String expectedCutoff) {
+        // get the date
         LocalDate today = LocalDate.parse(date);
         LocalDateTime cutoff = LocalDateTime.parse(expectedCutoff);
         var repository = mock(FinalIncomingFilesetPurgeRepository.class);
