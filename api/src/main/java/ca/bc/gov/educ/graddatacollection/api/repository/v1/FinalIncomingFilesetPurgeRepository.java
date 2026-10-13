@@ -16,7 +16,7 @@ public interface FinalIncomingFilesetPurgeRepository extends JpaRepository<Final
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM FinalIncomingFilesetPurgeEntity WHERE createDate <= :deleteDate")
-    void deleteWithCreateDateBefore(LocalDateTime deleteDate);
+    @Query("DELETE FROM FinalIncomingFilesetPurgeEntity WHERE reportingPeriod.periodStart < :oldestRetainedPeriodStart")
+    void deleteWithReportingPeriodStartBefore(LocalDateTime oldestRetainedPeriodStart);
 }
 
