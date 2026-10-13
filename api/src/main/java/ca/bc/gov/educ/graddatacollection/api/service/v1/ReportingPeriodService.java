@@ -79,10 +79,13 @@ public class ReportingPeriodService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void purgeReportingPeriodFor2YearsAgo(){
-        int octoberMonth = Month.OCTOBER.getValue();
-        LocalDateTime october1stTwoYearsAgo = LocalDateTime.now().withDayOfMonth(1).withMonth(octoberMonth).minusYears(2);
-        finalIncomingFilesetPurgeRepository.deleteWithCreateDateBefore(october1stTwoYearsAgo);
+    public void purgeExpiredFinalFilesets(){
+        LocalDate today = LocalDate.now();
+        int currentReportingYear = today.getMonthValue() >= Month.OCTOBER.getValue()
+                ? today.getYear() : today.getYear() - 1;
+        // Retain the current reporting year and four previous reporting years.
+        LocalDateTime oldestRetainedPeriodStart = LocalDate.of(currentReportingYear - 4, Month.OCTOBER, 1).atStartOfDay();
+        finalIncomingFilesetPurgeRepository.deleteWithReportingPeriodStartBefore(oldestRetainedPeriodStart);
     }
 
     private LocalDateTime getSchoolYearStart(int startYear) {

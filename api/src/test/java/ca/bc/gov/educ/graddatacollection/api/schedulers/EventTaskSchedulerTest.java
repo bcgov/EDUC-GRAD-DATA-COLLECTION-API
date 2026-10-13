@@ -179,7 +179,7 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
         LocalDate periodEndDate = LocalDate.of(currentYear + 1, Month.SEPTEMBER, 30);
         LocalDateTime periodEnd = periodEndDate.atTime(23, 59, 59, 0);
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge2YearOldFilesets();
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurgeExpiredFilesets();
 
         List<ReportingPeriodEntity> reportingPeriods = reportingPeriodRepository.findAll();
         assertThat(reportingPeriods)
@@ -195,24 +195,39 @@ class EventTaskSchedulerTest extends BaseGradDataCollectionAPITest {
     }
 
     @Test
-    void testSetupReportingPeriodForUpcomingYearAndOldFilesets() {
-        var pe = reportingPeriodRepository.save(createMockReportingPeriodEntity());
+    void testPurgeUsesReportingPeriodAndPreservesOldestRetainedBoundary() {
+        LocalDate today = LocalDate.now();
+        int reportingYear = today.getMonthValue() >= 10 ? today.getYear() : today.getYear() - 1;
+        LocalDateTime cutoff = LocalDate.of(reportingYear - 4, 10, 1).atStartOfDay();
 
-        var fileset = FinalIncomingFilesetPurgeEntity.builder()
-                .demFileName("Test.dem")
-                .xamFileName("Test.xam")
-                .crsFileName("Test.crs")
-                .filesetStatusCode("LOADED")
-                .reportingPeriod(pe)
-                .createDate(LocalDateTime.now().minusYears(6))
-                .updateDate(LocalDateTime.now())
-                .build();
-        finalIncomingFilesetPurgeRepository.save(fileset);
+        var expiredPeriod = createMockReportingPeriodEntity();
+        expiredPeriod.setPeriodStart(cutoff.minusSeconds(1));
+        expiredPeriod = reportingPeriodRepository.save(expiredPeriod);
+        var retainedPeriod = createMockReportingPeriodEntity();
+        retainedPeriod.setPeriodStart(cutoff);
+        retainedPeriod = reportingPeriodRepository.save(retainedPeriod);
 
-        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurge2YearOldFilesets();
+        // A recent upload for an expired period is still expired.
+        var expired = finalIncomingFilesetPurgeRepository.save(FinalIncomingFilesetPurgeEntity.builder()
+                .schoolID(UUID.randomUUID())
+                .filesetStatusCode("COMPLETED")
+                .reportingPeriod(expiredPeriod)
+                .createUser("TEST").updateUser("TEST")
+                .createDate(LocalDateTime.now()).updateDate(LocalDateTime.now())
+                .build());
+        // An old creation timestamp must not delete a retained reporting period.
+        var retained = finalIncomingFilesetPurgeRepository.save(FinalIncomingFilesetPurgeEntity.builder()
+                .schoolID(UUID.randomUUID())
+                .filesetStatusCode("COMPLETED")
+                .reportingPeriod(retainedPeriod)
+                .createUser("TEST").updateUser("TEST")
+                .createDate(LocalDateTime.now().minusYears(6)).updateDate(LocalDateTime.now())
+                .build());
 
-        var incomingSets = finalIncomingFilesetPurgeRepository.findAll();
-        assertThat(incomingSets).hasSize(0);
+        eventTaskSchedulerAsyncService.createReportingPeriodForYearAndPurgeExpiredFilesets();
+
+        assertThat(finalIncomingFilesetPurgeRepository.findById(expired.getIncomingFilesetID())).isEmpty();
+        assertThat(finalIncomingFilesetPurgeRepository.findById(retained.getIncomingFilesetID())).isPresent();
+        assertThat(reportingPeriodRepository.findById(expiredPeriod.getReportingPeriodID())).isPresent();
     }
 }
-
