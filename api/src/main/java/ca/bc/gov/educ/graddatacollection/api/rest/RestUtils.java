@@ -98,7 +98,8 @@ public class RestUtils {
   private final ReadWriteLock coreg38Lock = new ReentrantReadWriteLock();
   private final ReadWriteLock coreg39Lock = new ReentrantReadWriteLock();
   private final ReadWriteLock examinableCourseLock = new ReentrantReadWriteLock();
-  private final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+  private volatile Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+  private volatile boolean assessmentSessionMapLoaded = false;
   @Getter
   private final ApplicationProperties props;
 
@@ -1032,12 +1033,13 @@ public class RestUtils {
     val writeLock = this.assessmentSessionLock.writeLock();
     try {
       writeLock.lock();
-      this.sessionMap.clear();
-      List<Session> sessions = this.getAssessmentSessions();
-
-      for (val session : sessions) {
-        this.sessionMap.put(session.getSessionID(), session);
+      // Swap in a fully built map so readers never see an empty cache, and a failed fetch keeps the loaded sessions.
+      Map<String, Session> refreshedSessionMap = new ConcurrentHashMap<>();
+      for (val session : this.getAssessmentSessions()) {
+        refreshedSessionMap.put(session.getSessionID(), session);
       }
+      this.sessionMap = refreshedSessionMap;
+      this.assessmentSessionMapLoaded = true;
     } catch (Exception ex) {
       log.error("Unable to load map cache for Assessment session map {}", ex);
       throw new GradDataCollectionAPIRuntimeException("Unable to load map cache for Assessment session map: " + ex.getMessage());
@@ -1050,6 +1052,22 @@ public class RestUtils {
   public Optional<Session> getAssessmentSessionByCourseMonthAndYear(String courseMonth, String courseYear) {
     return sessionMap.values().stream().
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
+  }
+
+  public void loadAssessmentSessionMapIfNeverLoaded() {
+    if (this.assessmentSessionMapLoaded) {
+      return;
+    }
+    val writeLock = this.assessmentSessionLock.writeLock();
+    try {
+      writeLock.lock();
+      // Background initialization may have loaded the map while this thread waited for the lock.
+      if (!this.assessmentSessionMapLoaded) {
+        populateAssessmentSessionMap();
+      }
+    } finally {
+      writeLock.unlock();
+    }
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
