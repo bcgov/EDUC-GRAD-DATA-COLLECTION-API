@@ -361,6 +361,17 @@ class DemographicRulesProcessorTest extends BaseGradDataCollectionAPITest {
         var errorCode = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getCode()));
         assertThat(issueCode).isTrue();
         assertThat(errorCode).isTrue();
+
+        GradStudentRecord existingGradStudentRecord = new GradStudentRecord();
+        existingGradStudentRecord.setSchoolOfRecordId("03636018");
+        existingGradStudentRecord.setStudentStatusCode("CUR");
+        existingGradStudentRecord.setProgram("2023-EN");
+        existingGradStudentRecord.setGraduated("false");
+        when(restUtils.getGradStudentRecordByStudentID(any(), any())).thenReturn(existingGradStudentRecord);
+
+        val validationErrorExistingGradStudent = rulesProcessor.processRules(createMockStudentRuleData(demographicStudent, createMockCourseStudent(savedFileSet), createMockAssessmentStudent(), createMockSchoolTombstone()));
+        var errorCodeExistingGradStudent = validationErrorExistingGradStudent.stream().anyMatch(val -> val.getValidationIssueCode().equals(DemographicStudentValidationIssueTypeCode.STUDENT_BIRTHDATE_ADULT.getCode()));
+        assertThat(errorCodeExistingGradStudent).isTrue();
     }
 
     @Test
