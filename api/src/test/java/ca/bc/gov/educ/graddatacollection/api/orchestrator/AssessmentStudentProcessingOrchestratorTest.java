@@ -142,6 +142,24 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         assertThat(this.assessmentStudentRepository.findById(loadedSaga.assessmentStudentID())).isPresent();
     }
 
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenRecordAlreadyDroppedAndReplayedOnPodWithStaleOpenCache_completesSagaWithoutWritingToAssessmentApi() {
+        when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.of(createMockSession()));
+        val loadedSaga = createLoadedAssessmentStudentSaga();
+        this.assessmentStudentRepository.deleteById(loadedSaga.assessmentStudentID());
+
+        this.assessmentStudentProcessingOrchestrator.handleEvent(loadedSaga.initiatedEvent());
+
+        final var ignoredEvent = getLastEventSentToSagaTopic();
+        assertThat(ignoredEvent.getEventOutcome()).isEqualTo(EventOutcome.ASSESSMENT_STUDENT_IGNORED_FOR_CLOSED_SESSION);
+
+        this.assessmentStudentProcessingOrchestrator.handleEvent(ignoredEvent);
+
+        assertThat(this.sagaRepository.findById(loadedSaga.saga().getSagaId()).orElseThrow().getStatus()).isEqualTo(COMPLETED.toString());
+        verify(this.restUtils, never()).writeAssessmentStudentDetailInAssessmentService(any(), any(), any(), any());
+    }
+
     private record LoadedAssessmentStudentSaga(GradSagaEntity saga, Event initiatedEvent, UUID assessmentStudentID) {}
 
     @SneakyThrows

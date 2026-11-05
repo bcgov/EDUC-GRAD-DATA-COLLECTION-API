@@ -67,9 +67,12 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_ASSESSMENT_STUDENT);
 
     // The session closed after this XAM file was loaded (e.g. an approval sign-off), so drop the record as the load filter would have.
-    if (assessmentRulesService.isSessionConfirmedClosed(student.getCourseYear(), student.getCourseMonth())) {
-      log.info("Dropping assessment student {} because session {}{} is no longer open", student.getAssessmentStudentID(), student.getCourseYear(), student.getCourseMonth());
-      assessmentStudentService.deleteAssessmentStudent(UUID.fromString(student.getAssessmentStudentID()));
+    // A replay can find the record already dropped by an earlier attempt, whatever this pod's session cache now says.
+    var assessmentStudentID = UUID.fromString(student.getAssessmentStudentID());
+    var recordAlreadyDropped = !assessmentStudentService.assessmentStudentExists(assessmentStudentID);
+    if (recordAlreadyDropped || assessmentRulesService.isSessionConfirmedClosed(student.getCourseYear(), student.getCourseMonth())) {
+      log.info("Dropping assessment student {} because session {}{} is no longer open (already dropped: {})", assessmentStudentID, student.getCourseYear(), student.getCourseMonth(), recordAlreadyDropped);
+      assessmentStudentService.deleteAssessmentStudent(assessmentStudentID);
       val ignoredEvent = eventBuilder.eventOutcome(ASSESSMENT_STUDENT_IGNORED_FOR_CLOSED_SESSION).build();
       this.postMessageToTopic(this.getTopicToSubscribe(), ignoredEvent);
       return;
