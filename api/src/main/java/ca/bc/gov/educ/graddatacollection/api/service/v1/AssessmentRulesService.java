@@ -94,6 +94,18 @@ public class AssessmentRulesService extends BaseRulesService {
         return session.isPresent() && session.get().getCompletionDate() == null;
     }
 
+    /**
+     * True when a well-formed session date is not open in a session cache that has finished loading.
+     * A pod still loading its cache after start would see every session as closed, so the cache is loaded first.
+     */
+    public boolean isSessionConfirmedClosed(String year, String month) {
+        if (!sessionYearIsValid(year) || !sessionMonthIsValid(month) || sessionIsValidAndOpen(year, month)) {
+            return false;
+        }
+        restUtils.loadAssessmentSessionMapIfNeverLoaded();
+        return !sessionIsValidAndOpen(year, month);
+    }
+
     public boolean sessionIsValidForReportingPeriod(String year, String month, ReportingPeriodEntity reportingPeriod) {
         if(StringUtils.isEmpty(year) || StringUtils.isEmpty(month)){
             return false;

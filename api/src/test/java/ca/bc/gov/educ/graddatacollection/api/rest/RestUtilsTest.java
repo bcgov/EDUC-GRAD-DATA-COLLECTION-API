@@ -873,4 +873,39 @@ class RestUtilsTest {
         Optional<GradCourseCode> result = restUtils.getCoreg39CourseByID("anyID");
         assertFalse(result.isPresent());
     }
+
+    @Test
+    void testPopulateAssessmentSessionMap_WhenRefreshFails_ShouldKeepPreviouslyLoadedSessions() {
+        Message openSessionsMessage = mockOpenAssessmentSessionsMessage("""
+            [{"sessionID": "%s", "courseYear": "2026", "courseMonth": "01"}]""".formatted(UUID.randomUUID()));
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(openSessionsMessage))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        restUtils.populateAssessmentSessionMap();
+        assertThrows(GradDataCollectionAPIRuntimeException.class, () -> restUtils.populateAssessmentSessionMap());
+        Thread.interrupted(); // the failed NATS call interrupts the calling thread
+
+        assertTrue(restUtils.getAssessmentSessionByCourseMonthAndYear("01", "2026").isPresent());
+    }
+
+    @Test
+    void testLoadAssessmentSessionMapIfNeverLoaded_ShouldLoadOnceThenTrustLoadedCache() {
+        Message openSessionsMessage = mockOpenAssessmentSessionsMessage("""
+            [{"sessionID": "%s", "courseYear": "2026", "courseMonth": "01"}]""".formatted(UUID.randomUUID()));
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(openSessionsMessage));
+
+        restUtils.loadAssessmentSessionMapIfNeverLoaded();
+        restUtils.loadAssessmentSessionMapIfNeverLoaded();
+
+        verify(messagePublisher, times(1)).requestMessage(anyString(), any(byte[].class));
+        assertTrue(restUtils.getAssessmentSessionByCourseMonthAndYear("01", "2026").isPresent());
+    }
+
+    private Message mockOpenAssessmentSessionsMessage(String openSessionsJson) {
+        Message openSessionsMessage = mock(Message.class);
+        when(openSessionsMessage.getData()).thenReturn(openSessionsJson.getBytes(StandardCharsets.UTF_8));
+        return openSessionsMessage;
+    }
 }
