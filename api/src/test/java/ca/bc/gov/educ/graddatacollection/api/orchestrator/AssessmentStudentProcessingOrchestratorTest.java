@@ -135,8 +135,9 @@ class AssessmentStudentProcessingOrchestratorTest extends BaseGradDataCollection
         when(this.restUtils.getAssessmentSessionByCourseMonthAndYear(anyString(), anyString())).thenReturn(Optional.empty());
         doThrow(new GradDataCollectionAPIRuntimeException("NATS timeout")).when(this.restUtils).loadAssessmentSessionMapIfNeverLoaded();
         val loadedSaga = createLoadedAssessmentStudentSaga();
+        val initiatedEvent = loadedSaga.initiatedEvent();
 
-        assertThatThrownBy(() -> this.assessmentStudentProcessingOrchestrator.handleEvent(loadedSaga.initiatedEvent()))
+        assertThatThrownBy(() -> this.assessmentStudentProcessingOrchestrator.handleEvent(initiatedEvent))
                 .isInstanceOf(GradDataCollectionAPIRuntimeException.class);
         assertThat(this.assessmentStudentRepository.findById(loadedSaga.assessmentStudentID())).isPresent();
     }

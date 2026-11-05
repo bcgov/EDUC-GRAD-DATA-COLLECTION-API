@@ -47,6 +47,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -98,7 +99,7 @@ public class RestUtils {
   private final ReadWriteLock coreg38Lock = new ReentrantReadWriteLock();
   private final ReadWriteLock coreg39Lock = new ReentrantReadWriteLock();
   private final ReadWriteLock examinableCourseLock = new ReentrantReadWriteLock();
-  private volatile Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+  private final AtomicReference<Map<String, Session>> sessionMap = new AtomicReference<>(Map.of());
   private volatile boolean assessmentSessionMapLoaded = false;
   @Getter
   private final ApplicationProperties props;
@@ -1038,7 +1039,7 @@ public class RestUtils {
       for (val session : this.getAssessmentSessions()) {
         refreshedSessionMap.put(session.getSessionID(), session);
       }
-      this.sessionMap = refreshedSessionMap;
+      this.sessionMap.set(refreshedSessionMap);
       this.assessmentSessionMapLoaded = true;
     } catch (Exception ex) {
       log.error("Unable to load map cache for Assessment session map {}", ex);
@@ -1046,11 +1047,11 @@ public class RestUtils {
     } finally {
       writeLock.unlock();
     }
-    log.info("Loaded  {} Assessment session map to memory", this.sessionMap.values().size());
+    log.info("Loaded  {} Assessment session map to memory", this.sessionMap.get().values().size());
   }
 
   public Optional<Session> getAssessmentSessionByCourseMonthAndYear(String courseMonth, String courseYear) {
-    return sessionMap.values().stream().
+    return sessionMap.get().values().stream().
             filter(session -> Objects.equals(session.getCourseMonth(), courseMonth) && Objects.equals(session.getCourseYear(), courseYear)).findFirst();
   }
 
