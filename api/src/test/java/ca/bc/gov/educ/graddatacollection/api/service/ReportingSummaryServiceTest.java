@@ -246,6 +246,35 @@ class ReportingSummaryServiceTest {
     }
 
     @Test
+    void testGetReportingSummary_Summer_SchoolsWithSubmissionsCountsSchoolsNotFilesets() {
+        UUID reportingPeriodId = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .build();
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+                .thenReturn(List.of(schoolSubmissionCount("STANDARD1", "3")));
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(publicSchool("STANDARD1", "STANDARD")));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
+        ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
+
+        assertEquals("1", firstRowTitled(result, "Public").getSchoolsWithSubmissions());
+        assertEquals("1", firstRowTitled(result, "Standard").getSchoolsWithSubmissions());
+    }
+
+    @Test
     void testGetSchoolSubmissionCounts_Summer() {
         UUID reportingPeriodId = UUID.randomUUID();
         ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
