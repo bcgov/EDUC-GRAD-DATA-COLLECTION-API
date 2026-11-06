@@ -10,6 +10,7 @@ import ca.bc.gov.educ.graddatacollection.api.struct.external.gradschools.v1.Grad
 import ca.bc.gov.educ.graddatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.ReportingCycleSummary;
 import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolSubmissionCount;
+import ca.bc.gov.educ.graddatacollection.api.struct.v1.SchoolYearReportingSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -194,6 +195,86 @@ class ReportingSummaryServiceTest {
     }
 
     @Test
+    void testGetReportingSummary_SchoolsWithSubmissionsCountsSchoolsNotFilesets() {
+        UUID reportingPeriodId = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .build();
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
+
+        SchoolSubmissionCount standardSchoolWithThreeFilesets = schoolSubmissionCount("STANDARD1", "3");
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSchoolReportingPeriod(reportingPeriodId, entity.getSchYrStart(), entity.getSchYrEnd()))
+                .thenReturn(List.of(
+                        standardSchoolWithThreeFilesets,
+                        schoolSubmissionCount("STANDARD2", "2"),
+                        schoolSubmissionCount("CONT_ED1", "4"),
+                        schoolSubmissionCount("NOT_EXPECTED", "5")));
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInLast30Days(reportingPeriodId, entity.getSchYrStart()))
+                .thenReturn(List.of(standardSchoolWithThreeFilesets));
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(
+                publicSchool("STANDARD1", "STANDARD"),
+                publicSchool("STANDARD2", "STANDARD"),
+                publicSchool("STANDARD3", "STANDARD"),
+                publicSchool("CONT_ED1", "CONT_ED")));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
+        ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Other");
+
+        SchoolYearReportingSummary publicRow = firstRowTitled(result, "Public");
+        assertEquals("4", publicRow.getSchoolsExpected());
+        assertEquals("3", publicRow.getSchoolsWithSubmissions());
+        assertEquals("3", publicRow.getSchoolsWitSubmissionsInLast30DaysCount());
+
+        SchoolYearReportingSummary publicStandardRow = firstRowTitled(result, "Standard");
+        assertEquals("3", publicStandardRow.getSchoolsExpected());
+        assertEquals("2", publicStandardRow.getSchoolsWithSubmissions());
+
+        SchoolYearReportingSummary publicContinuingEdRow = firstRowTitled(result, "Continuing Ed");
+        assertEquals("1", publicContinuingEdRow.getSchoolsExpected());
+        assertEquals("1", publicContinuingEdRow.getSchoolsWithSubmissions());
+    }
+
+    @Test
+    void testGetReportingSummary_Summer_SchoolsWithSubmissionsCountsSchoolsNotFilesets() {
+        UUID reportingPeriodId = UUID.randomUUID();
+        ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
+                .reportingPeriodID(reportingPeriodId)
+                .schYrStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .schYrEnd(LocalDateTime.of(2025, 6, 30, 0, 0))
+                .summerStart(LocalDateTime.of(2025, 7, 1, 0, 0))
+                .summerEnd(LocalDateTime.of(2025, 8, 31, 0, 0))
+                .build();
+        when(reportingPeriodRepository.findById(reportingPeriodId)).thenReturn(Optional.of(entity));
+        when(finalIncomingFilesetRepository.findSchoolSubmissionsInSummerReportingPeriod(reportingPeriodId, entity.getSummerStart(), entity.getSummerEnd()))
+                .thenReturn(List.of(schoolSubmissionCount("STANDARD1", "3")));
+
+        var gradSchool = GradSchool.builder()
+                .schoolID(UUID.randomUUID().toString())
+                .canIssueTranscripts("Y")
+                .canIssueCertificates("Y")
+                .submissionModeCode("Append")
+                .build();
+        when(this.restUtils.getAllSchools()).thenReturn(List.of(publicSchool("STANDARD1", "STANDARD")));
+        when(this.restUtils.getGradSchoolBySchoolID(any())).thenReturn(Optional.of(gradSchool));
+
+        ReportingCycleSummary result = reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer");
+
+        assertEquals("1", firstRowTitled(result, "Public").getSchoolsWithSubmissions());
+        assertEquals("1", firstRowTitled(result, "Standard").getSchoolsWithSubmissions());
+    }
+
+    @Test
     void testGetSchoolSubmissionCounts_Summer() {
         UUID reportingPeriodId = UUID.randomUUID();
         ReportingPeriodEntity entity = ReportingPeriodEntity.builder()
@@ -301,6 +382,25 @@ class ReportingSummaryServiceTest {
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> reportingSummaryService.getReportingSummary(reportingPeriodId, "Summer"));
         assertNotNull(exception.getMessage());
+    }
+
+    private SchoolTombstone publicSchool(String schoolId, String facilityTypeCode) {
+        return SchoolTombstone.builder().schoolId(schoolId).schoolCategoryCode("PUBLIC").facilityTypeCode(facilityTypeCode).openedDate("1964-09-01T00:00:00").build();
+    }
+
+    private SchoolSubmissionCount schoolSubmissionCount(String schoolID, String submissionCount) {
+        return new SchoolSubmissionCount() {
+            @Override
+            public String getSchoolID() { return schoolID; }
+            @Override
+            public String getSubmissionCount() { return submissionCount; }
+            @Override
+            public LocalDateTime getLastSubmissionDate() { return null; }
+        };
+    }
+
+    private SchoolYearReportingSummary firstRowTitled(ReportingCycleSummary summary, String categoryOrFacilityType) {
+        return summary.getRows().stream().filter(row -> row.getCategoryOrFacilityType().equals(categoryOrFacilityType)).findFirst().orElseThrow();
     }
 }
 
