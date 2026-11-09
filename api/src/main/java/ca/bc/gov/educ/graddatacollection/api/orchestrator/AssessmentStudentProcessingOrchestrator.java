@@ -51,6 +51,8 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
             .step(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_NO_ERROR, PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, this::writeAssessmentStudentRecordInAssessmentService)
             .end(VALIDATE_ASSESSMENT_STUDENT, VALIDATE_ASSESSMENT_STUDENT_SUCCESS_WITH_ERROR, this::completeWithError)
             .or()
+            .end(VALIDATE_ASSESSMENT_STUDENT, ASSESSMENT_STUDENT_IGNORED_FOR_CLOSED_SESSION, this::completeIgnoredForClosedSession)
+            .or()
             .end(PROCESS_ASSESSMENT_STUDENT_IN_ASSESSMENT_SERVICE, ASSESSMENT_STUDENT_REGISTRATION_PROCESSED);
   }
 
@@ -63,6 +65,19 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_ASSESSMENT_STUDENT);
+
+    // The session closed after this XAM file was loaded (e.g. an approval sign-off), so drop the record as the load filter would have.
+    // A replay can find the record already dropped by an earlier attempt, whatever this pod's session cache now says.
+    var assessmentStudentID = UUID.fromString(student.getAssessmentStudentID());
+    var recordAlreadyDropped = !assessmentStudentService.assessmentStudentExists(assessmentStudentID);
+    if (recordAlreadyDropped || assessmentRulesService.isSessionConfirmedClosed(student.getCourseYear(), student.getCourseMonth())) {
+      log.info("Dropping assessment student {} because session {}{} is no longer open (already dropped: {})", assessmentStudentID, student.getCourseYear(), student.getCourseMonth(), recordAlreadyDropped);
+      assessmentStudentService.deleteAssessmentStudent(assessmentStudentID);
+      val ignoredEvent = eventBuilder.eventOutcome(ASSESSMENT_STUDENT_IGNORED_FOR_CLOSED_SESSION).build();
+      this.postMessageToTopic(this.getTopicToSubscribe(), ignoredEvent);
+      return;
+    }
+
     var demStudent = assessmentRulesService.getDemographicDataForStudent(UUID.fromString(student.getIncomingFilesetID()),student.getPen(), student.getLastName(), student.getLocalID());
     
     var validationErrors = assessmentStudentService.validateStudent(UUID.fromString(assessmentStudentSagaData.getAssessmentStudent().getAssessmentStudentID()), assessmentStudentSagaData.getSchool());
@@ -108,6 +123,10 @@ public class AssessmentStudentProcessingOrchestrator extends BaseOrchestrator<As
 
   private void completeWithError(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
     //Do nothing here - we already flagged an error
+  }
+
+  private void completeIgnoredForClosedSession(final Event event, final GradSagaEntity saga, final AssessmentStudentSagaData assessmentStudentSagaData) {
+    //Do nothing here - the record was already dropped
   }
 
 }

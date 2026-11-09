@@ -75,6 +75,15 @@ public class AssessmentStudentService {
         }
     }
 
+    public boolean assessmentStudentExists(final UUID assessmentStudentID) {
+        return this.assessmentStudentRepository.existsById(assessmentStudentID);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteAssessmentStudent(final UUID assessmentStudentID) {
+        this.assessmentStudentRepository.deleteById(assessmentStudentID);
+    }
+
     public void saveAssessmentStudent(AssessmentStudentEntity studentEntity) {
         studentEntity.setUpdateDate(LocalDateTime.now());
         this.assessmentStudentRepository.save(studentEntity);
