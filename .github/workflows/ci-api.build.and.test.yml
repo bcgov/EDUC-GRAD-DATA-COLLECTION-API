@@ -19,6 +19,9 @@ on:
       - 'api/**'
       - 'Dockerfile'
       - '.github/workflows/*'
+permissions:
+  contents: read
+
 jobs:
   quality_profile:
 
@@ -26,6 +29,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      pull-requests: read
 
     defaults:
       run:

@@ -23,8 +23,13 @@ on:
         description: 'Version Number'
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   openshift-ci-cd:
+    permissions:
+      contents: write
     name: Tag Image
     runs-on: ubuntu-22.04
     environment: dev

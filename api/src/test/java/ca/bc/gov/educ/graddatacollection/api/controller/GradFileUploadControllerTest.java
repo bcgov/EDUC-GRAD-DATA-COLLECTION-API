@@ -175,7 +175,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessGradFile_givenFiletypeXAM_ShouldReturnOk() throws Exception {
         var reporting = createMockReportingPeriodEntity();
-        reporting.setPeriodStart(LocalDateTime.now().minusYears(5));
+        // Include the November 2021 fixture record while excluding January 2021 records.
+        reporting.setPeriodStart(LocalDateTime.of(2021, 2, 1, 0, 0));
         reporting.setPeriodEnd(LocalDateTime.now().plusYears(5));
         reportingPeriodRepository.save(reporting);
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
@@ -597,7 +598,8 @@ class GradFileUploadControllerTest extends BaseGradDataCollectionAPITest {
     @Test
     void testProcessGradFile_forDistrict_givenFiletypeXAM_ShouldReturnOk() throws Exception {
         var reporting = createMockReportingPeriodEntity();
-        reporting.setPeriodStart(LocalDateTime.now().minusYears(5));
+        // Include the November 2021 fixture record while excluding January 2021 records.
+        reporting.setPeriodStart(LocalDateTime.of(2021, 2, 1, 0, 0));
         reporting.setPeriodEnd(LocalDateTime.now().plusYears(5));
         reportingPeriodRepository.save(reporting);
         SchoolTombstone schoolTombstone = this.createMockSchoolTombstone();
